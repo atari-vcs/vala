@@ -1,0 +1,15 @@
+# Preserve ABI stability after fixing bootstrap build
+# This must be dropped with 0.43.x
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -78,9 +78,6 @@
+ 		[enable_boostrap=yes], [enable_boostrap=yes], [enable_boostrap=no])])
+ 
+ VALAFLAGS="$VALAFLAGS --disable-version-header"
+-if test x$enable_boostrap = xyes; then
+-	VALAFLAGS="$VALAFLAGS --hide-internal --abi-stability"
+-fi
+ 
+ AC_SUBST(VALAFLAGS)
+ AC_SUBST(CFLAGS)

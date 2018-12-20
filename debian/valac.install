@@ -1,0 +1,13 @@
+usr/bin/vala
+usr/bin/vala-*
+usr/bin/vala-gen-introspect*
+usr/bin/valac*
+usr/bin/vapi*
+usr/share/aclocal/
+usr/share/vala/Makefile.vapigen
+usr/share/man/man1/vala-gen-introspect*
+usr/share/man/man1/valac*
+usr/share/man/man1/vapigen*
+usr/lib/*/pkgconfig/vapigen*.pc
+usr/lib/*/vala-*/gen-introspect-*
+usr/lib/*/vala-*/libvalaccodegen.so*
