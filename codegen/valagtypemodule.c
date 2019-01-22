@@ -15064,7 +15064,7 @@ vala_gtype_module_real_visit_method_call (ValaCodeVisitor* base,
 		} else {
 			_tmp79_ = "GEnumValue*";
 		}
-		_tmp81_ = vala_ctype_new (_tmp79_);
+		_tmp81_ = vala_ctype_new (_tmp79_, "NULL");
 		_tmp82_ = _tmp81_;
 		_tmp83_ = vala_ccode_base_module_get_temp_variable ((ValaCCodeBaseModule*) self, (ValaDataType*) _tmp82_, FALSE, (ValaCodeNode*) expr, FALSE);
 		_tmp84_ = _tmp83_;

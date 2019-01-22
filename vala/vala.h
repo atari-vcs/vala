@@ -1744,6 +1744,17 @@ typedef struct _ValaPointerTypeClass ValaPointerTypeClass;
 typedef struct _ValaPointerTypePrivate ValaPointerTypePrivate;
 typedef struct _ValaPostfixExpressionPrivate ValaPostfixExpressionPrivate;
 typedef struct _ValaPropertyAccessorPrivate ValaPropertyAccessorPrivate;
+
+#define VALA_TYPE_PROPERTY_PROTOTYPE (vala_property_prototype_get_type ())
+#define VALA_PROPERTY_PROTOTYPE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALA_TYPE_PROPERTY_PROTOTYPE, ValaPropertyPrototype))
+#define VALA_PROPERTY_PROTOTYPE_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALA_TYPE_PROPERTY_PROTOTYPE, ValaPropertyPrototypeClass))
+#define VALA_IS_PROPERTY_PROTOTYPE(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALA_TYPE_PROPERTY_PROTOTYPE))
+#define VALA_IS_PROPERTY_PROTOTYPE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALA_TYPE_PROPERTY_PROTOTYPE))
+#define VALA_PROPERTY_PROTOTYPE_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALA_TYPE_PROPERTY_PROTOTYPE, ValaPropertyPrototypeClass))
+
+typedef struct _ValaPropertyPrototype ValaPropertyPrototype;
+typedef struct _ValaPropertyPrototypeClass ValaPropertyPrototypeClass;
+typedef struct _ValaPropertyPrototypePrivate ValaPropertyPrototypePrivate;
 typedef struct _ValaRealLiteralPrivate ValaRealLiteralPrivate;
 typedef struct _ValaReferenceTransferExpressionPrivate ValaReferenceTransferExpressionPrivate;
 typedef struct _ValaRegexLiteralPrivate ValaRegexLiteralPrivate;
@@ -3170,6 +3181,15 @@ struct _ValaPropertyAccessor {
 
 struct _ValaPropertyAccessorClass {
 	ValaSubroutineClass parent_class;
+};
+
+struct _ValaPropertyPrototype {
+	ValaDataType parent_instance;
+	ValaPropertyPrototypePrivate * priv;
+};
+
+struct _ValaPropertyPrototypeClass {
+	ValaDataTypeClass parent_class;
 };
 
 struct _ValaRealLiteral {
@@ -5785,6 +5805,13 @@ ValaProperty* vala_property_get_base_interface_property (ValaProperty* self);
 ValaExpression* vala_property_get_initializer (ValaProperty* self);
 void vala_property_set_initializer (ValaProperty* self,
                                     ValaExpression* value);
+GType vala_property_prototype_get_type (void) G_GNUC_CONST;
+ValaPropertyPrototype* vala_property_prototype_new (ValaProperty* property_symbol);
+ValaPropertyPrototype* vala_property_prototype_construct (GType object_type,
+                                                          ValaProperty* property_symbol);
+ValaProperty* vala_property_prototype_get_property_symbol (ValaPropertyPrototype* self);
+void vala_property_prototype_set_property_symbol (ValaPropertyPrototype* self,
+                                                  ValaProperty* value);
 ValaRealLiteral* vala_real_literal_new (const gchar* r,
                                         ValaSourceReference* source);
 ValaRealLiteral* vala_real_literal_construct (GType object_type,
@@ -6511,9 +6538,9 @@ void vala_variable_set_single_assignment (ValaVariable* self,
                                           gboolean value);
 #define VALA_MAJOR_VERSION 0
 #define VALA_MINOR_VERSION 42
-#define VALA_MICRO_VERSION 4
+#define VALA_MICRO_VERSION 5
 #define VALA_API_VERSION "0.42"
-#define VALA_BUILD_VERSION "0.42.4"
+#define VALA_BUILD_VERSION "0.42.5"
 guint vala_get_major_version (void);
 guint vala_get_minor_version (void);
 guint vala_get_micro_version (void);

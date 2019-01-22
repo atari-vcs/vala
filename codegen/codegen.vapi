@@ -451,8 +451,9 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class CType : Vala.DataType {
-		public CType (string ctype_name);
+		public CType (string ctype_name, string cdefault_value);
 		public override Vala.DataType copy ();
+		public string cdefault_value { get; set; }
 		public string ctype_name { get; set; }
 	}
 	[CCode (cheader_filename = "valacodegen.h")]

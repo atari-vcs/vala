@@ -347,12 +347,10 @@ valadoc_gtkdoc_parser_is_numeric (ValadocGtkdocParser* self,
 {
 	gboolean result = FALSE;
 	GRegex* _tmp0_;
-	gboolean _tmp1_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
 	_tmp0_ = self->priv->is_numeric_regex;
-	_tmp1_ = g_regex_match (_tmp0_, str, 0, NULL);
-	result = _tmp1_;
+	result = g_regex_match (_tmp0_, str, 0, NULL);
 	return result;
 }
 

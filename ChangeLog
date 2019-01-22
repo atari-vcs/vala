@@ -1,3 +1,155 @@
+2019-01-22  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	Release 0.42.5
+
+2019-01-21  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	codegen: Add default_value for CType to initialize variables if needed
+	Fixes https://gitlab.gnome.org/GNOME/vala/issues/724
+
+	libvaladoc/girimporter: Skip "source-position" elements
+	See https://gitlab.gnome.org/GNOME/gobject-introspection/merge_requests/75
+
+	javascriptcoregtk-4.0: Fix GLib.Callback parameters which can't hold target
+
+	codegen: Don't apply address-of operator on literals when casting to array
+	Regression of 5f316333d6a803e4240b5cccc95a6abd2294137b
+
+	https://bugzilla.gnome.org/show_bug.cgi?id=777194
+
+2019-01-21  Corentin Noël  <corentin@elementary.io>
+
+	libvaladoc: Build backing Vala.SourceFile for GIRs processed by importer
+	This fixes criticals when reporting errors and warnings
+
+	Fixes https://gitlab.gnome.org/GNOME/vala/issues/738
+
+2019-01-21  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	girparser: Async methods don't allow out-parameters before in-parameters
+	In vala out-parameters are always handled in the *_finish implementation
+	and therefore are asynchronous. Report a warning for GIR sources where
+	convert them to pointer-types to create usuable signatures for bindings.
+
+	See https://gitlab.gnome.org/GNOME/vala/issues/636
+
+	clutter-1.0: Fix BindingPool.override_action()
+
+	gtk+-4.0: Update to 3.94.0+9b15c690
+
+	gdk-3.0,gtk+-3.0: Update to 3.24.3+9c8f1478
+
+	gstreamer: Update from 1.15+ git master
+
+2019-01-21  Corentin Noël  <corentin@elementary.io>
+
+	valadoc: Specify that the "--driver" option is deprecated
+	Fixes https://gitlab.gnome.org/GNOME/vala/issues/736
+
+2019-01-21  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	compiler: Report deprecated command-line option "--thread"
+
+2019-01-18  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	libsoup-2.4: Fix Message.add_*_handler() by unhiding user_data parameter
+	See https://gitlab.gnome.org/GNOME/vala/issues/731
+
+2019-01-10  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	codegen: Emit struct declaration typedef before resolving its fields
+	This a regression when compiling a circular dependency of delegates with
+	structs.
+
+	Regression of 7adb3a45bb8d663c0cfca55af26b7e6f7292b14a
+
+	See https://gitlab.gnome.org/GNOME/vala/issues/318
+
+	codegen: Use a parameter-map for creation of delegate declaration
+	This is required to take instance_pos into account and will allow the error
+	parameter to be put before the target (aka instance) in delegates.
+
+	See https://gitlab.gnome.org/GNOME/vala/issues/728
+
+	gobject-2.0: Minor syncing from GIR
+
+	gdbus: Cast instance and result of g_async_initable_new_finish() call
+	This will silence those incompatible-pointer-types warnings
+
+2019-01-10  Jiří Janoušek  <janousek.jiri@gmail.com>
+
+	sqlite3: Correct return C type of Statement.column_text & Value.to_text
+
+2019-01-10  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	gdbus: Properly set annotations field of GDBus*Info struct to NULL
+	Found by -Werror=missing-field-initializers
+
+	tests: Extend "DBus errors" tests to increase coverage
+
+2019-01-10  Alistair Thomas  <astavale@yahoo.co.uk>
+
+	docs: Add a basic CONTRIBUTING.md file that links to the relevant Wiki page
+
+2019-01-10  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	gtk+-4.0: Update to 3.94.0+4404afc9
+
+	gtk+-3.0: Update to 3.24.2+a8e07254
+
+	gstreamer: Update from 1.15+ git master
+
+	codegen: Don't check boolean values for (in)equality in GTask API
+	This resolves any value but 0 to true as it is suppose to be.
+
+	  /* invalid */
+	  if (condition == TRUE)
+	    do_foo ();
+
+	  /* valid */
+	  if (another_condition)
+	    do_bar ();
+
+	See https://gitlab.gnome.org/GNOME/glib/issues/1636
+
+	tests: Fix try_parse() tests to not compare to already free'd memory
+	Found with valgrind
+
+	codegen: Cast instance parameter for property access in object-initializer
+	This will silence those incompatible-pointer-types warnings
+
+2019-01-10  Jiří Janoušek  <janousek.jiri@gmail.com>
+
+	gio-2.0: Fix File.replace_contents_bytes_async()
+	Closes https://gitlab.gnome.org/GNOME/vala/merge_requests/37
+
+2019-01-10  Rico Tzschichholz  <ricotz@ubuntu.com>
+
+	gobject-2.0: Use correct array-length-type for returned arrays
+
+	glib-2.0: Use correct array-length-type for returned arrays
+	As usual length is returned by an implicit out-parameter where the
+	provided target variable must have a matching data type.
+
+	Discovered by -fstack-protector-all
+
+	See https://gitlab.gnome.org/GNOME/gitg/issues/171
+
+	vala: Report invalid instance member access to property
+	See https://gitlab.gnome.org/GNOME/vala/issues/605
+
+	build: Don't leak libvalaccode symbols to libvaladoc
+
+	codegen: Use temp-vars for ellipsis out-arguments to fix memory management
+	Fixes https://gitlab.gnome.org/GNOME/vala/issues/722
+
+	codegen: Use temp-var for MethodCall with out/ref arguments
+	Checking arguments of a MethodCall expression is required for varidic
+	methods where checking parameters isn't sufficient. Doing this makes
+	looking for out/ref parameters superfluous.
+
+	Fixes https://gitlab.gnome.org/GNOME/vala/issues/722
+
 2018-12-20  Rico Tzschichholz  <ricotz@ubuntu.com>
 
 	Release 0.42.4

@@ -1234,6 +1234,11 @@ libvala-0.42.so.0 libvala-0.42-0 #MINVER#
  vala_property_get_this_parameter@Base 0.32.0
  vala_property_get_type@Base 0.32.0
  vala_property_new@Base 0.32.0
+ vala_property_prototype_construct@Base 0.42.5
+ vala_property_prototype_get_property_symbol@Base 0.42.5
+ vala_property_prototype_get_type@Base 0.42.5
+ vala_property_prototype_new@Base 0.42.5
+ vala_property_prototype_set_property_symbol@Base 0.42.5
  vala_property_set_binding@Base 0.32.0
  vala_property_set_get_accessor@Base 0.32.0
  vala_property_set_initializer@Base 0.32.0

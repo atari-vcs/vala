@@ -1407,12 +1407,17 @@ ValaClass* vala_class_register_function_get_class_reference (ValaClassRegisterFu
 void vala_class_register_function_set_class_reference (ValaClassRegisterFunction* self,
                                                        ValaClass* value);
 GType vala_ctype_get_type (void) G_GNUC_CONST;
-ValaCType* vala_ctype_new (const gchar* ctype_name);
+ValaCType* vala_ctype_new (const gchar* ctype_name,
+                           const gchar* cdefault_value);
 ValaCType* vala_ctype_construct (GType object_type,
-                                 const gchar* ctype_name);
+                                 const gchar* ctype_name,
+                                 const gchar* cdefault_value);
 const gchar* vala_ctype_get_ctype_name (ValaCType* self);
 void vala_ctype_set_ctype_name (ValaCType* self,
                                 const gchar* value);
+const gchar* vala_ctype_get_cdefault_value (ValaCType* self);
+void vala_ctype_set_cdefault_value (ValaCType* self,
+                                    const gchar* value);
 GType vala_enum_register_function_get_type (void) G_GNUC_CONST;
 ValaEnumRegisterFunction* vala_enum_register_function_new (ValaEnum* en);
 ValaEnumRegisterFunction* vala_enum_register_function_construct (GType object_type,

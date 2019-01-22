@@ -263,13 +263,11 @@ vala_character_literal_set_value (ValaCharacterLiteral* self,
                                   const gchar* value)
 {
 	gchar* _tmp0_;
-	gboolean _tmp1_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = g_strdup (value);
 	_g_free0 (self->priv->_value);
 	self->priv->_value = _tmp0_;
-	_tmp1_ = g_utf8_validate (value, (gssize) -1, NULL);
-	if (!_tmp1_) {
+	if (!g_utf8_validate (value, (gssize) -1, NULL)) {
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
 	}
 }

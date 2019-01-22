@@ -373,7 +373,7 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
                                              GError** error)
 {
 	gchar** _tmp0_ = NULL;
-	gsize _tmp1_;
+	gsize _tmp1_ = 0;
 	gchar** _tmp2_;
 	gint _tmp0__length1;
 	gint __tmp0__size_;
@@ -653,7 +653,7 @@ valadoc_gir_meta_data_construct (GType object_type,
 	}
 	{
 		GKeyFile* _tmp11_;
-		gsize _tmp12_;
+		gsize _tmp12_ = 0;
 		gchar** _tmp13_;
 		_tmp11_ = key_file;
 		_tmp13_ = g_key_file_get_groups (_tmp11_, &_tmp12_);

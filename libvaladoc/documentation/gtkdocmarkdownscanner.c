@@ -3072,12 +3072,10 @@ valadoc_gtkdoc_markdown_scanner_is_mail (ValadocGtkdocMarkdownScanner* self)
 		GRegex* _tmp2_;
 		GString* _tmp3_;
 		const gchar* _tmp4_;
-		gboolean _tmp5_;
 		_tmp2_ = self->priv->regex_mail;
 		_tmp3_ = self->priv->_current_string;
 		_tmp4_ = _tmp3_->str;
-		_tmp5_ = g_regex_match (_tmp2_, _tmp4_, 0, NULL);
-		_tmp0_ = _tmp5_;
+		_tmp0_ = g_regex_match (_tmp2_, _tmp4_, 0, NULL);
 	} else {
 		_tmp0_ = FALSE;
 	}

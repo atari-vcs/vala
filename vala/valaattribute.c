@@ -329,10 +329,8 @@ static gdouble
 double_parse (const gchar* str)
 {
 	gdouble result = 0.0;
-	gdouble _tmp0_;
 	g_return_val_if_fail (str != NULL, 0.0);
-	_tmp0_ = g_ascii_strtod (str, NULL);
-	result = _tmp0_;
+	result = g_ascii_strtod (str, NULL);
 	return result;
 }
 

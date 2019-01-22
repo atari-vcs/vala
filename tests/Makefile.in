@@ -144,6 +144,7 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	methods/bug791283.vala methods/generics.vala \
 	methods/printf-invalid.test methods/printf-constructor.vala \
 	methods/printf-constructor-invalid.test \
+	methods/varargs-out.vala \
 	control-flow/assigned-local-variable.vala \
 	control-flow/break.vala control-flow/break-invalid.test \
 	control-flow/continue-invalid.test \
@@ -162,6 +163,7 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	control-flow/bug661985.vala control-flow/bug665904.vala \
 	control-flow/bug691514.vala control-flow/bug736774-1.vala \
 	control-flow/bug736774-2.vala control-flow/bug790903.test \
+	control-flow/bug790903-2.test \
 	control-semantic/argument-extra.test \
 	control-semantic/argument-incompatible-type-out.test \
 	control-semantic/argument-incompatible-type-ref.test \
@@ -202,10 +204,10 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	structs/bug690380.vala structs/bug694140.vala \
 	structs/bug749952.vala structs/bug764041.test \
 	structs/bug775761.vala structs/bug777194.vala \
-	delegates/casting.vala delegates/compatible.vala \
-	delegates/delegate_only.vala delegates/delegates.vala \
-	delegates/delegates-error.test delegates/fields.vala \
-	delegates/fields-no-target.vala \
+	structs/bug777194-2.vala delegates/casting.vala \
+	delegates/compatible.vala delegates/delegate_only.vala \
+	delegates/delegates.vala delegates/delegates-error.test \
+	delegates/fields.vala delegates/fields-no-target.vala \
 	delegates/instance-method-to-no-target.test \
 	delegates/reference_transfer.vala delegates/wrapper.vala \
 	delegates/bug519949.test delegates/bug539166.vala \
@@ -306,7 +308,8 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	dbus/rawvariants.test gir/bug651773.test gir/bug667751.test \
 	gir/bug742012.test gir/bug788775.test gir/bug792998.test \
 	gir/array-fixed-length.test gir/async-result-pos.test \
-	gir/class.test gir/delegate-alias-without-target.test \
+	gir/async-sync-out.test gir/class.test \
+	gir/delegate-alias-without-target.test \
 	gir/delegate-closure-destroy-index-conflict.test gir/enum.test \
 	gir/errordomain.test \
 	gir/parameter-nullable-out-simple-type.test \
@@ -370,7 +373,8 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	resolver/interface-prerequisite-cycle.test \
 	resolver/struct-base-cycle.test ordering/delegate-class.vala \
 	ordering/delegate-enum.vala ordering/delegate-interface.vala \
-	ordering/delegate-struct.vala semantic/array-stacked.test \
+	ordering/delegate-struct.vala ordering/struct-delegate.vala \
+	semantic/array-stacked.test \
 	semantic/array-incompatible-initializer.test \
 	semantic/array-incompatible-initializer2.test \
 	semantic/assignment-element-incompatible-ownership.test \
@@ -410,8 +414,9 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	semantic/field-interface.test \
 	semantic/field-namespace-owned.test \
 	semantic/field-non-constant.test \
-	semantic/field-owned-to-unowned.test semantic/field-void.test \
-	semantic/floating-reference.vala \
+	semantic/field-owned-to-unowned.test \
+	semantic/field-static-instance-access.test \
+	semantic/field-void.test semantic/floating-reference.vala \
 	semantic/foreach-iterator-args.test \
 	semantic/foreach-iterator-element-owned.test \
 	semantic/foreach-iterator-void.test \
@@ -431,6 +436,7 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	semantic/localvariable-owned-to-unowned.test \
 	semantic/localvariable-var-static-access-instance-field.test \
 	semantic/localvariable-var-static-access-instance-method.test \
+	semantic/localvariable-var-static-access-instance-property.test \
 	semantic/localvariable-var-without-initializer.test \
 	semantic/localvariable-void.test semantic/method-abstract.test \
 	semantic/method-abstract-body.test \
@@ -473,6 +479,7 @@ TESTS = basic-types/integers.vala basic-types/escape-chars.vala \
 	semantic/property-override.test \
 	semantic/property-override-class.test \
 	semantic/property-override-interface.test \
+	semantic/property-static-instance-access.test \
 	semantic/property-struct-abstract.test \
 	semantic/property-struct-override.test \
 	semantic/property-struct-protected.test \
@@ -1921,6 +1928,13 @@ methods/printf-constructor.vala.log: methods/printf-constructor.vala
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+methods/varargs-out.vala.log: methods/varargs-out.vala
+	@p='methods/varargs-out.vala'; \
+	b='methods/varargs-out.vala'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 control-flow/assigned-local-variable.vala.log: control-flow/assigned-local-variable.vala
 	@p='control-flow/assigned-local-variable.vala'; \
 	b='control-flow/assigned-local-variable.vala'; \
@@ -2337,6 +2351,13 @@ structs/bug775761.vala.log: structs/bug775761.vala
 structs/bug777194.vala.log: structs/bug777194.vala
 	@p='structs/bug777194.vala'; \
 	b='structs/bug777194.vala'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+structs/bug777194-2.vala.log: structs/bug777194-2.vala
+	@p='structs/bug777194-2.vala'; \
+	b='structs/bug777194-2.vala'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
@@ -3520,6 +3541,13 @@ ordering/delegate-interface.vala.log: ordering/delegate-interface.vala
 ordering/delegate-struct.vala.log: ordering/delegate-struct.vala
 	@p='ordering/delegate-struct.vala'; \
 	b='ordering/delegate-struct.vala'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+ordering/struct-delegate.vala.log: ordering/struct-delegate.vala
+	@p='ordering/struct-delegate.vala'; \
+	b='ordering/struct-delegate.vala'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
