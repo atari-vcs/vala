@@ -175,7 +175,8 @@ am__objects_2 = valaaddressofexpression.lo valaarraycopymethod.lo \
 	valaobjecttypesymbol.lo valaparameter.lo valaparser.lo \
 	valaphifunction.lo valapointerindirection.lo \
 	valapointertype.lo valapostfixexpression.lo valaprofile.lo \
-	valapropertyaccessor.lo valaproperty.lo valarealliteral.lo \
+	valapropertyaccessor.lo valaproperty.lo \
+	valapropertyprototype.lo valarealliteral.lo \
 	valareferencetransferexpression.lo valareferencetype.lo \
 	valaregexliteral.lo valareport.lo valareturnstatement.lo \
 	valascanner.lo valascope.lo valasemanticanalyzer.lo \
@@ -298,6 +299,7 @@ am__depfiles_remade = ./$(DEPDIR)/valaaddressofexpression.Plo \
 	./$(DEPDIR)/valapostfixexpression.Plo \
 	./$(DEPDIR)/valaprofile.Plo ./$(DEPDIR)/valaproperty.Plo \
 	./$(DEPDIR)/valapropertyaccessor.Plo \
+	./$(DEPDIR)/valapropertyprototype.Plo \
 	./$(DEPDIR)/valarealliteral.Plo \
 	./$(DEPDIR)/valareferencetransferexpression.Plo \
 	./$(DEPDIR)/valareferencetype.Plo \
@@ -652,6 +654,7 @@ libvala_la_VALASOURCES = \
 	valaprofile.vala \
 	valapropertyaccessor.vala \
 	valaproperty.vala \
+	valapropertyprototype.vala \
 	valarealliteral.vala \
 	valareferencetransferexpression.vala \
 	valareferencetype.vala \
@@ -915,6 +918,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valaprofile.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valaproperty.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valapropertyaccessor.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valapropertyprototype.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valarealliteral.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valareferencetransferexpression.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/valareferencetype.Plo@am__quote@ # am--include-marker
@@ -1277,6 +1281,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/valaprofile.Plo
 	-rm -f ./$(DEPDIR)/valaproperty.Plo
 	-rm -f ./$(DEPDIR)/valapropertyaccessor.Plo
+	-rm -f ./$(DEPDIR)/valapropertyprototype.Plo
 	-rm -f ./$(DEPDIR)/valarealliteral.Plo
 	-rm -f ./$(DEPDIR)/valareferencetransferexpression.Plo
 	-rm -f ./$(DEPDIR)/valareferencetype.Plo
@@ -1473,6 +1478,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/valaprofile.Plo
 	-rm -f ./$(DEPDIR)/valaproperty.Plo
 	-rm -f ./$(DEPDIR)/valapropertyaccessor.Plo
+	-rm -f ./$(DEPDIR)/valapropertyprototype.Plo
 	-rm -f ./$(DEPDIR)/valarealliteral.Plo
 	-rm -f ./$(DEPDIR)/valareferencetransferexpression.Plo
 	-rm -f ./$(DEPDIR)/valareferencetype.Plo

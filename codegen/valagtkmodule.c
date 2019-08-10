@@ -569,7 +569,6 @@ vala_gtk_module_ensure_gresource_to_file_map (ValaGtkModule* self)
 				gchar* alias = NULL;
 				ValaMarkupTokenType current_token = 0;
 				ValaMarkupReader* _tmp16_;
-				ValaMarkupTokenType _tmp17_;
 				_tmp10_ = gresource;
 				if (!g_file_test (_tmp10_, G_FILE_TEST_EXISTS)) {
 					const gchar* _tmp11_;
@@ -590,135 +589,132 @@ vala_gtk_module_ensure_gresource_to_file_map (ValaGtkModule* self)
 				prefix = NULL;
 				alias = NULL;
 				_tmp16_ = reader;
-				_tmp17_ = vala_markup_reader_read_token (_tmp16_, NULL, NULL);
-				current_token = _tmp17_;
+				current_token = vala_markup_reader_read_token (_tmp16_, NULL, NULL);
 				while (TRUE) {
-					ValaMarkupTokenType _tmp18_;
-					gboolean _tmp19_ = FALSE;
-					ValaMarkupTokenType _tmp20_;
-					ValaMarkupReader* _tmp58_;
-					ValaMarkupTokenType _tmp59_;
-					_tmp18_ = current_token;
-					if (!(_tmp18_ != VALA_MARKUP_TOKEN_TYPE_EOF)) {
+					ValaMarkupTokenType _tmp17_;
+					gboolean _tmp18_ = FALSE;
+					ValaMarkupTokenType _tmp19_;
+					ValaMarkupReader* _tmp57_;
+					_tmp17_ = current_token;
+					if (!(_tmp17_ != VALA_MARKUP_TOKEN_TYPE_EOF)) {
 						break;
 					}
-					_tmp20_ = current_token;
-					if (_tmp20_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
-						ValaMarkupReader* _tmp21_;
+					_tmp19_ = current_token;
+					if (_tmp19_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
+						ValaMarkupReader* _tmp20_;
+						const gchar* _tmp21_;
 						const gchar* _tmp22_;
-						const gchar* _tmp23_;
-						_tmp21_ = reader;
-						_tmp22_ = vala_markup_reader_get_name (_tmp21_);
-						_tmp23_ = _tmp22_;
-						_tmp19_ = g_strcmp0 (_tmp23_, "gresource") == 0;
+						_tmp20_ = reader;
+						_tmp21_ = vala_markup_reader_get_name (_tmp20_);
+						_tmp22_ = _tmp21_;
+						_tmp18_ = g_strcmp0 (_tmp22_, "gresource") == 0;
 					} else {
-						_tmp19_ = FALSE;
+						_tmp18_ = FALSE;
 					}
-					if (_tmp19_) {
-						ValaMarkupReader* _tmp24_;
-						gchar* _tmp25_;
-						_tmp24_ = reader;
-						_tmp25_ = vala_markup_reader_get_attribute (_tmp24_, "prefix");
+					if (_tmp18_) {
+						ValaMarkupReader* _tmp23_;
+						gchar* _tmp24_;
+						_tmp23_ = reader;
+						_tmp24_ = vala_markup_reader_get_attribute (_tmp23_, "prefix");
 						_g_free0 (prefix);
-						prefix = _tmp25_;
+						prefix = _tmp24_;
 					} else {
-						gboolean _tmp26_ = FALSE;
-						ValaMarkupTokenType _tmp27_;
-						_tmp27_ = current_token;
-						if (_tmp27_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
-							ValaMarkupReader* _tmp28_;
+						gboolean _tmp25_ = FALSE;
+						ValaMarkupTokenType _tmp26_;
+						_tmp26_ = current_token;
+						if (_tmp26_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
+							ValaMarkupReader* _tmp27_;
+							const gchar* _tmp28_;
 							const gchar* _tmp29_;
-							const gchar* _tmp30_;
-							_tmp28_ = reader;
-							_tmp29_ = vala_markup_reader_get_name (_tmp28_);
-							_tmp30_ = _tmp29_;
-							_tmp26_ = g_strcmp0 (_tmp30_, "file") == 0;
+							_tmp27_ = reader;
+							_tmp28_ = vala_markup_reader_get_name (_tmp27_);
+							_tmp29_ = _tmp28_;
+							_tmp25_ = g_strcmp0 (_tmp29_, "file") == 0;
 						} else {
-							_tmp26_ = FALSE;
+							_tmp25_ = FALSE;
 						}
-						if (_tmp26_) {
-							ValaMarkupReader* _tmp31_;
-							gchar* _tmp32_;
-							_tmp31_ = reader;
-							_tmp32_ = vala_markup_reader_get_attribute (_tmp31_, "alias");
+						if (_tmp25_) {
+							ValaMarkupReader* _tmp30_;
+							gchar* _tmp31_;
+							_tmp30_ = reader;
+							_tmp31_ = vala_markup_reader_get_attribute (_tmp30_, "alias");
 							_g_free0 (alias);
-							alias = _tmp32_;
+							alias = _tmp31_;
 							state = 1;
 						} else {
-							gboolean _tmp33_ = FALSE;
-							gint _tmp34_;
-							_tmp34_ = state;
-							if (_tmp34_ == 1) {
-								ValaMarkupTokenType _tmp35_;
-								_tmp35_ = current_token;
-								_tmp33_ = _tmp35_ == VALA_MARKUP_TOKEN_TYPE_TEXT;
+							gboolean _tmp32_ = FALSE;
+							gint _tmp33_;
+							_tmp33_ = state;
+							if (_tmp33_ == 1) {
+								ValaMarkupTokenType _tmp34_;
+								_tmp34_ = current_token;
+								_tmp32_ = _tmp34_ == VALA_MARKUP_TOKEN_TYPE_TEXT;
 							} else {
-								_tmp33_ = FALSE;
+								_tmp32_ = FALSE;
 							}
-							if (_tmp33_) {
+							if (_tmp32_) {
 								gchar* name = NULL;
-								ValaMarkupReader* _tmp36_;
+								ValaMarkupReader* _tmp35_;
+								const gchar* _tmp36_;
 								const gchar* _tmp37_;
-								const gchar* _tmp38_;
-								gchar* _tmp39_;
+								gchar* _tmp38_;
 								gchar* filename = NULL;
+								ValaCodeContext* _tmp39_;
 								ValaCodeContext* _tmp40_;
-								ValaCodeContext* _tmp41_;
+								const gchar* _tmp41_;
 								const gchar* _tmp42_;
-								const gchar* _tmp43_;
-								gchar* _tmp44_;
-								const gchar* _tmp45_;
-								ValaHashMap* _tmp52_;
+								gchar* _tmp43_;
+								const gchar* _tmp44_;
+								ValaHashMap* _tmp51_;
+								const gchar* _tmp52_;
 								const gchar* _tmp53_;
-								const gchar* _tmp54_;
+								gchar* _tmp54_;
 								gchar* _tmp55_;
-								gchar* _tmp56_;
-								const gchar* _tmp57_;
-								_tmp36_ = reader;
-								_tmp37_ = vala_markup_reader_get_content (_tmp36_);
-								_tmp38_ = _tmp37_;
-								_tmp39_ = g_strdup (_tmp38_);
-								name = _tmp39_;
-								_tmp40_ = vala_ccode_base_module_get_context ((ValaCCodeBaseModule*) self);
-								_tmp41_ = _tmp40_;
-								_tmp42_ = gresource;
-								_tmp43_ = name;
-								_tmp44_ = vala_code_context_get_gresource_path (_tmp41_, _tmp42_, _tmp43_);
-								filename = _tmp44_;
-								_tmp45_ = alias;
-								if (_tmp45_ != NULL) {
-									ValaHashMap* _tmp46_;
+								const gchar* _tmp56_;
+								_tmp35_ = reader;
+								_tmp36_ = vala_markup_reader_get_content (_tmp35_);
+								_tmp37_ = _tmp36_;
+								_tmp38_ = g_strdup (_tmp37_);
+								name = _tmp38_;
+								_tmp39_ = vala_ccode_base_module_get_context ((ValaCCodeBaseModule*) self);
+								_tmp40_ = _tmp39_;
+								_tmp41_ = gresource;
+								_tmp42_ = name;
+								_tmp43_ = vala_code_context_get_gresource_path (_tmp40_, _tmp41_, _tmp42_);
+								filename = _tmp43_;
+								_tmp44_ = alias;
+								if (_tmp44_ != NULL) {
+									ValaHashMap* _tmp45_;
+									const gchar* _tmp46_;
 									const gchar* _tmp47_;
-									const gchar* _tmp48_;
+									gchar* _tmp48_;
 									gchar* _tmp49_;
-									gchar* _tmp50_;
-									const gchar* _tmp51_;
-									_tmp46_ = self->priv->gresource_to_file_map;
-									_tmp47_ = prefix;
-									_tmp48_ = alias;
-									_tmp49_ = g_build_filename (_tmp47_, _tmp48_, NULL);
-									_tmp50_ = _tmp49_;
-									_tmp51_ = filename;
-									vala_map_set ((ValaMap*) _tmp46_, _tmp50_, _tmp51_);
-									_g_free0 (_tmp50_);
+									const gchar* _tmp50_;
+									_tmp45_ = self->priv->gresource_to_file_map;
+									_tmp46_ = prefix;
+									_tmp47_ = alias;
+									_tmp48_ = g_build_filename (_tmp46_, _tmp47_, NULL);
+									_tmp49_ = _tmp48_;
+									_tmp50_ = filename;
+									vala_map_set ((ValaMap*) _tmp45_, _tmp49_, _tmp50_);
+									_g_free0 (_tmp49_);
 								}
-								_tmp52_ = self->priv->gresource_to_file_map;
-								_tmp53_ = prefix;
-								_tmp54_ = name;
-								_tmp55_ = g_build_filename (_tmp53_, _tmp54_, NULL);
-								_tmp56_ = _tmp55_;
-								_tmp57_ = filename;
-								vala_map_set ((ValaMap*) _tmp52_, _tmp56_, _tmp57_);
-								_g_free0 (_tmp56_);
+								_tmp51_ = self->priv->gresource_to_file_map;
+								_tmp52_ = prefix;
+								_tmp53_ = name;
+								_tmp54_ = g_build_filename (_tmp52_, _tmp53_, NULL);
+								_tmp55_ = _tmp54_;
+								_tmp56_ = filename;
+								vala_map_set ((ValaMap*) _tmp51_, _tmp55_, _tmp56_);
+								_g_free0 (_tmp55_);
 								state = 0;
 								_g_free0 (filename);
 								_g_free0 (name);
 							}
 						}
 					}
-					_tmp58_ = reader;
-					_tmp59_ = vala_markup_reader_read_token (_tmp58_, NULL, NULL);
-					current_token = _tmp59_;
+					_tmp57_ = reader;
+					current_token = vala_markup_reader_read_token (_tmp57_, NULL, NULL);
 				}
 				_g_free0 (alias);
 				_g_free0 (prefix);
@@ -871,8 +867,7 @@ vala_gtk_module_process_current_ui_resource (ValaGtkModule* self,
 	gboolean template_tag_found = FALSE;
 	ValaMarkupTokenType current_token = 0;
 	ValaMarkupReader* _tmp19_;
-	ValaMarkupTokenType _tmp20_;
-	gboolean _tmp98_;
+	gboolean _tmp94_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (ui_resource != NULL);
 	g_return_if_fail (node != NULL);
@@ -929,253 +924,247 @@ vala_gtk_module_process_current_ui_resource (ValaGtkModule* self,
 	current_class = NULL;
 	template_tag_found = FALSE;
 	_tmp19_ = reader;
-	_tmp20_ = vala_markup_reader_read_token (_tmp19_, NULL, NULL);
-	current_token = _tmp20_;
+	current_token = vala_markup_reader_read_token (_tmp19_, NULL, NULL);
 	while (TRUE) {
-		ValaMarkupTokenType _tmp21_;
+		ValaMarkupTokenType _tmp20_;
 		const gchar* current_name = NULL;
-		ValaMarkupReader* _tmp22_;
+		ValaMarkupReader* _tmp21_;
+		const gchar* _tmp22_;
 		const gchar* _tmp23_;
-		const gchar* _tmp24_;
-		gboolean _tmp25_ = FALSE;
-		ValaMarkupTokenType _tmp26_;
-		ValaMarkupReader* _tmp96_;
-		ValaMarkupTokenType _tmp97_;
-		_tmp21_ = current_token;
-		if (!(_tmp21_ != VALA_MARKUP_TOKEN_TYPE_EOF)) {
+		gboolean _tmp24_ = FALSE;
+		ValaMarkupTokenType _tmp25_;
+		ValaMarkupReader* _tmp93_;
+		_tmp20_ = current_token;
+		if (!(_tmp20_ != VALA_MARKUP_TOKEN_TYPE_EOF)) {
 			break;
 		}
-		_tmp22_ = reader;
-		_tmp23_ = vala_markup_reader_get_name (_tmp22_);
-		_tmp24_ = _tmp23_;
-		current_name = _tmp24_;
-		_tmp26_ = current_token;
-		if (_tmp26_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
-			gboolean _tmp27_ = FALSE;
-			const gchar* _tmp28_;
-			_tmp28_ = current_name;
-			if (g_strcmp0 (_tmp28_, "object") == 0) {
-				_tmp27_ = TRUE;
+		_tmp21_ = reader;
+		_tmp22_ = vala_markup_reader_get_name (_tmp21_);
+		_tmp23_ = _tmp22_;
+		current_name = _tmp23_;
+		_tmp25_ = current_token;
+		if (_tmp25_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT) {
+			gboolean _tmp26_ = FALSE;
+			const gchar* _tmp27_;
+			_tmp27_ = current_name;
+			if (g_strcmp0 (_tmp27_, "object") == 0) {
+				_tmp26_ = TRUE;
 			} else {
-				const gchar* _tmp29_;
-				_tmp29_ = current_name;
-				_tmp27_ = g_strcmp0 (_tmp29_, "template") == 0;
+				const gchar* _tmp28_;
+				_tmp28_ = current_name;
+				_tmp26_ = g_strcmp0 (_tmp28_, "template") == 0;
 			}
-			_tmp25_ = _tmp27_;
+			_tmp24_ = _tmp26_;
 		} else {
-			_tmp25_ = FALSE;
+			_tmp24_ = FALSE;
 		}
-		if (_tmp25_) {
-			const gchar* _tmp30_;
-			ValaClass* _tmp38_;
-			ValaClass* _tmp53_;
+		if (_tmp24_) {
+			const gchar* _tmp29_;
+			ValaClass* _tmp37_;
+			ValaClass* _tmp51_;
 			_vala_code_node_unref0 (current_class);
 			current_class = NULL;
-			_tmp30_ = current_name;
-			if (g_strcmp0 (_tmp30_, "object") == 0) {
+			_tmp29_ = current_name;
+			if (g_strcmp0 (_tmp29_, "object") == 0) {
 				gchar* type_id = NULL;
-				ValaMarkupReader* _tmp31_;
-				gchar* _tmp32_;
-				const gchar* _tmp33_;
-				_tmp31_ = reader;
-				_tmp32_ = vala_markup_reader_get_attribute (_tmp31_, "type-func");
-				type_id = _tmp32_;
-				_tmp33_ = type_id;
-				if (_tmp33_ != NULL) {
-					ValaHashMap* _tmp34_;
-					const gchar* _tmp35_;
-					gpointer _tmp36_;
-					_tmp34_ = self->priv->type_id_to_vala_map;
-					_tmp35_ = type_id;
-					_tmp36_ = vala_map_get ((ValaMap*) _tmp34_, _tmp35_);
+				ValaMarkupReader* _tmp30_;
+				gchar* _tmp31_;
+				const gchar* _tmp32_;
+				_tmp30_ = reader;
+				_tmp31_ = vala_markup_reader_get_attribute (_tmp30_, "type-func");
+				type_id = _tmp31_;
+				_tmp32_ = type_id;
+				if (_tmp32_ != NULL) {
+					ValaHashMap* _tmp33_;
+					const gchar* _tmp34_;
+					gpointer _tmp35_;
+					_tmp33_ = self->priv->type_id_to_vala_map;
+					_tmp34_ = type_id;
+					_tmp35_ = vala_map_get ((ValaMap*) _tmp33_, _tmp34_);
 					_vala_code_node_unref0 (current_class);
-					current_class = (ValaClass*) _tmp36_;
+					current_class = (ValaClass*) _tmp35_;
 				}
 				_g_free0 (type_id);
 			} else {
-				const gchar* _tmp37_;
-				_tmp37_ = current_name;
-				if (g_strcmp0 (_tmp37_, "template") == 0) {
+				const gchar* _tmp36_;
+				_tmp36_ = current_name;
+				if (g_strcmp0 (_tmp36_, "template") == 0) {
 					template_tag_found = TRUE;
 				}
 			}
-			_tmp38_ = current_class;
-			if (_tmp38_ == NULL) {
+			_tmp37_ = current_class;
+			if (_tmp37_ == NULL) {
 				gchar* class_name = NULL;
-				ValaMarkupReader* _tmp39_;
-				gchar* _tmp40_;
-				const gchar* _tmp41_;
-				ValaHashMap* _tmp50_;
-				const gchar* _tmp51_;
-				gpointer _tmp52_;
-				_tmp39_ = reader;
-				_tmp40_ = vala_markup_reader_get_attribute (_tmp39_, "class");
-				class_name = _tmp40_;
-				_tmp41_ = class_name;
-				if (_tmp41_ == NULL) {
+				ValaMarkupReader* _tmp38_;
+				gchar* _tmp39_;
+				const gchar* _tmp40_;
+				ValaHashMap* _tmp48_;
+				const gchar* _tmp49_;
+				gpointer _tmp50_;
+				_tmp38_ = reader;
+				_tmp39_ = vala_markup_reader_get_attribute (_tmp38_, "class");
+				class_name = _tmp39_;
+				_tmp40_ = class_name;
+				if (_tmp40_ == NULL) {
+					ValaSourceReference* _tmp41_;
 					ValaSourceReference* _tmp42_;
-					ValaSourceReference* _tmp43_;
+					const gchar* _tmp43_;
 					const gchar* _tmp44_;
-					const gchar* _tmp45_;
+					gchar* _tmp45_;
 					gchar* _tmp46_;
-					gchar* _tmp47_;
-					ValaMarkupReader* _tmp48_;
-					ValaMarkupTokenType _tmp49_;
-					_tmp42_ = vala_code_node_get_source_reference (node);
-					_tmp43_ = _tmp42_;
-					_tmp44_ = current_name;
-					_tmp45_ = ui_file;
-					_tmp46_ = g_strdup_printf ("Invalid %s in ui file `%s'", _tmp44_, _tmp45_);
-					_tmp47_ = _tmp46_;
-					vala_report_error (_tmp43_, _tmp47_);
-					_g_free0 (_tmp47_);
-					_tmp48_ = reader;
-					_tmp49_ = vala_markup_reader_read_token (_tmp48_, NULL, NULL);
-					current_token = _tmp49_;
+					ValaMarkupReader* _tmp47_;
+					_tmp41_ = vala_code_node_get_source_reference (node);
+					_tmp42_ = _tmp41_;
+					_tmp43_ = current_name;
+					_tmp44_ = ui_file;
+					_tmp45_ = g_strdup_printf ("Invalid %s in ui file `%s'", _tmp43_, _tmp44_);
+					_tmp46_ = _tmp45_;
+					vala_report_error (_tmp42_, _tmp46_);
+					_g_free0 (_tmp46_);
+					_tmp47_ = reader;
+					current_token = vala_markup_reader_read_token (_tmp47_, NULL, NULL);
 					_g_free0 (class_name);
 					continue;
 				}
-				_tmp50_ = self->priv->cclass_to_vala_map;
-				_tmp51_ = class_name;
-				_tmp52_ = vala_map_get ((ValaMap*) _tmp50_, _tmp51_);
+				_tmp48_ = self->priv->cclass_to_vala_map;
+				_tmp49_ = class_name;
+				_tmp50_ = vala_map_get ((ValaMap*) _tmp48_, _tmp49_);
 				_vala_code_node_unref0 (current_class);
-				current_class = (ValaClass*) _tmp52_;
+				current_class = (ValaClass*) _tmp50_;
 				_g_free0 (class_name);
 			}
-			_tmp53_ = current_class;
-			if (_tmp53_ != NULL) {
+			_tmp51_ = current_class;
+			if (_tmp51_ != NULL) {
 				gchar* child_name = NULL;
-				ValaMarkupReader* _tmp54_;
-				gchar* _tmp55_;
-				const gchar* _tmp56_;
-				_tmp54_ = reader;
-				_tmp55_ = vala_markup_reader_get_attribute (_tmp54_, "id");
-				child_name = _tmp55_;
-				_tmp56_ = child_name;
-				if (_tmp56_ != NULL) {
-					ValaHashMap* _tmp57_;
-					const gchar* _tmp58_;
-					ValaClass* _tmp59_;
-					_tmp57_ = self->priv->current_child_to_class_map;
-					_tmp58_ = child_name;
-					_tmp59_ = current_class;
-					vala_map_set ((ValaMap*) _tmp57_, _tmp58_, _tmp59_);
+				ValaMarkupReader* _tmp52_;
+				gchar* _tmp53_;
+				const gchar* _tmp54_;
+				_tmp52_ = reader;
+				_tmp53_ = vala_markup_reader_get_attribute (_tmp52_, "id");
+				child_name = _tmp53_;
+				_tmp54_ = child_name;
+				if (_tmp54_ != NULL) {
+					ValaHashMap* _tmp55_;
+					const gchar* _tmp56_;
+					ValaClass* _tmp57_;
+					_tmp55_ = self->priv->current_child_to_class_map;
+					_tmp56_ = child_name;
+					_tmp57_ = current_class;
+					vala_map_set ((ValaMap*) _tmp55_, _tmp56_, _tmp57_);
 				}
 				_g_free0 (child_name);
 			}
 		} else {
-			gboolean _tmp60_ = FALSE;
-			gboolean _tmp61_ = FALSE;
-			ValaClass* _tmp62_;
-			_tmp62_ = current_class;
-			if (_tmp62_ != NULL) {
-				ValaMarkupTokenType _tmp63_;
-				_tmp63_ = current_token;
-				_tmp61_ = _tmp63_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT;
+			gboolean _tmp58_ = FALSE;
+			gboolean _tmp59_ = FALSE;
+			ValaClass* _tmp60_;
+			_tmp60_ = current_class;
+			if (_tmp60_ != NULL) {
+				ValaMarkupTokenType _tmp61_;
+				_tmp61_ = current_token;
+				_tmp59_ = _tmp61_ == VALA_MARKUP_TOKEN_TYPE_START_ELEMENT;
 			} else {
-				_tmp61_ = FALSE;
+				_tmp59_ = FALSE;
 			}
-			if (_tmp61_) {
-				const gchar* _tmp64_;
-				_tmp64_ = current_name;
-				_tmp60_ = g_strcmp0 (_tmp64_, "signal") == 0;
+			if (_tmp59_) {
+				const gchar* _tmp62_;
+				_tmp62_ = current_name;
+				_tmp58_ = g_strcmp0 (_tmp62_, "signal") == 0;
 			} else {
-				_tmp60_ = FALSE;
+				_tmp58_ = FALSE;
 			}
-			if (_tmp60_) {
+			if (_tmp58_) {
 				gchar* signal_name = NULL;
+				ValaMarkupReader* _tmp63_;
+				gchar* _tmp64_;
+				gchar* handler_name = NULL;
 				ValaMarkupReader* _tmp65_;
 				gchar* _tmp66_;
-				gchar* handler_name = NULL;
-				ValaMarkupReader* _tmp67_;
-				gchar* _tmp68_;
-				ValaClass* _tmp69_;
+				ValaClass* _tmp67_;
+				_tmp63_ = reader;
+				_tmp64_ = vala_markup_reader_get_attribute (_tmp63_, "name");
+				signal_name = _tmp64_;
 				_tmp65_ = reader;
-				_tmp66_ = vala_markup_reader_get_attribute (_tmp65_, "name");
-				signal_name = _tmp66_;
-				_tmp67_ = reader;
-				_tmp68_ = vala_markup_reader_get_attribute (_tmp67_, "handler");
-				handler_name = _tmp68_;
-				_tmp69_ = current_class;
-				if (_tmp69_ != NULL) {
-					gboolean _tmp70_ = FALSE;
-					const gchar* _tmp71_;
+				_tmp66_ = vala_markup_reader_get_attribute (_tmp65_, "handler");
+				handler_name = _tmp66_;
+				_tmp67_ = current_class;
+				if (_tmp67_ != NULL) {
+					gboolean _tmp68_ = FALSE;
+					const gchar* _tmp69_;
 					gint sep_idx = 0;
-					const gchar* _tmp80_;
-					gint _tmp81_;
+					const gchar* _tmp77_;
+					gint _tmp78_;
 					ValaSignal* sig = NULL;
-					ValaClass* _tmp85_;
-					const gchar* _tmp86_;
-					gchar* _tmp87_;
-					gchar* _tmp88_;
-					ValaSymbol* _tmp89_;
-					ValaSignal* _tmp90_;
-					ValaSignal* _tmp91_;
-					ValaSignal* _tmp92_;
-					_tmp71_ = signal_name;
-					if (_tmp71_ == NULL) {
-						_tmp70_ = TRUE;
+					ValaClass* _tmp82_;
+					const gchar* _tmp83_;
+					gchar* _tmp84_;
+					gchar* _tmp85_;
+					ValaSymbol* _tmp86_;
+					ValaSignal* _tmp87_;
+					ValaSignal* _tmp88_;
+					ValaSignal* _tmp89_;
+					_tmp69_ = signal_name;
+					if (_tmp69_ == NULL) {
+						_tmp68_ = TRUE;
 					} else {
-						const gchar* _tmp72_;
-						_tmp72_ = handler_name;
-						_tmp70_ = _tmp72_ == NULL;
+						const gchar* _tmp70_;
+						_tmp70_ = handler_name;
+						_tmp68_ = _tmp70_ == NULL;
 					}
-					if (_tmp70_) {
-						ValaSourceReference* _tmp73_;
-						ValaSourceReference* _tmp74_;
-						const gchar* _tmp75_;
-						gchar* _tmp76_;
-						gchar* _tmp77_;
-						ValaMarkupReader* _tmp78_;
-						ValaMarkupTokenType _tmp79_;
-						_tmp73_ = vala_code_node_get_source_reference (node);
-						_tmp74_ = _tmp73_;
-						_tmp75_ = ui_file;
-						_tmp76_ = g_strdup_printf ("Invalid signal in ui file `%s'", _tmp75_);
-						_tmp77_ = _tmp76_;
-						vala_report_error (_tmp74_, _tmp77_);
-						_g_free0 (_tmp77_);
-						_tmp78_ = reader;
-						_tmp79_ = vala_markup_reader_read_token (_tmp78_, NULL, NULL);
-						current_token = _tmp79_;
+					if (_tmp68_) {
+						ValaSourceReference* _tmp71_;
+						ValaSourceReference* _tmp72_;
+						const gchar* _tmp73_;
+						gchar* _tmp74_;
+						gchar* _tmp75_;
+						ValaMarkupReader* _tmp76_;
+						_tmp71_ = vala_code_node_get_source_reference (node);
+						_tmp72_ = _tmp71_;
+						_tmp73_ = ui_file;
+						_tmp74_ = g_strdup_printf ("Invalid signal in ui file `%s'", _tmp73_);
+						_tmp75_ = _tmp74_;
+						vala_report_error (_tmp72_, _tmp75_);
+						_g_free0 (_tmp75_);
+						_tmp76_ = reader;
+						current_token = vala_markup_reader_read_token (_tmp76_, NULL, NULL);
 						_g_free0 (handler_name);
 						_g_free0 (signal_name);
 						continue;
 					}
-					_tmp80_ = signal_name;
-					sep_idx = string_index_of (_tmp80_, "::", 0);
-					_tmp81_ = sep_idx;
-					if (_tmp81_ >= 0) {
-						const gchar* _tmp82_;
-						gint _tmp83_;
-						gchar* _tmp84_;
-						_tmp82_ = signal_name;
-						_tmp83_ = sep_idx;
-						_tmp84_ = string_substring (_tmp82_, (glong) 0, (glong) _tmp83_);
+					_tmp77_ = signal_name;
+					sep_idx = string_index_of (_tmp77_, "::", 0);
+					_tmp78_ = sep_idx;
+					if (_tmp78_ >= 0) {
+						const gchar* _tmp79_;
+						gint _tmp80_;
+						gchar* _tmp81_;
+						_tmp79_ = signal_name;
+						_tmp80_ = sep_idx;
+						_tmp81_ = string_substring (_tmp79_, (glong) 0, (glong) _tmp80_);
 						_g_free0 (signal_name);
-						signal_name = _tmp84_;
+						signal_name = _tmp81_;
 					}
-					_tmp85_ = current_class;
-					_tmp86_ = signal_name;
-					_tmp87_ = string_replace (_tmp86_, "-", "_");
+					_tmp82_ = current_class;
+					_tmp83_ = signal_name;
+					_tmp84_ = string_replace (_tmp83_, "-", "_");
+					_tmp85_ = _tmp84_;
+					_tmp86_ = vala_semantic_analyzer_symbol_lookup_inherited ((ValaSymbol*) _tmp82_, _tmp85_);
+					_tmp87_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp86_, VALA_TYPE_SIGNAL) ? ((ValaSignal*) _tmp86_) : NULL;
+					if (_tmp87_ == NULL) {
+						_vala_code_node_unref0 (_tmp86_);
+					}
 					_tmp88_ = _tmp87_;
-					_tmp89_ = vala_semantic_analyzer_symbol_lookup_inherited ((ValaSymbol*) _tmp85_, _tmp88_);
-					_tmp90_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp89_, VALA_TYPE_SIGNAL) ? ((ValaSignal*) _tmp89_) : NULL;
-					if (_tmp90_ == NULL) {
-						_vala_code_node_unref0 (_tmp89_);
-					}
-					_tmp91_ = _tmp90_;
-					_g_free0 (_tmp88_);
-					sig = _tmp91_;
-					_tmp92_ = sig;
-					if (_tmp92_ != NULL) {
-						ValaHashMap* _tmp93_;
-						const gchar* _tmp94_;
-						ValaSignal* _tmp95_;
-						_tmp93_ = self->priv->current_handler_to_signal_map;
-						_tmp94_ = handler_name;
-						_tmp95_ = sig;
-						vala_map_set ((ValaMap*) _tmp93_, _tmp94_, _tmp95_);
+					_g_free0 (_tmp85_);
+					sig = _tmp88_;
+					_tmp89_ = sig;
+					if (_tmp89_ != NULL) {
+						ValaHashMap* _tmp90_;
+						const gchar* _tmp91_;
+						ValaSignal* _tmp92_;
+						_tmp90_ = self->priv->current_handler_to_signal_map;
+						_tmp91_ = handler_name;
+						_tmp92_ = sig;
+						vala_map_set ((ValaMap*) _tmp90_, _tmp91_, _tmp92_);
 					}
 					_vala_code_node_unref0 (sig);
 				}
@@ -1183,22 +1172,21 @@ vala_gtk_module_process_current_ui_resource (ValaGtkModule* self,
 				_g_free0 (signal_name);
 			}
 		}
-		_tmp96_ = reader;
-		_tmp97_ = vala_markup_reader_read_token (_tmp96_, NULL, NULL);
-		current_token = _tmp97_;
+		_tmp93_ = reader;
+		current_token = vala_markup_reader_read_token (_tmp93_, NULL, NULL);
 	}
-	_tmp98_ = template_tag_found;
-	if (!_tmp98_) {
-		ValaSourceReference* _tmp99_;
-		ValaSourceReference* _tmp100_;
-		gchar* _tmp101_;
-		gchar* _tmp102_;
-		_tmp99_ = vala_code_node_get_source_reference (node);
-		_tmp100_ = _tmp99_;
-		_tmp101_ = g_strdup_printf ("ui resource `%s' does not describe a valid composite template", ui_resource);
-		_tmp102_ = _tmp101_;
-		vala_report_error (_tmp100_, _tmp102_);
-		_g_free0 (_tmp102_);
+	_tmp94_ = template_tag_found;
+	if (!_tmp94_) {
+		ValaSourceReference* _tmp95_;
+		ValaSourceReference* _tmp96_;
+		gchar* _tmp97_;
+		gchar* _tmp98_;
+		_tmp95_ = vala_code_node_get_source_reference (node);
+		_tmp96_ = _tmp95_;
+		_tmp97_ = g_strdup_printf ("ui resource `%s' does not describe a valid composite template", ui_resource);
+		_tmp98_ = _tmp97_;
+		vala_report_error (_tmp96_, _tmp98_);
+		_g_free0 (_tmp98_);
 	}
 	_vala_code_node_unref0 (current_class);
 	_vala_markup_reader_unref0 (reader);

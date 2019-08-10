@@ -164,7 +164,7 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 	gint _fragments_size_;
 	gchar** _tmp7_;
 	gint _tmp7__length1;
-	FILE* _tmp37_;
+	FILE* _tmp36_;
 	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
@@ -242,24 +242,23 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 				gchar** _tmp13_;
 				gint _tmp13__length1;
 				const gchar* _tmp14_;
-				gboolean _tmp15_;
 				const gchar* checked_value = NULL;
-				gchar** _tmp16_;
-				gint _tmp16__length1;
+				gchar** _tmp15_;
+				gint _tmp15__length1;
+				const gchar* _tmp16_;
 				const gchar* _tmp17_;
-				const gchar* _tmp18_;
-				gchar** _tmp19_;
-				gint _tmp19__length1;
+				gchar** _tmp18_;
+				gint _tmp18__length1;
+				const gchar* _tmp19_;
 				const gchar* _tmp20_;
 				const gchar* _tmp21_;
-				const gchar* _tmp22_;
-				GQuark _tmp24_ = 0U;
-				static GQuark _tmp23_label0 = 0;
-				static GQuark _tmp23_label1 = 0;
-				static GQuark _tmp23_label2 = 0;
-				static GQuark _tmp23_label3 = 0;
-				static GQuark _tmp23_label4 = 0;
-				static GQuark _tmp23_label5 = 0;
+				GQuark _tmp23_ = 0U;
+				static GQuark _tmp22_label0 = 0;
+				static GQuark _tmp22_label1 = 0;
+				static GQuark _tmp22_label2 = 0;
+				static GQuark _tmp22_label3 = 0;
+				static GQuark _tmp22_label4 = 0;
+				static GQuark _tmp22_label5 = 0;
 				_tmp8_ = fragment;
 				_tmp10_ = _tmp9_ = g_strsplit (_tmp8_, "=", 2);
 				eq = _tmp10_;
@@ -284,8 +283,7 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 				_tmp13_ = eq;
 				_tmp13__length1 = eq_length1;
 				_tmp14_ = _tmp13_[1];
-				_tmp15_ = g_regex_match (_tmp12_, _tmp14_, 0, NULL);
-				if (!_tmp15_) {
+				if (!g_regex_match (_tmp12_, _tmp14_, 0, NULL)) {
 					result = FALSE;
 					eq = (_vala_array_free (eq, eq_length1, (GDestroyNotify) g_free), NULL);
 					fragments = (_vala_array_free (fragments, fragments_length1, (GDestroyNotify) g_free), NULL);
@@ -298,92 +296,92 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 					_g_regex_unref0 (val_regex);
 					return result;
 				}
-				_tmp16_ = eq;
-				_tmp16__length1 = eq_length1;
-				_tmp17_ = _tmp16_[1];
-				_tmp18_ = g_strstrip (_tmp17_);
-				checked_value = _tmp18_;
-				_tmp19_ = eq;
-				_tmp19__length1 = eq_length1;
-				_tmp20_ = _tmp19_[0];
-				_tmp21_ = g_strstrip (_tmp20_);
-				_tmp22_ = _tmp21_;
-				_tmp24_ = (NULL == _tmp22_) ? 0 : g_quark_from_string (_tmp22_);
-				if (_tmp24_ == ((0 != _tmp23_label0) ? _tmp23_label0 : (_tmp23_label0 = g_quark_from_static_string ("error")))) {
+				_tmp15_ = eq;
+				_tmp15__length1 = eq_length1;
+				_tmp16_ = _tmp15_[1];
+				_tmp17_ = g_strstrip (_tmp16_);
+				checked_value = _tmp17_;
+				_tmp18_ = eq;
+				_tmp18__length1 = eq_length1;
+				_tmp19_ = _tmp18_[0];
+				_tmp20_ = g_strstrip (_tmp19_);
+				_tmp21_ = _tmp20_;
+				_tmp23_ = (NULL == _tmp21_) ? 0 : g_quark_from_string (_tmp21_);
+				if (_tmp23_ == ((0 != _tmp22_label0) ? _tmp22_label0 : (_tmp22_label0 = g_quark_from_static_string ("error")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp25_;
-							gchar* _tmp26_;
-							_tmp25_ = checked_value;
-							_tmp26_ = g_strdup (_tmp25_);
+							const gchar* _tmp24_;
+							gchar* _tmp25_;
+							_tmp24_ = checked_value;
+							_tmp25_ = g_strdup (_tmp24_);
 							_g_free0 (error_color);
-							error_color = _tmp26_;
+							error_color = _tmp25_;
 							break;
 						}
 					}
-				} else if (_tmp24_ == ((0 != _tmp23_label1) ? _tmp23_label1 : (_tmp23_label1 = g_quark_from_static_string ("warning")))) {
+				} else if (_tmp23_ == ((0 != _tmp22_label1) ? _tmp22_label1 : (_tmp22_label1 = g_quark_from_static_string ("warning")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp27_;
-							gchar* _tmp28_;
-							_tmp27_ = checked_value;
-							_tmp28_ = g_strdup (_tmp27_);
+							const gchar* _tmp26_;
+							gchar* _tmp27_;
+							_tmp26_ = checked_value;
+							_tmp27_ = g_strdup (_tmp26_);
 							_g_free0 (warning_color);
-							warning_color = _tmp28_;
+							warning_color = _tmp27_;
 							break;
 						}
 					}
-				} else if (_tmp24_ == ((0 != _tmp23_label2) ? _tmp23_label2 : (_tmp23_label2 = g_quark_from_static_string ("note")))) {
+				} else if (_tmp23_ == ((0 != _tmp22_label2) ? _tmp22_label2 : (_tmp22_label2 = g_quark_from_static_string ("note")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp29_;
-							gchar* _tmp30_;
-							_tmp29_ = checked_value;
-							_tmp30_ = g_strdup (_tmp29_);
+							const gchar* _tmp28_;
+							gchar* _tmp29_;
+							_tmp28_ = checked_value;
+							_tmp29_ = g_strdup (_tmp28_);
 							_g_free0 (note_color);
-							note_color = _tmp30_;
+							note_color = _tmp29_;
 							break;
 						}
 					}
-				} else if (_tmp24_ == ((0 != _tmp23_label3) ? _tmp23_label3 : (_tmp23_label3 = g_quark_from_static_string ("caret")))) {
+				} else if (_tmp23_ == ((0 != _tmp22_label3) ? _tmp22_label3 : (_tmp22_label3 = g_quark_from_static_string ("caret")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp31_;
-							gchar* _tmp32_;
-							_tmp31_ = checked_value;
-							_tmp32_ = g_strdup (_tmp31_);
+							const gchar* _tmp30_;
+							gchar* _tmp31_;
+							_tmp30_ = checked_value;
+							_tmp31_ = g_strdup (_tmp30_);
 							_g_free0 (caret_color);
-							caret_color = _tmp32_;
+							caret_color = _tmp31_;
 							break;
 						}
 					}
-				} else if (_tmp24_ == ((0 != _tmp23_label4) ? _tmp23_label4 : (_tmp23_label4 = g_quark_from_static_string ("locus")))) {
+				} else if (_tmp23_ == ((0 != _tmp22_label4) ? _tmp22_label4 : (_tmp22_label4 = g_quark_from_static_string ("locus")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp33_;
-							gchar* _tmp34_;
-							_tmp33_ = checked_value;
-							_tmp34_ = g_strdup (_tmp33_);
+							const gchar* _tmp32_;
+							gchar* _tmp33_;
+							_tmp32_ = checked_value;
+							_tmp33_ = g_strdup (_tmp32_);
 							_g_free0 (locus_color);
-							locus_color = _tmp34_;
+							locus_color = _tmp33_;
 							break;
 						}
 					}
-				} else if (_tmp24_ == ((0 != _tmp23_label5) ? _tmp23_label5 : (_tmp23_label5 = g_quark_from_static_string ("quote")))) {
+				} else if (_tmp23_ == ((0 != _tmp22_label5) ? _tmp22_label5 : (_tmp22_label5 = g_quark_from_static_string ("quote")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp35_;
-							gchar* _tmp36_;
-							_tmp35_ = checked_value;
-							_tmp36_ = g_strdup (_tmp35_);
+							const gchar* _tmp34_;
+							gchar* _tmp35_;
+							_tmp34_ = checked_value;
+							_tmp35_ = g_strdup (_tmp34_);
 							_g_free0 (quote_color);
-							quote_color = _tmp36_;
+							quote_color = _tmp35_;
 							break;
 						}
 					}
@@ -409,102 +407,102 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 			}
 		}
 	}
-	_tmp37_ = self->priv->_stream;
-	if (valadoc_error_reporter_is_atty (self, fileno (_tmp37_))) {
-		const gchar* _tmp38_;
-		const gchar* _tmp43_;
-		const gchar* _tmp48_;
-		const gchar* _tmp53_;
-		const gchar* _tmp58_;
-		const gchar* _tmp63_;
-		_tmp38_ = error_color;
-		if (_tmp38_ != NULL) {
-			const gchar* _tmp39_;
+	_tmp36_ = self->priv->_stream;
+	if (valadoc_error_reporter_is_atty (self, fileno (_tmp36_))) {
+		const gchar* _tmp37_;
+		const gchar* _tmp42_;
+		const gchar* _tmp47_;
+		const gchar* _tmp52_;
+		const gchar* _tmp57_;
+		const gchar* _tmp62_;
+		_tmp37_ = error_color;
+		if (_tmp37_ != NULL) {
+			const gchar* _tmp38_;
+			gchar* _tmp39_;
 			gchar* _tmp40_;
 			gchar* _tmp41_;
-			gchar* _tmp42_;
-			_tmp39_ = error_color;
-			_tmp40_ = g_strconcat ("\x1b[0", _tmp39_, NULL);
-			_tmp41_ = _tmp40_;
-			_tmp42_ = g_strconcat (_tmp41_, "m", NULL);
+			_tmp38_ = error_color;
+			_tmp39_ = g_strconcat ("\x1b[0", _tmp38_, NULL);
+			_tmp40_ = _tmp39_;
+			_tmp41_ = g_strconcat (_tmp40_, "m", NULL);
 			_g_free0 (self->priv->error_color_start);
-			self->priv->error_color_start = _tmp42_;
-			_g_free0 (_tmp41_);
+			self->priv->error_color_start = _tmp41_;
+			_g_free0 (_tmp40_);
 			self->priv->error_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
-		_tmp43_ = warning_color;
-		if (_tmp43_ != NULL) {
-			const gchar* _tmp44_;
+		_tmp42_ = warning_color;
+		if (_tmp42_ != NULL) {
+			const gchar* _tmp43_;
+			gchar* _tmp44_;
 			gchar* _tmp45_;
 			gchar* _tmp46_;
-			gchar* _tmp47_;
-			_tmp44_ = warning_color;
-			_tmp45_ = g_strconcat ("\x1b[0", _tmp44_, NULL);
-			_tmp46_ = _tmp45_;
-			_tmp47_ = g_strconcat (_tmp46_, "m", NULL);
+			_tmp43_ = warning_color;
+			_tmp44_ = g_strconcat ("\x1b[0", _tmp43_, NULL);
+			_tmp45_ = _tmp44_;
+			_tmp46_ = g_strconcat (_tmp45_, "m", NULL);
 			_g_free0 (self->priv->warning_color_start);
-			self->priv->warning_color_start = _tmp47_;
-			_g_free0 (_tmp46_);
+			self->priv->warning_color_start = _tmp46_;
+			_g_free0 (_tmp45_);
 			self->priv->warning_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
-		_tmp48_ = note_color;
-		if (_tmp48_ != NULL) {
-			const gchar* _tmp49_;
+		_tmp47_ = note_color;
+		if (_tmp47_ != NULL) {
+			const gchar* _tmp48_;
+			gchar* _tmp49_;
 			gchar* _tmp50_;
 			gchar* _tmp51_;
-			gchar* _tmp52_;
-			_tmp49_ = note_color;
-			_tmp50_ = g_strconcat ("\x1b[0", _tmp49_, NULL);
-			_tmp51_ = _tmp50_;
-			_tmp52_ = g_strconcat (_tmp51_, "m", NULL);
+			_tmp48_ = note_color;
+			_tmp49_ = g_strconcat ("\x1b[0", _tmp48_, NULL);
+			_tmp50_ = _tmp49_;
+			_tmp51_ = g_strconcat (_tmp50_, "m", NULL);
 			_g_free0 (self->priv->note_color_start);
-			self->priv->note_color_start = _tmp52_;
-			_g_free0 (_tmp51_);
+			self->priv->note_color_start = _tmp51_;
+			_g_free0 (_tmp50_);
 			self->priv->note_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
-		_tmp53_ = caret_color;
-		if (_tmp53_ != NULL) {
-			const gchar* _tmp54_;
+		_tmp52_ = caret_color;
+		if (_tmp52_ != NULL) {
+			const gchar* _tmp53_;
+			gchar* _tmp54_;
 			gchar* _tmp55_;
 			gchar* _tmp56_;
-			gchar* _tmp57_;
-			_tmp54_ = caret_color;
-			_tmp55_ = g_strconcat ("\x1b[0", _tmp54_, NULL);
-			_tmp56_ = _tmp55_;
-			_tmp57_ = g_strconcat (_tmp56_, "m", NULL);
+			_tmp53_ = caret_color;
+			_tmp54_ = g_strconcat ("\x1b[0", _tmp53_, NULL);
+			_tmp55_ = _tmp54_;
+			_tmp56_ = g_strconcat (_tmp55_, "m", NULL);
 			_g_free0 (self->priv->caret_color_start);
-			self->priv->caret_color_start = _tmp57_;
-			_g_free0 (_tmp56_);
+			self->priv->caret_color_start = _tmp56_;
+			_g_free0 (_tmp55_);
 			self->priv->caret_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
-		_tmp58_ = locus_color;
-		if (_tmp58_ != NULL) {
-			const gchar* _tmp59_;
+		_tmp57_ = locus_color;
+		if (_tmp57_ != NULL) {
+			const gchar* _tmp58_;
+			gchar* _tmp59_;
 			gchar* _tmp60_;
 			gchar* _tmp61_;
-			gchar* _tmp62_;
-			_tmp59_ = locus_color;
-			_tmp60_ = g_strconcat ("\x1b[0", _tmp59_, NULL);
-			_tmp61_ = _tmp60_;
-			_tmp62_ = g_strconcat (_tmp61_, "m", NULL);
+			_tmp58_ = locus_color;
+			_tmp59_ = g_strconcat ("\x1b[0", _tmp58_, NULL);
+			_tmp60_ = _tmp59_;
+			_tmp61_ = g_strconcat (_tmp60_, "m", NULL);
 			_g_free0 (self->priv->locus_color_start);
-			self->priv->locus_color_start = _tmp62_;
-			_g_free0 (_tmp61_);
+			self->priv->locus_color_start = _tmp61_;
+			_g_free0 (_tmp60_);
 			self->priv->locus_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
-		_tmp63_ = quote_color;
-		if (_tmp63_ != NULL) {
-			const gchar* _tmp64_;
+		_tmp62_ = quote_color;
+		if (_tmp62_ != NULL) {
+			const gchar* _tmp63_;
+			gchar* _tmp64_;
 			gchar* _tmp65_;
 			gchar* _tmp66_;
-			gchar* _tmp67_;
-			_tmp64_ = quote_color;
-			_tmp65_ = g_strconcat ("\x1b[0", _tmp64_, NULL);
-			_tmp66_ = _tmp65_;
-			_tmp67_ = g_strconcat (_tmp66_, "m", NULL);
+			_tmp63_ = quote_color;
+			_tmp64_ = g_strconcat ("\x1b[0", _tmp63_, NULL);
+			_tmp65_ = _tmp64_;
+			_tmp66_ = g_strconcat (_tmp65_, "m", NULL);
 			_g_free0 (self->priv->quote_color_start);
-			self->priv->quote_color_start = _tmp67_;
-			_g_free0 (_tmp66_);
+			self->priv->quote_color_start = _tmp66_;
+			_g_free0 (_tmp65_);
 			self->priv->quote_color_end = VALADOC_ERROR_REPORTER_ANSI_COLOR_END;
 		}
 	}

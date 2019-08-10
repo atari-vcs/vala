@@ -470,14 +470,15 @@ vala_unary_expression_real_check (ValaCodeNode* base,
 	ValaUnaryOperator _tmp5_;
 	ValaExpression* _tmp18_;
 	ValaExpression* _tmp19_;
-	ValaExpression* _tmp20_;
+	gboolean _tmp20_ = FALSE;
 	ValaExpression* _tmp21_;
-	ValaDataType* _tmp22_;
+	ValaExpression* _tmp22_;
 	ValaDataType* _tmp23_;
-	gboolean _tmp36_ = FALSE;
-	ValaUnaryOperator _tmp37_;
-	gboolean _tmp197_;
-	gboolean _tmp198_;
+	ValaDataType* _tmp24_;
+	gboolean _tmp41_ = FALSE;
+	ValaUnaryOperator _tmp42_;
+	gboolean _tmp202_;
+	gboolean _tmp203_;
 	self = (ValaUnaryExpression*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -540,368 +541,381 @@ vala_unary_expression_real_check (ValaCodeNode* base,
 		result = FALSE;
 		return result;
 	}
-	_tmp20_ = vala_unary_expression_get_inner (self);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = vala_expression_get_value_type (_tmp21_);
-	_tmp23_ = _tmp22_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp23_, VALA_TYPE_FIELD_PROTOTYPE)) {
-		ValaExpression* _tmp24_;
+	_tmp21_ = vala_unary_expression_get_inner (self);
+	_tmp22_ = _tmp21_;
+	_tmp23_ = vala_expression_get_value_type (_tmp22_);
+	_tmp24_ = _tmp23_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp24_, VALA_TYPE_FIELD_PROTOTYPE)) {
+		_tmp20_ = TRUE;
+	} else {
 		ValaExpression* _tmp25_;
-		ValaSourceReference* _tmp26_;
-		ValaSourceReference* _tmp27_;
-		ValaExpression* _tmp28_;
+		ValaExpression* _tmp26_;
+		ValaDataType* _tmp27_;
+		ValaDataType* _tmp28_;
+		_tmp25_ = vala_unary_expression_get_inner (self);
+		_tmp26_ = _tmp25_;
+		_tmp27_ = vala_expression_get_value_type (_tmp26_);
+		_tmp28_ = _tmp27_;
+		_tmp20_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp28_, VALA_TYPE_PROPERTY_PROTOTYPE);
+	}
+	if (_tmp20_) {
 		ValaExpression* _tmp29_;
-		ValaSymbol* _tmp30_;
-		ValaSymbol* _tmp31_;
-		gchar* _tmp32_;
-		gchar* _tmp33_;
-		gchar* _tmp34_;
-		gchar* _tmp35_;
+		ValaExpression* _tmp30_;
+		ValaSourceReference* _tmp31_;
+		ValaSourceReference* _tmp32_;
+		ValaExpression* _tmp33_;
+		ValaExpression* _tmp34_;
+		ValaSymbol* _tmp35_;
+		ValaSymbol* _tmp36_;
+		gchar* _tmp37_;
+		gchar* _tmp38_;
+		gchar* _tmp39_;
+		gchar* _tmp40_;
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-		_tmp24_ = vala_unary_expression_get_inner (self);
-		_tmp25_ = _tmp24_;
-		_tmp26_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp25_);
-		_tmp27_ = _tmp26_;
-		_tmp28_ = vala_unary_expression_get_inner (self);
-		_tmp29_ = _tmp28_;
-		_tmp30_ = vala_expression_get_symbol_reference (_tmp29_);
-		_tmp31_ = _tmp30_;
-		_tmp32_ = vala_symbol_get_full_name (_tmp31_);
-		_tmp33_ = _tmp32_;
-		_tmp34_ = g_strdup_printf ("Access to instance member `%s' denied", _tmp33_);
-		_tmp35_ = _tmp34_;
-		vala_report_error (_tmp27_, _tmp35_);
-		_g_free0 (_tmp35_);
-		_g_free0 (_tmp33_);
+		_tmp29_ = vala_unary_expression_get_inner (self);
+		_tmp30_ = _tmp29_;
+		_tmp31_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp30_);
+		_tmp32_ = _tmp31_;
+		_tmp33_ = vala_unary_expression_get_inner (self);
+		_tmp34_ = _tmp33_;
+		_tmp35_ = vala_expression_get_symbol_reference (_tmp34_);
+		_tmp36_ = _tmp35_;
+		_tmp37_ = vala_symbol_get_full_name (_tmp36_);
+		_tmp38_ = _tmp37_;
+		_tmp39_ = g_strdup_printf ("Access to instance member `%s' denied", _tmp38_);
+		_tmp40_ = _tmp39_;
+		vala_report_error (_tmp32_, _tmp40_);
+		_g_free0 (_tmp40_);
+		_g_free0 (_tmp38_);
 		result = FALSE;
 		return result;
 	}
-	_tmp37_ = self->priv->_operator;
-	if (_tmp37_ == VALA_UNARY_OPERATOR_PLUS) {
-		_tmp36_ = TRUE;
+	_tmp42_ = self->priv->_operator;
+	if (_tmp42_ == VALA_UNARY_OPERATOR_PLUS) {
+		_tmp41_ = TRUE;
 	} else {
-		ValaUnaryOperator _tmp38_;
-		_tmp38_ = self->priv->_operator;
-		_tmp36_ = _tmp38_ == VALA_UNARY_OPERATOR_MINUS;
+		ValaUnaryOperator _tmp43_;
+		_tmp43_ = self->priv->_operator;
+		_tmp41_ = _tmp43_ == VALA_UNARY_OPERATOR_MINUS;
 	}
-	if (_tmp36_) {
-		ValaExpression* _tmp39_;
-		ValaExpression* _tmp40_;
-		ValaDataType* _tmp41_;
-		ValaDataType* _tmp42_;
-		ValaExpression* _tmp53_;
-		ValaExpression* _tmp54_;
-		ValaDataType* _tmp55_;
-		ValaDataType* _tmp56_;
-		_tmp39_ = vala_unary_expression_get_inner (self);
-		_tmp40_ = _tmp39_;
-		_tmp41_ = vala_expression_get_value_type (_tmp40_);
-		_tmp42_ = _tmp41_;
-		if (!vala_unary_expression_is_numeric_type (self, _tmp42_)) {
-			ValaSourceReference* _tmp43_;
-			ValaSourceReference* _tmp44_;
-			ValaExpression* _tmp45_;
-			ValaExpression* _tmp46_;
-			ValaDataType* _tmp47_;
-			ValaDataType* _tmp48_;
-			gchar* _tmp49_;
-			gchar* _tmp50_;
-			gchar* _tmp51_;
-			gchar* _tmp52_;
+	if (_tmp41_) {
+		ValaExpression* _tmp44_;
+		ValaExpression* _tmp45_;
+		ValaDataType* _tmp46_;
+		ValaDataType* _tmp47_;
+		ValaExpression* _tmp58_;
+		ValaExpression* _tmp59_;
+		ValaDataType* _tmp60_;
+		ValaDataType* _tmp61_;
+		_tmp44_ = vala_unary_expression_get_inner (self);
+		_tmp45_ = _tmp44_;
+		_tmp46_ = vala_expression_get_value_type (_tmp45_);
+		_tmp47_ = _tmp46_;
+		if (!vala_unary_expression_is_numeric_type (self, _tmp47_)) {
+			ValaSourceReference* _tmp48_;
+			ValaSourceReference* _tmp49_;
+			ValaExpression* _tmp50_;
+			ValaExpression* _tmp51_;
+			ValaDataType* _tmp52_;
+			ValaDataType* _tmp53_;
+			gchar* _tmp54_;
+			gchar* _tmp55_;
+			gchar* _tmp56_;
+			gchar* _tmp57_;
 			vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-			_tmp43_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-			_tmp44_ = _tmp43_;
-			_tmp45_ = vala_unary_expression_get_inner (self);
-			_tmp46_ = _tmp45_;
-			_tmp47_ = vala_expression_get_value_type (_tmp46_);
-			_tmp48_ = _tmp47_;
-			_tmp49_ = vala_code_node_to_string ((ValaCodeNode*) _tmp48_);
-			_tmp50_ = _tmp49_;
-			_tmp51_ = g_strdup_printf ("Operator not supported for `%s'", _tmp50_);
-			_tmp52_ = _tmp51_;
-			vala_report_error (_tmp44_, _tmp52_);
-			_g_free0 (_tmp52_);
-			_g_free0 (_tmp50_);
+			_tmp48_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+			_tmp49_ = _tmp48_;
+			_tmp50_ = vala_unary_expression_get_inner (self);
+			_tmp51_ = _tmp50_;
+			_tmp52_ = vala_expression_get_value_type (_tmp51_);
+			_tmp53_ = _tmp52_;
+			_tmp54_ = vala_code_node_to_string ((ValaCodeNode*) _tmp53_);
+			_tmp55_ = _tmp54_;
+			_tmp56_ = g_strdup_printf ("Operator not supported for `%s'", _tmp55_);
+			_tmp57_ = _tmp56_;
+			vala_report_error (_tmp49_, _tmp57_);
+			_g_free0 (_tmp57_);
+			_g_free0 (_tmp55_);
 			result = FALSE;
 			return result;
 		}
-		_tmp53_ = vala_unary_expression_get_inner (self);
-		_tmp54_ = _tmp53_;
-		_tmp55_ = vala_expression_get_value_type (_tmp54_);
-		_tmp56_ = _tmp55_;
-		vala_expression_set_value_type ((ValaExpression*) self, _tmp56_);
+		_tmp58_ = vala_unary_expression_get_inner (self);
+		_tmp59_ = _tmp58_;
+		_tmp60_ = vala_expression_get_value_type (_tmp59_);
+		_tmp61_ = _tmp60_;
+		vala_expression_set_value_type ((ValaExpression*) self, _tmp61_);
 	} else {
-		ValaUnaryOperator _tmp57_;
-		_tmp57_ = self->priv->_operator;
-		if (_tmp57_ == VALA_UNARY_OPERATOR_LOGICAL_NEGATION) {
-			ValaExpression* _tmp58_;
-			ValaExpression* _tmp59_;
-			ValaDataType* _tmp60_;
-			ValaDataType* _tmp61_;
-			ValaSemanticAnalyzer* _tmp62_;
-			ValaSemanticAnalyzer* _tmp63_;
-			ValaDataType* _tmp64_;
-			ValaExpression* _tmp75_;
-			ValaExpression* _tmp76_;
-			ValaDataType* _tmp77_;
-			ValaDataType* _tmp78_;
-			_tmp58_ = vala_unary_expression_get_inner (self);
-			_tmp59_ = _tmp58_;
-			_tmp60_ = vala_expression_get_value_type (_tmp59_);
-			_tmp61_ = _tmp60_;
-			_tmp62_ = vala_code_context_get_analyzer (context);
-			_tmp63_ = _tmp62_;
-			_tmp64_ = _tmp63_->bool_type;
-			if (!vala_data_type_compatible (_tmp61_, _tmp64_)) {
-				ValaSourceReference* _tmp65_;
-				ValaSourceReference* _tmp66_;
-				ValaExpression* _tmp67_;
-				ValaExpression* _tmp68_;
-				ValaDataType* _tmp69_;
-				ValaDataType* _tmp70_;
-				gchar* _tmp71_;
-				gchar* _tmp72_;
-				gchar* _tmp73_;
-				gchar* _tmp74_;
+		ValaUnaryOperator _tmp62_;
+		_tmp62_ = self->priv->_operator;
+		if (_tmp62_ == VALA_UNARY_OPERATOR_LOGICAL_NEGATION) {
+			ValaExpression* _tmp63_;
+			ValaExpression* _tmp64_;
+			ValaDataType* _tmp65_;
+			ValaDataType* _tmp66_;
+			ValaSemanticAnalyzer* _tmp67_;
+			ValaSemanticAnalyzer* _tmp68_;
+			ValaDataType* _tmp69_;
+			ValaExpression* _tmp80_;
+			ValaExpression* _tmp81_;
+			ValaDataType* _tmp82_;
+			ValaDataType* _tmp83_;
+			_tmp63_ = vala_unary_expression_get_inner (self);
+			_tmp64_ = _tmp63_;
+			_tmp65_ = vala_expression_get_value_type (_tmp64_);
+			_tmp66_ = _tmp65_;
+			_tmp67_ = vala_code_context_get_analyzer (context);
+			_tmp68_ = _tmp67_;
+			_tmp69_ = _tmp68_->bool_type;
+			if (!vala_data_type_compatible (_tmp66_, _tmp69_)) {
+				ValaSourceReference* _tmp70_;
+				ValaSourceReference* _tmp71_;
+				ValaExpression* _tmp72_;
+				ValaExpression* _tmp73_;
+				ValaDataType* _tmp74_;
+				ValaDataType* _tmp75_;
+				gchar* _tmp76_;
+				gchar* _tmp77_;
+				gchar* _tmp78_;
+				gchar* _tmp79_;
 				vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-				_tmp65_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-				_tmp66_ = _tmp65_;
-				_tmp67_ = vala_unary_expression_get_inner (self);
-				_tmp68_ = _tmp67_;
-				_tmp69_ = vala_expression_get_value_type (_tmp68_);
-				_tmp70_ = _tmp69_;
-				_tmp71_ = vala_code_node_to_string ((ValaCodeNode*) _tmp70_);
-				_tmp72_ = _tmp71_;
-				_tmp73_ = g_strdup_printf ("Operator not supported for `%s'", _tmp72_);
-				_tmp74_ = _tmp73_;
-				vala_report_error (_tmp66_, _tmp74_);
-				_g_free0 (_tmp74_);
-				_g_free0 (_tmp72_);
+				_tmp70_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+				_tmp71_ = _tmp70_;
+				_tmp72_ = vala_unary_expression_get_inner (self);
+				_tmp73_ = _tmp72_;
+				_tmp74_ = vala_expression_get_value_type (_tmp73_);
+				_tmp75_ = _tmp74_;
+				_tmp76_ = vala_code_node_to_string ((ValaCodeNode*) _tmp75_);
+				_tmp77_ = _tmp76_;
+				_tmp78_ = g_strdup_printf ("Operator not supported for `%s'", _tmp77_);
+				_tmp79_ = _tmp78_;
+				vala_report_error (_tmp71_, _tmp79_);
+				_g_free0 (_tmp79_);
+				_g_free0 (_tmp77_);
 				result = FALSE;
 				return result;
 			}
-			_tmp75_ = vala_unary_expression_get_inner (self);
-			_tmp76_ = _tmp75_;
-			_tmp77_ = vala_expression_get_value_type (_tmp76_);
-			_tmp78_ = _tmp77_;
-			vala_expression_set_value_type ((ValaExpression*) self, _tmp78_);
+			_tmp80_ = vala_unary_expression_get_inner (self);
+			_tmp81_ = _tmp80_;
+			_tmp82_ = vala_expression_get_value_type (_tmp81_);
+			_tmp83_ = _tmp82_;
+			vala_expression_set_value_type ((ValaExpression*) self, _tmp83_);
 		} else {
-			ValaUnaryOperator _tmp79_;
-			_tmp79_ = self->priv->_operator;
-			if (_tmp79_ == VALA_UNARY_OPERATOR_BITWISE_COMPLEMENT) {
-				gboolean _tmp80_ = FALSE;
-				ValaExpression* _tmp81_;
-				ValaExpression* _tmp82_;
-				ValaDataType* _tmp83_;
-				ValaDataType* _tmp84_;
-				ValaExpression* _tmp99_;
-				ValaExpression* _tmp100_;
-				ValaDataType* _tmp101_;
-				ValaDataType* _tmp102_;
-				_tmp81_ = vala_unary_expression_get_inner (self);
-				_tmp82_ = _tmp81_;
-				_tmp83_ = vala_expression_get_value_type (_tmp82_);
-				_tmp84_ = _tmp83_;
-				if (!vala_unary_expression_is_integer_type (self, _tmp84_)) {
-					ValaExpression* _tmp85_;
-					ValaExpression* _tmp86_;
-					ValaDataType* _tmp87_;
-					ValaDataType* _tmp88_;
-					_tmp85_ = vala_unary_expression_get_inner (self);
-					_tmp86_ = _tmp85_;
-					_tmp87_ = vala_expression_get_value_type (_tmp86_);
-					_tmp88_ = _tmp87_;
-					_tmp80_ = !G_TYPE_CHECK_INSTANCE_TYPE (_tmp88_, VALA_TYPE_ENUM_VALUE_TYPE);
-				} else {
-					_tmp80_ = FALSE;
-				}
-				if (_tmp80_) {
-					ValaSourceReference* _tmp89_;
-					ValaSourceReference* _tmp90_;
+			ValaUnaryOperator _tmp84_;
+			_tmp84_ = self->priv->_operator;
+			if (_tmp84_ == VALA_UNARY_OPERATOR_BITWISE_COMPLEMENT) {
+				gboolean _tmp85_ = FALSE;
+				ValaExpression* _tmp86_;
+				ValaExpression* _tmp87_;
+				ValaDataType* _tmp88_;
+				ValaDataType* _tmp89_;
+				ValaExpression* _tmp104_;
+				ValaExpression* _tmp105_;
+				ValaDataType* _tmp106_;
+				ValaDataType* _tmp107_;
+				_tmp86_ = vala_unary_expression_get_inner (self);
+				_tmp87_ = _tmp86_;
+				_tmp88_ = vala_expression_get_value_type (_tmp87_);
+				_tmp89_ = _tmp88_;
+				if (!vala_unary_expression_is_integer_type (self, _tmp89_)) {
+					ValaExpression* _tmp90_;
 					ValaExpression* _tmp91_;
-					ValaExpression* _tmp92_;
+					ValaDataType* _tmp92_;
 					ValaDataType* _tmp93_;
-					ValaDataType* _tmp94_;
-					gchar* _tmp95_;
-					gchar* _tmp96_;
-					gchar* _tmp97_;
-					gchar* _tmp98_;
+					_tmp90_ = vala_unary_expression_get_inner (self);
+					_tmp91_ = _tmp90_;
+					_tmp92_ = vala_expression_get_value_type (_tmp91_);
+					_tmp93_ = _tmp92_;
+					_tmp85_ = !G_TYPE_CHECK_INSTANCE_TYPE (_tmp93_, VALA_TYPE_ENUM_VALUE_TYPE);
+				} else {
+					_tmp85_ = FALSE;
+				}
+				if (_tmp85_) {
+					ValaSourceReference* _tmp94_;
+					ValaSourceReference* _tmp95_;
+					ValaExpression* _tmp96_;
+					ValaExpression* _tmp97_;
+					ValaDataType* _tmp98_;
+					ValaDataType* _tmp99_;
+					gchar* _tmp100_;
+					gchar* _tmp101_;
+					gchar* _tmp102_;
+					gchar* _tmp103_;
 					vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-					_tmp89_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-					_tmp90_ = _tmp89_;
-					_tmp91_ = vala_unary_expression_get_inner (self);
-					_tmp92_ = _tmp91_;
-					_tmp93_ = vala_expression_get_value_type (_tmp92_);
-					_tmp94_ = _tmp93_;
-					_tmp95_ = vala_code_node_to_string ((ValaCodeNode*) _tmp94_);
-					_tmp96_ = _tmp95_;
-					_tmp97_ = g_strdup_printf ("Operator not supported for `%s'", _tmp96_);
-					_tmp98_ = _tmp97_;
-					vala_report_error (_tmp90_, _tmp98_);
-					_g_free0 (_tmp98_);
-					_g_free0 (_tmp96_);
+					_tmp94_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+					_tmp95_ = _tmp94_;
+					_tmp96_ = vala_unary_expression_get_inner (self);
+					_tmp97_ = _tmp96_;
+					_tmp98_ = vala_expression_get_value_type (_tmp97_);
+					_tmp99_ = _tmp98_;
+					_tmp100_ = vala_code_node_to_string ((ValaCodeNode*) _tmp99_);
+					_tmp101_ = _tmp100_;
+					_tmp102_ = g_strdup_printf ("Operator not supported for `%s'", _tmp101_);
+					_tmp103_ = _tmp102_;
+					vala_report_error (_tmp95_, _tmp103_);
+					_g_free0 (_tmp103_);
+					_g_free0 (_tmp101_);
 					result = FALSE;
 					return result;
 				}
-				_tmp99_ = vala_unary_expression_get_inner (self);
-				_tmp100_ = _tmp99_;
-				_tmp101_ = vala_expression_get_value_type (_tmp100_);
-				_tmp102_ = _tmp101_;
-				vala_expression_set_value_type ((ValaExpression*) self, _tmp102_);
+				_tmp104_ = vala_unary_expression_get_inner (self);
+				_tmp105_ = _tmp104_;
+				_tmp106_ = vala_expression_get_value_type (_tmp105_);
+				_tmp107_ = _tmp106_;
+				vala_expression_set_value_type ((ValaExpression*) self, _tmp107_);
 			} else {
-				gboolean _tmp103_ = FALSE;
-				ValaUnaryOperator _tmp104_;
-				_tmp104_ = self->priv->_operator;
-				if (_tmp104_ == VALA_UNARY_OPERATOR_INCREMENT) {
-					_tmp103_ = TRUE;
+				gboolean _tmp108_ = FALSE;
+				ValaUnaryOperator _tmp109_;
+				_tmp109_ = self->priv->_operator;
+				if (_tmp109_ == VALA_UNARY_OPERATOR_INCREMENT) {
+					_tmp108_ = TRUE;
 				} else {
-					ValaUnaryOperator _tmp105_;
-					_tmp105_ = self->priv->_operator;
-					_tmp103_ = _tmp105_ == VALA_UNARY_OPERATOR_DECREMENT;
+					ValaUnaryOperator _tmp110_;
+					_tmp110_ = self->priv->_operator;
+					_tmp108_ = _tmp110_ == VALA_UNARY_OPERATOR_DECREMENT;
 				}
-				if (_tmp103_) {
-					ValaExpression* _tmp106_;
-					ValaExpression* _tmp107_;
-					ValaDataType* _tmp108_;
-					ValaDataType* _tmp109_;
+				if (_tmp108_) {
+					ValaExpression* _tmp111_;
+					ValaExpression* _tmp112_;
+					ValaDataType* _tmp113_;
+					ValaDataType* _tmp114_;
 					ValaMemberAccess* ma = NULL;
-					ValaExpression* _tmp120_;
-					ValaExpression* _tmp121_;
-					ValaMemberAccess* _tmp122_;
-					ValaMemberAccess* _tmp123_;
+					ValaExpression* _tmp125_;
+					ValaExpression* _tmp126_;
+					ValaMemberAccess* _tmp127_;
+					ValaMemberAccess* _tmp128_;
 					ValaMemberAccess* old_value = NULL;
-					ValaMemberAccess* _tmp126_;
-					ValaExpression* _tmp127_;
-					ValaExpression* _tmp128_;
-					ValaMemberAccess* _tmp129_;
-					const gchar* _tmp130_;
-					const gchar* _tmp131_;
+					ValaMemberAccess* _tmp131_;
 					ValaExpression* _tmp132_;
 					ValaExpression* _tmp133_;
-					ValaSourceReference* _tmp134_;
-					ValaSourceReference* _tmp135_;
-					ValaMemberAccess* _tmp136_;
-					ValaBinaryOperator _tmp137_ = 0;
-					ValaUnaryOperator _tmp138_;
+					ValaMemberAccess* _tmp134_;
+					const gchar* _tmp135_;
+					const gchar* _tmp136_;
+					ValaExpression* _tmp137_;
+					ValaExpression* _tmp138_;
+					ValaSourceReference* _tmp139_;
+					ValaSourceReference* _tmp140_;
+					ValaMemberAccess* _tmp141_;
+					ValaBinaryOperator _tmp142_ = 0;
+					ValaUnaryOperator _tmp143_;
 					ValaBinaryExpression* bin = NULL;
-					ValaMemberAccess* _tmp139_;
-					ValaIntegerLiteral* _tmp140_;
-					ValaIntegerLiteral* _tmp141_;
-					ValaSourceReference* _tmp142_;
-					ValaSourceReference* _tmp143_;
-					ValaBinaryExpression* _tmp144_;
-					ValaBinaryExpression* _tmp145_;
-					ValaAssignment* assignment = NULL;
-					ValaMemberAccess* _tmp146_;
-					ValaBinaryExpression* _tmp147_;
+					ValaMemberAccess* _tmp144_;
+					ValaIntegerLiteral* _tmp145_;
+					ValaIntegerLiteral* _tmp146_;
+					ValaSourceReference* _tmp147_;
 					ValaSourceReference* _tmp148_;
-					ValaSourceReference* _tmp149_;
-					ValaAssignment* _tmp150_;
-					ValaAssignment* _tmp151_;
-					ValaDataType* _tmp152_;
-					ValaDataType* _tmp153_;
-					ValaSemanticAnalyzer* _tmp154_;
-					ValaSemanticAnalyzer* _tmp155_;
-					ValaList* _tmp156_;
-					ValaCodeNode* _tmp157_;
-					ValaCodeNode* _tmp158_;
-					ValaAssignment* _tmp159_;
-					ValaAssignment* _tmp160_;
-					_tmp106_ = vala_unary_expression_get_inner (self);
-					_tmp107_ = _tmp106_;
-					_tmp108_ = vala_expression_get_value_type (_tmp107_);
-					_tmp109_ = _tmp108_;
-					if (!vala_unary_expression_is_integer_type (self, _tmp109_)) {
-						ValaSourceReference* _tmp110_;
-						ValaSourceReference* _tmp111_;
-						ValaExpression* _tmp112_;
-						ValaExpression* _tmp113_;
-						ValaDataType* _tmp114_;
-						ValaDataType* _tmp115_;
-						gchar* _tmp116_;
-						gchar* _tmp117_;
-						gchar* _tmp118_;
-						gchar* _tmp119_;
+					ValaBinaryExpression* _tmp149_;
+					ValaBinaryExpression* _tmp150_;
+					ValaAssignment* assignment = NULL;
+					ValaMemberAccess* _tmp151_;
+					ValaBinaryExpression* _tmp152_;
+					ValaSourceReference* _tmp153_;
+					ValaSourceReference* _tmp154_;
+					ValaAssignment* _tmp155_;
+					ValaAssignment* _tmp156_;
+					ValaDataType* _tmp157_;
+					ValaDataType* _tmp158_;
+					ValaSemanticAnalyzer* _tmp159_;
+					ValaSemanticAnalyzer* _tmp160_;
+					ValaList* _tmp161_;
+					ValaCodeNode* _tmp162_;
+					ValaCodeNode* _tmp163_;
+					ValaAssignment* _tmp164_;
+					ValaAssignment* _tmp165_;
+					_tmp111_ = vala_unary_expression_get_inner (self);
+					_tmp112_ = _tmp111_;
+					_tmp113_ = vala_expression_get_value_type (_tmp112_);
+					_tmp114_ = _tmp113_;
+					if (!vala_unary_expression_is_integer_type (self, _tmp114_)) {
+						ValaSourceReference* _tmp115_;
+						ValaSourceReference* _tmp116_;
+						ValaExpression* _tmp117_;
+						ValaExpression* _tmp118_;
+						ValaDataType* _tmp119_;
+						ValaDataType* _tmp120_;
+						gchar* _tmp121_;
+						gchar* _tmp122_;
+						gchar* _tmp123_;
+						gchar* _tmp124_;
 						vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-						_tmp110_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-						_tmp111_ = _tmp110_;
-						_tmp112_ = vala_unary_expression_get_inner (self);
-						_tmp113_ = _tmp112_;
-						_tmp114_ = vala_expression_get_value_type (_tmp113_);
-						_tmp115_ = _tmp114_;
-						_tmp116_ = vala_code_node_to_string ((ValaCodeNode*) _tmp115_);
-						_tmp117_ = _tmp116_;
-						_tmp118_ = g_strdup_printf ("Operator not supported for `%s'", _tmp117_);
-						_tmp119_ = _tmp118_;
-						vala_report_error (_tmp111_, _tmp119_);
-						_g_free0 (_tmp119_);
-						_g_free0 (_tmp117_);
+						_tmp115_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+						_tmp116_ = _tmp115_;
+						_tmp117_ = vala_unary_expression_get_inner (self);
+						_tmp118_ = _tmp117_;
+						_tmp119_ = vala_expression_get_value_type (_tmp118_);
+						_tmp120_ = _tmp119_;
+						_tmp121_ = vala_code_node_to_string ((ValaCodeNode*) _tmp120_);
+						_tmp122_ = _tmp121_;
+						_tmp123_ = g_strdup_printf ("Operator not supported for `%s'", _tmp122_);
+						_tmp124_ = _tmp123_;
+						vala_report_error (_tmp116_, _tmp124_);
+						_g_free0 (_tmp124_);
+						_g_free0 (_tmp122_);
 						result = FALSE;
 						return result;
 					}
-					_tmp120_ = vala_unary_expression_get_inner (self);
-					_tmp121_ = _tmp120_;
-					_tmp122_ = vala_unary_expression_find_member_access (self, _tmp121_);
-					ma = _tmp122_;
-					_tmp123_ = ma;
-					if (_tmp123_ == NULL) {
-						ValaSourceReference* _tmp124_;
-						ValaSourceReference* _tmp125_;
+					_tmp125_ = vala_unary_expression_get_inner (self);
+					_tmp126_ = _tmp125_;
+					_tmp127_ = vala_unary_expression_find_member_access (self, _tmp126_);
+					ma = _tmp127_;
+					_tmp128_ = ma;
+					if (_tmp128_ == NULL) {
+						ValaSourceReference* _tmp129_;
+						ValaSourceReference* _tmp130_;
 						vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-						_tmp124_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-						_tmp125_ = _tmp124_;
-						vala_report_error (_tmp125_, "Prefix operators not supported for this expression");
+						_tmp129_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+						_tmp130_ = _tmp129_;
+						vala_report_error (_tmp130_, "Prefix operators not supported for this expression");
 						result = FALSE;
 						_vala_code_node_unref0 (ma);
 						return result;
 					}
-					_tmp126_ = ma;
-					_tmp127_ = vala_member_access_get_inner (_tmp126_);
-					_tmp128_ = _tmp127_;
-					_tmp129_ = ma;
-					_tmp130_ = vala_member_access_get_member_name (_tmp129_);
-					_tmp131_ = _tmp130_;
-					_tmp132_ = vala_unary_expression_get_inner (self);
+					_tmp131_ = ma;
+					_tmp132_ = vala_member_access_get_inner (_tmp131_);
 					_tmp133_ = _tmp132_;
-					_tmp134_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp133_);
-					_tmp135_ = _tmp134_;
-					_tmp136_ = vala_member_access_new (_tmp128_, _tmp131_, _tmp135_);
-					old_value = _tmp136_;
-					_tmp138_ = self->priv->_operator;
-					if (_tmp138_ == VALA_UNARY_OPERATOR_INCREMENT) {
-						_tmp137_ = VALA_BINARY_OPERATOR_PLUS;
+					_tmp134_ = ma;
+					_tmp135_ = vala_member_access_get_member_name (_tmp134_);
+					_tmp136_ = _tmp135_;
+					_tmp137_ = vala_unary_expression_get_inner (self);
+					_tmp138_ = _tmp137_;
+					_tmp139_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp138_);
+					_tmp140_ = _tmp139_;
+					_tmp141_ = vala_member_access_new (_tmp133_, _tmp136_, _tmp140_);
+					old_value = _tmp141_;
+					_tmp143_ = self->priv->_operator;
+					if (_tmp143_ == VALA_UNARY_OPERATOR_INCREMENT) {
+						_tmp142_ = VALA_BINARY_OPERATOR_PLUS;
 					} else {
-						_tmp137_ = VALA_BINARY_OPERATOR_MINUS;
+						_tmp142_ = VALA_BINARY_OPERATOR_MINUS;
 					}
-					_tmp139_ = old_value;
-					_tmp140_ = vala_integer_literal_new ("1", NULL);
-					_tmp141_ = _tmp140_;
-					_tmp142_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-					_tmp143_ = _tmp142_;
-					_tmp144_ = vala_binary_expression_new (_tmp137_, (ValaExpression*) _tmp139_, (ValaExpression*) _tmp141_, _tmp143_);
-					_tmp145_ = _tmp144_;
-					_vala_code_node_unref0 (_tmp141_);
-					bin = _tmp145_;
-					_tmp146_ = ma;
-					_tmp147_ = bin;
-					_tmp148_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-					_tmp149_ = _tmp148_;
-					_tmp150_ = vala_assignment_new ((ValaExpression*) _tmp146_, (ValaExpression*) _tmp147_, VALA_ASSIGNMENT_OPERATOR_SIMPLE, _tmp149_);
-					assignment = _tmp150_;
-					_tmp151_ = assignment;
-					_tmp152_ = vala_expression_get_target_type ((ValaExpression*) self);
-					_tmp153_ = _tmp152_;
-					vala_expression_set_target_type ((ValaExpression*) _tmp151_, _tmp153_);
-					_tmp154_ = vala_code_context_get_analyzer (context);
-					_tmp155_ = _tmp154_;
-					_tmp156_ = _tmp155_->replaced_nodes;
-					vala_collection_add ((ValaCollection*) _tmp156_, (ValaCodeNode*) self);
-					_tmp157_ = vala_code_node_get_parent_node ((ValaCodeNode*) self);
+					_tmp144_ = old_value;
+					_tmp145_ = vala_integer_literal_new ("1", NULL);
+					_tmp146_ = _tmp145_;
+					_tmp147_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+					_tmp148_ = _tmp147_;
+					_tmp149_ = vala_binary_expression_new (_tmp142_, (ValaExpression*) _tmp144_, (ValaExpression*) _tmp146_, _tmp148_);
+					_tmp150_ = _tmp149_;
+					_vala_code_node_unref0 (_tmp146_);
+					bin = _tmp150_;
+					_tmp151_ = ma;
+					_tmp152_ = bin;
+					_tmp153_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+					_tmp154_ = _tmp153_;
+					_tmp155_ = vala_assignment_new ((ValaExpression*) _tmp151_, (ValaExpression*) _tmp152_, VALA_ASSIGNMENT_OPERATOR_SIMPLE, _tmp154_);
+					assignment = _tmp155_;
+					_tmp156_ = assignment;
+					_tmp157_ = vala_expression_get_target_type ((ValaExpression*) self);
 					_tmp158_ = _tmp157_;
-					_tmp159_ = assignment;
-					vala_code_node_replace_expression (_tmp158_, (ValaExpression*) self, (ValaExpression*) _tmp159_);
-					_tmp160_ = assignment;
-					vala_code_node_check ((ValaCodeNode*) _tmp160_, context);
+					vala_expression_set_target_type ((ValaExpression*) _tmp156_, _tmp158_);
+					_tmp159_ = vala_code_context_get_analyzer (context);
+					_tmp160_ = _tmp159_;
+					_tmp161_ = _tmp160_->replaced_nodes;
+					vala_collection_add ((ValaCollection*) _tmp161_, (ValaCodeNode*) self);
+					_tmp162_ = vala_code_node_get_parent_node ((ValaCodeNode*) self);
+					_tmp163_ = _tmp162_;
+					_tmp164_ = assignment;
+					vala_code_node_replace_expression (_tmp163_, (ValaExpression*) self, (ValaExpression*) _tmp164_);
+					_tmp165_ = assignment;
+					vala_code_node_check ((ValaCodeNode*) _tmp165_, context);
 					result = TRUE;
 					_vala_code_node_unref0 (assignment);
 					_vala_code_node_unref0 (bin);
@@ -909,103 +923,103 @@ vala_unary_expression_real_check (ValaCodeNode* base,
 					_vala_code_node_unref0 (ma);
 					return result;
 				} else {
-					gboolean _tmp161_ = FALSE;
-					ValaUnaryOperator _tmp162_;
-					_tmp162_ = self->priv->_operator;
-					if (_tmp162_ == VALA_UNARY_OPERATOR_REF) {
-						_tmp161_ = TRUE;
+					gboolean _tmp166_ = FALSE;
+					ValaUnaryOperator _tmp167_;
+					_tmp167_ = self->priv->_operator;
+					if (_tmp167_ == VALA_UNARY_OPERATOR_REF) {
+						_tmp166_ = TRUE;
 					} else {
-						ValaUnaryOperator _tmp163_;
-						_tmp163_ = self->priv->_operator;
-						_tmp161_ = _tmp163_ == VALA_UNARY_OPERATOR_OUT;
+						ValaUnaryOperator _tmp168_;
+						_tmp168_ = self->priv->_operator;
+						_tmp166_ = _tmp168_ == VALA_UNARY_OPERATOR_OUT;
 					}
-					if (_tmp161_) {
+					if (_tmp166_) {
 						ValaElementAccess* ea = NULL;
-						ValaExpression* _tmp164_;
-						ValaExpression* _tmp165_;
-						ValaElementAccess* _tmp166_;
-						gboolean _tmp167_ = FALSE;
-						gboolean _tmp168_ = FALSE;
-						gboolean _tmp169_ = FALSE;
+						ValaExpression* _tmp169_;
 						ValaExpression* _tmp170_;
-						ValaExpression* _tmp171_;
-						ValaSymbol* _tmp172_;
-						ValaSymbol* _tmp173_;
-						_tmp164_ = vala_unary_expression_get_inner (self);
-						_tmp165_ = _tmp164_;
-						_tmp166_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp165_, VALA_TYPE_ELEMENT_ACCESS) ? ((ValaElementAccess*) _tmp165_) : NULL);
-						ea = _tmp166_;
-						_tmp170_ = vala_unary_expression_get_inner (self);
-						_tmp171_ = _tmp170_;
-						_tmp172_ = vala_expression_get_symbol_reference (_tmp171_);
-						_tmp173_ = _tmp172_;
-						if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp173_, VALA_TYPE_FIELD)) {
-							_tmp169_ = TRUE;
+						ValaElementAccess* _tmp171_;
+						gboolean _tmp172_ = FALSE;
+						gboolean _tmp173_ = FALSE;
+						gboolean _tmp174_ = FALSE;
+						ValaExpression* _tmp175_;
+						ValaExpression* _tmp176_;
+						ValaSymbol* _tmp177_;
+						ValaSymbol* _tmp178_;
+						_tmp169_ = vala_unary_expression_get_inner (self);
+						_tmp170_ = _tmp169_;
+						_tmp171_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp170_, VALA_TYPE_ELEMENT_ACCESS) ? ((ValaElementAccess*) _tmp170_) : NULL);
+						ea = _tmp171_;
+						_tmp175_ = vala_unary_expression_get_inner (self);
+						_tmp176_ = _tmp175_;
+						_tmp177_ = vala_expression_get_symbol_reference (_tmp176_);
+						_tmp178_ = _tmp177_;
+						if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp178_, VALA_TYPE_FIELD)) {
+							_tmp174_ = TRUE;
 						} else {
-							ValaExpression* _tmp174_;
-							ValaExpression* _tmp175_;
-							ValaSymbol* _tmp176_;
-							ValaSymbol* _tmp177_;
-							_tmp174_ = vala_unary_expression_get_inner (self);
-							_tmp175_ = _tmp174_;
-							_tmp176_ = vala_expression_get_symbol_reference (_tmp175_);
-							_tmp177_ = _tmp176_;
-							_tmp169_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp177_, VALA_TYPE_PARAMETER);
-						}
-						if (_tmp169_) {
-							_tmp168_ = TRUE;
-						} else {
-							ValaExpression* _tmp178_;
 							ValaExpression* _tmp179_;
-							ValaSymbol* _tmp180_;
+							ValaExpression* _tmp180_;
 							ValaSymbol* _tmp181_;
-							_tmp178_ = vala_unary_expression_get_inner (self);
-							_tmp179_ = _tmp178_;
-							_tmp180_ = vala_expression_get_symbol_reference (_tmp179_);
-							_tmp181_ = _tmp180_;
-							_tmp168_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp181_, VALA_TYPE_LOCAL_VARIABLE);
+							ValaSymbol* _tmp182_;
+							_tmp179_ = vala_unary_expression_get_inner (self);
+							_tmp180_ = _tmp179_;
+							_tmp181_ = vala_expression_get_symbol_reference (_tmp180_);
+							_tmp182_ = _tmp181_;
+							_tmp174_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp182_, VALA_TYPE_PARAMETER);
 						}
-						if (_tmp168_) {
-							_tmp167_ = TRUE;
+						if (_tmp174_) {
+							_tmp173_ = TRUE;
 						} else {
-							gboolean _tmp182_ = FALSE;
-							ValaElementAccess* _tmp183_;
-							_tmp183_ = ea;
-							if (_tmp183_ != NULL) {
-								ValaElementAccess* _tmp184_;
-								ValaExpression* _tmp185_;
-								ValaExpression* _tmp186_;
-								ValaDataType* _tmp187_;
-								ValaDataType* _tmp188_;
-								_tmp184_ = ea;
-								_tmp185_ = vala_element_access_get_container (_tmp184_);
-								_tmp186_ = _tmp185_;
-								_tmp187_ = vala_expression_get_value_type (_tmp186_);
-								_tmp188_ = _tmp187_;
-								_tmp182_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp188_, VALA_TYPE_ARRAY_TYPE);
+							ValaExpression* _tmp183_;
+							ValaExpression* _tmp184_;
+							ValaSymbol* _tmp185_;
+							ValaSymbol* _tmp186_;
+							_tmp183_ = vala_unary_expression_get_inner (self);
+							_tmp184_ = _tmp183_;
+							_tmp185_ = vala_expression_get_symbol_reference (_tmp184_);
+							_tmp186_ = _tmp185_;
+							_tmp173_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp186_, VALA_TYPE_LOCAL_VARIABLE);
+						}
+						if (_tmp173_) {
+							_tmp172_ = TRUE;
+						} else {
+							gboolean _tmp187_ = FALSE;
+							ValaElementAccess* _tmp188_;
+							_tmp188_ = ea;
+							if (_tmp188_ != NULL) {
+								ValaElementAccess* _tmp189_;
+								ValaExpression* _tmp190_;
+								ValaExpression* _tmp191_;
+								ValaDataType* _tmp192_;
+								ValaDataType* _tmp193_;
+								_tmp189_ = ea;
+								_tmp190_ = vala_element_access_get_container (_tmp189_);
+								_tmp191_ = _tmp190_;
+								_tmp192_ = vala_expression_get_value_type (_tmp191_);
+								_tmp193_ = _tmp192_;
+								_tmp187_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp193_, VALA_TYPE_ARRAY_TYPE);
 							} else {
-								_tmp182_ = FALSE;
+								_tmp187_ = FALSE;
 							}
-							_tmp167_ = _tmp182_;
+							_tmp172_ = _tmp187_;
 						}
-						if (_tmp167_) {
-							ValaExpression* _tmp189_;
-							ValaExpression* _tmp190_;
-							ValaDataType* _tmp191_;
-							ValaDataType* _tmp192_;
+						if (_tmp172_) {
+							ValaExpression* _tmp194_;
+							ValaExpression* _tmp195_;
+							ValaDataType* _tmp196_;
+							ValaDataType* _tmp197_;
 							vala_expression_set_lvalue ((ValaExpression*) self, TRUE);
-							_tmp189_ = vala_unary_expression_get_inner (self);
-							_tmp190_ = _tmp189_;
-							_tmp191_ = vala_expression_get_value_type (_tmp190_);
-							_tmp192_ = _tmp191_;
-							vala_expression_set_value_type ((ValaExpression*) self, _tmp192_);
+							_tmp194_ = vala_unary_expression_get_inner (self);
+							_tmp195_ = _tmp194_;
+							_tmp196_ = vala_expression_get_value_type (_tmp195_);
+							_tmp197_ = _tmp196_;
+							vala_expression_set_value_type ((ValaExpression*) self, _tmp197_);
 						} else {
-							ValaSourceReference* _tmp193_;
-							ValaSourceReference* _tmp194_;
+							ValaSourceReference* _tmp198_;
+							ValaSourceReference* _tmp199_;
 							vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-							_tmp193_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-							_tmp194_ = _tmp193_;
-							vala_report_error (_tmp194_, "ref and out method arguments can only be used with fields, parameters," \
+							_tmp198_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+							_tmp199_ = _tmp198_;
+							vala_report_error (_tmp199_, "ref and out method arguments can only be used with fields, parameters," \
 " local variables, and array element access");
 							result = FALSE;
 							_vala_code_node_unref0 (ea);
@@ -1013,12 +1027,12 @@ vala_unary_expression_real_check (ValaCodeNode* base,
 						}
 						_vala_code_node_unref0 (ea);
 					} else {
-						ValaSourceReference* _tmp195_;
-						ValaSourceReference* _tmp196_;
+						ValaSourceReference* _tmp200_;
+						ValaSourceReference* _tmp201_;
 						vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-						_tmp195_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-						_tmp196_ = _tmp195_;
-						vala_report_error (_tmp196_, "internal error: unsupported unary operator");
+						_tmp200_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+						_tmp201_ = _tmp200_;
+						vala_report_error (_tmp201_, "internal error: unsupported unary operator");
 						result = FALSE;
 						return result;
 					}
@@ -1026,9 +1040,9 @@ vala_unary_expression_real_check (ValaCodeNode* base,
 			}
 		}
 	}
-	_tmp197_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp198_ = _tmp197_;
-	result = !_tmp198_;
+	_tmp202_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp203_ = _tmp202_;
+	result = !_tmp203_;
 	return result;
 }
 
