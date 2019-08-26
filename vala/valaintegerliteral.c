@@ -202,10 +202,8 @@ static gint64
 int64_parse (const gchar* str)
 {
 	gint64 result = 0LL;
-	gint64 _tmp0_;
 	g_return_val_if_fail (str != NULL, 0LL);
-	_tmp0_ = g_ascii_strtoll (str, NULL, (guint) 0);
-	result = _tmp0_;
+	result = g_ascii_strtoll (str, NULL, (guint) 0);
 	return result;
 }
 

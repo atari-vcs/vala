@@ -35,6 +35,7 @@
 
 struct _ValaCTypePrivate {
 	gchar* _ctype_name;
+	gchar* _cdefault_value;
 };
 
 
@@ -54,20 +55,24 @@ vala_ctype_get_instance_private (ValaCType* self)
 
 ValaCType*
 vala_ctype_construct (GType object_type,
-                      const gchar* ctype_name)
+                      const gchar* ctype_name,
+                      const gchar* cdefault_value)
 {
 	ValaCType* self = NULL;
 	g_return_val_if_fail (ctype_name != NULL, NULL);
+	g_return_val_if_fail (cdefault_value != NULL, NULL);
 	self = (ValaCType*) vala_data_type_construct (object_type);
 	vala_ctype_set_ctype_name (self, ctype_name);
+	vala_ctype_set_cdefault_value (self, cdefault_value);
 	return self;
 }
 
 
 ValaCType*
-vala_ctype_new (const gchar* ctype_name)
+vala_ctype_new (const gchar* ctype_name,
+                const gchar* cdefault_value)
 {
-	return vala_ctype_construct (VALA_TYPE_CTYPE, ctype_name);
+	return vala_ctype_construct (VALA_TYPE_CTYPE, ctype_name, cdefault_value);
 }
 
 
@@ -77,11 +82,13 @@ vala_ctype_real_copy (ValaDataType* base)
 	ValaCType * self;
 	ValaDataType* result = NULL;
 	const gchar* _tmp0_;
-	ValaCType* _tmp1_;
+	const gchar* _tmp1_;
+	ValaCType* _tmp2_;
 	self = (ValaCType*) base;
 	_tmp0_ = self->priv->_ctype_name;
-	_tmp1_ = vala_ctype_new (_tmp0_);
-	result = (ValaDataType*) _tmp1_;
+	_tmp1_ = self->priv->_cdefault_value;
+	_tmp2_ = vala_ctype_new (_tmp0_, _tmp1_);
+	result = (ValaDataType*) _tmp2_;
 	return result;
 }
 
@@ -110,6 +117,30 @@ vala_ctype_set_ctype_name (ValaCType* self,
 }
 
 
+const gchar*
+vala_ctype_get_cdefault_value (ValaCType* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_cdefault_value;
+	result = _tmp0_;
+	return result;
+}
+
+
+void
+vala_ctype_set_cdefault_value (ValaCType* self,
+                               const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_cdefault_value);
+	self->priv->_cdefault_value = _tmp0_;
+}
+
+
 static void
 vala_ctype_class_init (ValaCTypeClass * klass)
 {
@@ -133,6 +164,7 @@ vala_ctype_finalize (ValaCodeNode * obj)
 	ValaCType * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_CTYPE, ValaCType);
 	_g_free0 (self->priv->_ctype_name);
+	_g_free0 (self->priv->_cdefault_value);
 	VALA_CODE_NODE_CLASS (vala_ctype_parent_class)->finalize (obj);
 }
 

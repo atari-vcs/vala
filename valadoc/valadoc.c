@@ -28,8 +28,8 @@
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
-#include <valadoc.h>
 #include <stdio.h>
+#include <valadoc.h>
 #include <vala.h>
 #include <locale.h>
 #include <glib/gstdio.h>
@@ -65,10 +65,6 @@ typedef struct _ValadocDriversDriverClass ValadocDriversDriverClass;
 #define _valadoc_api_tree_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_tree_unref (var), NULL)))
 #define _g_option_context_free0(var) ((var == NULL) ? NULL : (var = (g_option_context_free (var), NULL)))
 #define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
-#define _vala_assert(expr, msg) if G_LIKELY (expr) ; else g_assertion_message_expr (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
-#define _vala_return_if_fail(expr, msg) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return; }
-#define _vala_return_val_if_fail(expr, msg, val) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return val; }
-#define _vala_warn_if_fail(expr, msg) if G_LIKELY (expr) ; else g_warn_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 
 struct _ValaDoc {
 	GObject parent_instance;
@@ -99,8 +95,6 @@ static gchar* vala_doc_gir_namespace;
 static gchar* vala_doc_gir_namespace = NULL;
 static gchar* vala_doc_gir_version;
 static gchar* vala_doc_gir_version = NULL;
-static gchar* vala_doc_driverpath;
-static gchar* vala_doc_driverpath = NULL;
 static gboolean vala_doc_add_inherited;
 static gboolean vala_doc_add_inherited = FALSE;
 static gboolean vala_doc__protected;
@@ -152,16 +146,16 @@ static gchar* vala_doc_target_glib = NULL;
 
 GType vala_doc_get_type (void) G_GNUC_CONST;
 #define VALA_DOC_DEFAULT_COLORS "error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
+static gboolean vala_doc_option_deprecated (const gchar* option_name,
+                                     const gchar* val,
+                                     void* data,
+                                     GError** error);
 static gint vala_doc_quit (ValadocErrorReporter* reporter);
 static gboolean vala_doc_check_pkg_name (void);
 static gchar* vala_doc_get_pkg_name (ValaDoc* self);
 static ValadocModuleLoader* vala_doc_create_module_loader (ValaDoc* self,
                                                     ValadocErrorReporter* reporter,
-                                                    ValadocDoclet* * doclet,
-                                                    ValadocDriver* * driver);
-ValadocDriversDriver* valadoc_drivers_driver_new (void);
-ValadocDriversDriver* valadoc_drivers_driver_construct (GType object_type);
-GType valadoc_drivers_driver_get_type (void) G_GNUC_CONST;
+                                                    ValadocDoclet* * doclet);
 static gint vala_doc_run (ValaDoc* self,
                    ValadocErrorReporter* reporter);
 static gchar** _vala_array_dup1 (gchar** self,
@@ -180,6 +174,9 @@ static gchar** _vala_array_dup7 (gchar** self,
                           int length);
 static gchar** _vala_array_dup8 (gchar** self,
                           int length);
+GType valadoc_drivers_driver_get_type (void) G_GNUC_CONST;
+ValadocDriversDriver* valadoc_drivers_driver_new (void);
+ValadocDriversDriver* valadoc_drivers_driver_construct (GType object_type);
 static gint vala_doc_main (gchar** args,
                     int args_length1);
 ValaDoc* vala_doc_new (void);
@@ -193,7 +190,23 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-static const GOptionEntry VALA_DOC_options[32] = {{"directory", 'o', 0, G_OPTION_ARG_FILENAME, &vala_doc_directory, "Output directory", "DIRECTORY"}, {"basedir", 'b', 0, G_OPTION_ARG_FILENAME, &vala_doc_basedir, "Base source directory", "DIRECTORY"}, {"define", 'D', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_defines, "Define SYMBOL", "SYMBOL..."}, {"profile", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_profile, "Use the given profile instead of the default", "PROFILE"}, {"enable-experimental", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental, "Enable experimental features", NULL}, {"enable-experimental-non-null", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental_non_null, "Enable experimental enhancements for non-null types", NULL}, {"metadatadir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_metadata_directories, "Look for GIR .metadata files in DIRECTORY", "DIRECTORY..."}, {"girdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_gir_directories, "Look for .gir files in DIRECTORY", "DIRECTORY..."}, {"vapidir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_vapi_directories, "Look for package bindings in DIRECTORY", "DIRECTORY..."}, {"pkg", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"driver", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_driverpath, "Name of an driver or path to a custom driver", NULL}, {"importdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_import_directories, "Look for external documentation in DIRECTORY", "DIRECTORY..."}, {"import", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_import_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"alternative-resource-dir", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_alternative_resource_dirs, "Alternative resource directories", "DIRECTORY..."}, {"wiki", (gchar) 0, 0, G_OPTION_ARG_FILENAME, &vala_doc_wikidirectory, "Wiki directory", "DIRECTORY"}, {"deps", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_with_deps, "Adds packages to the documentation", NULL}, {"doclet", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_docletpath, "Name of an included doclet or path to custom doclet", "PLUGIN"}, {"doclet-arg", 'X', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_pluginargs, "Pass arguments to the doclet", "ARG"}, {"no-protected", (gchar) 0, (gint) G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE, &vala_doc__protected, "Removes protected elements from documentation", NULL}, {"internal", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__internal, "Adds internal elements to documentation", NULL}, {"private", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__private, "Adds private elements to documentation", NULL}, {"use-svg-images", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_use_svg_images, "Generate SVG image charts instead of PNG", NULL}, {"package-name", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_name, "package name", "NAME"}, {"package-version", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_version, "package version", "VERSION"}, {"gir", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_gir_name, "GObject-Introspection repository file name", "NAME-VERSION.gir"}, {"version", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_version, "Display version number", NULL}, {"force", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_force, "force", NULL}, {"verbose", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_verbose, "Show all warnings", NULL}, {"no-color", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_disable_diagnostic_colors, "Disable colored output", NULL}, {"target-glib", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_target_glib, "Target version of glib for code generation", "MAJOR.MINOR"}, {G_OPTION_REMAINING, (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_tsources, NULL, "FILE..."}, {NULL}};
+static const GOptionEntry VALA_DOC_options[32] = {{"directory", 'o', 0, G_OPTION_ARG_FILENAME, &vala_doc_directory, "Output directory", "DIRECTORY"}, {"basedir", 'b', 0, G_OPTION_ARG_FILENAME, &vala_doc_basedir, "Base source directory", "DIRECTORY"}, {"define", 'D', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_defines, "Define SYMBOL", "SYMBOL..."}, {"profile", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_profile, "Use the given profile instead of the default", "PROFILE"}, {"enable-experimental", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental, "Enable experimental features", NULL}, {"enable-experimental-non-null", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental_non_null, "Enable experimental enhancements for non-null types", NULL}, {"metadatadir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_metadata_directories, "Look for GIR .metadata files in DIRECTORY", "DIRECTORY..."}, {"girdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_gir_directories, "Look for .gir files in DIRECTORY", "DIRECTORY..."}, {"vapidir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_vapi_directories, "Look for package bindings in DIRECTORY", "DIRECTORY..."}, {"pkg", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"driver", (gchar) 0, (gint) G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, (void*) vala_doc_option_deprecated, "Name of an driver or path to a custom driver (DEPRECATED AND IGNORED)", NULL}, {"importdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_import_directories, "Look for external documentation in DIRECTORY", "DIRECTORY..."}, {"import", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_import_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"alternative-resource-dir", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_alternative_resource_dirs, "Alternative resource directories", "DIRECTORY..."}, {"wiki", (gchar) 0, 0, G_OPTION_ARG_FILENAME, &vala_doc_wikidirectory, "Wiki directory", "DIRECTORY"}, {"deps", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_with_deps, "Adds packages to the documentation", NULL}, {"doclet", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_docletpath, "Name of an included doclet or path to custom doclet", "PLUGIN"}, {"doclet-arg", 'X', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_pluginargs, "Pass arguments to the doclet", "ARG"}, {"no-protected", (gchar) 0, (gint) G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE, &vala_doc__protected, "Removes protected elements from documentation", NULL}, {"internal", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__internal, "Adds internal elements to documentation", NULL}, {"private", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__private, "Adds private elements to documentation", NULL}, {"use-svg-images", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_use_svg_images, "Generate SVG image charts instead of PNG", NULL}, {"package-name", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_name, "package name", "NAME"}, {"package-version", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_version, "package version", "VERSION"}, {"gir", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_gir_name, "GObject-Introspection repository file name", "NAME-VERSION.gir"}, {"version", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_version, "Display version number", NULL}, {"force", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_force, "force", NULL}, {"verbose", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_verbose, "Show all warnings", NULL}, {"no-color", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_disable_diagnostic_colors, "Disable colored output", NULL}, {"target-glib", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_target_glib, "Target version of glib for code generation", "MAJOR.MINOR"}, {G_OPTION_REMAINING, (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_tsources, NULL, "FILE..."}, {NULL}};
+
+static gboolean
+vala_doc_option_deprecated (const gchar* option_name,
+                            const gchar* val,
+                            void* data,
+                            GError** error)
+{
+	gboolean result = FALSE;
+	FILE* _tmp0_;
+	g_return_val_if_fail (option_name != NULL, FALSE);
+	_tmp0_ = stdout;
+	fprintf (_tmp0_, "Command-line option `%s` is deprecated and will be ignored\n", option_name);
+	result = TRUE;
+	return result;
+}
+
 
 static gint
 vala_doc_quit (ValadocErrorReporter* reporter)
@@ -329,11 +342,9 @@ vala_doc_get_pkg_name (ValaDoc* self)
 static ValadocModuleLoader*
 vala_doc_create_module_loader (ValaDoc* self,
                                ValadocErrorReporter* reporter,
-                               ValadocDoclet* * doclet,
-                               ValadocDriver* * driver)
+                               ValadocDoclet* * doclet)
 {
 	ValadocDoclet* _vala_doclet = NULL;
-	ValadocDriver* _vala_driver = NULL;
 	ValadocModuleLoader* result = NULL;
 	ValadocModuleLoader* modules = NULL;
 	ValadocModuleLoader* _tmp0_;
@@ -345,17 +356,12 @@ vala_doc_create_module_loader (ValaDoc* self,
 	const gchar* _tmp5_;
 	ValadocDoclet* _tmp6_;
 	ValadocDoclet* _tmp7_;
-	ValadocDriversDriver* _tmp8_;
-	gboolean _tmp9_ = FALSE;
-	ValadocDriver* _tmp10_;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
 	_tmp0_ = valadoc_module_loader_get_instance ();
 	modules = _tmp0_;
 	_g_object_unref0 (_vala_doclet);
 	_vala_doclet = NULL;
-	_g_object_unref0 (_vala_driver);
-	_vala_driver = NULL;
 	_tmp1_ = vala_doc_docletpath;
 	_tmp2_ = valadoc_module_loader_get_doclet_path (_tmp1_, reporter);
 	pluginpath = _tmp2_;
@@ -368,11 +374,6 @@ vala_doc_create_module_loader (ValaDoc* self,
 			*doclet = _vala_doclet;
 		} else {
 			_g_object_unref0 (_vala_doclet);
-		}
-		if (driver) {
-			*driver = _vala_driver;
-		} else {
-			_g_object_unref0 (_vala_driver);
 		}
 		return result;
 	}
@@ -392,36 +393,14 @@ vala_doc_create_module_loader (ValaDoc* self,
 		} else {
 			_g_object_unref0 (_vala_doclet);
 		}
-		if (driver) {
-			*driver = _vala_driver;
-		} else {
-			_g_object_unref0 (_vala_driver);
-		}
 		return result;
 	}
-	_tmp8_ = valadoc_drivers_driver_new ();
-	_g_object_unref0 (_vala_driver);
-	_vala_driver = (ValadocDriver*) _tmp8_;
-	_tmp10_ = _vala_driver;
-	if (_tmp10_ != NULL) {
-		ValadocDoclet* _tmp11_;
-		_tmp11_ = _vala_doclet;
-		_tmp9_ = _tmp11_ != NULL;
-	} else {
-		_tmp9_ = FALSE;
-	}
-	_vala_assert (_tmp9_, "driver != null && doclet != null");
 	result = modules;
 	_g_free0 (pluginpath);
 	if (doclet) {
 		*doclet = _vala_doclet;
 	} else {
 		_g_object_unref0 (_vala_doclet);
-	}
-	if (driver) {
-		*driver = _vala_driver;
-	} else {
-		_g_object_unref0 (_vala_driver);
 	}
 	return result;
 }
@@ -651,17 +630,17 @@ vala_doc_run (ValaDoc* self,
 	gint _tmp83__length1;
 	gchar** _tmp84_;
 	gint _tmp84__length1;
+	ValadocDriversDriver* driver = NULL;
+	ValadocDriversDriver* _tmp85_;
 	ValadocDoclet* doclet = NULL;
-	ValadocDriver* driver = NULL;
 	ValadocModuleLoader* modules = NULL;
-	ValadocDoclet* _tmp85_ = NULL;
-	ValadocDriver* _tmp86_ = NULL;
+	ValadocDoclet* _tmp86_ = NULL;
 	ValadocModuleLoader* _tmp87_;
 	gboolean _tmp88_ = FALSE;
 	gint _tmp89_;
 	gint _tmp90_;
 	ValadocApiTree* doctree = NULL;
-	ValadocDriver* _tmp92_;
+	ValadocDriversDriver* _tmp92_;
 	ValadocSettings* _tmp93_;
 	ValadocApiTree* _tmp94_;
 	gint _tmp95_;
@@ -890,13 +869,12 @@ vala_doc_run (ValaDoc* self,
 	_tmp82_->alternative_resource_dirs = (_vala_array_free (_tmp82_->alternative_resource_dirs, _tmp82_->alternative_resource_dirs_length1, (GDestroyNotify) g_free), NULL);
 	_tmp82_->alternative_resource_dirs = _tmp84_;
 	_tmp82_->alternative_resource_dirs_length1 = _tmp84__length1;
+	_tmp85_ = valadoc_drivers_driver_new ();
+	driver = _tmp85_;
 	doclet = NULL;
-	driver = NULL;
-	_tmp87_ = vala_doc_create_module_loader (self, reporter, &_tmp85_, &_tmp86_);
+	_tmp87_ = vala_doc_create_module_loader (self, reporter, &_tmp86_);
 	_g_object_unref0 (doclet);
-	doclet = _tmp85_;
-	_g_object_unref0 (driver);
-	driver = _tmp86_;
+	doclet = _tmp86_;
 	modules = _tmp87_;
 	_tmp89_ = valadoc_error_reporter_get_errors (reporter);
 	_tmp90_ = _tmp89_;
@@ -910,27 +888,25 @@ vala_doc_run (ValaDoc* self,
 	if (_tmp88_) {
 		result = vala_doc_quit (reporter);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
 	_tmp92_ = driver;
 	_tmp93_ = settings;
-	_tmp94_ = valadoc_driver_build (_tmp92_, _tmp93_, reporter);
+	_tmp94_ = valadoc_driver_build ((ValadocDriver*) _tmp92_, _tmp93_, reporter);
 	doctree = _tmp94_;
 	_tmp95_ = valadoc_error_reporter_get_errors (reporter);
 	_tmp96_ = _tmp95_;
 	if (_tmp96_ > 0) {
-		_g_object_unref0 (driver);
-		driver = NULL;
 		_g_object_unref0 (doclet);
 		doclet = NULL;
 		result = vala_doc_quit (reporter);
 		_valadoc_api_tree_unref0 (doctree);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
@@ -951,8 +927,8 @@ vala_doc_run (ValaDoc* self,
 		_g_object_unref0 (registrar);
 		_valadoc_api_tree_unref0 (doctree);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
@@ -984,8 +960,8 @@ vala_doc_run (ValaDoc* self,
 		_g_object_unref0 (registrar);
 		_valadoc_api_tree_unref0 (doctree);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
@@ -1006,8 +982,8 @@ vala_doc_run (ValaDoc* self,
 		_g_object_unref0 (registrar);
 		_valadoc_api_tree_unref0 (doctree);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
@@ -1023,20 +999,20 @@ vala_doc_run (ValaDoc* self,
 		_g_object_unref0 (registrar);
 		_valadoc_api_tree_unref0 (doctree);
 		_g_object_unref0 (modules);
-		_g_object_unref0 (driver);
 		_g_object_unref0 (doclet);
+		_g_object_unref0 (driver);
 		_g_object_unref0 (settings);
 		return result;
 	}
 	_tmp130_ = vala_doc_gir_name;
 	if (_tmp130_ != NULL) {
-		ValadocDriver* _tmp131_;
+		ValadocDriversDriver* _tmp131_;
 		ValadocSettings* _tmp132_;
 		gint _tmp133_;
 		gint _tmp134_;
 		_tmp131_ = driver;
 		_tmp132_ = settings;
-		valadoc_driver_write_gir (_tmp131_, _tmp132_, reporter);
+		valadoc_driver_write_gir ((ValadocDriver*) _tmp131_, _tmp132_, reporter);
 		_tmp133_ = valadoc_error_reporter_get_errors (reporter);
 		_tmp134_ = _tmp133_;
 		if (_tmp134_ > 0) {
@@ -1046,8 +1022,8 @@ vala_doc_run (ValaDoc* self,
 			_g_object_unref0 (registrar);
 			_valadoc_api_tree_unref0 (doctree);
 			_g_object_unref0 (modules);
-			_g_object_unref0 (driver);
 			_g_object_unref0 (doclet);
+			_g_object_unref0 (driver);
 			_g_object_unref0 (settings);
 			return result;
 		}
@@ -1062,8 +1038,8 @@ vala_doc_run (ValaDoc* self,
 	_g_object_unref0 (registrar);
 	_valadoc_api_tree_unref0 (doctree);
 	_g_object_unref0 (modules);
-	_g_object_unref0 (driver);
 	_g_object_unref0 (doclet);
+	_g_object_unref0 (driver);
 	_g_object_unref0 (settings);
 	return result;
 }

@@ -1785,6 +1785,13 @@ namespace Vala {
 		public bool writable { get; private set; }
 	}
 	[CCode (cheader_filename = "vala.h")]
+	public class PropertyPrototype : Vala.DataType {
+		public PropertyPrototype (Vala.Property property_symbol);
+		public override Vala.DataType copy ();
+		public override string to_qualified_string (Vala.Scope? scope);
+		public Vala.Property property_symbol { get; set; }
+	}
+	[CCode (cheader_filename = "vala.h")]
 	public class RealLiteral : Vala.Literal {
 		public RealLiteral (string r, Vala.SourceReference? source = null);
 		public override void accept (Vala.CodeVisitor visitor);

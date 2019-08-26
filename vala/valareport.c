@@ -151,7 +151,7 @@ vala_report_set_colors (ValaReport* self,
 	gint _fragments_size_;
 	gchar** _tmp8_;
 	gint _tmp8__length1;
-	gboolean _tmp38_ = FALSE;
+	gboolean _tmp37_ = FALSE;
 	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
@@ -231,24 +231,23 @@ vala_report_set_colors (ValaReport* self,
 				gchar** _tmp14_;
 				gint _tmp14__length1;
 				const gchar* _tmp15_;
-				gboolean _tmp16_;
 				const gchar* checked_value = NULL;
-				gchar** _tmp17_;
-				gint _tmp17__length1;
+				gchar** _tmp16_;
+				gint _tmp16__length1;
+				const gchar* _tmp17_;
 				const gchar* _tmp18_;
-				const gchar* _tmp19_;
-				gchar** _tmp20_;
-				gint _tmp20__length1;
+				gchar** _tmp19_;
+				gint _tmp19__length1;
+				const gchar* _tmp20_;
 				const gchar* _tmp21_;
 				const gchar* _tmp22_;
-				const gchar* _tmp23_;
-				GQuark _tmp25_ = 0U;
-				static GQuark _tmp24_label0 = 0;
-				static GQuark _tmp24_label1 = 0;
-				static GQuark _tmp24_label2 = 0;
-				static GQuark _tmp24_label3 = 0;
-				static GQuark _tmp24_label4 = 0;
-				static GQuark _tmp24_label5 = 0;
+				GQuark _tmp24_ = 0U;
+				static GQuark _tmp23_label0 = 0;
+				static GQuark _tmp23_label1 = 0;
+				static GQuark _tmp23_label2 = 0;
+				static GQuark _tmp23_label3 = 0;
+				static GQuark _tmp23_label4 = 0;
+				static GQuark _tmp23_label5 = 0;
 				_tmp9_ = fragment;
 				_tmp11_ = _tmp10_ = g_strsplit (_tmp9_, "=", 2);
 				eq = _tmp11_;
@@ -272,8 +271,7 @@ vala_report_set_colors (ValaReport* self,
 				_tmp14_ = eq;
 				_tmp14__length1 = eq_length1;
 				_tmp15_ = _tmp14_[1];
-				_tmp16_ = g_regex_match (_tmp13_, _tmp15_, 0, NULL);
-				if (!_tmp16_) {
+				if (!g_regex_match (_tmp13_, _tmp15_, 0, NULL)) {
 					result = FALSE;
 					eq = (_vala_array_free (eq, eq_length1, (GDestroyNotify) g_free), NULL);
 					fragments = (_vala_array_free (fragments, fragments_length1, (GDestroyNotify) g_free), NULL);
@@ -285,92 +283,92 @@ vala_report_set_colors (ValaReport* self,
 					_g_free0 (error_color);
 					return result;
 				}
-				_tmp17_ = eq;
-				_tmp17__length1 = eq_length1;
-				_tmp18_ = _tmp17_[1];
-				_tmp19_ = g_strstrip (_tmp18_);
-				checked_value = _tmp19_;
-				_tmp20_ = eq;
-				_tmp20__length1 = eq_length1;
-				_tmp21_ = _tmp20_[0];
-				_tmp22_ = g_strstrip (_tmp21_);
-				_tmp23_ = _tmp22_;
-				_tmp25_ = (NULL == _tmp23_) ? 0 : g_quark_from_string (_tmp23_);
-				if (_tmp25_ == ((0 != _tmp24_label0) ? _tmp24_label0 : (_tmp24_label0 = g_quark_from_static_string ("error")))) {
+				_tmp16_ = eq;
+				_tmp16__length1 = eq_length1;
+				_tmp17_ = _tmp16_[1];
+				_tmp18_ = g_strstrip (_tmp17_);
+				checked_value = _tmp18_;
+				_tmp19_ = eq;
+				_tmp19__length1 = eq_length1;
+				_tmp20_ = _tmp19_[0];
+				_tmp21_ = g_strstrip (_tmp20_);
+				_tmp22_ = _tmp21_;
+				_tmp24_ = (NULL == _tmp22_) ? 0 : g_quark_from_string (_tmp22_);
+				if (_tmp24_ == ((0 != _tmp23_label0) ? _tmp23_label0 : (_tmp23_label0 = g_quark_from_static_string ("error")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp26_;
-							gchar* _tmp27_;
-							_tmp26_ = checked_value;
-							_tmp27_ = g_strdup (_tmp26_);
+							const gchar* _tmp25_;
+							gchar* _tmp26_;
+							_tmp25_ = checked_value;
+							_tmp26_ = g_strdup (_tmp25_);
 							_g_free0 (error_color);
-							error_color = _tmp27_;
+							error_color = _tmp26_;
 							break;
 						}
 					}
-				} else if (_tmp25_ == ((0 != _tmp24_label1) ? _tmp24_label1 : (_tmp24_label1 = g_quark_from_static_string ("warning")))) {
+				} else if (_tmp24_ == ((0 != _tmp23_label1) ? _tmp23_label1 : (_tmp23_label1 = g_quark_from_static_string ("warning")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp28_;
-							gchar* _tmp29_;
-							_tmp28_ = checked_value;
-							_tmp29_ = g_strdup (_tmp28_);
+							const gchar* _tmp27_;
+							gchar* _tmp28_;
+							_tmp27_ = checked_value;
+							_tmp28_ = g_strdup (_tmp27_);
 							_g_free0 (warning_color);
-							warning_color = _tmp29_;
+							warning_color = _tmp28_;
 							break;
 						}
 					}
-				} else if (_tmp25_ == ((0 != _tmp24_label2) ? _tmp24_label2 : (_tmp24_label2 = g_quark_from_static_string ("note")))) {
+				} else if (_tmp24_ == ((0 != _tmp23_label2) ? _tmp23_label2 : (_tmp23_label2 = g_quark_from_static_string ("note")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp30_;
-							gchar* _tmp31_;
-							_tmp30_ = checked_value;
-							_tmp31_ = g_strdup (_tmp30_);
+							const gchar* _tmp29_;
+							gchar* _tmp30_;
+							_tmp29_ = checked_value;
+							_tmp30_ = g_strdup (_tmp29_);
 							_g_free0 (note_color);
-							note_color = _tmp31_;
+							note_color = _tmp30_;
 							break;
 						}
 					}
-				} else if (_tmp25_ == ((0 != _tmp24_label3) ? _tmp24_label3 : (_tmp24_label3 = g_quark_from_static_string ("caret")))) {
+				} else if (_tmp24_ == ((0 != _tmp23_label3) ? _tmp23_label3 : (_tmp23_label3 = g_quark_from_static_string ("caret")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp32_;
-							gchar* _tmp33_;
-							_tmp32_ = checked_value;
-							_tmp33_ = g_strdup (_tmp32_);
+							const gchar* _tmp31_;
+							gchar* _tmp32_;
+							_tmp31_ = checked_value;
+							_tmp32_ = g_strdup (_tmp31_);
 							_g_free0 (caret_color);
-							caret_color = _tmp33_;
+							caret_color = _tmp32_;
 							break;
 						}
 					}
-				} else if (_tmp25_ == ((0 != _tmp24_label4) ? _tmp24_label4 : (_tmp24_label4 = g_quark_from_static_string ("locus")))) {
+				} else if (_tmp24_ == ((0 != _tmp23_label4) ? _tmp23_label4 : (_tmp23_label4 = g_quark_from_static_string ("locus")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp34_;
-							gchar* _tmp35_;
-							_tmp34_ = checked_value;
-							_tmp35_ = g_strdup (_tmp34_);
+							const gchar* _tmp33_;
+							gchar* _tmp34_;
+							_tmp33_ = checked_value;
+							_tmp34_ = g_strdup (_tmp33_);
 							_g_free0 (locus_color);
-							locus_color = _tmp35_;
+							locus_color = _tmp34_;
 							break;
 						}
 					}
-				} else if (_tmp25_ == ((0 != _tmp24_label5) ? _tmp24_label5 : (_tmp24_label5 = g_quark_from_static_string ("quote")))) {
+				} else if (_tmp24_ == ((0 != _tmp23_label5) ? _tmp23_label5 : (_tmp23_label5 = g_quark_from_static_string ("quote")))) {
 					switch (0) {
 						default:
 						{
-							const gchar* _tmp36_;
-							gchar* _tmp37_;
-							_tmp36_ = checked_value;
-							_tmp37_ = g_strdup (_tmp36_);
+							const gchar* _tmp35_;
+							gchar* _tmp36_;
+							_tmp35_ = checked_value;
+							_tmp36_ = g_strdup (_tmp35_);
 							_g_free0 (quote_color);
-							quote_color = _tmp37_;
+							quote_color = _tmp36_;
 							break;
 						}
 					}
@@ -396,113 +394,113 @@ vala_report_set_colors (ValaReport* self,
 		}
 	}
 	if (colored_output == VALA_REPORT_COLORED_ALWAYS) {
-		_tmp38_ = TRUE;
+		_tmp37_ = TRUE;
 	} else {
-		gboolean _tmp39_ = FALSE;
+		gboolean _tmp38_ = FALSE;
 		if (colored_output == VALA_REPORT_COLORED_AUTO) {
-			FILE* _tmp40_;
-			_tmp40_ = stderr;
-			_tmp39_ = vala_report_is_atty (self, fileno (_tmp40_));
+			FILE* _tmp39_;
+			_tmp39_ = stderr;
+			_tmp38_ = vala_report_is_atty (self, fileno (_tmp39_));
 		} else {
-			_tmp39_ = FALSE;
+			_tmp38_ = FALSE;
 		}
-		_tmp38_ = _tmp39_;
+		_tmp37_ = _tmp38_;
 	}
-	if (_tmp38_) {
-		const gchar* _tmp41_;
-		const gchar* _tmp46_;
-		const gchar* _tmp51_;
-		const gchar* _tmp56_;
-		const gchar* _tmp61_;
-		const gchar* _tmp66_;
-		_tmp41_ = error_color;
-		if (_tmp41_ != NULL) {
-			const gchar* _tmp42_;
+	if (_tmp37_) {
+		const gchar* _tmp40_;
+		const gchar* _tmp45_;
+		const gchar* _tmp50_;
+		const gchar* _tmp55_;
+		const gchar* _tmp60_;
+		const gchar* _tmp65_;
+		_tmp40_ = error_color;
+		if (_tmp40_ != NULL) {
+			const gchar* _tmp41_;
+			gchar* _tmp42_;
 			gchar* _tmp43_;
 			gchar* _tmp44_;
-			gchar* _tmp45_;
-			_tmp42_ = error_color;
-			_tmp43_ = g_strconcat ("\x1b[0", _tmp42_, NULL);
-			_tmp44_ = _tmp43_;
-			_tmp45_ = g_strconcat (_tmp44_, "m", NULL);
+			_tmp41_ = error_color;
+			_tmp42_ = g_strconcat ("\x1b[0", _tmp41_, NULL);
+			_tmp43_ = _tmp42_;
+			_tmp44_ = g_strconcat (_tmp43_, "m", NULL);
 			_g_free0 (self->priv->error_color_start);
-			self->priv->error_color_start = _tmp45_;
-			_g_free0 (_tmp44_);
+			self->priv->error_color_start = _tmp44_;
+			_g_free0 (_tmp43_);
 			self->priv->error_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
-		_tmp46_ = warning_color;
-		if (_tmp46_ != NULL) {
-			const gchar* _tmp47_;
+		_tmp45_ = warning_color;
+		if (_tmp45_ != NULL) {
+			const gchar* _tmp46_;
+			gchar* _tmp47_;
 			gchar* _tmp48_;
 			gchar* _tmp49_;
-			gchar* _tmp50_;
-			_tmp47_ = warning_color;
-			_tmp48_ = g_strconcat ("\x1b[0", _tmp47_, NULL);
-			_tmp49_ = _tmp48_;
-			_tmp50_ = g_strconcat (_tmp49_, "m", NULL);
+			_tmp46_ = warning_color;
+			_tmp47_ = g_strconcat ("\x1b[0", _tmp46_, NULL);
+			_tmp48_ = _tmp47_;
+			_tmp49_ = g_strconcat (_tmp48_, "m", NULL);
 			_g_free0 (self->priv->warning_color_start);
-			self->priv->warning_color_start = _tmp50_;
-			_g_free0 (_tmp49_);
+			self->priv->warning_color_start = _tmp49_;
+			_g_free0 (_tmp48_);
 			self->priv->warning_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
-		_tmp51_ = note_color;
-		if (_tmp51_ != NULL) {
-			const gchar* _tmp52_;
+		_tmp50_ = note_color;
+		if (_tmp50_ != NULL) {
+			const gchar* _tmp51_;
+			gchar* _tmp52_;
 			gchar* _tmp53_;
 			gchar* _tmp54_;
-			gchar* _tmp55_;
-			_tmp52_ = note_color;
-			_tmp53_ = g_strconcat ("\x1b[0", _tmp52_, NULL);
-			_tmp54_ = _tmp53_;
-			_tmp55_ = g_strconcat (_tmp54_, "m", NULL);
+			_tmp51_ = note_color;
+			_tmp52_ = g_strconcat ("\x1b[0", _tmp51_, NULL);
+			_tmp53_ = _tmp52_;
+			_tmp54_ = g_strconcat (_tmp53_, "m", NULL);
 			_g_free0 (self->priv->note_color_start);
-			self->priv->note_color_start = _tmp55_;
-			_g_free0 (_tmp54_);
+			self->priv->note_color_start = _tmp54_;
+			_g_free0 (_tmp53_);
 			self->priv->note_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
-		_tmp56_ = caret_color;
-		if (_tmp56_ != NULL) {
-			const gchar* _tmp57_;
+		_tmp55_ = caret_color;
+		if (_tmp55_ != NULL) {
+			const gchar* _tmp56_;
+			gchar* _tmp57_;
 			gchar* _tmp58_;
 			gchar* _tmp59_;
-			gchar* _tmp60_;
-			_tmp57_ = caret_color;
-			_tmp58_ = g_strconcat ("\x1b[0", _tmp57_, NULL);
-			_tmp59_ = _tmp58_;
-			_tmp60_ = g_strconcat (_tmp59_, "m", NULL);
+			_tmp56_ = caret_color;
+			_tmp57_ = g_strconcat ("\x1b[0", _tmp56_, NULL);
+			_tmp58_ = _tmp57_;
+			_tmp59_ = g_strconcat (_tmp58_, "m", NULL);
 			_g_free0 (self->priv->caret_color_start);
-			self->priv->caret_color_start = _tmp60_;
-			_g_free0 (_tmp59_);
+			self->priv->caret_color_start = _tmp59_;
+			_g_free0 (_tmp58_);
 			self->priv->caret_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
-		_tmp61_ = locus_color;
-		if (_tmp61_ != NULL) {
-			const gchar* _tmp62_;
+		_tmp60_ = locus_color;
+		if (_tmp60_ != NULL) {
+			const gchar* _tmp61_;
+			gchar* _tmp62_;
 			gchar* _tmp63_;
 			gchar* _tmp64_;
-			gchar* _tmp65_;
-			_tmp62_ = locus_color;
-			_tmp63_ = g_strconcat ("\x1b[0", _tmp62_, NULL);
-			_tmp64_ = _tmp63_;
-			_tmp65_ = g_strconcat (_tmp64_, "m", NULL);
+			_tmp61_ = locus_color;
+			_tmp62_ = g_strconcat ("\x1b[0", _tmp61_, NULL);
+			_tmp63_ = _tmp62_;
+			_tmp64_ = g_strconcat (_tmp63_, "m", NULL);
 			_g_free0 (self->priv->locus_color_start);
-			self->priv->locus_color_start = _tmp65_;
-			_g_free0 (_tmp64_);
+			self->priv->locus_color_start = _tmp64_;
+			_g_free0 (_tmp63_);
 			self->priv->locus_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
-		_tmp66_ = quote_color;
-		if (_tmp66_ != NULL) {
-			const gchar* _tmp67_;
+		_tmp65_ = quote_color;
+		if (_tmp65_ != NULL) {
+			const gchar* _tmp66_;
+			gchar* _tmp67_;
 			gchar* _tmp68_;
 			gchar* _tmp69_;
-			gchar* _tmp70_;
-			_tmp67_ = quote_color;
-			_tmp68_ = g_strconcat ("\x1b[0", _tmp67_, NULL);
-			_tmp69_ = _tmp68_;
-			_tmp70_ = g_strconcat (_tmp69_, "m", NULL);
+			_tmp66_ = quote_color;
+			_tmp67_ = g_strconcat ("\x1b[0", _tmp66_, NULL);
+			_tmp68_ = _tmp67_;
+			_tmp69_ = g_strconcat (_tmp68_, "m", NULL);
 			_g_free0 (self->priv->quote_color_start);
-			self->priv->quote_color_start = _tmp70_;
-			_g_free0 (_tmp69_);
+			self->priv->quote_color_start = _tmp69_;
+			_g_free0 (_tmp68_);
 			self->priv->quote_color_end = VALA_REPORT_ANSI_COLOR_END;
 		}
 	}

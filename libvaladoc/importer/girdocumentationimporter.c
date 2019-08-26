@@ -45,6 +45,7 @@ static GParamSpec* valadoc_importer_gir_documentation_importer_properties[VALADO
 #define _vala_markup_reader_unref0(var) ((var == NULL) ? NULL : (var = (vala_markup_reader_unref (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
+#define _vala_source_file_unref0(var) ((var == NULL) ? NULL : (var = (vala_source_file_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
 #define VALADOC_IMPORTER_GIR_DOCUMENTATION_IMPORTER_TYPE_IMPLICIT_PARAMETER_POS (valadoc_importer_gir_documentation_importer_implicit_parameter_pos_get_type ())
@@ -243,26 +244,43 @@ valadoc_importer_gir_documentation_importer_real_process (ValadocImporterDocumen
                                                           const gchar* source_file)
 {
 	ValadocImporterGirDocumentationImporter * self;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	ValadocApiPackage* _tmp2_;
-	ValadocApiPackage* _tmp3_;
-	ValadocApiSourceFile* _tmp4_;
-	ValaMarkupReader* _tmp5_;
+	ValaSourceFile* data = NULL;
+	ValadocApiTree* _tmp0_;
+	ValaCodeContext* _tmp1_;
+	ValaCodeContext* _tmp2_;
+	gchar* _tmp3_;
+	gchar* _tmp4_;
+	ValaSourceFile* _tmp5_;
+	ValaSourceFile* _tmp6_;
+	gchar* _tmp7_;
+	gchar* _tmp8_;
+	ValadocApiPackage* _tmp9_;
+	ValadocApiPackage* _tmp10_;
+	ValadocApiSourceFile* _tmp11_;
+	ValaMarkupReader* _tmp12_;
 	self = (ValadocImporterGirDocumentationImporter*) base;
 	g_return_if_fail (source_file != NULL);
-	_tmp0_ = g_path_get_basename (source_file);
-	_tmp1_ = _tmp0_;
-	_tmp2_ = valadoc_api_package_new (_tmp1_, TRUE, NULL);
-	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_api_source_file_new (_tmp3_, source_file, NULL, NULL);
+	_tmp0_ = ((ValadocImporterDocumentationImporter*) self)->tree;
+	_tmp1_ = valadoc_api_tree_get_context (_tmp0_);
+	_tmp2_ = _tmp1_;
+	_tmp3_ = g_path_get_basename (source_file);
+	_tmp4_ = _tmp3_;
+	_tmp5_ = vala_source_file_new (_tmp2_, VALA_SOURCE_FILE_TYPE_PACKAGE, _tmp4_, NULL, FALSE);
+	_tmp6_ = _tmp5_;
+	_g_free0 (_tmp4_);
+	data = _tmp6_;
+	_tmp7_ = g_path_get_basename (source_file);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = valadoc_api_package_new (_tmp8_, TRUE, NULL);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = valadoc_api_source_file_new (_tmp10_, source_file, NULL, data);
 	_g_object_unref0 (self->priv->file);
-	self->priv->file = _tmp4_;
-	_g_object_unref0 (_tmp3_);
-	_g_free0 (_tmp1_);
-	_tmp5_ = vala_markup_reader_new (source_file);
+	self->priv->file = _tmp11_;
+	_g_object_unref0 (_tmp10_);
+	_g_free0 (_tmp8_);
+	_tmp12_ = vala_markup_reader_new (source_file);
 	_vala_markup_reader_unref0 (self->priv->reader);
-	self->priv->reader = _tmp5_;
+	self->priv->reader = _tmp12_;
 	valadoc_importer_gir_documentation_importer_next (self);
 	valadoc_importer_gir_documentation_importer_next (self);
 	valadoc_importer_gir_documentation_importer_next (self);
@@ -271,6 +289,7 @@ valadoc_importer_gir_documentation_importer_real_process (ValadocImporterDocumen
 	self->priv->reader = NULL;
 	_g_object_unref0 (self->priv->file);
 	self->priv->file = NULL;
+	_vala_source_file_unref0 (data);
 }
 
 
@@ -1261,7 +1280,17 @@ valadoc_importer_gir_documentation_importer_parse_symbol_doc (ValadocImporterGir
 					}
 					_valadoc_api_source_comment_unref0 (doc_stability);
 				} else {
-					break;
+					ValaMarkupReader* _tmp71_;
+					const gchar* _tmp72_;
+					const gchar* _tmp73_;
+					_tmp71_ = self->priv->reader;
+					_tmp72_ = vala_markup_reader_get_name (_tmp71_);
+					_tmp73_ = _tmp72_;
+					if (g_strcmp0 (_tmp73_, "source-position") == 0) {
+						valadoc_importer_gir_documentation_importer_skip_element (self);
+					} else {
+						break;
+					}
 				}
 			}
 		}

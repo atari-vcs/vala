@@ -1,6 +1,6 @@
-/* valactype.vala
+/* valafieldprototype.vala
  *
- * Copyright (C) 2009  Mark Lee
+ * Copyright (C) 2018  Rico Tzschichholz
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,29 +17,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  * Author:
- *	Mark Lee <marklee@src.gnome.org>
+ * 	Rico Tzschichholz <ricotz@ubuntu.com>
  */
 
 /**
- * A C type, used only for code generation purposes.
+ * A reference to an instance property without a specific instance.
  */
-public class Vala.CType : DataType {
-	/**
-	 * The name of the C type.
-	 */
-	public string ctype_name { get; set; }
+public class Vala.PropertyPrototype : DataType {
+	public weak Property property_symbol { get; set; }
 
-	/**
-	 * The default value of the C type.
-	 */
-	public string cdefault_value { get; set; }
-
-	public CType (string ctype_name, string cdefault_value) {
-		this.ctype_name = ctype_name;
-		this.cdefault_value = cdefault_value;
+	public PropertyPrototype (Property property_symbol) {
+		this.property_symbol = property_symbol;
 	}
 
 	public override DataType copy () {
-		return new CType (ctype_name, cdefault_value);
+		var result = new PropertyPrototype (property_symbol);
+		return result;
+	}
+
+	public override string to_qualified_string (Scope? scope) {
+		return property_symbol.get_full_name ();
 	}
 }

@@ -5039,10 +5039,12 @@ public abstract class Vala.CCodeBaseModule : CodeGenerator {
 						generate_class_struct_declaration (cl, cfile);
 					}
 				} else if (init.symbol_reference is Property) {
-					var inst_ma = new MemberAccess.simple ("new");
-					inst_ma.value_type = expr.type_reference;
-					set_cvalue (inst_ma, instance);
-					store_property ((Property) init.symbol_reference, inst_ma, init.initializer.target_value);
+					var p = (Property) init.symbol_reference;
+					var instance_target_type = get_data_type_for_symbol ((TypeSymbol) p.parent_symbol);
+					var typed_inst = transform_value (new GLibValue (expr.type_reference, instance), instance_target_type, init);
+					var inst_ma = new MemberAccess.simple ("fake");
+					inst_ma.target_value = typed_inst;
+					store_property (p, inst_ma, init.initializer.target_value);
 					// FIXME Do not ref/copy in the first place
 					if (requires_destroy (init.initializer.target_value.value_type)) {
 						ccode.add_expression (destroy_value (init.initializer.target_value));
@@ -5412,7 +5414,7 @@ public abstract class Vala.CCodeBaseModule : CodeGenerator {
 				expr.inner.value_type is ValueType && expr.inner.value_type.nullable) {
 				// nullable integer or float or boolean or struct or enum cast to non-nullable
 				innercexpr = new CCodeUnaryExpression (CCodeUnaryOperator.POINTER_INDIRECTION, innercexpr);
-			} else if (expr.type_reference is ArrayType
+			} else if (expr.type_reference is ArrayType && !(expr.inner is Literal)
 			    && expr.inner.value_type is ValueType && !expr.inner.value_type.nullable) {
 				// integer or float or boolean or struct or enum to array cast
 				innercexpr = new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, innercexpr);
@@ -6329,6 +6331,8 @@ public abstract class Vala.CCodeBaseModule : CodeGenerator {
 			return new CCodeConstant ("NULL");
 		} else if (type is ErrorType) {
 			return new CCodeConstant ("NULL");
+		} else if (type is CType) {
+			return new CCodeConstant (((CType) type).cdefault_value);
 		}
 		return null;
 	}

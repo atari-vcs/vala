@@ -3585,28 +3585,28 @@ valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
 	gint _tmp27__length1;
 	ValaProfile _tmp37_;
 	ValaProfile _tmp38_;
-	gchar** _tmp57_;
-	gint _tmp57__length1;
-	ValadocErrorReporter* _tmp58_;
-	gint _tmp59_;
-	gint _tmp60_;
-	gchar** _tmp61_;
-	gint _tmp61__length1;
-	ValadocErrorReporter* _tmp62_;
+	gchar** _tmp60_;
+	gint _tmp60__length1;
+	ValadocErrorReporter* _tmp61_;
+	gint _tmp62_;
 	gint _tmp63_;
-	gint _tmp64_;
+	gchar** _tmp64_;
+	gint _tmp64__length1;
+	ValadocErrorReporter* _tmp65_;
+	gint _tmp66_;
+	gint _tmp67_;
 	ValaParser* parser = NULL;
-	ValaParser* _tmp65_;
-	ValaParser* _tmp66_;
-	ValaReport* _tmp67_;
-	ValaReport* _tmp68_;
-	ValaGirParser* gir_parser = NULL;
-	ValaGirParser* _tmp69_;
-	ValaGirParser* _tmp70_;
+	ValaParser* _tmp68_;
+	ValaParser* _tmp69_;
+	ValaReport* _tmp70_;
 	ValaReport* _tmp71_;
-	ValaReport* _tmp72_;
-	ValaReport* _tmp73_;
+	ValaGirParser* gir_parser = NULL;
+	ValaGirParser* _tmp72_;
+	ValaGirParser* _tmp73_;
 	ValaReport* _tmp74_;
+	ValaReport* _tmp75_;
+	ValaReport* _tmp76_;
+	ValaReport* _tmp77_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
 	g_return_if_fail (settings != NULL);
@@ -3756,10 +3756,10 @@ valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
 		gint _tmp42_;
 		gboolean _tmp43_ = FALSE;
 		const gchar* _tmp44_;
-		gint _tmp46_;
-		gint _tmp47_;
-		gint _tmp48_;
 		gint _tmp49_;
+		gint _tmp50_;
+		gint _tmp51_;
+		gint _tmp52_;
 		glib_major = 2;
 		glib_minor = 40;
 		_tmp39_ = glib_major;
@@ -3774,51 +3774,57 @@ valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
 		_tmp44_ = settings->target_glib;
 		if (_tmp44_ != NULL) {
 			const gchar* _tmp45_;
+			gint _tmp46_ = 0;
+			gint _tmp47_ = 0;
+			gint _tmp48_;
 			_tmp45_ = settings->target_glib;
-			_tmp43_ = sscanf (_tmp45_, "%d.%d", &glib_major, &glib_minor) != 2;
+			_tmp48_ = sscanf (_tmp45_, "%d.%d", &_tmp46_, &_tmp47_);
+			glib_major = _tmp46_;
+			glib_minor = _tmp47_;
+			_tmp43_ = _tmp48_ != 2;
 		} else {
 			_tmp43_ = FALSE;
 		}
 		if (_tmp43_) {
 			vala_report_error (NULL, "Invalid format for --target-glib");
 		}
-		_tmp46_ = glib_major;
-		vala_code_context_set_target_glib_major (context, _tmp46_);
-		_tmp47_ = glib_minor;
-		vala_code_context_set_target_glib_minor (context, _tmp47_);
-		_tmp48_ = vala_code_context_get_target_glib_major (context);
-		_tmp49_ = _tmp48_;
-		if (_tmp49_ != 2) {
+		_tmp49_ = glib_major;
+		vala_code_context_set_target_glib_major (context, _tmp49_);
+		_tmp50_ = glib_minor;
+		vala_code_context_set_target_glib_minor (context, _tmp50_);
+		_tmp51_ = vala_code_context_get_target_glib_major (context);
+		_tmp52_ = _tmp51_;
+		if (_tmp52_ != 2) {
 			vala_report_error (NULL, "This version of valac only supports GLib 2");
 		}
 		{
 			gint i = 0;
 			i = 16;
 			{
-				gboolean _tmp50_ = FALSE;
-				_tmp50_ = TRUE;
+				gboolean _tmp53_ = FALSE;
+				_tmp53_ = TRUE;
 				while (TRUE) {
-					gint _tmp52_;
-					gint _tmp53_;
-					gint _tmp54_;
-					gchar* _tmp55_;
-					gchar* _tmp56_;
-					if (!_tmp50_) {
-						gint _tmp51_;
-						_tmp51_ = i;
-						i = _tmp51_ + 2;
+					gint _tmp55_;
+					gint _tmp56_;
+					gint _tmp57_;
+					gchar* _tmp58_;
+					gchar* _tmp59_;
+					if (!_tmp53_) {
+						gint _tmp54_;
+						_tmp54_ = i;
+						i = _tmp54_ + 2;
 					}
-					_tmp50_ = FALSE;
-					_tmp52_ = i;
-					_tmp53_ = glib_minor;
-					if (!(_tmp52_ <= _tmp53_)) {
+					_tmp53_ = FALSE;
+					_tmp55_ = i;
+					_tmp56_ = glib_minor;
+					if (!(_tmp55_ <= _tmp56_)) {
 						break;
 					}
-					_tmp54_ = i;
-					_tmp55_ = g_strdup_printf ("GLIB_2_%d", _tmp54_);
-					_tmp56_ = _tmp55_;
-					vala_code_context_add_define (context, _tmp56_);
-					_g_free0 (_tmp56_);
+					_tmp57_ = i;
+					_tmp58_ = g_strdup_printf ("GLIB_2_%d", _tmp57_);
+					_tmp59_ = _tmp58_;
+					vala_code_context_add_define (context, _tmp59_);
+					_g_free0 (_tmp59_);
 				}
 			}
 		}
@@ -3829,49 +3835,49 @@ valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
 			vala_report_error (NULL, "gobject-2.0 not found in specified Vala API directories");
 		}
 	}
-	_tmp57_ = settings->packages;
-	_tmp57__length1 = settings->packages_length1;
-	valadoc_drivers_tree_builder_add_depencies (self, context, _tmp57_, _tmp57__length1);
-	_tmp58_ = self->priv->reporter;
-	_tmp59_ = valadoc_error_reporter_get_errors (_tmp58_);
-	_tmp60_ = _tmp59_;
-	if (_tmp60_ > 0) {
+	_tmp60_ = settings->packages;
+	_tmp60__length1 = settings->packages_length1;
+	valadoc_drivers_tree_builder_add_depencies (self, context, _tmp60_, _tmp60__length1);
+	_tmp61_ = self->priv->reporter;
+	_tmp62_ = valadoc_error_reporter_get_errors (_tmp61_);
+	_tmp63_ = _tmp62_;
+	if (_tmp63_ > 0) {
 		return;
 	}
-	_tmp61_ = settings->source_files;
-	_tmp61__length1 = settings->source_files_length1;
-	valadoc_drivers_tree_builder_add_documented_files (self, context, _tmp61_, _tmp61__length1);
-	_tmp62_ = self->priv->reporter;
-	_tmp63_ = valadoc_error_reporter_get_errors (_tmp62_);
-	_tmp64_ = _tmp63_;
-	if (_tmp64_ > 0) {
+	_tmp64_ = settings->source_files;
+	_tmp64__length1 = settings->source_files_length1;
+	valadoc_drivers_tree_builder_add_documented_files (self, context, _tmp64_, _tmp64__length1);
+	_tmp65_ = self->priv->reporter;
+	_tmp66_ = valadoc_error_reporter_get_errors (_tmp65_);
+	_tmp67_ = _tmp66_;
+	if (_tmp67_ > 0) {
 		return;
 	}
-	_tmp65_ = vala_parser_new ();
-	parser = _tmp65_;
-	_tmp66_ = parser;
-	vala_parser_parse (_tmp66_, context);
-	_tmp67_ = vala_code_context_get_report (context);
-	_tmp68_ = _tmp67_;
-	if (vala_report_get_errors (_tmp68_) > 0) {
+	_tmp68_ = vala_parser_new ();
+	parser = _tmp68_;
+	_tmp69_ = parser;
+	vala_parser_parse (_tmp69_, context);
+	_tmp70_ = vala_code_context_get_report (context);
+	_tmp71_ = _tmp70_;
+	if (vala_report_get_errors (_tmp71_) > 0) {
 		_vala_code_visitor_unref0 (parser);
 		return;
 	}
-	_tmp69_ = vala_gir_parser_new ();
-	gir_parser = _tmp69_;
-	_tmp70_ = gir_parser;
-	vala_gir_parser_parse (_tmp70_, context);
-	_tmp71_ = vala_code_context_get_report (context);
-	_tmp72_ = _tmp71_;
-	if (vala_report_get_errors (_tmp72_) > 0) {
+	_tmp72_ = vala_gir_parser_new ();
+	gir_parser = _tmp72_;
+	_tmp73_ = gir_parser;
+	vala_gir_parser_parse (_tmp73_, context);
+	_tmp74_ = vala_code_context_get_report (context);
+	_tmp75_ = _tmp74_;
+	if (vala_report_get_errors (_tmp75_) > 0) {
 		_vala_code_visitor_unref0 (gir_parser);
 		_vala_code_visitor_unref0 (parser);
 		return;
 	}
 	vala_code_context_check (context);
-	_tmp73_ = vala_code_context_get_report (context);
-	_tmp74_ = _tmp73_;
-	if (vala_report_get_errors (_tmp74_) > 0) {
+	_tmp76_ = vala_code_context_get_report (context);
+	_tmp77_ = _tmp76_;
+	if (vala_report_get_errors (_tmp77_) > 0) {
 		_vala_code_visitor_unref0 (gir_parser);
 		_vala_code_visitor_unref0 (parser);
 		return;
