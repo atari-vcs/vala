@@ -1,3 +1,10 @@
+vala (0.42.5-1co1) apertis; urgency=medium
+
+  [ Ritesh Raj Sarraf ]
+  * debian/apertis/component: Set to development
+
+ -- Emanuele Aina <emanuele.aina@collabora.com>  Mon, 22 Feb 2021 20:12:19 +0000
+
 vala (0.42.5-1) unstable; urgency=medium
 
   * New upstream release
