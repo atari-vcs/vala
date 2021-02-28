@@ -68,7 +68,9 @@ public class Vala.Genie.Parser : CodeVisitor {
 		VIRTUAL = 1 << 7,
 		PRIVATE = 1 << 8,
 		ASYNC = 1 << 9,
-		SEALED = 1 << 10
+		SEALED = 1 << 10,
+		PUBLIC = 1 << 11,
+		PROTECTED = 1 << 12,
 	}
 
 	public Parser () {
@@ -234,8 +236,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 		}
 	}
 
-	inline  SymbolAccessibility get_access (string s) {
-		if (s[0] == '_') {
+	inline  SymbolAccessibility get_default_accessibility (string s) {
+		if (s.has_prefix("_")) {
 			return SymbolAccessibility.PRIVATE;
 		}
 
@@ -295,6 +297,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 		case TokenType.PASS:
 		case TokenType.PRINT:
 		case TokenType.PRIVATE:
+		case TokenType.PROTECTED:
 		case TokenType.PROP:
 		case TokenType.RAISE:
 		case TokenType.RAISES:
@@ -302,12 +305,12 @@ public class Vala.Genie.Parser : CodeVisitor {
 		case TokenType.REQUIRES:
 		case TokenType.RETURN:
 		case TokenType.SEALED:
+		case TokenType.SELF:
 		case TokenType.SET:
 		case TokenType.SIZEOF:
 		case TokenType.STATIC:
 		case TokenType.STRUCT:
 		case TokenType.SUPER:
-		case TokenType.THIS:
 		case TokenType.TO:
 		case TokenType.TRUE:
 		case TokenType.TRY:
@@ -484,7 +487,6 @@ public class Vala.Genie.Parser : CodeVisitor {
 		}
 		accept (TokenType.OP_NEG);
 		accept (TokenType.INTERR);
-		accept (TokenType.HASH);
 	}
 
 
@@ -613,10 +615,6 @@ public class Vala.Genie.Parser : CodeVisitor {
 			}
 		}
 
-		if (!owned_by_default) {
-			value_owned = accept (TokenType.HASH);
-		}
-
 		if (type is PointerType) {
 			value_owned = false;
 		}
@@ -716,7 +714,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 		case TokenType.OPEN_TEMPLATE:
 			expr = parse_template ();
 			break;
-		case TokenType.THIS:
+		case TokenType.SELF:
 			expr = parse_this_access ();
 			break;
 		case TokenType.SUPER:
@@ -995,7 +993,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 	Expression parse_this_access () throws ParseError {
 		var begin = get_location ();
-		expect (TokenType.THIS);
+		expect (TokenType.SELF);
 		return new MemberAccess (null, "this", get_src (begin));
 	}
 
@@ -1178,8 +1176,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		var expr = parse_expression ();
 
-		var call = expr as MethodCall;
-		var object_creation = expr as ObjectCreationExpression;
+		unowned MethodCall? call = expr as MethodCall;
+		unowned ObjectCreationExpression? object_creation = expr as ObjectCreationExpression;
 		if (call == null && object_creation == null) {
 			Report.error (expr.source_reference, "syntax error, expected method call");
 			throw new ParseError.SYNTAX ("expected method call");
@@ -1235,13 +1233,6 @@ public class Vala.Genie.Parser : CodeVisitor {
 			return new UnaryExpression (operator, op, get_src (begin));
 		}
 		switch (current ()) {
-		case TokenType.HASH:
-			if (!context.deprecated) {
-				Report.warning (get_src (begin), "deprecated syntax, use `(owned)` cast");
-			}
-			next ();
-			var op = parse_unary_expression ();
-			return new ReferenceTransferExpression (op, get_src (begin));
 		case TokenType.OPEN_PARENS:
 			next ();
 			switch (current ()) {
@@ -1276,7 +1267,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 					case TokenType.TEMPLATE_STRING_LITERAL:
 					case TokenType.VERBATIM_STRING_LITERAL:
 					case TokenType.NULL:
-					case TokenType.THIS:
+					case TokenType.SELF:
 					case TokenType.SUPER:
 					case TokenType.NEW:
 					case TokenType.SIZEOF:
@@ -1799,7 +1790,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 				case TokenType.OP_INC:
 				case TokenType.OP_DEC:
 				case TokenType.SUPER:
-				case TokenType.THIS:
+				case TokenType.SELF:
 				case TokenType.OPEN_PARENS:
 				case TokenType.STAR:
 				case TokenType.NEW:
@@ -1903,7 +1894,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 		case TokenType.OP_INC:
 		case TokenType.OP_DEC:
 		case TokenType.SUPER:
-		case TokenType.THIS:
+		case TokenType.SELF:
 		case TokenType.OPEN_PARENS:
 		case TokenType.STAR:
 		case TokenType.NEW:
@@ -1958,7 +1949,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 	}
 
 	void parse_local_variable_declarations (Block block) throws ParseError {
-		var id_list = new ArrayList<string> ();
+		var id_list = new ArrayList<string> (str_equal);
 		id_list.add (parse_identifier ());
 		// Allow multiple declarations
 		while (accept (TokenType.COMMA)) {
@@ -2260,16 +2251,12 @@ public class Vala.Genie.Parser : CodeVisitor {
 	Statement parse_yield_statement () throws ParseError {
 		var begin = get_location ();
 		expect (TokenType.YIELD);
-		if (current () != TokenType.SEMICOLON && current () != TokenType.EOL && current () != TokenType.RETURN) {
+		if (current () != TokenType.SEMICOLON && current () != TokenType.EOL) {
 			prev ();
 			return parse_expression_statement ();
 		}
-		Expression expr = null;
-		if (accept (TokenType.RETURN)) {
-			expr = parse_expression ();
-		}
 		expect_terminator ();
-		return new YieldStatement (expr, get_src (begin));
+		return new YieldStatement (get_src (begin));
 	}
 
 	Statement parse_throw_statement () throws ParseError {
@@ -2600,13 +2587,13 @@ public class Vala.Genie.Parser : CodeVisitor {
 		} else if (sym is Delegate) {
 			ns.add_delegate ((Delegate) sym);
 		} else if (sym is Method) {
-			var method = (Method) sym;
+			unowned Method method = (Method) sym;
 			if (method.binding == MemberBinding.INSTANCE) {
 				method.binding = MemberBinding.STATIC;
 			}
 			ns.add_method (method);
 		} else if (sym is Field) {
-			var field = (Field) sym;
+			unowned Field field = (Field) sym;
 			if (field.binding == MemberBinding.INSTANCE) {
 				field.binding = MemberBinding.STATIC;
 			}
@@ -2677,13 +2664,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		if (ModifierFlags.PRIVATE in flags) {
 			cl.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			cl.access = SymbolAccessibility.PROTECTED;
 		} else {
-			/* class must always be Public unless its name starts with underscore */
-			if (sym.name[0] == '_') {
-				cl.access = SymbolAccessibility.PRIVATE;
-			} else {
-				cl.access = SymbolAccessibility.PUBLIC;
-			}
+			cl.access = get_default_accessibility (sym.name);
 		}
 
 		if (ModifierFlags.ABSTRACT in flags) {
@@ -2705,7 +2689,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 		if (scanner.source_file.file_type == SourceFileType.SOURCE
 			&& cl.default_construction_method == null) {
 			var m = new CreationMethod (cl.name, null, cl.source_reference);
-			m.access = SymbolAccessibility.PUBLIC;
+			m.access = (cl.is_abstract ? SymbolAccessibility.PROTECTED : SymbolAccessibility.PUBLIC);
 			m.body = new Block (cl.source_reference);
 			cl.add_method (m);
 		}
@@ -2773,16 +2757,16 @@ public class Vala.Genie.Parser : CodeVisitor {
 		expect_terminator ();
 
 		// constant arrays don't own their element
-		var array_type = type as ArrayType;
+		unowned ArrayType? array_type = type as ArrayType;
 		if (array_type != null) {
 			array_type.element_type.value_owned = false;
 		}
 
 		var c = new Constant (id, type, initializer, get_src (begin), comment);
-		c.access = get_access (id);
+		c.access = get_default_accessibility (id);
 
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			c.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			c.is_extern = true;
 		}
 		if (ModifierFlags.NEW in flags) {
 			c.hides = true;
@@ -2816,14 +2800,16 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		if (ModifierFlags.PRIVATE in flags) {
 			f.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			f.access = SymbolAccessibility.PROTECTED;
 		} else {
-			f.access = get_access (id);
+			f.access = get_default_accessibility (id);
 		}
 
 		set_attributes (f, attrs);
 
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			f.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			f.is_extern = true;
 		}
 		if (ModifierFlags.NEW in flags) {
 			f.hides = true;
@@ -2866,17 +2852,24 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 
 	Method parse_main_method_declaration (List<Attribute>? attrs) throws ParseError {
-		var id = "main";
 		var begin = get_location ();
-		DataType type = new VoidType ();
+		DataType type;
+
 		expect (TokenType.INIT);
 
-		var method = new Method (id, type, get_src (begin), comment);
+		if (accept (TokenType.COLON)) {
+			type = parse_type (true, false);
+			if (type.to_string () != "int") {
+				throw new ParseError.SYNTAX ("main `init' must return void or `int', but got `%s'".printf (type.to_string ()));
+			}
+		} else {
+			type = new VoidType ();
+		}
+
+		var method = new Method ("main", type, get_src (begin), comment);
 		method.access = SymbolAccessibility.PUBLIC;
-
-		set_attributes (method, attrs);
-
 		method.binding = MemberBinding.STATIC;
+		set_attributes (method, attrs);
 
 		var sym = new UnresolvedSymbol (null, "string", get_src (begin));
 		type = new UnresolvedType.from_symbol (sym, get_src (begin));
@@ -2899,7 +2892,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 	Method parse_method_declaration (List<Attribute>? attrs) throws ParseError {
 		var begin = get_location ();
-		DataType type = new VoidType ();
+		DataType type;
+
 		expect (TokenType.DEF);
 		var flags = parse_member_declaration_modifiers ();
 
@@ -2921,6 +2915,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 		/* deal with return value */
 		if (accept (TokenType.COLON)) {
 			type = parse_type (true, false);
+		} else {
+			type = new VoidType ();
 		}
 
 		var type_param_list = parse_type_parameter_list ();
@@ -2928,8 +2924,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var method = new Method (id, type, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			method.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			method.access = SymbolAccessibility.PROTECTED;
 		} else {
-			method.access = get_access (id);
+			method.access = get_default_accessibility (id);
 		}
 
 
@@ -2991,7 +2989,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 			method.is_inline = true;
 		}
 		if (ModifierFlags.EXTERN in flags) {
-			method.external = true;
+			method.is_extern = true;
 		}
 
 		expect (TokenType.EOL);
@@ -3041,8 +3039,7 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		if (accept_block ()) {
 			method.body = parse_block ();
-		} else if (scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			method.external = true;
+			method.external = false;
 		}
 		return method;
 	}
@@ -3065,8 +3062,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var prop = new Property (id, type, null, null, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			prop.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			prop.access = SymbolAccessibility.PROTECTED;
 		} else {
-			prop.access = get_access (id);
+			prop.access = get_default_accessibility (id);
 		}
 
 		set_attributes (prop, attrs);
@@ -3089,8 +3088,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 		if (ModifierFlags.NEW in flags) {
 			prop.hides = true;
 		}
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			prop.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			prop.is_extern = true;
 		}
 
 		if (ModifierFlags.ASYNC in flags) {
@@ -3203,8 +3202,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var sig = new Vala.Signal (id, type, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			sig.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			sig.access = SymbolAccessibility.PROTECTED;
 		} else {
-			sig.access = get_access (id);
+			sig.access = get_default_accessibility (id);
 		}
 
 		if (ModifierFlags.VIRTUAL in flags) {
@@ -3274,8 +3275,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var st = new Struct (sym.name, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			st.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			st.access = SymbolAccessibility.PROTECTED;
 		} else {
-			st.access = get_access (sym.name);
+			st.access = get_default_accessibility (sym.name);
 		}
 		set_attributes (st, attrs);
 		foreach (TypeParameter type_param in type_param_list) {
@@ -3286,6 +3289,8 @@ public class Vala.Genie.Parser : CodeVisitor {
 		}
 
 		expect (TokenType.EOL);
+
+		class_name = st.name;
 
 		parse_declarations (st);
 
@@ -3336,11 +3341,13 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var iface = new Interface (sym.name, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			iface.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			iface.access = SymbolAccessibility.PROTECTED;
 		} else {
-			iface.access = get_access (sym.name);
+			iface.access = get_default_accessibility (sym.name);
 		}
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			iface.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			iface.is_extern = true;
 		}
 		set_attributes (iface, attrs);
 		foreach (TypeParameter type_param in type_param_list) {
@@ -3404,11 +3411,13 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var en = new Enum (sym.name, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			en.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			en.access = SymbolAccessibility.PROTECTED;
 		} else {
-			en.access = get_access (sym.name);
+			en.access = get_default_accessibility (sym.name);
 		}
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			en.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			en.is_extern = true;
 		}
 		set_attributes (en, attrs);
 
@@ -3464,8 +3473,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		var ed = new ErrorDomain (sym.name, get_src (begin), comment);
 		if (ModifierFlags.PRIVATE in flags) {
 			ed.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			ed.access = SymbolAccessibility.PROTECTED;
 		} else {
-			ed.access = get_access (sym.name);
+			ed.access = get_default_accessibility (sym.name);
 		}
 
 		set_attributes (ed, attrs);
@@ -3533,6 +3544,16 @@ public class Vala.Genie.Parser : CodeVisitor {
 				flags |= ModifierFlags.PRIVATE;
 				break;
 
+			case TokenType.PUBLIC:
+				next ();
+				flags |= ModifierFlags.PUBLIC;
+				break;
+
+			case TokenType.PROTECTED:
+				next ();
+				flags |= ModifierFlags.PROTECTED;
+				break;
+
 			default:
 				return flags;
 			}
@@ -3586,6 +3607,14 @@ public class Vala.Genie.Parser : CodeVisitor {
 			case TokenType.PRIVATE:
 				next ();
 				flags |= ModifierFlags.PRIVATE;
+				break;
+			case TokenType.PUBLIC:
+				next ();
+				flags |= ModifierFlags.PUBLIC;
+				break;
+			case TokenType.PROTECTED:
+				next ();
+				flags |= ModifierFlags.PROTECTED;
 				break;
 			default:
 				return flags;
@@ -3672,12 +3701,10 @@ public class Vala.Genie.Parser : CodeVisitor {
 		}
 		method.access = SymbolAccessibility.PUBLIC;
 		set_attributes (method, attrs);
-		method.binding = MemberBinding.STATIC;
 
 		if (accept_block ()) {
 			method.body = parse_block ();
-		} else if (scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			method.external = true;
+			method.external = false;
 		}
 
 		return method;
@@ -3712,7 +3739,6 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		if (accept (TokenType.COLON)) {
 			type = parse_type (true, false);
-
 		} else {
 			type = new VoidType ();
 		}
@@ -3730,15 +3756,17 @@ public class Vala.Genie.Parser : CodeVisitor {
 
 		if (ModifierFlags.PRIVATE in flags) {
 			d.access = SymbolAccessibility.PRIVATE;
+		} else if (ModifierFlags.PROTECTED in flags) {
+			d.access = SymbolAccessibility.PROTECTED;
 		} else {
-			d.access = get_access (sym.name);
+			d.access = get_default_accessibility (sym.name);
 		}
 
 		if (ModifierFlags.STATIC in flags) {
 			d.has_target = false;
 		}
-		if (ModifierFlags.EXTERN in flags || scanner.source_file.file_type == SourceFileType.PACKAGE) {
-			d.external = true;
+		if (ModifierFlags.EXTERN in flags) {
+			d.is_extern = true;
 		}
 
 		set_attributes (d, attrs);

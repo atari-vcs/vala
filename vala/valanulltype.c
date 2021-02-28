@@ -23,15 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
-
 
 static gpointer vala_null_type_parent_class = NULL;
 
@@ -41,19 +38,18 @@ static ValaDataType* vala_null_type_real_copy (ValaDataType* base);
 static gboolean vala_null_type_real_is_disposable (ValaDataType* base);
 static gchar* vala_null_type_real_to_qualified_string (ValaDataType* base,
                                                 ValaScope* scope);
-
+static GType vala_null_type_get_type_once (void);
 
 ValaNullType*
 vala_null_type_construct (GType object_type,
                           ValaSourceReference* source_reference)
 {
 	ValaNullType* self = NULL;
-	self = (ValaNullType*) vala_reference_type_construct (object_type);
+	self = (ValaNullType*) vala_reference_type_construct (object_type, NULL);
 	vala_data_type_set_nullable ((ValaDataType*) self, TRUE);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source_reference);
 	return self;
 }
-
 
 ValaNullType*
 vala_null_type_new (ValaSourceReference* source_reference)
@@ -61,13 +57,11 @@ vala_null_type_new (ValaSourceReference* source_reference)
 	return vala_null_type_construct (VALA_TYPE_NULL_TYPE, source_reference);
 }
 
-
 static gboolean
 vala_null_type_real_compatible (ValaDataType* base,
                                 ValaDataType* target_type)
 {
 	ValaNullType * self;
-	gboolean result = FALSE;
 	ValaCodeContext* _tmp0_;
 	ValaCodeContext* _tmp1_;
 	gboolean _tmp2_;
@@ -81,6 +75,7 @@ vala_null_type_real_compatible (ValaDataType* base,
 	gboolean _tmp21_ = FALSE;
 	ValaTypeSymbol* _tmp22_;
 	ValaTypeSymbol* _tmp23_;
+	gboolean result = FALSE;
 	self = (ValaNullType*) base;
 	g_return_val_if_fail (target_type != NULL, FALSE);
 	_tmp0_ = vala_code_context_get ();
@@ -97,18 +92,18 @@ vala_null_type_real_compatible (ValaDataType* base,
 		result = _tmp6_;
 		return result;
 	}
-	if (!G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_POINTER_TYPE)) {
+	if (!VALA_IS_POINTER_TYPE (target_type)) {
 		gboolean _tmp8_ = FALSE;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_NULL_TYPE)) {
+		if (VALA_IS_NULL_TYPE (target_type)) {
 			_tmp8_ = TRUE;
 		} else {
 			gboolean _tmp9_ = FALSE;
 			ValaTypeSymbol* _tmp10_;
 			ValaTypeSymbol* _tmp11_;
-			_tmp10_ = vala_data_type_get_data_type (target_type);
+			_tmp10_ = vala_data_type_get_type_symbol (target_type);
 			_tmp11_ = _tmp10_;
 			if (_tmp11_ == NULL) {
-				_tmp9_ = !G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_GENERIC_TYPE);
+				_tmp9_ = !VALA_IS_GENERIC_TYPE (target_type);
 			} else {
 				_tmp9_ = FALSE;
 			}
@@ -122,10 +117,10 @@ vala_null_type_real_compatible (ValaDataType* base,
 		result = TRUE;
 		return result;
 	}
-	if (G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_GENERIC_TYPE)) {
+	if (VALA_IS_GENERIC_TYPE (target_type)) {
 		_tmp14_ = TRUE;
 	} else {
-		_tmp14_ = G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_POINTER_TYPE);
+		_tmp14_ = VALA_IS_POINTER_TYPE (target_type);
 	}
 	if (_tmp14_) {
 		_tmp13_ = TRUE;
@@ -142,7 +137,7 @@ vala_null_type_real_compatible (ValaDataType* base,
 		ValaTypeSymbol* _tmp17_;
 		ValaTypeSymbol* _tmp18_;
 		ValaAttribute* _tmp19_;
-		_tmp17_ = vala_data_type_get_data_type (target_type);
+		_tmp17_ = vala_data_type_get_type_symbol (target_type);
 		_tmp18_ = _tmp17_;
 		_tmp19_ = vala_code_node_get_attribute ((ValaCodeNode*) _tmp18_, "PointerType");
 		_tmp12_ = _tmp19_ != NULL;
@@ -151,17 +146,17 @@ vala_null_type_real_compatible (ValaDataType* base,
 		result = TRUE;
 		return result;
 	}
-	_tmp22_ = vala_data_type_get_data_type (target_type);
+	_tmp22_ = vala_data_type_get_type_symbol (target_type);
 	_tmp23_ = _tmp22_;
 	if (vala_typesymbol_is_reference_type (_tmp23_)) {
 		_tmp21_ = TRUE;
 	} else {
-		_tmp21_ = G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_ARRAY_TYPE);
+		_tmp21_ = VALA_IS_ARRAY_TYPE (target_type);
 	}
 	if (_tmp21_) {
 		_tmp20_ = TRUE;
 	} else {
-		_tmp20_ = G_TYPE_CHECK_INSTANCE_TYPE (target_type, VALA_TYPE_DELEGATE_TYPE);
+		_tmp20_ = VALA_IS_DELEGATE_TYPE (target_type);
 	}
 	if (_tmp20_) {
 		result = TRUE;
@@ -171,15 +166,14 @@ vala_null_type_real_compatible (ValaDataType* base,
 	return result;
 }
 
-
 static ValaDataType*
 vala_null_type_real_copy (ValaDataType* base)
 {
 	ValaNullType * self;
-	ValaDataType* result = NULL;
 	ValaSourceReference* _tmp0_;
 	ValaSourceReference* _tmp1_;
 	ValaNullType* _tmp2_;
+	ValaDataType* result = NULL;
 	self = (ValaNullType*) base;
 	_tmp0_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
 	_tmp1_ = _tmp0_;
@@ -187,7 +181,6 @@ vala_null_type_real_copy (ValaDataType* base)
 	result = (ValaDataType*) _tmp2_;
 	return result;
 }
-
 
 static gboolean
 vala_null_type_real_is_disposable (ValaDataType* base)
@@ -199,23 +192,22 @@ vala_null_type_real_is_disposable (ValaDataType* base)
 	return result;
 }
 
-
 static gchar*
 vala_null_type_real_to_qualified_string (ValaDataType* base,
                                          ValaScope* scope)
 {
 	ValaNullType * self;
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	self = (ValaNullType*) base;
 	_tmp0_ = g_strdup ("null");
 	result = _tmp0_;
 	return result;
 }
 
-
 static void
-vala_null_type_class_init (ValaNullTypeClass * klass)
+vala_null_type_class_init (ValaNullTypeClass * klass,
+                           gpointer klass_data)
 {
 	vala_null_type_parent_class = g_type_class_peek_parent (klass);
 	((ValaDataTypeClass *) klass)->compatible = (gboolean (*) (ValaDataType*, ValaDataType*)) vala_null_type_real_compatible;
@@ -224,28 +216,33 @@ vala_null_type_class_init (ValaNullTypeClass * klass)
 	((ValaDataTypeClass *) klass)->to_qualified_string = (gchar* (*) (ValaDataType*, ValaScope*)) vala_null_type_real_to_qualified_string;
 }
 
-
 static void
-vala_null_type_instance_init (ValaNullType * self)
+vala_null_type_instance_init (ValaNullType * self,
+                              gpointer klass)
 {
 }
-
 
 /**
  * The type of the null literal.
  */
+static GType
+vala_null_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaNullTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_null_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNullType), 0, (GInstanceInitFunc) vala_null_type_instance_init, NULL };
+	GType vala_null_type_type_id;
+	vala_null_type_type_id = g_type_register_static (VALA_TYPE_REFERENCE_TYPE, "ValaNullType", &g_define_type_info, 0);
+	return vala_null_type_type_id;
+}
+
 GType
 vala_null_type_get_type (void)
 {
 	static volatile gsize vala_null_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_null_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaNullTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_null_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNullType), 0, (GInstanceInitFunc) vala_null_type_instance_init, NULL };
 		GType vala_null_type_type_id;
-		vala_null_type_type_id = g_type_register_static (VALA_TYPE_REFERENCE_TYPE, "ValaNullType", &g_define_type_info, 0);
+		vala_null_type_type_id = vala_null_type_get_type_once ();
 		g_once_init_leave (&vala_null_type_type_id__volatile, vala_null_type_type_id);
 	}
 	return vala_null_type_type_id__volatile;
 }
-
-
 

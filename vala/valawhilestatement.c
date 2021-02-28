@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
@@ -34,7 +32,6 @@ struct _ValaWhileStatementPrivate {
 	ValaExpression* _condition;
 	ValaBlock* _body;
 };
-
 
 static gint ValaWhileStatement_private_offset;
 static gpointer vala_while_statement_parent_class = NULL;
@@ -54,7 +51,7 @@ static void vala_while_statement_real_replace_expression (ValaCodeNode* base,
 static gboolean vala_while_statement_real_check (ValaCodeNode* base,
                                           ValaCodeContext* context);
 static void vala_while_statement_finalize (ValaCodeNode * obj);
-
+static GType vala_while_statement_get_type_once (void);
 
 static inline gpointer
 vala_while_statement_get_instance_private (ValaWhileStatement* self)
@@ -62,6 +59,61 @@ vala_while_statement_get_instance_private (ValaWhileStatement* self)
 	return G_STRUCT_MEMBER_P (self, ValaWhileStatement_private_offset);
 }
 
+ValaExpression*
+vala_while_statement_get_condition (ValaWhileStatement* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_condition;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_while_statement_set_condition (ValaWhileStatement* self,
+                                    ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_condition);
+	self->priv->_condition = _tmp0_;
+	_tmp1_ = self->priv->_condition;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaBlock*
+vala_while_statement_get_body (ValaWhileStatement* self)
+{
+	ValaBlock* result;
+	ValaBlock* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_body;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_while_statement_set_body (ValaWhileStatement* self,
+                               ValaBlock* value)
+{
+	ValaBlock* _tmp0_;
+	ValaBlock* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_body);
+	self->priv->_body = _tmp0_;
+	_tmp1_ = self->priv->_body;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 /**
  * Creates a new while statement.
@@ -87,7 +139,6 @@ vala_while_statement_construct (GType object_type,
 	return self;
 }
 
-
 ValaWhileStatement*
 vala_while_statement_new (ValaExpression* condition,
                           ValaBlock* body,
@@ -95,7 +146,6 @@ vala_while_statement_new (ValaExpression* condition,
 {
 	return vala_while_statement_construct (VALA_TYPE_WHILE_STATEMENT, condition, body, source_reference);
 }
-
 
 static void
 vala_while_statement_real_accept (ValaCodeNode* base,
@@ -106,7 +156,6 @@ vala_while_statement_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_while_statement (visitor, self);
 }
-
 
 static void
 vala_while_statement_real_accept_children (ValaCodeNode* base,
@@ -132,75 +181,59 @@ vala_while_statement_real_accept_children (ValaCodeNode* base,
 	vala_code_node_accept ((ValaCodeNode*) _tmp5_, visitor);
 }
 
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
 static gboolean
 vala_while_statement_always_true (ValaWhileStatement* self,
                                   ValaExpression* condition)
 {
-	gboolean result = FALSE;
 	ValaBooleanLiteral* literal = NULL;
-	ValaBooleanLiteral* _tmp0_;
-	gboolean _tmp1_ = FALSE;
-	ValaBooleanLiteral* _tmp2_;
+	gboolean _tmp0_ = FALSE;
+	ValaBooleanLiteral* _tmp1_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (condition != NULL, FALSE);
-	_tmp0_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (condition, VALA_TYPE_BOOLEAN_LITERAL) ? ((ValaBooleanLiteral*) condition) : NULL);
-	literal = _tmp0_;
-	_tmp2_ = literal;
-	if (_tmp2_ != NULL) {
-		ValaBooleanLiteral* _tmp3_;
+	literal = VALA_IS_BOOLEAN_LITERAL (condition) ? ((ValaBooleanLiteral*) condition) : NULL;
+	_tmp1_ = literal;
+	if (_tmp1_ != NULL) {
+		ValaBooleanLiteral* _tmp2_;
+		gboolean _tmp3_;
 		gboolean _tmp4_;
-		gboolean _tmp5_;
-		_tmp3_ = literal;
-		_tmp4_ = vala_boolean_literal_get_value (_tmp3_);
-		_tmp5_ = _tmp4_;
-		_tmp1_ = _tmp5_;
+		_tmp2_ = literal;
+		_tmp3_ = vala_boolean_literal_get_value (_tmp2_);
+		_tmp4_ = _tmp3_;
+		_tmp0_ = _tmp4_;
 	} else {
-		_tmp1_ = FALSE;
+		_tmp0_ = FALSE;
 	}
-	result = _tmp1_;
-	_vala_code_node_unref0 (literal);
+	result = _tmp0_;
 	return result;
 }
-
 
 static gboolean
 vala_while_statement_always_false (ValaWhileStatement* self,
                                    ValaExpression* condition)
 {
-	gboolean result = FALSE;
 	ValaBooleanLiteral* literal = NULL;
-	ValaBooleanLiteral* _tmp0_;
-	gboolean _tmp1_ = FALSE;
-	ValaBooleanLiteral* _tmp2_;
+	gboolean _tmp0_ = FALSE;
+	ValaBooleanLiteral* _tmp1_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (condition != NULL, FALSE);
-	_tmp0_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (condition, VALA_TYPE_BOOLEAN_LITERAL) ? ((ValaBooleanLiteral*) condition) : NULL);
-	literal = _tmp0_;
-	_tmp2_ = literal;
-	if (_tmp2_ != NULL) {
-		ValaBooleanLiteral* _tmp3_;
+	literal = VALA_IS_BOOLEAN_LITERAL (condition) ? ((ValaBooleanLiteral*) condition) : NULL;
+	_tmp1_ = literal;
+	if (_tmp1_ != NULL) {
+		ValaBooleanLiteral* _tmp2_;
+		gboolean _tmp3_;
 		gboolean _tmp4_;
-		gboolean _tmp5_;
-		_tmp3_ = literal;
-		_tmp4_ = vala_boolean_literal_get_value (_tmp3_);
-		_tmp5_ = _tmp4_;
-		_tmp1_ = !_tmp5_;
+		_tmp2_ = literal;
+		_tmp3_ = vala_boolean_literal_get_value (_tmp2_);
+		_tmp4_ = _tmp3_;
+		_tmp0_ = !_tmp4_;
 	} else {
-		_tmp1_ = FALSE;
+		_tmp0_ = FALSE;
 	}
-	result = _tmp1_;
-	_vala_code_node_unref0 (literal);
+	result = _tmp0_;
 	return result;
 }
-
 
 static void
 vala_while_statement_real_replace_expression (ValaCodeNode* base,
@@ -220,13 +253,11 @@ vala_while_statement_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_while_statement_real_check (ValaCodeNode* base,
                                  ValaCodeContext* context)
 {
 	ValaWhileStatement * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
@@ -241,11 +272,11 @@ vala_while_statement_real_check (ValaCodeNode* base,
 	ValaCodeNode* _tmp50_;
 	ValaCodeNode* _tmp51_;
 	ValaBlock* _tmp52_;
-	ValaBlock* _tmp53_;
+	ValaLoop* _tmp53_;
 	ValaLoop* _tmp54_;
-	ValaLoop* _tmp55_;
+	gboolean _tmp55_;
 	gboolean _tmp56_;
-	gboolean _tmp57_;
+	gboolean result = FALSE;
 	self = (ValaWhileStatement*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -367,80 +398,24 @@ vala_while_statement_real_check (ValaCodeNode* base,
 	loop = _tmp49_;
 	_tmp50_ = vala_code_node_get_parent_node ((ValaCodeNode*) self);
 	_tmp51_ = _tmp50_;
-	_tmp52_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp51_, VALA_TYPE_BLOCK, ValaBlock));
-	parent_block = _tmp52_;
-	_tmp53_ = parent_block;
+	parent_block = G_TYPE_CHECK_INSTANCE_CAST (_tmp51_, VALA_TYPE_BLOCK, ValaBlock);
+	_tmp52_ = parent_block;
+	_tmp53_ = loop;
+	vala_block_replace_statement (_tmp52_, (ValaStatement*) self, (ValaStatement*) _tmp53_);
 	_tmp54_ = loop;
-	vala_block_replace_statement (_tmp53_, (ValaStatement*) self, (ValaStatement*) _tmp54_);
-	_tmp55_ = loop;
-	if (!vala_code_node_check ((ValaCodeNode*) _tmp55_, context)) {
+	if (!vala_code_node_check ((ValaCodeNode*) _tmp54_, context)) {
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
 	}
-	_tmp56_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp57_ = _tmp56_;
-	result = !_tmp57_;
-	_vala_code_node_unref0 (parent_block);
+	_tmp55_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp56_ = _tmp55_;
+	result = !_tmp56_;
 	_vala_code_node_unref0 (loop);
 	return result;
 }
 
-
-ValaExpression*
-vala_while_statement_get_condition (ValaWhileStatement* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_condition;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_while_statement_set_condition (ValaWhileStatement* self,
-                                    ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_condition);
-	self->priv->_condition = _tmp0_;
-	_tmp1_ = self->priv->_condition;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaBlock*
-vala_while_statement_get_body (ValaWhileStatement* self)
-{
-	ValaBlock* result;
-	ValaBlock* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_body;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_while_statement_set_body (ValaWhileStatement* self,
-                               ValaBlock* value)
-{
-	ValaBlock* _tmp0_;
-	ValaBlock* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_body);
-	self->priv->_body = _tmp0_;
-	_tmp1_ = self->priv->_body;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_while_statement_class_init (ValaWhileStatementClass * klass)
+vala_while_statement_class_init (ValaWhileStatementClass * klass,
+                                 gpointer klass_data)
 {
 	vala_while_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_while_statement_finalize;
@@ -451,20 +426,19 @@ vala_while_statement_class_init (ValaWhileStatementClass * klass)
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_while_statement_real_check;
 }
 
-
 static void
-vala_while_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_while_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                    gpointer iface_data)
 {
 	vala_while_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_while_statement_instance_init (ValaWhileStatement * self)
+vala_while_statement_instance_init (ValaWhileStatement * self,
+                                    gpointer klass)
 {
 	self->priv = vala_while_statement_get_instance_private (self);
 }
-
 
 static void
 vala_while_statement_finalize (ValaCodeNode * obj)
@@ -476,25 +450,30 @@ vala_while_statement_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_while_statement_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a while iteration statement in the source code.
  */
+static GType
+vala_while_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaWhileStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_while_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaWhileStatement), 0, (GInstanceInitFunc) vala_while_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_while_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_while_statement_type_id;
+	vala_while_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaWhileStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_while_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	ValaWhileStatement_private_offset = g_type_add_instance_private (vala_while_statement_type_id, sizeof (ValaWhileStatementPrivate));
+	return vala_while_statement_type_id;
+}
+
 GType
 vala_while_statement_get_type (void)
 {
 	static volatile gsize vala_while_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_while_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaWhileStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_while_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaWhileStatement), 0, (GInstanceInitFunc) vala_while_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_while_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_while_statement_type_id;
-		vala_while_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaWhileStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_while_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaWhileStatement_private_offset = g_type_add_instance_private (vala_while_statement_type_id, sizeof (ValaWhileStatementPrivate));
+		vala_while_statement_type_id = vala_while_statement_get_type_once ();
 		g_once_init_leave (&vala_while_statement_type_id__volatile, vala_while_statement_type_id);
 	}
 	return vala_while_statement_type_id__volatile;
 }
-
-
 

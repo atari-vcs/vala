@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"vala-ccode\" \
 	$(COVERAGE_CFLAGS) \
 	-I$(top_srcdir)/gee \
 	-I$(top_srcdir)/vala \
@@ -29,13 +30,13 @@ libvalaccode_la_VALASOURCES = \
 	valaccodecontinuestatement.vala \
 	valaccodedeclaration.vala \
 	valaccodedeclarator.vala \
+	valaccodedefine.vala \
 	valaccodedostatement.vala \
 	valaccodeemptystatement.vala \
 	valaccodeenum.vala \
 	valaccodeenumvalue.vala \
 	valaccodeexpression.vala \
 	valaccodeexpressionstatement.vala \
-	valaccodefeaturetestmacro.vala \
 	valaccodefile.vala \
 	valaccodeforstatement.vala \
 	valaccodefragment.vala \

@@ -23,18 +23,14 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
-
-
+#include <glib.h>
 
 static gpointer vala_ccode_break_statement_parent_class = NULL;
 
 static void vala_ccode_break_statement_real_write (ValaCCodeNode* base,
                                             ValaCCodeWriter* writer);
-
+static GType vala_ccode_break_statement_get_type_once (void);
 
 static void
 vala_ccode_break_statement_real_write (ValaCCodeNode* base,
@@ -52,7 +48,6 @@ vala_ccode_break_statement_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_newline (writer);
 }
 
-
 ValaCCodeBreakStatement*
 vala_ccode_break_statement_construct (GType object_type)
 {
@@ -61,43 +56,47 @@ vala_ccode_break_statement_construct (GType object_type)
 	return self;
 }
 
-
 ValaCCodeBreakStatement*
 vala_ccode_break_statement_new (void)
 {
 	return vala_ccode_break_statement_construct (VALA_TYPE_CCODE_BREAK_STATEMENT);
 }
 
-
 static void
-vala_ccode_break_statement_class_init (ValaCCodeBreakStatementClass * klass)
+vala_ccode_break_statement_class_init (ValaCCodeBreakStatementClass * klass,
+                                       gpointer klass_data)
 {
 	vala_ccode_break_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_break_statement_real_write;
 }
 
-
 static void
-vala_ccode_break_statement_instance_init (ValaCCodeBreakStatement * self)
+vala_ccode_break_statement_instance_init (ValaCCodeBreakStatement * self,
+                                          gpointer klass)
 {
 }
-
 
 /**
  * Represents a break statement in the C code.
  */
+static GType
+vala_ccode_break_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBreakStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_break_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBreakStatement), 0, (GInstanceInitFunc) vala_ccode_break_statement_instance_init, NULL };
+	GType vala_ccode_break_statement_type_id;
+	vala_ccode_break_statement_type_id = g_type_register_static (VALA_TYPE_CCODE_STATEMENT, "ValaCCodeBreakStatement", &g_define_type_info, 0);
+	return vala_ccode_break_statement_type_id;
+}
+
 GType
 vala_ccode_break_statement_get_type (void)
 {
 	static volatile gsize vala_ccode_break_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_break_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBreakStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_break_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBreakStatement), 0, (GInstanceInitFunc) vala_ccode_break_statement_instance_init, NULL };
 		GType vala_ccode_break_statement_type_id;
-		vala_ccode_break_statement_type_id = g_type_register_static (VALA_TYPE_CCODE_STATEMENT, "ValaCCodeBreakStatement", &g_define_type_info, 0);
+		vala_ccode_break_statement_type_id = vala_ccode_break_statement_get_type_once ();
 		g_once_init_leave (&vala_ccode_break_statement_type_id__volatile, vala_ccode_break_statement_type_id);
 	}
 	return vala_ccode_break_statement_type_id__volatile;
 }
-
-
 

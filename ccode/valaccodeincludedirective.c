@@ -23,12 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 
@@ -37,14 +35,13 @@ struct _ValaCCodeIncludeDirectivePrivate {
 	gboolean _local;
 };
 
-
 static gint ValaCCodeIncludeDirective_private_offset;
 static gpointer vala_ccode_include_directive_parent_class = NULL;
 
 static void vala_ccode_include_directive_real_write (ValaCCodeNode* base,
                                               ValaCCodeWriter* writer);
 static void vala_ccode_include_directive_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_include_directive_get_type_once (void);
 
 static inline gpointer
 vala_ccode_include_directive_get_instance_private (ValaCCodeIncludeDirective* self)
@@ -52,6 +49,44 @@ vala_ccode_include_directive_get_instance_private (ValaCCodeIncludeDirective* se
 	return G_STRUCT_MEMBER_P (self, ValaCCodeIncludeDirective_private_offset);
 }
 
+const gchar*
+vala_ccode_include_directive_get_filename (ValaCCodeIncludeDirective* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_filename;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_include_directive_set_filename (ValaCCodeIncludeDirective* self,
+                                           const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_filename);
+	self->priv->_filename = _tmp0_;
+}
+
+gboolean
+vala_ccode_include_directive_get_local (ValaCCodeIncludeDirective* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_local;
+	return result;
+}
+
+void
+vala_ccode_include_directive_set_local (ValaCCodeIncludeDirective* self,
+                                        gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_local = value;
+}
 
 ValaCCodeIncludeDirective*
 vala_ccode_include_directive_construct (GType object_type,
@@ -66,14 +101,12 @@ vala_ccode_include_directive_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeIncludeDirective*
 vala_ccode_include_directive_new (const gchar* _filename,
                                   gboolean _local)
 {
 	return vala_ccode_include_directive_construct (VALA_TYPE_CCODE_INCLUDE_DIRECTIVE, _filename, _local);
 }
-
 
 static void
 vala_ccode_include_directive_real_write (ValaCCodeNode* base,
@@ -102,54 +135,9 @@ vala_ccode_include_directive_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_newline (writer);
 }
 
-
-const gchar*
-vala_ccode_include_directive_get_filename (ValaCCodeIncludeDirective* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_filename;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_include_directive_set_filename (ValaCCodeIncludeDirective* self,
-                                           const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_filename);
-	self->priv->_filename = _tmp0_;
-}
-
-
-gboolean
-vala_ccode_include_directive_get_local (ValaCCodeIncludeDirective* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_local;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_include_directive_set_local (ValaCCodeIncludeDirective* self,
-                                        gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_local = value;
-}
-
-
 static void
-vala_ccode_include_directive_class_init (ValaCCodeIncludeDirectiveClass * klass)
+vala_ccode_include_directive_class_init (ValaCCodeIncludeDirectiveClass * klass,
+                                         gpointer klass_data)
 {
 	vala_ccode_include_directive_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_include_directive_finalize;
@@ -157,13 +145,12 @@ vala_ccode_include_directive_class_init (ValaCCodeIncludeDirectiveClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_include_directive_real_write;
 }
 
-
 static void
-vala_ccode_include_directive_instance_init (ValaCCodeIncludeDirective * self)
+vala_ccode_include_directive_instance_init (ValaCCodeIncludeDirective * self,
+                                            gpointer klass)
 {
 	self->priv = vala_ccode_include_directive_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_include_directive_finalize (ValaCCodeNode * obj)
@@ -174,23 +161,28 @@ vala_ccode_include_directive_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_include_directive_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an include preprocessor directive in the C code.
  */
+static GType
+vala_ccode_include_directive_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIncludeDirectiveClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_include_directive_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIncludeDirective), 0, (GInstanceInitFunc) vala_ccode_include_directive_instance_init, NULL };
+	GType vala_ccode_include_directive_type_id;
+	vala_ccode_include_directive_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeIncludeDirective", &g_define_type_info, 0);
+	ValaCCodeIncludeDirective_private_offset = g_type_add_instance_private (vala_ccode_include_directive_type_id, sizeof (ValaCCodeIncludeDirectivePrivate));
+	return vala_ccode_include_directive_type_id;
+}
+
 GType
 vala_ccode_include_directive_get_type (void)
 {
 	static volatile gsize vala_ccode_include_directive_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_include_directive_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIncludeDirectiveClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_include_directive_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIncludeDirective), 0, (GInstanceInitFunc) vala_ccode_include_directive_instance_init, NULL };
 		GType vala_ccode_include_directive_type_id;
-		vala_ccode_include_directive_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeIncludeDirective", &g_define_type_info, 0);
-		ValaCCodeIncludeDirective_private_offset = g_type_add_instance_private (vala_ccode_include_directive_type_id, sizeof (ValaCCodeIncludeDirectivePrivate));
+		vala_ccode_include_directive_type_id = vala_ccode_include_directive_get_type_once ();
 		g_once_init_leave (&vala_ccode_include_directive_type_id__volatile, vala_ccode_include_directive_type_id);
 	}
 	return vala_ccode_include_directive_type_id__volatile;
 }
-
-
 

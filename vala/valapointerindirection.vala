@@ -22,7 +22,9 @@
 
 
 /**
- * Represents a pointer indirection in the source code, e.g. `*pointer`.
+ * Represents a pointer indirection.
+ *
+ * {{{ *foo }}}
  */
 public class Vala.PointerIndirection : Expression {
 	/**
@@ -73,6 +75,10 @@ public class Vala.PointerIndirection : Expression {
 		return inner.is_accessible (sym);
 	}
 
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		inner.get_error_types (collection, source_reference);
+	}
+
 	public override bool check (CodeContext context) {
 		if (checked) {
 			return !error;
@@ -96,6 +102,7 @@ public class Vala.PointerIndirection : Expression {
 				return false;
 			}
 			value_type = pointer_type.base_type;
+			value_type.value_owned = false;
 		} else {
 			error = true;
 			Report.error (source_reference, "Pointer indirection not supported for this expression");

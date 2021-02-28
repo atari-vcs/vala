@@ -23,33 +23,15 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
-#define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-
-struct _ValaValueTypePrivate {
-	ValaTypeSymbol* _type_symbol;
-};
-
-
-static gint ValaValueType_private_offset;
 static gpointer vala_value_type_parent_class = NULL;
 
 static gboolean vala_value_type_real_is_disposable (ValaDataType* base);
 static gboolean vala_value_type_real_check (ValaCodeNode* base,
                                      ValaCodeContext* context);
-static void vala_value_type_finalize (ValaCodeNode * obj);
-
-
-static inline gpointer
-vala_value_type_get_instance_private (ValaValueType* self)
-{
-	return G_STRUCT_MEMBER_P (self, ValaValueType_private_offset);
-}
-
+static GType vala_value_type_get_type_once (void);
 
 ValaValueType*
 vala_value_type_construct (GType object_type,
@@ -57,33 +39,23 @@ vala_value_type_construct (GType object_type,
 {
 	ValaValueType* self = NULL;
 	g_return_val_if_fail (type_symbol != NULL, NULL);
-	self = (ValaValueType*) vala_data_type_construct (object_type);
-	vala_value_type_set_type_symbol (self, type_symbol);
-	vala_data_type_set_data_type ((ValaDataType*) self, type_symbol);
+	self = (ValaValueType*) vala_data_type_construct_with_symbol (object_type, (ValaSymbol*) type_symbol);
 	return self;
 }
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
 
 static gboolean
 vala_value_type_real_is_disposable (ValaDataType* base)
 {
 	ValaValueType * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	gboolean _tmp2_;
 	gboolean _tmp3_;
 	ValaStruct* st = NULL;
 	ValaTypeSymbol* _tmp4_;
-	ValaStruct* _tmp5_;
+	ValaTypeSymbol* _tmp5_;
 	ValaStruct* _tmp6_;
+	gboolean result = FALSE;
 	self = (ValaValueType*) base;
 	_tmp0_ = vala_data_type_get_value_owned ((ValaDataType*) self);
 	_tmp1_ = _tmp0_;
@@ -97,102 +69,72 @@ vala_value_type_real_is_disposable (ValaDataType* base)
 		result = TRUE;
 		return result;
 	}
-	_tmp4_ = self->priv->_type_symbol;
-	_tmp5_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp4_, VALA_TYPE_STRUCT) ? ((ValaStruct*) _tmp4_) : NULL);
-	st = _tmp5_;
+	_tmp4_ = vala_data_type_get_type_symbol ((ValaDataType*) self);
+	_tmp5_ = _tmp4_;
+	st = VALA_IS_STRUCT (_tmp5_) ? ((ValaStruct*) _tmp5_) : NULL;
 	_tmp6_ = st;
 	if (_tmp6_ != NULL) {
 		ValaStruct* _tmp7_;
 		_tmp7_ = st;
 		result = vala_struct_is_disposable (_tmp7_);
-		_vala_code_node_unref0 (st);
 		return result;
 	}
 	result = FALSE;
-	_vala_code_node_unref0 (st);
 	return result;
 }
-
 
 static gboolean
 vala_value_type_real_check (ValaCodeNode* base,
                             ValaCodeContext* context)
 {
 	ValaValueType * self;
-	gboolean result = FALSE;
 	ValaTypeSymbol* _tmp0_;
+	ValaTypeSymbol* _tmp1_;
+	gboolean result = FALSE;
 	self = (ValaValueType*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
-	_tmp0_ = self->priv->_type_symbol;
-	result = vala_code_node_check ((ValaCodeNode*) _tmp0_, context);
+	_tmp0_ = vala_data_type_get_type_symbol ((ValaDataType*) self);
+	_tmp1_ = _tmp0_;
+	result = vala_code_node_check ((ValaCodeNode*) _tmp1_, context);
 	return result;
 }
-
-
-ValaTypeSymbol*
-vala_value_type_get_type_symbol (ValaValueType* self)
-{
-	ValaTypeSymbol* result;
-	ValaTypeSymbol* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_type_symbol;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_value_type_set_type_symbol (ValaValueType* self,
-                                 ValaTypeSymbol* value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_type_symbol = value;
-}
-
 
 static void
-vala_value_type_class_init (ValaValueTypeClass * klass)
+vala_value_type_class_init (ValaValueTypeClass * klass,
+                            gpointer klass_data)
 {
 	vala_value_type_parent_class = g_type_class_peek_parent (klass);
-	((ValaCodeNodeClass *) klass)->finalize = vala_value_type_finalize;
-	g_type_class_adjust_private_offset (klass, &ValaValueType_private_offset);
 	((ValaDataTypeClass *) klass)->is_disposable = (gboolean (*) (ValaDataType*)) vala_value_type_real_is_disposable;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_value_type_real_check;
 }
 
-
 static void
-vala_value_type_instance_init (ValaValueType * self)
+vala_value_type_instance_init (ValaValueType * self,
+                               gpointer klass)
 {
-	self->priv = vala_value_type_get_instance_private (self);
 }
-
-
-static void
-vala_value_type_finalize (ValaCodeNode * obj)
-{
-	ValaValueType * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_VALUE_TYPE, ValaValueType);
-	VALA_CODE_NODE_CLASS (vala_value_type_parent_class)->finalize (obj);
-}
-
 
 /**
  * A value type, i.e. a struct or an enum type.
  */
+static GType
+vala_value_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaValueTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_value_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaValueType), 0, (GInstanceInitFunc) vala_value_type_instance_init, NULL };
+	GType vala_value_type_type_id;
+	vala_value_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaValueType", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return vala_value_type_type_id;
+}
+
 GType
 vala_value_type_get_type (void)
 {
 	static volatile gsize vala_value_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_value_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaValueTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_value_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaValueType), 0, (GInstanceInitFunc) vala_value_type_instance_init, NULL };
 		GType vala_value_type_type_id;
-		vala_value_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaValueType", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValaValueType_private_offset = g_type_add_instance_private (vala_value_type_type_id, sizeof (ValaValueTypePrivate));
+		vala_value_type_type_id = vala_value_type_get_type_once ();
 		g_once_init_leave (&vala_value_type_type_id__volatile, vala_value_type_type_id);
 	}
 	return vala_value_type_type_id__volatile;
 }
-
-
 

@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 enum  {
 	VALADOC_HIGHLIGHTER_HIGHLIGHTER_0_PROPERTY,
@@ -45,7 +44,6 @@ struct _ValadocHighlighterHighlighterPrivate {
 	ValaHashMap* c_keywords;
 };
 
-
 static gint ValadocHighlighterHighlighter_private_offset;
 static gpointer valadoc_highlighter_highlighter_parent_class = NULL;
 
@@ -59,14 +57,13 @@ G_GNUC_INTERNAL ValadocContentText* valadoc_content_text_new (const gchar* text)
 G_GNUC_INTERNAL ValadocContentText* valadoc_content_text_construct (GType object_type,
                                                     const gchar* text);
 static void valadoc_highlighter_highlighter_finalize (GObject * obj);
-
+static GType valadoc_highlighter_highlighter_get_type_once (void);
 
 static inline gpointer
 valadoc_highlighter_highlighter_get_instance_private (ValadocHighlighterHighlighter* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocHighlighterHighlighter_private_offset);
 }
-
 
 /**
  * Used to highlight vala source code.
@@ -80,12 +77,10 @@ _valadoc_highlighter_code_token_type_dup (ValadocHighlighterCodeTokenType* self)
 	return dup;
 }
 
-
 ValadocContentRun*
 valadoc_highlighter_highlighter_highlight_vala (ValadocHighlighterHighlighter* self,
                                                 const gchar* source_code)
 {
-	ValadocContentRun* result = NULL;
 	ValaHashMap* _tmp0_;
 	gboolean enable_string_templates = FALSE;
 	gboolean enable_preprocessor_define = FALSE;
@@ -96,6 +91,7 @@ valadoc_highlighter_highlighter_highlight_vala (ValadocHighlighterHighlighter* s
 	ValaHashMap* _tmp195_;
 	ValadocHighlighterCodeScanner* _tmp196_;
 	ValadocContentRun* _tmp197_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (source_code != NULL, NULL);
 	_tmp0_ = self->priv->vala_keywords;
@@ -600,7 +596,6 @@ valadoc_highlighter_highlighter_highlight_vala (ValadocHighlighterHighlighter* s
 	return result;
 }
 
-
 /**
  * Used to highlight C source code.
  */
@@ -608,7 +603,6 @@ ValadocContentRun*
 valadoc_highlighter_highlighter_highlight_c (ValadocHighlighterHighlighter* self,
                                              const gchar* source_code)
 {
-	ValadocContentRun* result = NULL;
 	ValaHashMap* _tmp0_;
 	gboolean enable_string_templates = FALSE;
 	gboolean enable_preprocessor_define = FALSE;
@@ -619,6 +613,7 @@ valadoc_highlighter_highlighter_highlight_c (ValadocHighlighterHighlighter* self
 	ValaHashMap* _tmp129_;
 	ValadocHighlighterCodeScanner* _tmp130_;
 	ValadocContentRun* _tmp131_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (source_code != NULL, NULL);
 	_tmp0_ = self->priv->c_keywords;
@@ -958,7 +953,6 @@ valadoc_highlighter_highlighter_highlight_c (ValadocHighlighterHighlighter* self
 	return result;
 }
 
-
 /**
  * Used to highlight C source code.
  */
@@ -966,10 +960,10 @@ ValadocContentRun*
 valadoc_highlighter_highlighter_highlight_xml (ValadocHighlighterHighlighter* self,
                                                const gchar* source_code)
 {
-	ValadocContentRun* result = NULL;
 	ValadocHighlighterXmlScanner* scanner = NULL;
 	ValadocHighlighterXmlScanner* _tmp0_;
 	ValadocContentRun* _tmp1_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (source_code != NULL, NULL);
 	_tmp0_ = valadoc_highlighter_xml_scanner_new (source_code);
@@ -980,7 +974,6 @@ valadoc_highlighter_highlighter_highlight_xml (ValadocHighlighterHighlighter* se
 	return result;
 }
 
-
 /**
  * Used to highlight source code.
  */
@@ -988,9 +981,9 @@ static ValadocContentRun*
 valadoc_highlighter_highlighter_highlight_code (ValadocHighlighterHighlighter* self,
                                                 ValadocHighlighterScanner* scanner)
 {
-	ValadocContentRun* result = NULL;
 	ValadocContentRun* code = NULL;
 	ValadocContentRun* _tmp0_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (scanner != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_MONOSPACED);
@@ -1490,7 +1483,6 @@ valadoc_highlighter_highlighter_highlight_code (ValadocHighlighterHighlighter* s
 	return result;
 }
 
-
 ValadocHighlighterHighlighter*
 valadoc_highlighter_highlighter_construct (GType object_type)
 {
@@ -1499,29 +1491,27 @@ valadoc_highlighter_highlighter_construct (GType object_type)
 	return self;
 }
 
-
 ValadocHighlighterHighlighter*
 valadoc_highlighter_highlighter_new (void)
 {
 	return valadoc_highlighter_highlighter_construct (VALADOC_HIGHLIGHTER_TYPE_HIGHLIGHTER);
 }
 
-
 static void
-valadoc_highlighter_highlighter_class_init (ValadocHighlighterHighlighterClass * klass)
+valadoc_highlighter_highlighter_class_init (ValadocHighlighterHighlighterClass * klass,
+                                            gpointer klass_data)
 {
 	valadoc_highlighter_highlighter_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocHighlighterHighlighter_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_highlighter_highlighter_finalize;
 }
 
-
 static void
-valadoc_highlighter_highlighter_instance_init (ValadocHighlighterHighlighter * self)
+valadoc_highlighter_highlighter_instance_init (ValadocHighlighterHighlighter * self,
+                                               gpointer klass)
 {
 	self->priv = valadoc_highlighter_highlighter_get_instance_private (self);
 }
-
 
 static void
 valadoc_highlighter_highlighter_finalize (GObject * obj)
@@ -1533,20 +1523,25 @@ valadoc_highlighter_highlighter_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_highlighter_highlighter_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_highlighter_highlighter_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterHighlighterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_highlighter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterHighlighter), 0, (GInstanceInitFunc) valadoc_highlighter_highlighter_instance_init, NULL };
+	GType valadoc_highlighter_highlighter_type_id;
+	valadoc_highlighter_highlighter_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterHighlighter", &g_define_type_info, 0);
+	ValadocHighlighterHighlighter_private_offset = g_type_add_instance_private (valadoc_highlighter_highlighter_type_id, sizeof (ValadocHighlighterHighlighterPrivate));
+	return valadoc_highlighter_highlighter_type_id;
+}
 
 GType
 valadoc_highlighter_highlighter_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_highlighter_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_highlighter_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterHighlighterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_highlighter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterHighlighter), 0, (GInstanceInitFunc) valadoc_highlighter_highlighter_instance_init, NULL };
 		GType valadoc_highlighter_highlighter_type_id;
-		valadoc_highlighter_highlighter_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterHighlighter", &g_define_type_info, 0);
-		ValadocHighlighterHighlighter_private_offset = g_type_add_instance_private (valadoc_highlighter_highlighter_type_id, sizeof (ValadocHighlighterHighlighterPrivate));
+		valadoc_highlighter_highlighter_type_id = valadoc_highlighter_highlighter_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_highlighter_type_id__volatile, valadoc_highlighter_highlighter_type_id);
 	}
 	return valadoc_highlighter_highlighter_type_id__volatile;
 }
-
-
 

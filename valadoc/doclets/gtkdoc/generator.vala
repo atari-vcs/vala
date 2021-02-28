@@ -444,7 +444,7 @@ public class Gtkdoc.Generator : Api.Visitor {
 			var type_parameters = iface.get_children_by_type (NodeType.TYPE_PARAMETER, false);
 			foreach (Api.Node _type in type_parameters) {
 				var type = _type as Api.TypeParameter;
-				string type_name_down = type.name.down ();
+				string type_name_down = type.name.ascii_down ();
 				add_custom_header ("get_%s_type".printf (type_name_down),
 								   "The #GType for %s".printf (type_name_down));
 				add_custom_header ("get_%s_dup_func".printf (type_name_down),
@@ -601,7 +601,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		file_data.register_standard_section_line (cl.get_type_function_name ());
 
 		file_data.register_private_section_line (cl.get_private_cname ());
-		file_data.register_private_section_line (((cl.nspace.name != null)? cl.nspace.name.down () + "_" : "")
+		file_data.register_private_section_line (((cl.nspace.name != null)? cl.nspace.name.ascii_down () + "_" : "")
 												 + to_lower_case (cl.name)
 												 + "_construct");
 
@@ -716,7 +716,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (edomain != null) {
 			if (param_header == null) {
 				add_custom_header ("error",
-								   "location to store the error occuring, or %NULL to ignore",
+								   "location to store the error occurring, or %NULL to ignore",
 								   {"error-domains %s".printf (edomain.get_cname ())},
 								   double.MAX-1);
 			} else {
@@ -727,7 +727,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 			}
 		} else if (param_header == null) {
 			add_custom_header ("error",
-							   "location to store the error occuring, or %NULL to ignore",
+							   "location to store the error occurring, or %NULL to ignore",
 							   null,
 							   double.MAX - 1);
 		}
@@ -821,12 +821,12 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		string? return_type_link = null;
 		if (type_parameter != null) {
 			if (type_parameter.parent is Api.Class) {
-				return_type_link = "#%s:%s-type".printf (get_cname (prop.parent), type_parameter.name.down ());
+				return_type_link = "#%s:%s-type".printf (get_cname (prop.parent), type_parameter.name.ascii_down ());
 			} else if (type_parameter.parent is Api.Interface
 				&& ((Api.Symbol) type_parameter.parent).get_attribute ("GenericAccessors") != null)
 			{
 				return_type_link = "#_%sIface.get_%s_type()"
-					.printf (get_cname (type_parameter.parent), type_parameter.name.down ());
+					.printf (get_cname (type_parameter.parent), type_parameter.name.ascii_down ());
 			}
 		}
 
@@ -889,7 +889,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 
 		if (return_type_link != null) {
 			string return_type_desc = "<para>Holds a value from type #%s:%s-type.</para>"
-				.printf (get_cname (prop.parent), type_parameter.name.down ());
+				.printf (get_cname (prop.parent), type_parameter.name.ascii_down ());
 			gcomment.long_comment = combine_inline_docs (return_type_desc, gcomment.long_comment);
 		}
 	}
@@ -941,13 +941,13 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (type_parameter != null) {
 			if (type_parameter.parent is Api.Class) {
 				string return_type_desc = "A value from type #%s:%s-type."
-					.printf (get_cname (d.parent), type_parameter.name.down ());
+					.printf (get_cname (d.parent), type_parameter.name.ascii_down ());
 				gcomment.returns = combine_inline_docs (return_type_desc, gcomment.returns);
 			} else if (type_parameter.parent is Api.Interface
 				&& ((Api.Symbol) type_parameter.parent).get_attribute ("GenericAccessors") != null)
 			{
 				string return_type_desc = "A value from type #_%sIface.get_%s_type()."
-					.printf (get_cname (d.parent), type_parameter.name.down ());
+					.printf (get_cname (d.parent), type_parameter.name.ascii_down ());
 				gcomment.returns = combine_inline_docs (return_type_desc, gcomment.returns);
 			/*
 			} else if (type_parameter.parent is Api.Struct) {
@@ -995,14 +995,14 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (type_parameter != null) {
 			if (type_parameter.parent is Api.Class) {
 				string return_type_desc = "A value from type #%s:%s-type."
-					.printf (get_cname (type_parameter.parent), type_parameter.name.down ());
+					.printf (get_cname (type_parameter.parent), type_parameter.name.ascii_down ());
 				gcomment.returns = combine_inline_docs (return_type_desc,
 														gcomment.returns);
 			} else if (type_parameter.parent is Api.Interface
 				&& ((Api.Symbol) type_parameter.parent).get_attribute ("GenericAccessors") != null)
 			{
 				string return_type_desc = "A value from type #_%sIface.get_%s_type()."
-					.printf (get_cname (type_parameter.parent), type_parameter.name.down ());
+					.printf (get_cname (type_parameter.parent), type_parameter.name.ascii_down ());
 				gcomment.returns = combine_inline_docs (return_type_desc,
 														gcomment.returns);
 			}
@@ -1061,7 +1061,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 			var type_parameters = ((Api.Node) m.parent).get_children_by_type (NodeType.TYPE_PARAMETER, false);
 			foreach (Api.Node _type in type_parameters) {
 				var type = _type as Api.TypeParameter;
-				string type_name_down = type.name.down ();
+				string type_name_down = type.name.ascii_down ();
 				add_custom_header (type_name_down + "_type",
 								   "A #GType");
 				add_custom_header (type_name_down + "_dup_func",
@@ -1075,7 +1075,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		var type_parameters = m.get_children_by_type (NodeType.TYPE_PARAMETER, false);
 		foreach (Api.Node _type in type_parameters) {
 			var type = _type as Api.TypeParameter;
-			string type_name_down = type.name.down ();
+			string type_name_down = type.name.ascii_down ();
 			add_custom_header (type_name_down + "_type",
 							   "The #GType for @%s".printf (type_name_down),
 							   null,
@@ -1150,16 +1150,16 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (type_parameter != null) {
 			if (type_parameter.parent is Api.Class) {
 				return_type_desc = "A value from type #%s:%s-type."
-					.printf (get_cname (m.parent), type_parameter.name.down ());
+					.printf (get_cname (m.parent), type_parameter.name.ascii_down ());
 			} else if (type_parameter.parent is Api.Interface
 				&& ((Api.Symbol) type_parameter.parent).get_attribute ("GenericAccessors") != null)
 			{
 				return_type_desc = "A value from type #_%sIface.get_%s_type()."
-					.printf (get_cname (m.parent), type_parameter.name.down ());
+					.printf (get_cname (m.parent), type_parameter.name.ascii_down ());
 			} else if (type_parameter.parent is Api.Struct) {
 				// type not stored
 			} else if (type_parameter.parent == m) {
-				return_type_desc = "value from type @%s_type.".printf (type_parameter.name.down ());
+				return_type_desc = "value from type @%s_type.".printf (type_parameter.name.ascii_down ());
 			}
 		}
 
@@ -1245,7 +1245,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		}
 	}
 
-	public override void visit_formal_parameter (Api.FormalParameter param) {
+	public override void visit_formal_parameter (Api.Parameter param) {
 		var param_name = param.name ?? "...";
 		var annotations = new string[]{};
 		var direction = "in";
@@ -1264,16 +1264,16 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (type_parameter != null) {
 			if (type_parameter.parent is Api.Class) {
 				add_custom_header (param_name, "A parameter from type #%s:%s-type."
-					.printf (get_cname (type_parameter.parent), type_parameter.name.down ()), null, double.MAX, false);
+					.printf (get_cname (type_parameter.parent), type_parameter.name.ascii_down ()), null, double.MAX, false);
 			} else if (type_parameter.parent is Api.Interface && ((Api.Symbol) type_parameter.parent)
 					.get_attribute ("GenericAccessors") != null) {
 				add_custom_header (param_name, "A parameter from type #_%sIface.get_%s_type()."
-					.printf (get_cname (type_parameter.parent), type_parameter.name.down ()), null, double.MAX, false);
+					.printf (get_cname (type_parameter.parent), type_parameter.name.ascii_down ()), null, double.MAX, false);
 			} else if (type_parameter.parent is Api.Struct) {
 				// type not stored
 			} else if (type_parameter.parent is Method) {
 				add_custom_header (param_name, "A parameter from type @%s_type."
-					.printf (type_parameter.name.down ()), null, double.MAX, false);
+					.printf (type_parameter.name.ascii_down ()), null, double.MAX, false);
 			}
 		}
 
@@ -1339,21 +1339,21 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 		if (sym.is_deprecated) {
 			Attribute? version;
 			Attribute? deprecated;
-			AttributeArgument? deprecated_since;
-			AttributeArgument? replacement;
+			string? deprecated_since;
+			string? replacement;
 			if ((version = sym.get_attribute ("Version")) != null) {
-				deprecated_since = version.get_argument ("deprecated_since");
-				replacement = version.get_argument ("replacement");
+				deprecated_since = ((Vala.Attribute) version.data).get_string ("deprecated_since");
+				replacement = ((Vala.Attribute) version.data).get_string ("replacement");
 			} else if ((deprecated = sym.get_attribute ("Deprecated")) != null) {
-				deprecated_since = deprecated.get_argument ("since");
-				replacement = deprecated.get_argument ("replacement");
+				deprecated_since = ((Vala.Attribute) deprecated.data).get_string ("since");
+				replacement = ((Vala.Attribute) deprecated.data).get_string ("replacement");
 			} else {
 				assert_not_reached ();
 			}
 
 			string? since = null;
 			if (deprecated_since != null) {
-				since = deprecated_since.value;
+				since = deprecated_since;
 
 				// Strip surrounding quotation marks.
 				if (since.has_prefix ("\"")) {
@@ -1368,7 +1368,7 @@ It is important that your <link linkend="GValue"><type>GValue</type></link> hold
 			Api.Node? replacement_symbol = null;
 
 			if (replacement != null) {
-				replacement_symbol_name = replacement.value;
+				replacement_symbol_name = replacement;
 
 				// Strip surrounding quotation marks.
 				if (replacement_symbol_name.has_prefix ("\"")) {

@@ -23,20 +23,18 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
 struct _ValaIfStatementPrivate {
 	ValaExpression* _condition;
 	ValaBlock* _true_statement;
 	ValaBlock* _false_statement;
 };
-
 
 static gint ValaIfStatement_private_offset;
 static gpointer vala_if_statement_parent_class = NULL;
@@ -49,12 +47,15 @@ static void vala_if_statement_real_accept_children (ValaCodeNode* base,
 static void vala_if_statement_real_replace_expression (ValaCodeNode* base,
                                                 ValaExpression* old_node,
                                                 ValaExpression* new_node);
+static void vala_if_statement_real_get_error_types (ValaCodeNode* base,
+                                             ValaCollection* collection,
+                                             ValaSourceReference* source_reference);
 static gboolean vala_if_statement_real_check (ValaCodeNode* base,
                                        ValaCodeContext* context);
 static void vala_if_statement_real_emit (ValaCodeNode* base,
                                   ValaCodeGenerator* codegen);
 static void vala_if_statement_finalize (ValaCodeNode * obj);
-
+static GType vala_if_statement_get_type_once (void);
 
 static inline gpointer
 vala_if_statement_get_instance_private (ValaIfStatement* self)
@@ -62,6 +63,90 @@ vala_if_statement_get_instance_private (ValaIfStatement* self)
 	return G_STRUCT_MEMBER_P (self, ValaIfStatement_private_offset);
 }
 
+ValaExpression*
+vala_if_statement_get_condition (ValaIfStatement* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_condition;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_if_statement_set_condition (ValaIfStatement* self,
+                                 ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_condition);
+	self->priv->_condition = _tmp0_;
+	_tmp1_ = self->priv->_condition;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaBlock*
+vala_if_statement_get_true_statement (ValaIfStatement* self)
+{
+	ValaBlock* result;
+	ValaBlock* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_true_statement;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_if_statement_set_true_statement (ValaIfStatement* self,
+                                      ValaBlock* value)
+{
+	ValaBlock* _tmp0_;
+	ValaBlock* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_true_statement);
+	self->priv->_true_statement = _tmp0_;
+	_tmp1_ = self->priv->_true_statement;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaBlock*
+vala_if_statement_get_false_statement (ValaIfStatement* self)
+{
+	ValaBlock* result;
+	ValaBlock* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_false_statement;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_if_statement_set_false_statement (ValaIfStatement* self,
+                                       ValaBlock* value)
+{
+	ValaBlock* _tmp0_;
+	ValaBlock* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_false_statement);
+	self->priv->_false_statement = _tmp0_;
+	_tmp1_ = self->priv->_false_statement;
+	if (_tmp1_ != NULL) {
+		ValaBlock* _tmp2_;
+		_tmp2_ = self->priv->_false_statement;
+		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
+	}
+}
 
 /**
  * Creates a new if statement.
@@ -89,7 +174,6 @@ vala_if_statement_construct (GType object_type,
 	return self;
 }
 
-
 ValaIfStatement*
 vala_if_statement_new (ValaExpression* cond,
                        ValaBlock* true_stmt,
@@ -98,7 +182,6 @@ vala_if_statement_new (ValaExpression* cond,
 {
 	return vala_if_statement_construct (VALA_TYPE_IF_STATEMENT, cond, true_stmt, false_stmt, source);
 }
-
 
 static void
 vala_if_statement_real_accept (ValaCodeNode* base,
@@ -109,7 +192,6 @@ vala_if_statement_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_if_statement (visitor, self);
 }
-
 
 static void
 vala_if_statement_real_accept_children (ValaCodeNode* base,
@@ -146,7 +228,6 @@ vala_if_statement_real_accept_children (ValaCodeNode* base,
 	}
 }
 
-
 static void
 vala_if_statement_real_replace_expression (ValaCodeNode* base,
                                            ValaExpression* old_node,
@@ -165,13 +246,42 @@ vala_if_statement_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
+static void
+vala_if_statement_real_get_error_types (ValaCodeNode* base,
+                                        ValaCollection* collection,
+                                        ValaSourceReference* source_reference)
+{
+	ValaIfStatement * self;
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	ValaBlock* _tmp2_;
+	ValaBlock* _tmp3_;
+	ValaBlock* _tmp4_;
+	ValaBlock* _tmp5_;
+	self = (ValaIfStatement*) base;
+	g_return_if_fail (collection != NULL);
+	_tmp0_ = vala_if_statement_get_condition (self);
+	_tmp1_ = _tmp0_;
+	vala_code_node_get_error_types ((ValaCodeNode*) _tmp1_, collection, source_reference);
+	_tmp2_ = vala_if_statement_get_true_statement (self);
+	_tmp3_ = _tmp2_;
+	vala_code_node_get_error_types ((ValaCodeNode*) _tmp3_, collection, source_reference);
+	_tmp4_ = vala_if_statement_get_false_statement (self);
+	_tmp5_ = _tmp4_;
+	if (_tmp5_ != NULL) {
+		ValaBlock* _tmp6_;
+		ValaBlock* _tmp7_;
+		_tmp6_ = vala_if_statement_get_false_statement (self);
+		_tmp7_ = _tmp6_;
+		vala_code_node_get_error_types ((ValaCodeNode*) _tmp7_, collection, source_reference);
+	}
+}
 
 static gboolean
 vala_if_statement_real_check (ValaCodeNode* base,
                               ValaCodeContext* context)
 {
 	ValaIfStatement * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
@@ -196,18 +306,9 @@ vala_if_statement_real_check (ValaCodeNode* base,
 	ValaExpression* _tmp25_;
 	ValaDataType* _tmp26_;
 	ValaDataType* _tmp27_;
-	ValaExpression* _tmp39_;
-	ValaExpression* _tmp40_;
-	ValaList* _tmp41_;
-	ValaList* _tmp42_;
-	ValaBlock* _tmp43_;
-	ValaBlock* _tmp44_;
-	ValaList* _tmp45_;
-	ValaList* _tmp46_;
-	ValaBlock* _tmp47_;
-	ValaBlock* _tmp48_;
-	gboolean _tmp53_;
-	gboolean _tmp54_;
+	gboolean _tmp39_;
+	gboolean _tmp40_;
+	gboolean result = FALSE;
 	self = (ValaIfStatement*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -291,38 +392,11 @@ vala_if_statement_real_check (ValaCodeNode* base,
 		result = FALSE;
 		return result;
 	}
-	_tmp39_ = vala_if_statement_get_condition (self);
+	_tmp39_ = vala_code_node_get_error ((ValaCodeNode*) self);
 	_tmp40_ = _tmp39_;
-	_tmp41_ = vala_code_node_get_error_types ((ValaCodeNode*) _tmp40_);
-	_tmp42_ = _tmp41_;
-	vala_code_node_add_error_types ((ValaCodeNode*) self, _tmp42_);
-	_vala_iterable_unref0 (_tmp42_);
-	_tmp43_ = vala_if_statement_get_true_statement (self);
-	_tmp44_ = _tmp43_;
-	_tmp45_ = vala_code_node_get_error_types ((ValaCodeNode*) _tmp44_);
-	_tmp46_ = _tmp45_;
-	vala_code_node_add_error_types ((ValaCodeNode*) self, _tmp46_);
-	_vala_iterable_unref0 (_tmp46_);
-	_tmp47_ = vala_if_statement_get_false_statement (self);
-	_tmp48_ = _tmp47_;
-	if (_tmp48_ != NULL) {
-		ValaBlock* _tmp49_;
-		ValaBlock* _tmp50_;
-		ValaList* _tmp51_;
-		ValaList* _tmp52_;
-		_tmp49_ = vala_if_statement_get_false_statement (self);
-		_tmp50_ = _tmp49_;
-		_tmp51_ = vala_code_node_get_error_types ((ValaCodeNode*) _tmp50_);
-		_tmp52_ = _tmp51_;
-		vala_code_node_add_error_types ((ValaCodeNode*) self, _tmp52_);
-		_vala_iterable_unref0 (_tmp52_);
-	}
-	_tmp53_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp54_ = _tmp53_;
-	result = !_tmp54_;
+	result = !_tmp40_;
 	return result;
 }
-
 
 static void
 vala_if_statement_real_emit (ValaCodeNode* base,
@@ -344,101 +418,9 @@ vala_if_statement_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_if_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
-ValaExpression*
-vala_if_statement_get_condition (ValaIfStatement* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_condition;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_if_statement_set_condition (ValaIfStatement* self,
-                                 ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_condition);
-	self->priv->_condition = _tmp0_;
-	_tmp1_ = self->priv->_condition;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaBlock*
-vala_if_statement_get_true_statement (ValaIfStatement* self)
-{
-	ValaBlock* result;
-	ValaBlock* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_true_statement;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_if_statement_set_true_statement (ValaIfStatement* self,
-                                      ValaBlock* value)
-{
-	ValaBlock* _tmp0_;
-	ValaBlock* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_true_statement);
-	self->priv->_true_statement = _tmp0_;
-	_tmp1_ = self->priv->_true_statement;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaBlock*
-vala_if_statement_get_false_statement (ValaIfStatement* self)
-{
-	ValaBlock* result;
-	ValaBlock* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_false_statement;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_if_statement_set_false_statement (ValaIfStatement* self,
-                                       ValaBlock* value)
-{
-	ValaBlock* _tmp0_;
-	ValaBlock* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_false_statement);
-	self->priv->_false_statement = _tmp0_;
-	_tmp1_ = self->priv->_false_statement;
-	if (_tmp1_ != NULL) {
-		ValaBlock* _tmp2_;
-		_tmp2_ = self->priv->_false_statement;
-		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
-	}
-}
-
-
 static void
-vala_if_statement_class_init (ValaIfStatementClass * klass)
+vala_if_statement_class_init (ValaIfStatementClass * klass,
+                              gpointer klass_data)
 {
 	vala_if_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_if_statement_finalize;
@@ -446,24 +428,24 @@ vala_if_statement_class_init (ValaIfStatementClass * klass)
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_if_statement_real_accept;
 	((ValaCodeNodeClass *) klass)->accept_children = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_if_statement_real_accept_children;
 	((ValaCodeNodeClass *) klass)->replace_expression = (void (*) (ValaCodeNode*, ValaExpression*, ValaExpression*)) vala_if_statement_real_replace_expression;
+	((ValaCodeNodeClass *) klass)->get_error_types = (void (*) (ValaCodeNode*, ValaCollection*, ValaSourceReference*)) vala_if_statement_real_get_error_types;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_if_statement_real_check;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_if_statement_real_emit;
 }
 
-
 static void
-vala_if_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_if_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                 gpointer iface_data)
 {
 	vala_if_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_if_statement_instance_init (ValaIfStatement * self)
+vala_if_statement_instance_init (ValaIfStatement * self,
+                                 gpointer klass)
 {
 	self->priv = vala_if_statement_get_instance_private (self);
 }
-
 
 static void
 vala_if_statement_finalize (ValaCodeNode * obj)
@@ -476,25 +458,30 @@ vala_if_statement_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_if_statement_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an if selection statement in the source code.
  */
+static GType
+vala_if_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaIfStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_if_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIfStatement), 0, (GInstanceInitFunc) vala_if_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_if_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_if_statement_type_id;
+	vala_if_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaIfStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_if_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	ValaIfStatement_private_offset = g_type_add_instance_private (vala_if_statement_type_id, sizeof (ValaIfStatementPrivate));
+	return vala_if_statement_type_id;
+}
+
 GType
 vala_if_statement_get_type (void)
 {
 	static volatile gsize vala_if_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_if_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaIfStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_if_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIfStatement), 0, (GInstanceInitFunc) vala_if_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_if_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_if_statement_type_id;
-		vala_if_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaIfStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_if_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaIfStatement_private_offset = g_type_add_instance_private (vala_if_statement_type_id, sizeof (ValaIfStatementPrivate));
+		vala_if_statement_type_id = vala_if_statement_get_type_once ();
 		g_once_init_leave (&vala_if_statement_type_id__volatile, vala_if_statement_type_id);
 	}
 	return vala_if_statement_type_id__volatile;
 }
-
-
 

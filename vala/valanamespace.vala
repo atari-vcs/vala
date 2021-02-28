@@ -68,11 +68,11 @@ public class Vala.Namespace : Symbol {
 	}
 
 	/**
-	 * Returns a copy of the list of namespaces.
+	 * Returns the list of namespaces.
 	 *
 	 * @return comment list
 	 */
-	public List<Comment> get_comments () {
+	public unowned List<Comment> get_comments () {
 		return comments;
 	}
 
@@ -141,11 +141,11 @@ public class Vala.Namespace : Symbol {
 	}
 
 	/**
-	 * Returns a copy of the list of namespaces.
+	 * Returns the list of namespaces.
 	 *
 	 * @return namespace list
 	 */
-	public List<Namespace> get_namespaces () {
+	public unowned List<Namespace> get_namespaces () {
 		return namespaces;
 	}
 
@@ -155,7 +155,7 @@ public class Vala.Namespace : Symbol {
 	 * @param cl a class
 	 */
 	public override void add_class (Class cl) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (cl.access == SymbolAccessibility.PRIVATE) {
 			cl.access = SymbolAccessibility.INTERNAL;
 		}
@@ -174,7 +174,7 @@ public class Vala.Namespace : Symbol {
 	 * @param iface an interface
 	 */
 	public override void add_interface (Interface iface) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (iface.access == SymbolAccessibility.PRIVATE) {
 			iface.access = SymbolAccessibility.INTERNAL;
 		}
@@ -194,7 +194,7 @@ public class Vala.Namespace : Symbol {
 	 * @param st a struct
 	 */
 	public override void add_struct (Struct st) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (st.access == SymbolAccessibility.PRIVATE) {
 			st.access = SymbolAccessibility.INTERNAL;
 		}
@@ -208,22 +208,12 @@ public class Vala.Namespace : Symbol {
 	}
 
 	/**
-	 * Removes the specified struct from this namespace.
-	 *
-	 * @param st a struct
-	 */
-	public void remove_struct (Struct st) {
-		structs.remove (st);
-		scope.remove (st.name);
-	}
-
-	/**
 	 * Adds the specified enum to this namespace.
 	 *
 	 * @param en an enum
 	 */
 	public override void add_enum (Enum en) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (en.access == SymbolAccessibility.PRIVATE) {
 			en.access = SymbolAccessibility.INTERNAL;
 		}
@@ -242,7 +232,7 @@ public class Vala.Namespace : Symbol {
 	 * @param edomain an error domain
 	 */
 	public override void add_error_domain (ErrorDomain edomain) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (edomain.access == SymbolAccessibility.PRIVATE) {
 			edomain.access = SymbolAccessibility.INTERNAL;
 		}
@@ -261,7 +251,7 @@ public class Vala.Namespace : Symbol {
 	 * @param d a delegate
 	 */
 	public override void add_delegate (Delegate d) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (d.access == SymbolAccessibility.PRIVATE) {
 			d.access = SymbolAccessibility.INTERNAL;
 		}
@@ -275,83 +265,83 @@ public class Vala.Namespace : Symbol {
 	}
 
 	/**
-	 * Returns a copy of the list of structs.
+	 * Returns the list of structs.
 	 *
 	 * @return struct list
 	 */
-	public List<Struct> get_structs () {
+	public unowned List<Struct> get_structs () {
 		return structs;
 	}
 
 	/**
-	 * Returns a copy of the list of classes.
+	 * Returns the list of classes.
 	 *
 	 * @return class list
 	 */
-	public List<Class> get_classes () {
+	public unowned List<Class> get_classes () {
 		return classes;
 	}
 
 	/**
-	 * Returns a copy of the list of interfaces.
+	 * Returns the list of interfaces.
 	 *
 	 * @return interface list
 	 */
-	public List<Interface> get_interfaces () {
+	public unowned List<Interface> get_interfaces () {
 		return interfaces;
 	}
 
 	/**
-	 * Returns a copy of the list of enums.
+	 * Returns the list of enums.
 	 *
 	 * @return enum list
 	 */
-	public List<Enum> get_enums () {
+	public unowned List<Enum> get_enums () {
 		return enums;
 	}
 
 	/**
-	 * Returns a copy of the list of error domains.
+	 * Returns the list of error domains.
 	 *
 	 * @return error domain list
 	 */
-	public List<ErrorDomain> get_error_domains () {
+	public unowned List<ErrorDomain> get_error_domains () {
 		return error_domains;
 	}
 
 	/**
-	 * Returns a copy of the list of fields.
+	 * Returns the list of fields.
 	 *
 	 * @return field list
 	 */
-	public List<Field> get_fields () {
+	public unowned List<Field> get_fields () {
 		return fields;
 	}
 
 	/**
-	 * Returns a copy of the list of constants.
+	 * Returns the list of constants.
 	 *
 	 * @return constant list
 	 */
-	public List<Constant> get_constants () {
+	public unowned List<Constant> get_constants () {
 		return constants;
 	}
 
 	/**
-	 * Returns a copy of the list of delegates.
+	 * Returns the list of delegates.
 	 *
 	 * @return delegate list
 	 */
-	public List<Delegate> get_delegates () {
+	public unowned List<Delegate> get_delegates () {
 		return delegates;
 	}
 
 	/**
-	 * Returns a copy of the list of methods.
+	 * Returns the list of methods.
 	 *
 	 * @return method list
 	 */
-	public List<Method> get_methods () {
+	public unowned List<Method> get_methods () {
 		return methods;
 	}
 
@@ -361,7 +351,7 @@ public class Vala.Namespace : Symbol {
 	 * @param constant a constant
 	 */
 	public override void add_constant (Constant constant) {
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (constant.access == SymbolAccessibility.PRIVATE) {
 			constant.access = SymbolAccessibility.INTERNAL;
 		}
@@ -380,24 +370,9 @@ public class Vala.Namespace : Symbol {
 	 * @param f a field
 	 */
 	public override void add_field (Field f) {
-		if (f.binding == MemberBinding.INSTANCE) {
-			// default to static member binding
-			f.binding = MemberBinding.STATIC;
-		}
-
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (f.access == SymbolAccessibility.PRIVATE) {
 			f.access = SymbolAccessibility.INTERNAL;
-		}
-
-		if (f.binding == MemberBinding.INSTANCE) {
-			Report.error (f.source_reference, "instance members are not allowed outside of data types");
-			f.error = true;
-			return;
-		} else if (f.binding == MemberBinding.CLASS) {
-			Report.error (f.source_reference, "class members are not allowed outside of classes");
-			f.error = true;
-			return;
 		}
 
 		if (f.owner == null) {
@@ -414,32 +389,13 @@ public class Vala.Namespace : Symbol {
 	 * @param m a method
 	 */
 	public override void add_method (Method m) {
-		if (m.binding == MemberBinding.INSTANCE) {
-			// default to static member binding
-			m.binding = MemberBinding.STATIC;
-		}
-
-		// namespaces do not support private memebers
+		// namespaces do not support private members
 		if (m.access == SymbolAccessibility.PRIVATE) {
 			m.access = SymbolAccessibility.INTERNAL;
 		}
 
-		if (m is CreationMethod) {
-			Report.error (m.source_reference, "construction methods may only be declared within classes and structs");
-			m.error = true;
-			return;
-		}
-		if (m.binding == MemberBinding.INSTANCE) {
-			Report.error (m.source_reference, "instance members are not allowed outside of data types");
-			m.error = true;
-			return;
-		} else if (m.binding == MemberBinding.CLASS) {
-			Report.error (m.source_reference, "class members are not allowed outside of classes");
-			m.error = true;
-			return;
-		}
 		if (!(m.return_type is VoidType) && m.get_postconditions ().size > 0) {
-			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, source_reference);
+			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, m.source_reference);
 			m.result_var.is_result = true;
 		}
 
@@ -515,6 +471,35 @@ public class Vala.Namespace : Symbol {
 		}
 		if (a != null && a.has_argument ("gir_version")) {
 			source_reference.file.gir_version = a.get_string ("gir_version");
+		}
+
+		foreach (Field f in fields) {
+			if (f.binding == MemberBinding.INSTANCE) {
+				Report.error (f.source_reference, "instance fields are not allowed outside of data types");
+				f.error = true;
+				error = true;
+			} else if (f.binding == MemberBinding.CLASS) {
+				Report.error (f.source_reference, "class fields are not allowed outside of classes");
+				f.error = true;
+				error = true;
+			}
+		}
+
+		foreach (Method m in methods) {
+			if (m is CreationMethod) {
+				Report.error (m.source_reference, "construction methods may only be declared within classes and structs");
+				m.error = true;
+				error = true;
+			}
+			if (m.binding == MemberBinding.INSTANCE) {
+				Report.error (m.source_reference, "instance methods are not allowed outside of data types");
+				m.error = true;
+				error = true;
+			} else if (m.binding == MemberBinding.CLASS) {
+				Report.error (m.source_reference, "class methods are not allowed outside of classes");
+				m.error = true;
+				error = true;
+			}
 		}
 
 		foreach (Namespace ns in namespaces) {

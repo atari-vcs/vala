@@ -70,22 +70,18 @@ public class Vala.ReturnStatement : CodeNode, Statement {
 		}
 	}
 
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		if (return_expression != null) {
+			return_expression.get_error_types (collection, source_reference);
+		}
+	}
+
 	public override bool check (CodeContext context) {
 		if (checked) {
 			return !error;
 		}
 
 		checked = true;
-
-		if (return_expression != null) {
-			return_expression.target_type = context.analyzer.current_return_type.copy ();
-		}
-
-		if (return_expression != null && !return_expression.check (context)) {
-			// ignore inner error
-			error = true;
-			return false;
-		}
 
 		if (context.analyzer.current_return_type == null) {
 			error = true;
@@ -102,7 +98,16 @@ public class Vala.ReturnStatement : CodeNode, Statement {
 		}
 
 		if (context.analyzer.current_return_type is VoidType) {
+			error = true;
 			Report.error (source_reference, "Return with value in void function");
+			return false;
+		}
+
+		return_expression.target_type = context.analyzer.current_return_type.copy ();
+
+		if (!return_expression.check (context)) {
+			// ignore inner error
+			error = true;
 			return false;
 		}
 
@@ -125,7 +130,7 @@ public class Vala.ReturnStatement : CodeNode, Statement {
 			return false;
 		}
 
-		var local = return_expression.symbol_reference as LocalVariable;
+		unowned LocalVariable? local = return_expression.symbol_reference as LocalVariable;
 		if (local != null && local.variable_type.is_disposable () &&
 		    !context.analyzer.current_return_type.value_owned) {
 			error = true;
@@ -137,8 +142,6 @@ public class Vala.ReturnStatement : CodeNode, Statement {
 		    && !context.analyzer.current_return_type.nullable) {
 			Report.warning (source_reference, "`null' incompatible with return type `%s'".printf (context.analyzer.current_return_type.to_string ()));
 		}
-
-		add_error_types (return_expression.get_error_types ());
 
 		return !error;
 	}

@@ -29,7 +29,7 @@ public class Vala.SourceFile {
 	/**
 	 * The name of this source file.
 	 */
-	public string filename { get; set; }
+	public string filename { get; private set; }
 
 	public string? relative_filename {
 		set {
@@ -70,7 +70,7 @@ public class Vala.SourceFile {
 
 			_version_requested = true;
 
-			if (_package_name != null) {
+			if (package_name != null) {
 				_installed_version = context.pkg_config_modversion (package_name);
 			}
 
@@ -124,11 +124,6 @@ public class Vala.SourceFile {
 	 */
 	public bool used { get; set; }
 
-	/**
-	 * Whether this source-file was explicitly passed on the commandline.
-	 */
-	public bool explicit { get; set; }
-
 	private ArrayList<Comment> comments = new ArrayList<Comment> ();
 
 	public List<UsingDirective> current_using_directives { get; set; default = new ArrayList<UsingDirective> (); }
@@ -168,11 +163,11 @@ public class Vala.SourceFile {
 	}
 
 	/**
-	 * Returns a copy of the list of header comments.
+	 * Returns the list of header comments.
 	 *
 	 * @return list of comments
 	 */
-	public List<Comment> get_comments () {
+	public unowned List<Comment> get_comments () {
 		return comments;
 	}
 
@@ -206,11 +201,11 @@ public class Vala.SourceFile {
 	}
 
 	/**
-	 * Returns a copy of the list of code nodes.
+	 * Returns the list of code nodes.
 	 *
 	 * @return code node list
 	 */
-	public List<CodeNode> get_nodes () {
+	public unowned List<CodeNode> get_nodes () {
 		return nodes;
 	}
 

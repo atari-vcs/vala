@@ -23,10 +23,8 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -44,29 +42,27 @@ struct _Block1Data {
 	GString* builder;
 };
 
-
 static gint ValadocGtkDocMarkupWriter_private_offset;
 static gpointer valadoc_gtk_doc_markup_writer_parent_class = NULL;
 
 static Block1Data* block1_data_ref (Block1Data* _data1_);
 static void block1_data_unref (void * _userdata_);
-static void __lambda132_ (Block1Data* _data1_,
+static void __lambda131_ (Block1Data* _data1_,
                    const gchar* str);
-static void ___lambda132__valadoc_markup_writer_write_func (const gchar* text,
+static void ___lambda131__valadoc_markup_writer_write_func (const gchar* text,
                                                      gpointer self);
 static gboolean valadoc_gtk_doc_markup_writer_real_inline_element (ValadocMarkupWriter* base,
                                                             const gchar* name);
 static gboolean valadoc_gtk_doc_markup_writer_real_content_inline_element (ValadocMarkupWriter* base,
                                                                     const gchar* name);
 static void valadoc_gtk_doc_markup_writer_finalize (ValadocMarkupWriter * obj);
-
+static GType valadoc_gtk_doc_markup_writer_get_type_once (void);
 
 static inline gpointer
 valadoc_gtk_doc_markup_writer_get_instance_private (ValadocGtkDocMarkupWriter* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocGtkDocMarkupWriter_private_offset);
 }
-
 
 void
 valadoc_gtk_doc_markup_writer_reset (ValadocGtkDocMarkupWriter* self)
@@ -80,6 +76,18 @@ valadoc_gtk_doc_markup_writer_reset (ValadocGtkDocMarkupWriter* self)
 	((ValadocMarkupWriter*) self)->indent = -1;
 }
 
+const gchar*
+valadoc_gtk_doc_markup_writer_get_content (ValadocGtkDocMarkupWriter* self)
+{
+	const gchar* result;
+	GString* _tmp0_;
+	const gchar* _tmp1_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->builder;
+	_tmp1_ = _tmp0_->str;
+	result = _tmp1_;
+	return result;
+}
 
 static Block1Data*
 block1_data_ref (Block1Data* _data1_)
@@ -87,7 +95,6 @@ block1_data_ref (Block1Data* _data1_)
 	g_atomic_int_inc (&_data1_->_ref_count_);
 	return _data1_;
 }
-
 
 static void
 block1_data_unref (void * _userdata_)
@@ -103,9 +110,8 @@ block1_data_unref (void * _userdata_)
 	}
 }
 
-
 static void
-__lambda132_ (Block1Data* _data1_,
+__lambda131_ (Block1Data* _data1_,
               const gchar* str)
 {
 	ValadocGtkDocMarkupWriter* self;
@@ -114,14 +120,12 @@ __lambda132_ (Block1Data* _data1_,
 	g_string_append (_data1_->builder, str);
 }
 
-
 static void
-___lambda132__valadoc_markup_writer_write_func (const gchar* text,
+___lambda131__valadoc_markup_writer_write_func (const gchar* text,
                                                 gpointer self)
 {
-	__lambda132_ (self, text);
+	__lambda131_ (self, text);
 }
-
 
 ValadocGtkDocMarkupWriter*
 valadoc_gtk_doc_markup_writer_construct (GType object_type)
@@ -133,7 +137,7 @@ valadoc_gtk_doc_markup_writer_construct (GType object_type)
 	_data1_->_ref_count_ = 1;
 	_tmp0_ = g_string_new ("");
 	_data1_->builder = _tmp0_;
-	self = (ValadocGtkDocMarkupWriter*) valadoc_markup_writer_construct (object_type, ___lambda132__valadoc_markup_writer_write_func, block1_data_ref (_data1_), block1_data_unref, FALSE);
+	self = (ValadocGtkDocMarkupWriter*) valadoc_markup_writer_construct (object_type, ___lambda131__valadoc_markup_writer_write_func, block1_data_ref (_data1_), block1_data_unref, FALSE);
 	_data1_->self = valadoc_markup_writer_ref (self);
 	self->priv->builder = _data1_->builder;
 	block1_data_unref (_data1_);
@@ -141,20 +145,17 @@ valadoc_gtk_doc_markup_writer_construct (GType object_type)
 	return self;
 }
 
-
 ValadocGtkDocMarkupWriter*
 valadoc_gtk_doc_markup_writer_new (void)
 {
 	return valadoc_gtk_doc_markup_writer_construct (VALADOC_TYPE_GTK_DOC_MARKUP_WRITER);
 }
 
-
 static gboolean
 valadoc_gtk_doc_markup_writer_real_inline_element (ValadocMarkupWriter* base,
                                                    const gchar* name)
 {
 	ValadocGtkDocMarkupWriter * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
 	gboolean _tmp2_ = FALSE;
@@ -168,6 +169,7 @@ valadoc_gtk_doc_markup_writer_real_inline_element (ValadocMarkupWriter* base,
 	gboolean _tmp10_ = FALSE;
 	gboolean _tmp11_ = FALSE;
 	gboolean _tmp12_ = FALSE;
+	gboolean result = FALSE;
 	self = (ValadocGtkDocMarkupWriter*) base;
 	g_return_val_if_fail (name != NULL, FALSE);
 	if (g_strcmp0 (name, "para") != 0) {
@@ -239,19 +241,18 @@ valadoc_gtk_doc_markup_writer_real_inline_element (ValadocMarkupWriter* base,
 	return result;
 }
 
-
 static gboolean
 valadoc_gtk_doc_markup_writer_real_content_inline_element (ValadocMarkupWriter* base,
                                                            const gchar* name)
 {
 	ValadocGtkDocMarkupWriter * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
 	gboolean _tmp2_ = FALSE;
 	gboolean _tmp3_ = FALSE;
 	gboolean _tmp4_ = FALSE;
 	gboolean _tmp5_ = FALSE;
+	gboolean result = FALSE;
 	self = (ValadocGtkDocMarkupWriter*) base;
 	g_return_val_if_fail (name != NULL, FALSE);
 	if (g_strcmp0 (name, "para") == 0) {
@@ -288,23 +289,9 @@ valadoc_gtk_doc_markup_writer_real_content_inline_element (ValadocMarkupWriter* 
 	return result;
 }
 
-
-const gchar*
-valadoc_gtk_doc_markup_writer_get_content (ValadocGtkDocMarkupWriter* self)
-{
-	const gchar* result;
-	GString* _tmp0_;
-	const gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->builder;
-	_tmp1_ = _tmp0_->str;
-	result = _tmp1_;
-	return result;
-}
-
-
 static void
-valadoc_gtk_doc_markup_writer_class_init (ValadocGtkDocMarkupWriterClass * klass)
+valadoc_gtk_doc_markup_writer_class_init (ValadocGtkDocMarkupWriterClass * klass,
+                                          gpointer klass_data)
 {
 	valadoc_gtk_doc_markup_writer_parent_class = g_type_class_peek_parent (klass);
 	((ValadocMarkupWriterClass *) klass)->finalize = valadoc_gtk_doc_markup_writer_finalize;
@@ -313,13 +300,12 @@ valadoc_gtk_doc_markup_writer_class_init (ValadocGtkDocMarkupWriterClass * klass
 	((ValadocMarkupWriterClass *) klass)->content_inline_element = (gboolean (*) (ValadocMarkupWriter*, const gchar*)) valadoc_gtk_doc_markup_writer_real_content_inline_element;
 }
 
-
 static void
-valadoc_gtk_doc_markup_writer_instance_init (ValadocGtkDocMarkupWriter * self)
+valadoc_gtk_doc_markup_writer_instance_init (ValadocGtkDocMarkupWriter * self,
+                                             gpointer klass)
 {
 	self->priv = valadoc_gtk_doc_markup_writer_get_instance_private (self);
 }
-
 
 static void
 valadoc_gtk_doc_markup_writer_finalize (ValadocMarkupWriter * obj)
@@ -329,20 +315,25 @@ valadoc_gtk_doc_markup_writer_finalize (ValadocMarkupWriter * obj)
 	VALADOC_MARKUP_WRITER_CLASS (valadoc_gtk_doc_markup_writer_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_gtk_doc_markup_writer_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkDocMarkupWriterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtk_doc_markup_writer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkDocMarkupWriter), 0, (GInstanceInitFunc) valadoc_gtk_doc_markup_writer_instance_init, NULL };
+	GType valadoc_gtk_doc_markup_writer_type_id;
+	valadoc_gtk_doc_markup_writer_type_id = g_type_register_static (VALADOC_TYPE_MARKUP_WRITER, "ValadocGtkDocMarkupWriter", &g_define_type_info, 0);
+	ValadocGtkDocMarkupWriter_private_offset = g_type_add_instance_private (valadoc_gtk_doc_markup_writer_type_id, sizeof (ValadocGtkDocMarkupWriterPrivate));
+	return valadoc_gtk_doc_markup_writer_type_id;
+}
 
 GType
 valadoc_gtk_doc_markup_writer_get_type (void)
 {
 	static volatile gsize valadoc_gtk_doc_markup_writer_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_gtk_doc_markup_writer_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkDocMarkupWriterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtk_doc_markup_writer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkDocMarkupWriter), 0, (GInstanceInitFunc) valadoc_gtk_doc_markup_writer_instance_init, NULL };
 		GType valadoc_gtk_doc_markup_writer_type_id;
-		valadoc_gtk_doc_markup_writer_type_id = g_type_register_static (VALADOC_TYPE_MARKUP_WRITER, "ValadocGtkDocMarkupWriter", &g_define_type_info, 0);
-		ValadocGtkDocMarkupWriter_private_offset = g_type_add_instance_private (valadoc_gtk_doc_markup_writer_type_id, sizeof (ValadocGtkDocMarkupWriterPrivate));
+		valadoc_gtk_doc_markup_writer_type_id = valadoc_gtk_doc_markup_writer_get_type_once ();
 		g_once_init_leave (&valadoc_gtk_doc_markup_writer_type_id__volatile, valadoc_gtk_doc_markup_writer_type_id);
 	}
 	return valadoc_gtk_doc_markup_writer_type_id__volatile;
 }
-
-
 

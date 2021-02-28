@@ -23,13 +23,12 @@
  * 	Brosch Florian <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gstdio.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_GIR_META_DATA_0_PROPERTY,
@@ -51,27 +50,27 @@ struct _ValadocGirMetaDataPrivate {
 	gchar* _index_sgml_online;
 };
 
-
 static gint ValadocGirMetaData_private_offset;
 static gpointer valadoc_gir_meta_data_parent_class = NULL;
 
-static gchar* valadoc_gir_meta_data_get_metadata_file_name (ValadocGirMetaData* self,
-                                                     const gchar* gir_file_path);
-static gchar* valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
-                                                const gchar* gir_file_path,
-                                                gchar** metadata_dirs,
-                                                int metadata_dirs_length1);
-static void valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
-                                                  GKeyFile* key_file,
-                                                  ValadocErrorReporter* reporter,
-                                                  GError** error);
 static void valadoc_gir_meta_data_set_is_docbook (ValadocGirMetaData* self,
                                            gboolean value);
 static void valadoc_gir_meta_data_set_index_sgml (ValadocGirMetaData* self,
                                            const gchar* value);
 static void valadoc_gir_meta_data_set_index_sgml_online (ValadocGirMetaData* self,
                                                   const gchar* value);
+static gchar* valadoc_gir_meta_data_get_metadata_file_name (ValadocGirMetaData* self,
+                                                     const gchar* gir_file_path);
+static gchar* valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
+                                                const gchar* gir_file_path,
+                                                gchar** metadata_dirs,
+                                                gint metadata_dirs_length1);
+static void valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
+                                                  GKeyFile* key_file,
+                                                  ValadocErrorReporter* reporter,
+                                                  GError** error);
 static void valadoc_gir_meta_data_finalize (GObject * obj);
+static GType valadoc_gir_meta_data_get_type_once (void);
 static void _vala_valadoc_gir_meta_data_get_property (GObject * object,
                                                guint property_id,
                                                GValue * value,
@@ -87,13 +86,87 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_gir_meta_data_get_instance_private (ValadocGirMetaData* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocGirMetaData_private_offset);
 }
 
+gboolean
+valadoc_gir_meta_data_get_is_docbook (ValadocGirMetaData* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_docbook;
+	return result;
+}
+
+static void
+valadoc_gir_meta_data_set_is_docbook (ValadocGirMetaData* self,
+                                      gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_gir_meta_data_get_is_docbook (self);
+	if (old_value != value) {
+		self->priv->_is_docbook = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_IS_DOCBOOK_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_gir_meta_data_get_index_sgml (ValadocGirMetaData* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_index_sgml;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_gir_meta_data_set_index_sgml (ValadocGirMetaData* self,
+                                      const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_gir_meta_data_get_index_sgml (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_index_sgml);
+		self->priv->_index_sgml = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_INDEX_SGML_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_gir_meta_data_get_index_sgml_online (ValadocGirMetaData* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_index_sgml_online;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_gir_meta_data_set_index_sgml_online (ValadocGirMetaData* self,
+                                             const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_gir_meta_data_get_index_sgml_online (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_index_sgml_online);
+		self->priv->_index_sgml_online = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_INDEX_SGML_ONLINE_PROPERTY]);
+	}
+}
 
 /**
  * Used to manipulate paths to resources inside gir-files
@@ -102,7 +175,6 @@ gchar*
 valadoc_gir_meta_data_get_resource_path (ValadocGirMetaData* self,
                                          const gchar* resource)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	const gchar* _tmp1_;
 	const gchar* _tmp4_;
@@ -112,6 +184,7 @@ valadoc_gir_meta_data_get_resource_path (ValadocGirMetaData* self,
 	const gchar* _tmp10_;
 	gchar* _tmp11_;
 	gchar* _tmp12_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (resource != NULL, NULL);
 	_tmp1_ = self->priv->resource_dir;
@@ -148,16 +221,15 @@ valadoc_gir_meta_data_get_resource_path (ValadocGirMetaData* self,
 	return result;
 }
 
-
 static gint
 string_last_index_of (const gchar* self,
                       const gchar* needle,
                       gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (needle != NULL, 0);
 	_tmp0_ = g_strrstr (((gchar*) self) + start_index, (gchar*) needle);
@@ -174,15 +246,14 @@ string_last_index_of (const gchar* self,
 	}
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -197,17 +268,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -224,75 +293,61 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gchar*
 valadoc_gir_meta_data_get_metadata_file_name (ValadocGirMetaData* self,
                                               const gchar* gir_file_path)
 {
-	gchar* result = NULL;
 	gchar* metadata_file_name = NULL;
 	gchar* _tmp0_;
 	gint last_dot_pos = 0;
 	const gchar* _tmp1_;
-	gint _tmp2_;
-	const gchar* _tmp3_;
-	gint _tmp4_;
+	const gchar* _tmp2_;
+	gchar* _tmp3_;
+	const gchar* _tmp4_;
 	gchar* _tmp5_;
-	const gchar* _tmp6_;
-	gchar* _tmp7_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (gir_file_path != NULL, NULL);
 	_tmp0_ = g_path_get_basename (gir_file_path);
 	metadata_file_name = _tmp0_;
 	_tmp1_ = metadata_file_name;
 	last_dot_pos = string_last_index_of (_tmp1_, ".", 0);
-	_tmp2_ = last_dot_pos;
-	if (_tmp2_ < 0) {
+	if (last_dot_pos < 0) {
 		result = NULL;
 		_g_free0 (metadata_file_name);
 		return result;
 	}
-	_tmp3_ = metadata_file_name;
-	_tmp4_ = last_dot_pos;
-	_tmp5_ = string_substring (_tmp3_, (glong) 0, (glong) _tmp4_);
+	_tmp2_ = metadata_file_name;
+	_tmp3_ = string_substring (_tmp2_, (glong) 0, (glong) last_dot_pos);
 	_g_free0 (metadata_file_name);
-	metadata_file_name = _tmp5_;
-	_tmp6_ = metadata_file_name;
-	_tmp7_ = g_strconcat (_tmp6_, ".valadoc.metadata", NULL);
-	result = _tmp7_;
+	metadata_file_name = _tmp3_;
+	_tmp4_ = metadata_file_name;
+	_tmp5_ = g_strconcat (_tmp4_, ".valadoc.metadata", NULL);
+	result = _tmp5_;
 	_g_free0 (metadata_file_name);
 	return result;
 }
-
 
 static gchar*
 valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
                                          const gchar* gir_file_path,
                                          gchar** metadata_dirs,
-                                         int metadata_dirs_length1)
+                                         gint metadata_dirs_length1)
 {
-	gchar* result = NULL;
 	gchar* metadata_file_name = NULL;
 	gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -303,6 +358,7 @@ valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
 	gchar* _tmp5_;
 	gchar* _tmp6_;
 	const gchar* _tmp7_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (gir_file_path != NULL, NULL);
 	_tmp0_ = valadoc_gir_meta_data_get_metadata_file_name (self, gir_file_path);
@@ -333,7 +389,7 @@ valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
 		gint metadata_dir_it = 0;
 		metadata_dir_collection = metadata_dirs;
 		metadata_dir_collection_length1 = metadata_dirs_length1;
-		for (metadata_dir_it = 0; metadata_dir_it < metadata_dirs_length1; metadata_dir_it = metadata_dir_it + 1) {
+		for (metadata_dir_it = 0; metadata_dir_it < metadata_dir_collection_length1; metadata_dir_it = metadata_dir_it + 1) {
 			gchar* _tmp8_;
 			gchar* metadata_dir = NULL;
 			_tmp8_ = g_strdup (metadata_dir_collection[metadata_dir_it]);
@@ -365,7 +421,6 @@ valadoc_gir_meta_data_get_metadata_path (ValadocGirMetaData* self,
 	return result;
 }
 
-
 static void
 valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
                                              GKeyFile* key_file,
@@ -377,21 +432,21 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 	gchar** _tmp2_;
 	gint _tmp0__length1;
 	gint __tmp0__size_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (key_file != NULL);
 	g_return_if_fail (reporter != NULL);
-	_tmp2_ = g_key_file_get_keys (key_file, "General", &_tmp1_, &_inner_error_);
+	_tmp2_ = g_key_file_get_keys (key_file, "General", &_tmp1_, &_inner_error0_);
 	_tmp0_ = _tmp2_;
 	_tmp0__length1 = _tmp1_;
 	__tmp0__size_ = _tmp0__length1;
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
@@ -402,7 +457,7 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 		gint key_it = 0;
 		key_collection = _tmp0_;
 		key_collection_length1 = _tmp0__length1;
-		for (key_it = 0; key_it < _tmp0__length1; key_it = key_it + 1) {
+		for (key_it = 0; key_it < key_collection_length1; key_it = key_it + 1) {
 			gchar* _tmp3_;
 			gchar* key = NULL;
 			_tmp3_ = g_strdup (key_collection[key_it]);
@@ -425,19 +480,19 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 							gchar* _tmp8_ = NULL;
 							gchar* _tmp9_;
 							gchar* _tmp10_;
-							_tmp9_ = g_key_file_get_string (key_file, "General", "resources", &_inner_error_);
+							_tmp9_ = g_key_file_get_string (key_file, "General", "resources", &_inner_error0_);
 							_tmp8_ = _tmp9_;
-							if (G_UNLIKELY (_inner_error_ != NULL)) {
-								if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-									g_propagate_error (error, _inner_error_);
+							if (G_UNLIKELY (_inner_error0_ != NULL)) {
+								if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+									g_propagate_error (error, _inner_error0_);
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
 									return;
 								} else {
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
-									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-									g_clear_error (&_inner_error_);
+									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+									g_clear_error (&_inner_error0_);
 									return;
 								}
 							}
@@ -454,18 +509,18 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 						default:
 						{
 							gboolean _tmp11_ = FALSE;
-							_tmp11_ = g_key_file_get_boolean (key_file, "General", "is_docbook", &_inner_error_);
-							if (G_UNLIKELY (_inner_error_ != NULL)) {
-								if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-									g_propagate_error (error, _inner_error_);
+							_tmp11_ = g_key_file_get_boolean (key_file, "General", "is_docbook", &_inner_error0_);
+							if (G_UNLIKELY (_inner_error0_ != NULL)) {
+								if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+									g_propagate_error (error, _inner_error0_);
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
 									return;
 								} else {
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
-									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-									g_clear_error (&_inner_error_);
+									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+									g_clear_error (&_inner_error0_);
 									return;
 								}
 							}
@@ -485,19 +540,19 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 							const gchar* _tmp16_;
 							gchar* _tmp17_;
 							gchar* _tmp18_;
-							_tmp12_ = g_key_file_get_string (key_file, "General", "index_sgml", &_inner_error_);
+							_tmp12_ = g_key_file_get_string (key_file, "General", "index_sgml", &_inner_error0_);
 							tmp = _tmp12_;
-							if (G_UNLIKELY (_inner_error_ != NULL)) {
-								if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-									g_propagate_error (error, _inner_error_);
+							if (G_UNLIKELY (_inner_error0_ != NULL)) {
+								if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+									g_propagate_error (error, _inner_error0_);
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
 									return;
 								} else {
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
-									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-									g_clear_error (&_inner_error_);
+									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+									g_clear_error (&_inner_error0_);
 									return;
 								}
 							}
@@ -520,19 +575,19 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 						{
 							gchar* _tmp19_ = NULL;
 							gchar* _tmp20_;
-							_tmp20_ = g_key_file_get_string (key_file, "General", "index_sgml_online", &_inner_error_);
+							_tmp20_ = g_key_file_get_string (key_file, "General", "index_sgml_online", &_inner_error0_);
 							_tmp19_ = _tmp20_;
-							if (G_UNLIKELY (_inner_error_ != NULL)) {
-								if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-									g_propagate_error (error, _inner_error_);
+							if (G_UNLIKELY (_inner_error0_ != NULL)) {
+								if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+									g_propagate_error (error, _inner_error0_);
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
 									return;
 								} else {
 									_g_free0 (key);
 									_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
-									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-									g_clear_error (&_inner_error_);
+									g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+									g_clear_error (&_inner_error0_);
 									return;
 								}
 							}
@@ -561,26 +616,25 @@ valadoc_gir_meta_data_load_general_metadata (ValadocGirMetaData* self,
 	_tmp0_ = (_vala_array_free (_tmp0_, _tmp0__length1, (GDestroyNotify) g_free), NULL);
 }
 
-
 ValadocGirMetaData*
 valadoc_gir_meta_data_construct (GType object_type,
                                  const gchar* gir_file_path,
                                  gchar** metadata_dirs,
-                                 int metadata_dirs_length1,
+                                 gint metadata_dirs_length1,
                                  ValadocErrorReporter* reporter)
 {
 	ValadocGirMetaData * self = NULL;
 	gchar* _tmp0_;
 	const gchar* _tmp1_;
 	GKeyFile* key_file = NULL;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_val_if_fail (gir_file_path != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
 	self = (ValadocGirMetaData*) g_object_new (object_type, NULL);
 	if (!g_file_test (gir_file_path, G_FILE_TEST_IS_REGULAR)) {
 		return self;
 	}
-	_tmp0_ = valadoc_gir_meta_data_get_metadata_path (self, gir_file_path, metadata_dirs, metadata_dirs_length1);
+	_tmp0_ = valadoc_gir_meta_data_get_metadata_path (self, gir_file_path, metadata_dirs, (gint) metadata_dirs_length1);
 	_g_free0 (self->priv->metadata_path);
 	self->priv->metadata_path = _tmp0_;
 	_tmp1_ = self->priv->metadata_path;
@@ -596,29 +650,29 @@ valadoc_gir_meta_data_construct (GType object_type,
 		key_file = _tmp2_;
 		_tmp3_ = key_file;
 		_tmp4_ = self->priv->metadata_path;
-		g_key_file_load_from_file (_tmp3_, _tmp4_, G_KEY_FILE_NONE, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-				goto __catch15_g_key_file_error;
+		g_key_file_load_from_file (_tmp3_, _tmp4_, G_KEY_FILE_NONE, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+				goto __catch0_g_key_file_error;
 			}
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch15_g_file_error;
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
 			_g_key_file_unref0 (key_file);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 	}
-	goto __finally15;
-	__catch15_g_key_file_error:
+	goto __finally0;
+	__catch0_g_key_file_error:
 	{
 		GError* e = NULL;
 		const gchar* _tmp5_;
 		GError* _tmp6_;
 		const gchar* _tmp7_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp5_ = self->priv->metadata_path;
 		_tmp6_ = e;
 		_tmp7_ = _tmp6_->message;
@@ -627,15 +681,15 @@ valadoc_gir_meta_data_construct (GType object_type,
 		_g_key_file_unref0 (key_file);
 		return self;
 	}
-	goto __finally15;
-	__catch15_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
 		GError* e = NULL;
 		const gchar* _tmp8_;
 		GError* _tmp9_;
 		const gchar* _tmp10_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp8_ = self->priv->metadata_path;
 		_tmp9_ = e;
 		_tmp10_ = _tmp9_->message;
@@ -644,11 +698,11 @@ valadoc_gir_meta_data_construct (GType object_type,
 		_g_key_file_unref0 (key_file);
 		return self;
 	}
-	__finally15:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		_g_key_file_unref0 (key_file);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return NULL;
 	}
 	{
@@ -664,7 +718,7 @@ valadoc_gir_meta_data_construct (GType object_type,
 			gint group_it = 0;
 			group_collection = _tmp13_;
 			group_collection_length1 = _tmp12_;
-			for (group_it = 0; group_it < _tmp12_; group_it = group_it + 1) {
+			for (group_it = 0; group_it < group_collection_length1; group_it = group_it + 1) {
 				gchar* _tmp14_;
 				gchar* group = NULL;
 				_tmp14_ = g_strdup (group_collection[group_it]);
@@ -683,18 +737,16 @@ valadoc_gir_meta_data_construct (GType object_type,
 							{
 								GKeyFile* _tmp19_;
 								_tmp19_ = key_file;
-								valadoc_gir_meta_data_load_general_metadata (self, _tmp19_, reporter, &_inner_error_);
-								if (G_UNLIKELY (_inner_error_ != NULL)) {
+								valadoc_gir_meta_data_load_general_metadata (self, _tmp19_, reporter, &_inner_error0_);
+								if (G_UNLIKELY (_inner_error0_ != NULL)) {
 									_g_free0 (group);
 									group_collection = (_vala_array_free (group_collection, group_collection_length1, (GDestroyNotify) g_free), NULL);
-									if (_inner_error_->domain == G_KEY_FILE_ERROR) {
-										goto __catch16_g_key_file_error;
+									if (_inner_error0_->domain == G_KEY_FILE_ERROR) {
+										goto __catch1_g_key_file_error;
 									}
-									_g_free0 (group);
-									group_collection = (_vala_array_free (group_collection, group_collection_length1, (GDestroyNotify) g_free), NULL);
 									_g_key_file_unref0 (key_file);
-									g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-									g_clear_error (&_inner_error_);
+									g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+									g_clear_error (&_inner_error0_);
 									return NULL;
 								}
 								break;
@@ -719,123 +771,44 @@ valadoc_gir_meta_data_construct (GType object_type,
 			group_collection = (_vala_array_free (group_collection, group_collection_length1, (GDestroyNotify) g_free), NULL);
 		}
 	}
-	goto __finally16;
-	__catch16_g_key_file_error:
+	goto __finally1;
+	__catch1_g_key_file_error:
 	{
 		GError* e = NULL;
 		const gchar* _tmp22_;
 		GError* _tmp23_;
 		const gchar* _tmp24_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp22_ = self->priv->metadata_path;
 		_tmp23_ = e;
 		_tmp24_ = _tmp23_->message;
 		valadoc_error_reporter_simple_error (reporter, NULL, "Unable to read file '%s': %s", _tmp22_, _tmp24_);
 		_g_error_free0 (e);
 	}
-	__finally16:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally1:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		_g_key_file_unref0 (key_file);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return NULL;
 	}
 	_g_key_file_unref0 (key_file);
 	return self;
 }
 
-
 ValadocGirMetaData*
 valadoc_gir_meta_data_new (const gchar* gir_file_path,
                            gchar** metadata_dirs,
-                           int metadata_dirs_length1,
+                           gint metadata_dirs_length1,
                            ValadocErrorReporter* reporter)
 {
 	return valadoc_gir_meta_data_construct (VALADOC_TYPE_GIR_META_DATA, gir_file_path, metadata_dirs, metadata_dirs_length1, reporter);
 }
 
-
-gboolean
-valadoc_gir_meta_data_get_is_docbook (ValadocGirMetaData* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_docbook;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_gir_meta_data_set_is_docbook (ValadocGirMetaData* self,
-                                      gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_gir_meta_data_get_is_docbook (self) != value) {
-		self->priv->_is_docbook = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_IS_DOCBOOK_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_gir_meta_data_get_index_sgml (ValadocGirMetaData* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_index_sgml;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_gir_meta_data_set_index_sgml (ValadocGirMetaData* self,
-                                      const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_gir_meta_data_get_index_sgml (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_index_sgml);
-		self->priv->_index_sgml = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_INDEX_SGML_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_gir_meta_data_get_index_sgml_online (ValadocGirMetaData* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_index_sgml_online;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_gir_meta_data_set_index_sgml_online (ValadocGirMetaData* self,
-                                             const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_gir_meta_data_get_index_sgml_online (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_index_sgml_online);
-		self->priv->_index_sgml_online = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_INDEX_SGML_ONLINE_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_gir_meta_data_class_init (ValadocGirMetaDataClass * klass)
+valadoc_gir_meta_data_class_init (ValadocGirMetaDataClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_gir_meta_data_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocGirMetaData_private_offset);
@@ -847,9 +820,9 @@ valadoc_gir_meta_data_class_init (ValadocGirMetaDataClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_GIR_META_DATA_INDEX_SGML_ONLINE_PROPERTY, valadoc_gir_meta_data_properties[VALADOC_GIR_META_DATA_INDEX_SGML_ONLINE_PROPERTY] = g_param_spec_string ("index-sgml-online", "index-sgml-online", "index-sgml-online", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_gir_meta_data_instance_init (ValadocGirMetaData * self)
+valadoc_gir_meta_data_instance_init (ValadocGirMetaData * self,
+                                     gpointer klass)
 {
 	self->priv = valadoc_gir_meta_data_get_instance_private (self);
 	self->priv->metadata_path = NULL;
@@ -858,7 +831,6 @@ valadoc_gir_meta_data_instance_init (ValadocGirMetaData * self)
 	self->priv->_index_sgml = NULL;
 	self->priv->_index_sgml_online = NULL;
 }
-
 
 static void
 valadoc_gir_meta_data_finalize (GObject * obj)
@@ -872,24 +844,30 @@ valadoc_gir_meta_data_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_gir_meta_data_parent_class)->finalize (obj);
 }
 
-
 /**
  * Metadata reader for GIR files
  */
+static GType
+valadoc_gir_meta_data_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocGirMetaDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gir_meta_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGirMetaData), 0, (GInstanceInitFunc) valadoc_gir_meta_data_instance_init, NULL };
+	GType valadoc_gir_meta_data_type_id;
+	valadoc_gir_meta_data_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocGirMetaData", &g_define_type_info, 0);
+	ValadocGirMetaData_private_offset = g_type_add_instance_private (valadoc_gir_meta_data_type_id, sizeof (ValadocGirMetaDataPrivate));
+	return valadoc_gir_meta_data_type_id;
+}
+
 GType
 valadoc_gir_meta_data_get_type (void)
 {
 	static volatile gsize valadoc_gir_meta_data_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_gir_meta_data_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocGirMetaDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gir_meta_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGirMetaData), 0, (GInstanceInitFunc) valadoc_gir_meta_data_instance_init, NULL };
 		GType valadoc_gir_meta_data_type_id;
-		valadoc_gir_meta_data_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocGirMetaData", &g_define_type_info, 0);
-		ValadocGirMetaData_private_offset = g_type_add_instance_private (valadoc_gir_meta_data_type_id, sizeof (ValadocGirMetaDataPrivate));
+		valadoc_gir_meta_data_type_id = valadoc_gir_meta_data_get_type_once ();
 		g_once_init_leave (&valadoc_gir_meta_data_type_id__volatile, valadoc_gir_meta_data_type_id);
 	}
 	return valadoc_gir_meta_data_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_gir_meta_data_get_property (GObject * object,
@@ -915,7 +893,6 @@ _vala_valadoc_gir_meta_data_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_gir_meta_data_set_property (GObject * object,
                                           guint property_id,
@@ -940,14 +917,13 @@ _vala_valadoc_gir_meta_data_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -955,7 +931,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -965,6 +940,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

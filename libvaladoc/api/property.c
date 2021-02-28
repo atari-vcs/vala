@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
+#include <valacodegen.h>
 
 enum  {
 	VALADOC_API_PROPERTY_0_PROPERTY,
@@ -50,7 +49,6 @@ static GParamSpec* valadoc_api_property_properties[VALADOC_API_PROPERTY_NUM_PROP
 #define _valadoc_api_signature_builder_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_signature_builder_unref (var), NULL)))
 
 struct _ValadocApiPropertyPrivate {
-	ValadocApiPropertyBindingType binding_type;
 	gchar* dbus_name;
 	gchar* cname;
 	ValadocApiTypeReference* _property_type;
@@ -60,28 +58,28 @@ struct _ValadocApiPropertyPrivate {
 	ValadocApiProperty* _base_property;
 };
 
-
 static gint ValadocApiProperty_private_offset;
 static gpointer valadoc_api_property_parent_class = NULL;
 
+G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
+G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
 static void valadoc_api_property_set_is_dbus_visible (ValadocApiProperty* self,
                                                gboolean value);
 static void valadoc_api_property_real_parse_comments (ValadocApiItem* base,
                                                ValadocSettings* settings,
                                                ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
 static void valadoc_api_property_real_check_comments (ValadocApiItem* base,
                                                ValadocSettings* settings,
                                                ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
 static ValadocContentInline* valadoc_api_property_real_build_signature (ValadocApiItem* base);
 static void valadoc_api_property_real_accept (ValadocApiNode* base,
                                        ValadocApiVisitor* visitor);
 static void valadoc_api_property_finalize (GObject * obj);
+static GType valadoc_api_property_get_type_once (void);
 static void _vala_valadoc_api_property_get_property (GObject * object,
                                               guint property_id,
                                               GValue * value,
@@ -91,25 +89,19 @@ static void _vala_valadoc_api_property_set_property (GObject * object,
                                               const GValue * value,
                                               GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_property_get_instance_private (ValadocApiProperty* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiProperty_private_offset);
 }
 
-
 ValadocApiProperty*
 valadoc_api_property_construct (GType object_type,
                                 ValadocApiNode* parent,
                                 ValadocApiSourceFile* file,
                                 const gchar* name,
-                                ValadocApiSymbolAccessibility accessibility,
+                                ValaSymbolAccessibility accessibility,
                                 ValadocApiSourceComment* comment,
-                                const gchar* cname,
-                                const gchar* dbus_name,
-                                gboolean is_dbus_visible,
-                                ValadocApiPropertyBindingType binding_type,
                                 ValaProperty* data)
 {
 	ValadocApiProperty * self = NULL;
@@ -119,34 +111,27 @@ valadoc_api_property_construct (GType object_type,
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiProperty*) valadoc_api_member_construct (object_type, parent, file, name, accessibility, comment, (ValaSymbol*) data);
-	valadoc_api_property_set_is_dbus_visible (self, is_dbus_visible);
-	self->priv->binding_type = binding_type;
-	_tmp0_ = g_strdup (dbus_name);
+	self = (ValadocApiProperty*) valadoc_api_symbol_construct (object_type, parent, file, name, accessibility, comment, (ValaSymbol*) data);
+	valadoc_api_property_set_is_dbus_visible (self, vala_gd_bus_module_is_dbus_visible ((ValaCodeNode*) data));
+	_tmp0_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) data);
 	_g_free0 (self->priv->dbus_name);
 	self->priv->dbus_name = _tmp0_;
-	_tmp1_ = g_strdup (cname);
+	_tmp1_ = vala_get_ccode_name ((ValaCodeNode*) data);
 	_g_free0 (self->priv->cname);
 	self->priv->cname = _tmp1_;
 	return self;
 }
 
-
 ValadocApiProperty*
 valadoc_api_property_new (ValadocApiNode* parent,
                           ValadocApiSourceFile* file,
                           const gchar* name,
-                          ValadocApiSymbolAccessibility accessibility,
+                          ValaSymbolAccessibility accessibility,
                           ValadocApiSourceComment* comment,
-                          const gchar* cname,
-                          const gchar* dbus_name,
-                          gboolean is_dbus_visible,
-                          ValadocApiPropertyBindingType binding_type,
                           ValaProperty* data)
 {
-	return valadoc_api_property_construct (VALADOC_API_TYPE_PROPERTY, parent, file, name, accessibility, comment, cname, dbus_name, is_dbus_visible, binding_type, data);
+	return valadoc_api_property_construct (VALADOC_API_TYPE_PROPERTY, parent, file, name, accessibility, comment, data);
 }
-
 
 /**
  * Returns the name of this method as it is used in C.
@@ -154,9 +139,9 @@ valadoc_api_property_new (ValadocApiNode* parent,
 gchar*
 valadoc_api_property_get_cname (ValadocApiProperty* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->cname;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -164,16 +149,15 @@ valadoc_api_property_get_cname (ValadocApiProperty* self)
 	return result;
 }
 
-
 /**
  * Returns the dbus-name.
  */
 gchar*
 valadoc_api_property_get_dbus_name (ValadocApiProperty* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->dbus_name;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -181,6 +165,192 @@ valadoc_api_property_get_dbus_name (ValadocApiProperty* self)
 	return result;
 }
 
+ValadocApiTypeReference*
+valadoc_api_property_get_property_type (ValadocApiProperty* self)
+{
+	ValadocApiTypeReference* result;
+	ValadocApiTypeReference* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_property_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_api_property_set_property_type (ValadocApiProperty* self,
+                                        ValadocApiTypeReference* value)
+{
+	ValadocApiTypeReference* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_property_get_property_type (self);
+	if (old_value != value) {
+		ValadocApiTypeReference* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_property_type);
+		self->priv->_property_type = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_PROPERTY_TYPE_PROPERTY]);
+	}
+}
+
+gboolean
+valadoc_api_property_get_is_virtual (ValadocApiProperty* self)
+{
+	gboolean result;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_get_is_virtual (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY, ValaProperty));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
+	return result;
+}
+
+gboolean
+valadoc_api_property_get_is_abstract (ValadocApiProperty* self)
+{
+	gboolean result;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_get_is_abstract (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY, ValaProperty));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
+	return result;
+}
+
+gboolean
+valadoc_api_property_get_is_override (ValadocApiProperty* self)
+{
+	gboolean result;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_get_overrides (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY, ValaProperty));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
+	return result;
+}
+
+gboolean
+valadoc_api_property_get_is_dbus_visible (ValadocApiProperty* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_dbus_visible;
+	return result;
+}
+
+static void
+valadoc_api_property_set_is_dbus_visible (ValadocApiProperty* self,
+                                          gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_property_get_is_dbus_visible (self);
+	if (old_value != value) {
+		self->priv->_is_dbus_visible = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_IS_DBUS_VISIBLE_PROPERTY]);
+	}
+}
+
+ValadocApiPropertyAccessor*
+valadoc_api_property_get_setter (ValadocApiProperty* self)
+{
+	ValadocApiPropertyAccessor* result;
+	ValadocApiPropertyAccessor* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_setter;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_api_property_set_setter (ValadocApiProperty* self,
+                                 ValadocApiPropertyAccessor* value)
+{
+	ValadocApiPropertyAccessor* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_property_get_setter (self);
+	if (old_value != value) {
+		ValadocApiPropertyAccessor* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_setter);
+		self->priv->_setter = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_SETTER_PROPERTY]);
+	}
+}
+
+ValadocApiPropertyAccessor*
+valadoc_api_property_get_getter (ValadocApiProperty* self)
+{
+	ValadocApiPropertyAccessor* result;
+	ValadocApiPropertyAccessor* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_getter;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_api_property_set_getter (ValadocApiProperty* self,
+                                 ValadocApiPropertyAccessor* value)
+{
+	ValadocApiPropertyAccessor* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_property_get_getter (self);
+	if (old_value != value) {
+		ValadocApiPropertyAccessor* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_getter);
+		self->priv->_getter = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_GETTER_PROPERTY]);
+	}
+}
+
+ValadocApiProperty*
+valadoc_api_property_get_base_property (ValadocApiProperty* self)
+{
+	ValadocApiProperty* result;
+	ValadocApiProperty* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_base_property;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_api_property_set_base_property (ValadocApiProperty* self,
+                                        ValadocApiProperty* value)
+{
+	ValadocApiProperty* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_property_get_base_property (self);
+	if (old_value != value) {
+		ValadocApiProperty* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_base_property);
+		self->priv->_base_property = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_BASE_PROPERTY_PROPERTY]);
+	}
+}
 
 /**
  * {@inheritDoc}
@@ -224,9 +394,8 @@ valadoc_api_property_real_parse_comments (ValadocApiItem* base,
 		_tmp7_ = self->priv->_setter;
 		valadoc_api_item_parse_comments ((ValadocApiItem*) _tmp7_, settings, parser);
 	}
-	VALADOC_API_ITEM_CLASS (valadoc_api_property_parent_class)->parse_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_MEMBER, ValadocApiMember), settings, parser);
+	VALADOC_API_ITEM_CLASS (valadoc_api_property_parent_class)->parse_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings, parser);
 }
-
 
 /**
  * {@inheritDoc}
@@ -270,9 +439,8 @@ valadoc_api_property_real_check_comments (ValadocApiItem* base,
 		_tmp7_ = self->priv->_setter;
 		valadoc_api_item_check_comments ((ValadocApiItem*) _tmp7_, settings, parser);
 	}
-	VALADOC_API_ITEM_CLASS (valadoc_api_property_parent_class)->check_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_MEMBER, ValadocApiMember), settings, parser);
+	VALADOC_API_ITEM_CLASS (valadoc_api_property_parent_class)->check_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings, parser);
 }
-
 
 /**
  * {@inheritDoc}
@@ -281,12 +449,11 @@ static ValadocContentInline*
 valadoc_api_property_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiProperty * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* signature = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp1_;
-	ValadocApiSymbolAccessibility _tmp2_;
-	ValadocApiSymbolAccessibility _tmp3_;
+	ValaSymbolAccessibility _tmp2_;
+	ValaSymbolAccessibility _tmp3_;
 	const gchar* _tmp4_;
 	gboolean _tmp5_;
 	gboolean _tmp6_;
@@ -298,18 +465,19 @@ valadoc_api_property_real_build_signature (ValadocApiItem* base)
 	ValadocApiSignatureBuilder* _tmp19_;
 	gboolean _tmp20_ = FALSE;
 	ValadocApiPropertyAccessor* _tmp21_;
-	gboolean _tmp28_ = FALSE;
-	ValadocApiPropertyAccessor* _tmp29_;
-	ValadocApiSignatureBuilder* _tmp36_;
-	ValadocApiSignatureBuilder* _tmp37_;
-	ValadocContentRun* _tmp38_;
+	gboolean _tmp27_ = FALSE;
+	ValadocApiPropertyAccessor* _tmp28_;
+	ValadocApiSignatureBuilder* _tmp34_;
+	ValadocApiSignatureBuilder* _tmp35_;
+	ValadocContentRun* _tmp36_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiProperty*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	signature = _tmp0_;
 	_tmp1_ = signature;
 	_tmp2_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_api_symbol_accessibility_to_string (_tmp3_);
+	_tmp4_ = vala_symbol_accessibility_to_string (_tmp3_);
 	valadoc_api_signature_builder_append_keyword (_tmp1_, _tmp4_, TRUE);
 	_tmp5_ = valadoc_api_property_get_is_abstract (self);
 	_tmp6_ = _tmp5_;
@@ -350,54 +518,59 @@ valadoc_api_property_real_build_signature (ValadocApiItem* base)
 	_tmp21_ = self->priv->_getter;
 	if (_tmp21_ != NULL) {
 		ValadocApiPropertyAccessor* _tmp22_;
-		gboolean _tmp23_;
 		_tmp22_ = self->priv->_getter;
-		_tmp23_ = ((ValadocApiNode*) _tmp22_)->do_document;
-		_tmp20_ = _tmp23_;
+		_tmp20_ = ((ValadocApiNode*) _tmp22_)->do_document;
 	} else {
 		_tmp20_ = FALSE;
 	}
 	if (_tmp20_) {
-		ValadocApiSignatureBuilder* _tmp24_;
-		ValadocApiPropertyAccessor* _tmp25_;
+		ValadocApiSignatureBuilder* _tmp23_;
+		ValadocApiPropertyAccessor* _tmp24_;
+		ValadocContentInline* _tmp25_;
 		ValadocContentInline* _tmp26_;
-		ValadocContentInline* _tmp27_;
-		_tmp24_ = signature;
-		_tmp25_ = self->priv->_getter;
-		_tmp26_ = valadoc_api_item_get_signature ((ValadocApiItem*) _tmp25_);
-		_tmp27_ = _tmp26_;
-		valadoc_api_signature_builder_append_content (_tmp24_, _tmp27_, TRUE);
+		_tmp23_ = signature;
+		_tmp24_ = self->priv->_getter;
+		_tmp25_ = valadoc_api_item_get_signature ((ValadocApiItem*) _tmp24_);
+		_tmp26_ = _tmp25_;
+		valadoc_api_signature_builder_append_content (_tmp23_, _tmp26_, TRUE);
 	}
-	_tmp29_ = self->priv->_setter;
-	if (_tmp29_ != NULL) {
-		ValadocApiPropertyAccessor* _tmp30_;
-		gboolean _tmp31_;
-		_tmp30_ = self->priv->_setter;
-		_tmp31_ = ((ValadocApiNode*) _tmp30_)->do_document;
-		_tmp28_ = _tmp31_;
+	_tmp28_ = self->priv->_setter;
+	if (_tmp28_ != NULL) {
+		ValadocApiPropertyAccessor* _tmp29_;
+		_tmp29_ = self->priv->_setter;
+		_tmp27_ = ((ValadocApiNode*) _tmp29_)->do_document;
 	} else {
-		_tmp28_ = FALSE;
+		_tmp27_ = FALSE;
 	}
-	if (_tmp28_) {
-		ValadocApiSignatureBuilder* _tmp32_;
-		ValadocApiPropertyAccessor* _tmp33_;
-		ValadocContentInline* _tmp34_;
-		ValadocContentInline* _tmp35_;
-		_tmp32_ = signature;
-		_tmp33_ = self->priv->_setter;
-		_tmp34_ = valadoc_api_item_get_signature ((ValadocApiItem*) _tmp33_);
-		_tmp35_ = _tmp34_;
-		valadoc_api_signature_builder_append_content (_tmp32_, _tmp35_, TRUE);
+	if (_tmp27_) {
+		ValadocApiSignatureBuilder* _tmp30_;
+		ValadocApiPropertyAccessor* _tmp31_;
+		ValadocContentInline* _tmp32_;
+		ValadocContentInline* _tmp33_;
+		_tmp30_ = signature;
+		_tmp31_ = self->priv->_setter;
+		_tmp32_ = valadoc_api_item_get_signature ((ValadocApiItem*) _tmp31_);
+		_tmp33_ = _tmp32_;
+		valadoc_api_signature_builder_append_content (_tmp30_, _tmp33_, TRUE);
 	}
-	_tmp36_ = signature;
-	valadoc_api_signature_builder_append (_tmp36_, "}", TRUE);
-	_tmp37_ = signature;
-	_tmp38_ = valadoc_api_signature_builder_get (_tmp37_);
-	result = (ValadocContentInline*) _tmp38_;
+	_tmp34_ = signature;
+	valadoc_api_signature_builder_append (_tmp34_, "}", TRUE);
+	_tmp35_ = signature;
+	_tmp36_ = valadoc_api_signature_builder_get (_tmp35_);
+	result = (ValadocContentInline*) _tmp36_;
 	_valadoc_api_signature_builder_unref0 (signature);
 	return result;
 }
 
+static ValadocApiNodeType
+valadoc_api_property_real_get_node_type (ValadocApiNode* base)
+{
+	ValadocApiNodeType result;
+	ValadocApiProperty* self;
+	self = (ValadocApiProperty*) base;
+	result = VALADOC_API_NODE_TYPE_PROPERTY;
+	return result;
+}
 
 /**
  * {@inheritDoc}
@@ -412,195 +585,9 @@ valadoc_api_property_real_accept (ValadocApiNode* base,
 	valadoc_api_visitor_visit_property (visitor, self);
 }
 
-
-ValadocApiTypeReference*
-valadoc_api_property_get_property_type (ValadocApiProperty* self)
-{
-	ValadocApiTypeReference* result;
-	ValadocApiTypeReference* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_property_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
-void
-valadoc_api_property_set_property_type (ValadocApiProperty* self,
-                                        ValadocApiTypeReference* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_property_get_property_type (self) != value) {
-		ValadocApiTypeReference* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_property_type);
-		self->priv->_property_type = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_PROPERTY_TYPE_PROPERTY]);
-	}
-}
-
-
-gboolean
-valadoc_api_property_get_is_virtual (ValadocApiProperty* self)
-{
-	gboolean result;
-	ValadocApiPropertyBindingType _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->binding_type;
-	result = _tmp0_ == VALADOC_API_PROPERTY_BINDING_TYPE_VIRTUAL;
-	return result;
-}
-
-
-gboolean
-valadoc_api_property_get_is_abstract (ValadocApiProperty* self)
-{
-	gboolean result;
-	ValadocApiPropertyBindingType _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->binding_type;
-	result = _tmp0_ == VALADOC_API_PROPERTY_BINDING_TYPE_ABSTRACT;
-	return result;
-}
-
-
-gboolean
-valadoc_api_property_get_is_override (ValadocApiProperty* self)
-{
-	gboolean result;
-	ValadocApiPropertyBindingType _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->binding_type;
-	result = _tmp0_ == VALADOC_API_PROPERTY_BINDING_TYPE_OVERRIDE;
-	return result;
-}
-
-
-gboolean
-valadoc_api_property_get_is_dbus_visible (ValadocApiProperty* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_dbus_visible;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_api_property_set_is_dbus_visible (ValadocApiProperty* self,
-                                          gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_property_get_is_dbus_visible (self) != value) {
-		self->priv->_is_dbus_visible = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_IS_DBUS_VISIBLE_PROPERTY]);
-	}
-}
-
-
-ValadocApiPropertyAccessor*
-valadoc_api_property_get_setter (ValadocApiProperty* self)
-{
-	ValadocApiPropertyAccessor* result;
-	ValadocApiPropertyAccessor* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_setter;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_api_property_set_setter (ValadocApiProperty* self,
-                                 ValadocApiPropertyAccessor* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_property_get_setter (self) != value) {
-		ValadocApiPropertyAccessor* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_setter);
-		self->priv->_setter = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_SETTER_PROPERTY]);
-	}
-}
-
-
-ValadocApiPropertyAccessor*
-valadoc_api_property_get_getter (ValadocApiProperty* self)
-{
-	ValadocApiPropertyAccessor* result;
-	ValadocApiPropertyAccessor* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_getter;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_api_property_set_getter (ValadocApiProperty* self,
-                                 ValadocApiPropertyAccessor* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_property_get_getter (self) != value) {
-		ValadocApiPropertyAccessor* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_getter);
-		self->priv->_getter = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_GETTER_PROPERTY]);
-	}
-}
-
-
-ValadocApiProperty*
-valadoc_api_property_get_base_property (ValadocApiProperty* self)
-{
-	ValadocApiProperty* result;
-	ValadocApiProperty* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_base_property;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_api_property_set_base_property (ValadocApiProperty* self,
-                                        ValadocApiProperty* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_property_get_base_property (self) != value) {
-		ValadocApiProperty* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_base_property);
-		self->priv->_base_property = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_property_properties[VALADOC_API_PROPERTY_BASE_PROPERTY_PROPERTY]);
-	}
-}
-
-
-static ValadocApiNodeType
-valadoc_api_property_real_get_node_type (ValadocApiNode* base)
-{
-	ValadocApiNodeType result;
-	ValadocApiProperty* self;
-	self = (ValadocApiProperty*) base;
-	result = VALADOC_API_NODE_TYPE_PROPERTY;
-	return result;
-}
-
-
-static void
-valadoc_api_property_class_init (ValadocApiPropertyClass * klass)
+valadoc_api_property_class_init (ValadocApiPropertyClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_api_property_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiProperty_private_offset);
@@ -644,13 +631,12 @@ valadoc_api_property_class_init (ValadocApiPropertyClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_PROPERTY_NODE_TYPE_PROPERTY, valadoc_api_property_properties[VALADOC_API_PROPERTY_NODE_TYPE_PROPERTY] = g_param_spec_enum ("node-type", "node-type", "node-type", VALADOC_API_TYPE_NODE_TYPE, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_property_instance_init (ValadocApiProperty * self)
+valadoc_api_property_instance_init (ValadocApiProperty * self,
+                                    gpointer klass)
 {
 	self->priv = valadoc_api_property_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_property_finalize (GObject * obj)
@@ -666,24 +652,30 @@ valadoc_api_property_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_property_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a property declaration.
  */
+static GType
+valadoc_api_property_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPropertyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_property_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiProperty), 0, (GInstanceInitFunc) valadoc_api_property_instance_init, NULL };
+	GType valadoc_api_property_type_id;
+	valadoc_api_property_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiProperty", &g_define_type_info, 0);
+	ValadocApiProperty_private_offset = g_type_add_instance_private (valadoc_api_property_type_id, sizeof (ValadocApiPropertyPrivate));
+	return valadoc_api_property_type_id;
+}
+
 GType
 valadoc_api_property_get_type (void)
 {
 	static volatile gsize valadoc_api_property_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_property_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPropertyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_property_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiProperty), 0, (GInstanceInitFunc) valadoc_api_property_instance_init, NULL };
 		GType valadoc_api_property_type_id;
-		valadoc_api_property_type_id = g_type_register_static (VALADOC_API_TYPE_MEMBER, "ValadocApiProperty", &g_define_type_info, 0);
-		ValadocApiProperty_private_offset = g_type_add_instance_private (valadoc_api_property_type_id, sizeof (ValadocApiPropertyPrivate));
+		valadoc_api_property_type_id = valadoc_api_property_get_type_once ();
 		g_once_init_leave (&valadoc_api_property_type_id__volatile, valadoc_api_property_type_id);
 	}
 	return valadoc_api_property_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_property_get_property (GObject * object,
@@ -727,7 +719,6 @@ _vala_valadoc_api_property_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_property_set_property (GObject * object,
                                          guint property_id,
@@ -757,6 +748,4 @@ _vala_valadoc_api_property_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

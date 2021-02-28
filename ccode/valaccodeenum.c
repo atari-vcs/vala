@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
@@ -40,14 +39,13 @@ struct _ValaCCodeEnumPrivate {
 	ValaList* values;
 };
 
-
 static gint ValaCCodeEnum_private_offset;
 static gpointer vala_ccode_enum_parent_class = NULL;
 
 static void vala_ccode_enum_real_write (ValaCCodeNode* base,
                                  ValaCCodeWriter* writer);
 static void vala_ccode_enum_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_enum_get_type_once (void);
 
 static inline gpointer
 vala_ccode_enum_get_instance_private (ValaCCodeEnum* self)
@@ -55,6 +53,27 @@ vala_ccode_enum_get_instance_private (ValaCCodeEnum* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeEnum_private_offset);
 }
 
+const gchar*
+vala_ccode_enum_get_name (ValaCCodeEnum* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_enum_set_name (ValaCCodeEnum* self,
+                          const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
 
 ValaCCodeEnum*
 vala_ccode_enum_construct (GType object_type,
@@ -66,13 +85,11 @@ vala_ccode_enum_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeEnum*
 vala_ccode_enum_new (const gchar* name)
 {
 	return vala_ccode_enum_construct (VALA_TYPE_CCODE_ENUM, name);
 }
-
 
 /**
  * Adds the specified value to this enum.
@@ -90,13 +107,11 @@ vala_ccode_enum_add_value (ValaCCodeEnum* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, value);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 vala_ccode_enum_real_write (ValaCCodeNode* base,
@@ -105,10 +120,9 @@ vala_ccode_enum_real_write (ValaCCodeNode* base,
 	ValaCCodeEnum * self;
 	const gchar* _tmp0_;
 	gboolean first = FALSE;
-	gboolean _tmp14_;
-	const gchar* _tmp15_;
-	ValaCCodeModifiers _tmp17_;
-	ValaCCodeModifiers _tmp18_;
+	const gchar* _tmp11_;
+	ValaCCodeModifiers _tmp13_;
+	ValaCCodeModifiers _tmp14_;
 	self = (ValaCCodeEnum*) base;
 	g_return_if_fail (writer != NULL);
 	_tmp0_ = self->priv->_name;
@@ -138,85 +152,54 @@ vala_ccode_enum_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValaCCodeEnumValue* value = NULL;
-			ValaList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			gboolean _tmp12_;
-			ValaCCodeEnumValue* _tmp13_;
+			ValaList* _tmp8_;
+			gpointer _tmp9_;
+			ValaCCodeEnumValue* _tmp10_;
+			_value_index = _value_index + 1;
 			_tmp6_ = _value_index;
-			_value_index = _tmp6_ + 1;
-			_tmp7_ = _value_index;
-			_tmp8_ = _value_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _value_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _value_list;
-			_tmp10_ = _value_index;
-			_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-			value = (ValaCCodeEnumValue*) _tmp11_;
-			_tmp12_ = first;
-			if (!_tmp12_) {
+			_tmp8_ = _value_list;
+			_tmp9_ = vala_list_get (_tmp8_, _value_index);
+			value = (ValaCCodeEnumValue*) _tmp9_;
+			if (!first) {
 				vala_ccode_writer_write_string (writer, ",");
 				vala_ccode_writer_write_newline (writer);
 			}
 			vala_ccode_writer_write_indent (writer, NULL);
-			_tmp13_ = value;
-			vala_ccode_node_write ((ValaCCodeNode*) _tmp13_, writer);
+			_tmp10_ = value;
+			vala_ccode_node_write ((ValaCCodeNode*) _tmp10_, writer);
 			first = FALSE;
 			_vala_ccode_node_unref0 (value);
 		}
 		_vala_iterable_unref0 (_value_list);
 	}
-	_tmp14_ = first;
-	if (!_tmp14_) {
+	if (!first) {
 		vala_ccode_writer_write_newline (writer);
 	}
 	vala_ccode_writer_write_end_block (writer);
-	_tmp15_ = self->priv->_name;
-	if (_tmp15_ != NULL) {
-		const gchar* _tmp16_;
+	_tmp11_ = self->priv->_name;
+	if (_tmp11_ != NULL) {
+		const gchar* _tmp12_;
 		vala_ccode_writer_write_string (writer, " ");
-		_tmp16_ = self->priv->_name;
-		vala_ccode_writer_write_string (writer, _tmp16_);
+		_tmp12_ = self->priv->_name;
+		vala_ccode_writer_write_string (writer, _tmp12_);
 	}
-	_tmp17_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
-	_tmp18_ = _tmp17_;
-	if ((_tmp18_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
+	_tmp13_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
+	_tmp14_ = _tmp13_;
+	if ((_tmp14_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
 		vala_ccode_writer_write_string (writer, " G_GNUC_DEPRECATED");
 	}
 	vala_ccode_writer_write_string (writer, ";");
 	vala_ccode_writer_write_newline (writer);
 }
 
-
-const gchar*
-vala_ccode_enum_get_name (ValaCCodeEnum* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_enum_set_name (ValaCCodeEnum* self,
-                          const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
 static void
-vala_ccode_enum_class_init (ValaCCodeEnumClass * klass)
+vala_ccode_enum_class_init (ValaCCodeEnumClass * klass,
+                            gpointer klass_data)
 {
 	vala_ccode_enum_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_enum_finalize;
@@ -224,9 +207,9 @@ vala_ccode_enum_class_init (ValaCCodeEnumClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_enum_real_write;
 }
 
-
 static void
-vala_ccode_enum_instance_init (ValaCCodeEnum * self)
+vala_ccode_enum_instance_init (ValaCCodeEnum * self,
+                               gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -235,7 +218,6 @@ vala_ccode_enum_instance_init (ValaCCodeEnum * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_ENUM_VALUE, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->values = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_enum_finalize (ValaCCodeNode * obj)
@@ -247,23 +229,28 @@ vala_ccode_enum_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_enum_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an enum in the C code.
  */
+static GType
+vala_ccode_enum_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeEnumClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_enum_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeEnum), 0, (GInstanceInitFunc) vala_ccode_enum_instance_init, NULL };
+	GType vala_ccode_enum_type_id;
+	vala_ccode_enum_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeEnum", &g_define_type_info, 0);
+	ValaCCodeEnum_private_offset = g_type_add_instance_private (vala_ccode_enum_type_id, sizeof (ValaCCodeEnumPrivate));
+	return vala_ccode_enum_type_id;
+}
+
 GType
 vala_ccode_enum_get_type (void)
 {
 	static volatile gsize vala_ccode_enum_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_enum_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeEnumClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_enum_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeEnum), 0, (GInstanceInitFunc) vala_ccode_enum_instance_init, NULL };
 		GType vala_ccode_enum_type_id;
-		vala_ccode_enum_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeEnum", &g_define_type_info, 0);
-		ValaCCodeEnum_private_offset = g_type_add_instance_private (vala_ccode_enum_type_id, sizeof (ValaCCodeEnumPrivate));
+		vala_ccode_enum_type_id = vala_ccode_enum_get_type_once ();
 		g_once_init_leave (&vala_ccode_enum_type_id__volatile, vala_ccode_enum_type_id);
 	}
 	return vala_ccode_enum_type_id__volatile;
 }
-
-
 

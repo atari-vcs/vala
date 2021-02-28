@@ -26,6 +26,7 @@
 #include <glib.h>
 #include "scanner.h"
 #include "gidlnode.h"
+#include "gidlwriter.h"
 
 typedef struct {
   int indent;
@@ -272,6 +273,10 @@ interface_generate (GIdlWriter * writer, GIdlNodeInterface * node)
 	g_markup_printf_escaped
 	("<interface name=\"%s\" type-name=\"%s\" get-type=\"%s\">\n",
 	 node->node.name, node->gtype_name, node->gtype_init);
+    }
+  else
+    {
+      g_assert_not_reached ();
     }
 
   g_writer_write_indent (writer, markup);

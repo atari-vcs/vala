@@ -23,21 +23,20 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_TOKEN_TYPE_0_PROPERTY,
 	VALADOC_TOKEN_TYPE_NUM_PROPERTIES
 };
 static GParamSpec* valadoc_token_type_properties[VALADOC_TOKEN_TYPE_NUM_PROPERTIES];
-#define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 typedef struct _Block6Data Block6Data;
+#define _g_free0(var) (var = (g_free (var), NULL))
 
 struct _ValadocTokenTypePrivate {
 	gchar* _string_value;
@@ -54,7 +53,6 @@ struct _Block6Data {
 	ValadocTokenTypeAction __action;
 	gpointer __action_target;
 };
-
 
 static gint ValadocTokenType_private_offset;
 static gpointer valadoc_token_type_parent_class = NULL;
@@ -159,7 +157,7 @@ static void ____lambda4__valadoc_token_type_action (ValadocToken* token,
                                              gpointer self,
                                              GError** error);
 static void valadoc_token_type_finalize (GObject * obj);
-
+static GType valadoc_token_type_get_type_once (void);
 
 static inline gpointer
 valadoc_token_type_get_instance_private (ValadocTokenType* self)
@@ -167,20 +165,17 @@ valadoc_token_type_get_instance_private (ValadocTokenType* self)
 	return G_STRUCT_MEMBER_P (self, ValadocTokenType_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 G_GNUC_INTERNAL void
 valadoc_token_type_init_token_types (void)
 {
-	gboolean _tmp0_;
-	_tmp0_ = valadoc_token_type_initialized;
-	if (!_tmp0_) {
+	if (!valadoc_token_type_initialized) {
+		ValadocTokenType* _tmp0_;
 		ValadocTokenType* _tmp1_;
 		ValadocTokenType* _tmp2_;
 		ValadocTokenType* _tmp3_;
@@ -259,283 +254,275 @@ valadoc_token_type_init_token_types (void)
 		ValadocTokenType* _tmp76_;
 		ValadocTokenType* _tmp77_;
 		ValadocTokenType* _tmp78_;
-		ValadocTokenType* _tmp79_;
-		_tmp1_ = valadoc_token_type_new_basic ("<any>", NULL);
+		_tmp0_ = valadoc_token_type_new_basic ("<any>", NULL);
 		_g_object_unref0 (valadoc_token_type_ANY);
-		valadoc_token_type_ANY = _tmp1_;
-		_tmp2_ = valadoc_token_type_new_basic ("<any-word>", NULL);
+		valadoc_token_type_ANY = _tmp0_;
+		_tmp1_ = valadoc_token_type_new_basic ("<any-word>", NULL);
 		_g_object_unref0 (valadoc_token_type_ANY_WORD);
-		valadoc_token_type_ANY_WORD = _tmp2_;
-		_tmp3_ = valadoc_token_type_new_basic ("<any-number>", NULL);
+		valadoc_token_type_ANY_WORD = _tmp1_;
+		_tmp2_ = valadoc_token_type_new_basic ("<any-number>", NULL);
 		_g_object_unref0 (valadoc_token_type_ANY_NUMBER);
-		valadoc_token_type_ANY_NUMBER = _tmp3_;
-		_tmp4_ = valadoc_token_type_new_basic ("\0", "<end-of-file>");
+		valadoc_token_type_ANY_NUMBER = _tmp2_;
+		_tmp3_ = valadoc_token_type_new_basic ("\0", "<end-of-file>");
 		_g_object_unref0 (valadoc_token_type_EOF);
-		valadoc_token_type_EOF = _tmp4_;
-		_tmp5_ = valadoc_token_type_new_basic ("\n", "<end-of-line>");
+		valadoc_token_type_EOF = _tmp3_;
+		_tmp4_ = valadoc_token_type_new_basic ("\n", "<end-of-line>");
 		_g_object_unref0 (valadoc_token_type_EOL);
-		valadoc_token_type_EOL = _tmp5_;
-		_tmp6_ = valadoc_token_type_new_basic ("<<BR>>", NULL);
+		valadoc_token_type_EOL = _tmp4_;
+		_tmp5_ = valadoc_token_type_new_basic ("<<BR>>", NULL);
 		_g_object_unref0 (valadoc_token_type_BREAK);
-		valadoc_token_type_BREAK = _tmp6_;
-		_tmp7_ = valadoc_token_type_new_basic ("@", NULL);
+		valadoc_token_type_BREAK = _tmp5_;
+		_tmp6_ = valadoc_token_type_new_basic ("@", NULL);
 		_g_object_unref0 (valadoc_token_type_AROBASE);
-		valadoc_token_type_AROBASE = _tmp7_;
-		_tmp8_ = valadoc_token_type_new_basic (" ", "<space>");
+		valadoc_token_type_AROBASE = _tmp6_;
+		_tmp7_ = valadoc_token_type_new_basic (" ", "<space>");
 		_g_object_unref0 (valadoc_token_type_SPACE);
-		valadoc_token_type_SPACE = _tmp8_;
-		_tmp9_ = valadoc_token_type_new_basic ("\t", "<tab>");
+		valadoc_token_type_SPACE = _tmp7_;
+		_tmp8_ = valadoc_token_type_new_basic ("\t", "<tab>");
 		_g_object_unref0 (valadoc_token_type_TAB);
-		valadoc_token_type_TAB = _tmp9_;
-		_tmp10_ = valadoc_token_type_new_basic ("=", NULL);
+		valadoc_token_type_TAB = _tmp8_;
+		_tmp9_ = valadoc_token_type_new_basic ("=", NULL);
 		_g_object_unref0 (valadoc_token_type_EQUAL_1);
-		valadoc_token_type_EQUAL_1 = _tmp10_;
-		_tmp11_ = valadoc_token_type_new_basic ("==", NULL);
+		valadoc_token_type_EQUAL_1 = _tmp9_;
+		_tmp10_ = valadoc_token_type_new_basic ("==", NULL);
 		_g_object_unref0 (valadoc_token_type_EQUAL_2);
-		valadoc_token_type_EQUAL_2 = _tmp11_;
-		_tmp12_ = valadoc_token_type_new_basic ("====", NULL);
+		valadoc_token_type_EQUAL_2 = _tmp10_;
+		_tmp11_ = valadoc_token_type_new_basic ("====", NULL);
 		_g_object_unref0 (valadoc_token_type_EQUAL_3);
-		valadoc_token_type_EQUAL_3 = _tmp12_;
-		_tmp13_ = valadoc_token_type_new_basic ("=====", NULL);
+		valadoc_token_type_EQUAL_3 = _tmp11_;
+		_tmp12_ = valadoc_token_type_new_basic ("=====", NULL);
 		_g_object_unref0 (valadoc_token_type_EQUAL_4);
-		valadoc_token_type_EQUAL_4 = _tmp13_;
-		_tmp14_ = valadoc_token_type_new_basic ("======", NULL);
+		valadoc_token_type_EQUAL_4 = _tmp12_;
+		_tmp13_ = valadoc_token_type_new_basic ("======", NULL);
 		_g_object_unref0 (valadoc_token_type_EQUAL_5);
-		valadoc_token_type_EQUAL_5 = _tmp14_;
-		_tmp15_ = valadoc_token_type_new_basic ("-", NULL);
+		valadoc_token_type_EQUAL_5 = _tmp13_;
+		_tmp14_ = valadoc_token_type_new_basic ("-", NULL);
 		_g_object_unref0 (valadoc_token_type_MINUS);
-		valadoc_token_type_MINUS = _tmp15_;
-		_tmp16_ = valadoc_token_type_new_basic ("<", NULL);
+		valadoc_token_type_MINUS = _tmp14_;
+		_tmp15_ = valadoc_token_type_new_basic ("<", NULL);
 		_g_object_unref0 (valadoc_token_type_LESS_THAN);
-		valadoc_token_type_LESS_THAN = _tmp16_;
-		_tmp17_ = valadoc_token_type_new_basic (">", NULL);
+		valadoc_token_type_LESS_THAN = _tmp15_;
+		_tmp16_ = valadoc_token_type_new_basic (">", NULL);
 		_g_object_unref0 (valadoc_token_type_GREATER_THAN);
-		valadoc_token_type_GREATER_THAN = _tmp17_;
-		_tmp18_ = valadoc_token_type_new_basic ("^", NULL);
+		valadoc_token_type_GREATER_THAN = _tmp16_;
+		_tmp17_ = valadoc_token_type_new_basic ("^", NULL);
 		_g_object_unref0 (valadoc_token_type_ALIGN_TOP);
-		valadoc_token_type_ALIGN_TOP = _tmp18_;
-		_tmp19_ = valadoc_token_type_new_basic ("v", NULL);
+		valadoc_token_type_ALIGN_TOP = _tmp17_;
+		_tmp18_ = valadoc_token_type_new_basic ("v", NULL);
 		_g_object_unref0 (valadoc_token_type_ALIGN_BOTTOM);
-		valadoc_token_type_ALIGN_BOTTOM = _tmp19_;
-		_tmp20_ = valadoc_token_type_new_basic ("''", NULL);
+		valadoc_token_type_ALIGN_BOTTOM = _tmp18_;
+		_tmp19_ = valadoc_token_type_new_basic ("''", NULL);
 		_g_object_unref0 (valadoc_token_type_SINGLE_QUOTE_2);
-		valadoc_token_type_SINGLE_QUOTE_2 = _tmp20_;
-		_tmp21_ = valadoc_token_type_new_basic ("//", NULL);
+		valadoc_token_type_SINGLE_QUOTE_2 = _tmp19_;
+		_tmp20_ = valadoc_token_type_new_basic ("//", NULL);
 		_g_object_unref0 (valadoc_token_type_SLASH_2);
-		valadoc_token_type_SLASH_2 = _tmp21_;
-		_tmp22_ = valadoc_token_type_new_basic ("__", NULL);
+		valadoc_token_type_SLASH_2 = _tmp20_;
+		_tmp21_ = valadoc_token_type_new_basic ("__", NULL);
 		_g_object_unref0 (valadoc_token_type_UNDERSCORE_2);
-		valadoc_token_type_UNDERSCORE_2 = _tmp22_;
-		_tmp23_ = valadoc_token_type_new_basic ("``", NULL);
+		valadoc_token_type_UNDERSCORE_2 = _tmp21_;
+		_tmp22_ = valadoc_token_type_new_basic ("``", NULL);
 		_g_object_unref0 (valadoc_token_type_BACK_QUOTE_2);
-		valadoc_token_type_BACK_QUOTE_2 = _tmp23_;
-		_tmp24_ = valadoc_token_type_new_basic ("{", NULL);
+		valadoc_token_type_BACK_QUOTE_2 = _tmp22_;
+		_tmp23_ = valadoc_token_type_new_basic ("{", NULL);
 		_g_object_unref0 (valadoc_token_type_OPEN_BRACE);
-		valadoc_token_type_OPEN_BRACE = _tmp24_;
-		_tmp25_ = valadoc_token_type_new_basic ("}", NULL);
+		valadoc_token_type_OPEN_BRACE = _tmp23_;
+		_tmp24_ = valadoc_token_type_new_basic ("}", NULL);
 		_g_object_unref0 (valadoc_token_type_CLOSED_BRACE);
-		valadoc_token_type_CLOSED_BRACE = _tmp25_;
-		_tmp26_ = valadoc_token_type_new_basic ("{{", NULL);
+		valadoc_token_type_CLOSED_BRACE = _tmp24_;
+		_tmp25_ = valadoc_token_type_new_basic ("{{", NULL);
 		_g_object_unref0 (valadoc_token_type_DOUBLE_OPEN_BRACE);
-		valadoc_token_type_DOUBLE_OPEN_BRACE = _tmp26_;
-		_tmp27_ = valadoc_token_type_new_basic ("}}", NULL);
+		valadoc_token_type_DOUBLE_OPEN_BRACE = _tmp25_;
+		_tmp26_ = valadoc_token_type_new_basic ("}}", NULL);
 		_g_object_unref0 (valadoc_token_type_DOUBLE_CLOSED_BRACE);
-		valadoc_token_type_DOUBLE_CLOSED_BRACE = _tmp27_;
-		_tmp28_ = valadoc_token_type_new_basic ("{{{", NULL);
+		valadoc_token_type_DOUBLE_CLOSED_BRACE = _tmp26_;
+		_tmp27_ = valadoc_token_type_new_basic ("{{{", NULL);
 		_g_object_unref0 (valadoc_token_type_TRIPLE_OPEN_BRACE);
-		valadoc_token_type_TRIPLE_OPEN_BRACE = _tmp28_;
-		_tmp29_ = valadoc_token_type_new_basic ("}}}", NULL);
+		valadoc_token_type_TRIPLE_OPEN_BRACE = _tmp27_;
+		_tmp28_ = valadoc_token_type_new_basic ("}}}", NULL);
 		_g_object_unref0 (valadoc_token_type_TRIPLE_CLOSED_BRACE);
-		valadoc_token_type_TRIPLE_CLOSED_BRACE = _tmp29_;
-		_tmp30_ = valadoc_token_type_new_basic ("[[", NULL);
+		valadoc_token_type_TRIPLE_CLOSED_BRACE = _tmp28_;
+		_tmp29_ = valadoc_token_type_new_basic ("[[", NULL);
 		_g_object_unref0 (valadoc_token_type_DOUBLE_OPEN_BRACKET);
-		valadoc_token_type_DOUBLE_OPEN_BRACKET = _tmp30_;
-		_tmp31_ = valadoc_token_type_new_basic ("]]", NULL);
+		valadoc_token_type_DOUBLE_OPEN_BRACKET = _tmp29_;
+		_tmp30_ = valadoc_token_type_new_basic ("]]", NULL);
 		_g_object_unref0 (valadoc_token_type_DOUBLE_CLOSED_BRACKET);
-		valadoc_token_type_DOUBLE_CLOSED_BRACKET = _tmp31_;
-		_tmp32_ = valadoc_token_type_new_basic ("|", NULL);
+		valadoc_token_type_DOUBLE_CLOSED_BRACKET = _tmp30_;
+		_tmp31_ = valadoc_token_type_new_basic ("|", NULL);
 		_g_object_unref0 (valadoc_token_type_PIPE);
-		valadoc_token_type_PIPE = _tmp32_;
-		_tmp33_ = valadoc_token_type_new_basic ("||", NULL);
+		valadoc_token_type_PIPE = _tmp31_;
+		_tmp32_ = valadoc_token_type_new_basic ("||", NULL);
 		_g_object_unref0 (valadoc_token_type_DOUBLE_PIPE);
-		valadoc_token_type_DOUBLE_PIPE = _tmp33_;
-		_tmp34_ = valadoc_token_type_new_basic ("))", NULL);
+		valadoc_token_type_DOUBLE_PIPE = _tmp32_;
+		_tmp33_ = valadoc_token_type_new_basic ("))", NULL);
 		_g_object_unref0 (valadoc_token_type_ALIGN_RIGHT);
-		valadoc_token_type_ALIGN_RIGHT = _tmp34_;
-		_tmp35_ = valadoc_token_type_new_basic (")(", NULL);
+		valadoc_token_type_ALIGN_RIGHT = _tmp33_;
+		_tmp34_ = valadoc_token_type_new_basic (")(", NULL);
 		_g_object_unref0 (valadoc_token_type_ALIGN_CENTER);
-		valadoc_token_type_ALIGN_CENTER = _tmp35_;
-		_tmp36_ = valadoc_token_type_new_basic ("/*", NULL);
+		valadoc_token_type_ALIGN_CENTER = _tmp34_;
+		_tmp35_ = valadoc_token_type_new_basic ("/*", NULL);
 		_g_object_unref0 (valadoc_token_type_VALADOC_COMMENT_START);
-		valadoc_token_type_VALADOC_COMMENT_START = _tmp36_;
-		_tmp37_ = valadoc_token_type_new_basic ("*/", NULL);
+		valadoc_token_type_VALADOC_COMMENT_START = _tmp35_;
+		_tmp36_ = valadoc_token_type_new_basic ("*/", NULL);
 		_g_object_unref0 (valadoc_token_type_VALADOC_COMMENT_END);
-		valadoc_token_type_VALADOC_COMMENT_END = _tmp37_;
-		_tmp38_ = valadoc_token_type_ANY_WORD;
-		_tmp39_ = _g_object_ref0 (_tmp38_);
+		valadoc_token_type_VALADOC_COMMENT_END = _tmp36_;
+		_tmp37_ = valadoc_token_type_ANY_WORD;
+		_tmp38_ = _g_object_ref0 (_tmp37_);
 		_g_object_unref0 (valadoc_token_type_VALADOC_ANY_WORD);
-		valadoc_token_type_VALADOC_ANY_WORD = _tmp39_;
-		_tmp40_ = valadoc_token_type_SPACE;
-		_tmp41_ = _g_object_ref0 (_tmp40_);
+		valadoc_token_type_VALADOC_ANY_WORD = _tmp38_;
+		_tmp39_ = valadoc_token_type_SPACE;
+		_tmp40_ = _g_object_ref0 (_tmp39_);
 		_g_object_unref0 (valadoc_token_type_VALADOC_SPACE);
-		valadoc_token_type_VALADOC_SPACE = _tmp41_;
-		_tmp42_ = valadoc_token_type_TAB;
-		_tmp43_ = _g_object_ref0 (_tmp42_);
+		valadoc_token_type_VALADOC_SPACE = _tmp40_;
+		_tmp41_ = valadoc_token_type_TAB;
+		_tmp42_ = _g_object_ref0 (_tmp41_);
 		_g_object_unref0 (valadoc_token_type_VALADOC_TAB);
-		valadoc_token_type_VALADOC_TAB = _tmp43_;
-		_tmp44_ = valadoc_token_type_EOL;
-		_tmp45_ = _g_object_ref0 (_tmp44_);
+		valadoc_token_type_VALADOC_TAB = _tmp42_;
+		_tmp43_ = valadoc_token_type_EOL;
+		_tmp44_ = _g_object_ref0 (_tmp43_);
 		_g_object_unref0 (valadoc_token_type_VALADOC_EOL);
-		valadoc_token_type_VALADOC_EOL = _tmp45_;
+		valadoc_token_type_VALADOC_EOL = _tmp44_;
 		valadoc_token_type_initialized = TRUE;
-		_tmp46_ = valadoc_token_type_new_basic ("<paragraph>", NULL);
+		_tmp45_ = valadoc_token_type_new_basic ("<paragraph>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_PARAGRAPH);
-		valadoc_token_type_MARKDOWN_PARAGRAPH = _tmp46_;
-		_tmp47_ = valadoc_token_type_new_basic ("<block>", NULL);
+		valadoc_token_type_MARKDOWN_PARAGRAPH = _tmp45_;
+		_tmp46_ = valadoc_token_type_new_basic ("<block>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_BLOCK_START);
-		valadoc_token_type_MARKDOWN_BLOCK_START = _tmp47_;
-		_tmp48_ = valadoc_token_type_new_basic ("</block>", NULL);
+		valadoc_token_type_MARKDOWN_BLOCK_START = _tmp46_;
+		_tmp47_ = valadoc_token_type_new_basic ("</block>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_BLOCK_END);
-		valadoc_token_type_MARKDOWN_BLOCK_END = _tmp48_;
-		_tmp49_ = valadoc_token_type_new_basic ("<unordered-list>", NULL);
+		valadoc_token_type_MARKDOWN_BLOCK_END = _tmp47_;
+		_tmp48_ = valadoc_token_type_new_basic ("<unordered-list>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_START);
-		valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_START = _tmp49_;
-		_tmp50_ = valadoc_token_type_new_basic ("</unordered-list>", NULL);
+		valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_START = _tmp48_;
+		_tmp49_ = valadoc_token_type_new_basic ("</unordered-list>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_END);
-		valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_END = _tmp50_;
-		_tmp51_ = valadoc_token_type_new_basic ("<ordered-list>", NULL);
+		valadoc_token_type_MARKDOWN_UNORDERED_LIST_ITEM_END = _tmp49_;
+		_tmp50_ = valadoc_token_type_new_basic ("<ordered-list>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_START);
-		valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_START = _tmp51_;
-		_tmp52_ = valadoc_token_type_new_basic ("</ordered-list>", NULL);
+		valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_START = _tmp50_;
+		_tmp51_ = valadoc_token_type_new_basic ("</ordered-list>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_END);
-		valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_END = _tmp52_;
-		_tmp53_ = valadoc_token_type_new_basic ("<headline-1>", NULL);
+		valadoc_token_type_MARKDOWN_ORDERED_LIST_ITEM_END = _tmp51_;
+		_tmp52_ = valadoc_token_type_new_basic ("<headline-1>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_HEADLINE_1);
-		valadoc_token_type_MARKDOWN_HEADLINE_1 = _tmp53_;
-		_tmp54_ = valadoc_token_type_new_basic ("<headline-2>", NULL);
+		valadoc_token_type_MARKDOWN_HEADLINE_1 = _tmp52_;
+		_tmp53_ = valadoc_token_type_new_basic ("<headline-2>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_HEADLINE_2);
-		valadoc_token_type_MARKDOWN_HEADLINE_2 = _tmp54_;
-		_tmp55_ = valadoc_token_type_new_basic ("<hash>", NULL);
+		valadoc_token_type_MARKDOWN_HEADLINE_2 = _tmp53_;
+		_tmp54_ = valadoc_token_type_new_basic ("<hash>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_HEADLINE_HASH);
-		valadoc_token_type_MARKDOWN_HEADLINE_HASH = _tmp55_;
-		_tmp56_ = valadoc_token_type_new_basic ("</headline>", NULL);
+		valadoc_token_type_MARKDOWN_HEADLINE_HASH = _tmp54_;
+		_tmp55_ = valadoc_token_type_new_basic ("</headline>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_HEADLINE_END);
-		valadoc_token_type_MARKDOWN_HEADLINE_END = _tmp56_;
-		_tmp57_ = valadoc_token_type_new_basic ("<source>", NULL);
+		valadoc_token_type_MARKDOWN_HEADLINE_END = _tmp55_;
+		_tmp56_ = valadoc_token_type_new_basic ("<source>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_SOURCE);
-		valadoc_token_type_MARKDOWN_SOURCE = _tmp57_;
-		_tmp58_ = valadoc_token_type_new_basic ("<parameter>", NULL);
+		valadoc_token_type_MARKDOWN_SOURCE = _tmp56_;
+		_tmp57_ = valadoc_token_type_new_basic ("<parameter>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_PARAMETER);
-		valadoc_token_type_MARKDOWN_PARAMETER = _tmp58_;
-		_tmp59_ = valadoc_token_type_new_basic ("<constant>", NULL);
+		valadoc_token_type_MARKDOWN_PARAMETER = _tmp57_;
+		_tmp58_ = valadoc_token_type_new_basic ("<constant>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_CONSTANT);
-		valadoc_token_type_MARKDOWN_CONSTANT = _tmp59_;
-		_tmp60_ = valadoc_token_type_new_basic ("<function>", NULL);
+		valadoc_token_type_MARKDOWN_CONSTANT = _tmp58_;
+		_tmp59_ = valadoc_token_type_new_basic ("<function>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_FUNCTION);
-		valadoc_token_type_MARKDOWN_FUNCTION = _tmp60_;
-		_tmp61_ = valadoc_token_type_new_basic ("<symbol>", NULL);
+		valadoc_token_type_MARKDOWN_FUNCTION = _tmp59_;
+		_tmp60_ = valadoc_token_type_new_basic ("<symbol>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_SYMBOL);
-		valadoc_token_type_MARKDOWN_SYMBOL = _tmp61_;
-		_tmp62_ = valadoc_token_type_new_basic ("<local-gmember>", NULL);
+		valadoc_token_type_MARKDOWN_SYMBOL = _tmp60_;
+		_tmp61_ = valadoc_token_type_new_basic ("<local-gmember>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_LOCAL_GMEMBER);
-		valadoc_token_type_MARKDOWN_LOCAL_GMEMBER = _tmp62_;
-		_tmp63_ = valadoc_token_type_new_basic ("<mail>", NULL);
+		valadoc_token_type_MARKDOWN_LOCAL_GMEMBER = _tmp61_;
+		_tmp62_ = valadoc_token_type_new_basic ("<mail>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_MAIL);
-		valadoc_token_type_MARKDOWN_MAIL = _tmp63_;
-		_tmp64_ = valadoc_token_type_new_basic ("<link>", NULL);
+		valadoc_token_type_MARKDOWN_MAIL = _tmp62_;
+		_tmp63_ = valadoc_token_type_new_basic ("<link>", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_LINK);
-		valadoc_token_type_MARKDOWN_LINK = _tmp64_;
-		_tmp65_ = valadoc_token_type_new_basic ("[", NULL);
+		valadoc_token_type_MARKDOWN_LINK = _tmp63_;
+		_tmp64_ = valadoc_token_type_new_basic ("[", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_OPEN_BRACKET);
-		valadoc_token_type_MARKDOWN_OPEN_BRACKET = _tmp65_;
-		_tmp66_ = valadoc_token_type_new_basic ("]", NULL);
+		valadoc_token_type_MARKDOWN_OPEN_BRACKET = _tmp64_;
+		_tmp65_ = valadoc_token_type_new_basic ("]", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_CLOSE_BRACKET);
-		valadoc_token_type_MARKDOWN_CLOSE_BRACKET = _tmp66_;
-		_tmp67_ = valadoc_token_type_new_basic ("(", NULL);
+		valadoc_token_type_MARKDOWN_CLOSE_BRACKET = _tmp65_;
+		_tmp66_ = valadoc_token_type_new_basic ("(", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_OPEN_PARENS);
-		valadoc_token_type_MARKDOWN_OPEN_PARENS = _tmp67_;
-		_tmp68_ = valadoc_token_type_new_basic (")", NULL);
+		valadoc_token_type_MARKDOWN_OPEN_PARENS = _tmp66_;
+		_tmp67_ = valadoc_token_type_new_basic (")", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_CLOSE_PARENS);
-		valadoc_token_type_MARKDOWN_CLOSE_PARENS = _tmp68_;
-		_tmp69_ = valadoc_token_type_new_basic ("!", NULL);
+		valadoc_token_type_MARKDOWN_CLOSE_PARENS = _tmp67_;
+		_tmp68_ = valadoc_token_type_new_basic ("!", NULL);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_EXCLAMATION_MARK);
-		valadoc_token_type_MARKDOWN_EXCLAMATION_MARK = _tmp69_;
-		_tmp70_ = valadoc_token_type_GREATER_THAN;
-		_tmp71_ = _g_object_ref0 (_tmp70_);
+		valadoc_token_type_MARKDOWN_EXCLAMATION_MARK = _tmp68_;
+		_tmp69_ = valadoc_token_type_GREATER_THAN;
+		_tmp70_ = _g_object_ref0 (_tmp69_);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_GREATER_THAN);
-		valadoc_token_type_MARKDOWN_GREATER_THAN = _tmp71_;
-		_tmp72_ = valadoc_token_type_LESS_THAN;
-		_tmp73_ = _g_object_ref0 (_tmp72_);
+		valadoc_token_type_MARKDOWN_GREATER_THAN = _tmp70_;
+		_tmp71_ = valadoc_token_type_LESS_THAN;
+		_tmp72_ = _g_object_ref0 (_tmp71_);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_LESS_THAN);
-		valadoc_token_type_MARKDOWN_LESS_THAN = _tmp73_;
-		_tmp74_ = valadoc_token_type_ANY_WORD;
-		_tmp75_ = _g_object_ref0 (_tmp74_);
+		valadoc_token_type_MARKDOWN_LESS_THAN = _tmp72_;
+		_tmp73_ = valadoc_token_type_ANY_WORD;
+		_tmp74_ = _g_object_ref0 (_tmp73_);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_ANY_WORD);
-		valadoc_token_type_MARKDOWN_ANY_WORD = _tmp75_;
-		_tmp76_ = valadoc_token_type_SPACE;
-		_tmp77_ = _g_object_ref0 (_tmp76_);
+		valadoc_token_type_MARKDOWN_ANY_WORD = _tmp74_;
+		_tmp75_ = valadoc_token_type_SPACE;
+		_tmp76_ = _g_object_ref0 (_tmp75_);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_SPACE);
-		valadoc_token_type_MARKDOWN_SPACE = _tmp77_;
-		_tmp78_ = valadoc_token_type_EOL;
-		_tmp79_ = _g_object_ref0 (_tmp78_);
+		valadoc_token_type_MARKDOWN_SPACE = _tmp76_;
+		_tmp77_ = valadoc_token_type_EOL;
+		_tmp78_ = _g_object_ref0 (_tmp77_);
 		_g_object_unref0 (valadoc_token_type_MARKDOWN_EOC);
-		valadoc_token_type_MARKDOWN_EOC = _tmp79_;
+		valadoc_token_type_MARKDOWN_EOC = _tmp78_;
 	}
 }
-
 
 ValadocTokenType*
 valadoc_token_type_str (const gchar* str)
 {
+	ValadocTokenType* _tmp0_;
 	ValadocTokenType* result = NULL;
-	gint _tmp0_;
-	ValadocTokenType* _tmp1_;
 	g_return_val_if_fail (str != NULL, NULL);
-	_tmp0_ = valadoc_token_type_EXACT_WORD;
-	_tmp1_ = valadoc_token_type_new (str, _tmp0_, NULL, NULL);
-	result = _tmp1_;
+	_tmp0_ = valadoc_token_type_new (str, valadoc_token_type_EXACT_WORD, NULL, NULL);
+	result = _tmp0_;
 	return result;
 }
-
 
 ValadocTokenType*
 valadoc_token_type_any (void)
 {
-	ValadocTokenType* result = NULL;
 	ValadocTokenType* _tmp0_;
 	ValadocTokenType* _tmp1_;
+	ValadocTokenType* result = NULL;
 	_tmp0_ = valadoc_token_type_ANY;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
 
-
 ValadocTokenType*
 valadoc_token_type_any_word (void)
 {
-	ValadocTokenType* result = NULL;
 	ValadocTokenType* _tmp0_;
 	ValadocTokenType* _tmp1_;
+	ValadocTokenType* result = NULL;
 	_tmp0_ = valadoc_token_type_ANY_WORD;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
 
-
 ValadocTokenType*
 valadoc_token_type_any_number (void)
 {
-	ValadocTokenType* result = NULL;
 	ValadocTokenType* _tmp0_;
 	ValadocTokenType* _tmp1_;
+	ValadocTokenType* result = NULL;
 	_tmp0_ = valadoc_token_type_ANY_NUMBER;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
 
 static Block6Data*
 block6_data_ref (Block6Data* _data6_)
@@ -543,7 +530,6 @@ block6_data_ref (Block6Data* _data6_)
 	g_atomic_int_inc (&_data6_->_ref_count_);
 	return _data6_;
 }
-
 
 static void
 block6_data_unref (void * _userdata_)
@@ -558,29 +544,27 @@ block6_data_unref (void * _userdata_)
 	}
 }
 
-
 static void
 ___lambda4_ (Block6Data* _data6_,
              ValadocToken* token,
              GError** error)
 {
 	ValadocTokenType* self;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = _data6_->self;
 	g_return_if_fail (token != NULL);
-	_data6_->__action (token, _data6_->__action_target, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	_data6_->__action (token, _data6_->__action_target, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 ____lambda4__valadoc_token_type_action (ValadocToken* token,
@@ -589,7 +573,6 @@ ____lambda4__valadoc_token_type_action (ValadocToken* token,
 {
 	___lambda4_ (self, token, error);
 }
-
 
 static ValadocTokenType*
 valadoc_token_type_construct (GType object_type,
@@ -634,7 +617,6 @@ valadoc_token_type_construct (GType object_type,
 	return self;
 }
 
-
 static ValadocTokenType*
 valadoc_token_type_new (const gchar* string_value,
                         gint basic_value,
@@ -643,7 +625,6 @@ valadoc_token_type_new (const gchar* string_value,
 {
 	return valadoc_token_type_construct (VALADOC_TYPE_TOKEN_TYPE, string_value, basic_value, __action, __action_target);
 }
-
 
 static ValadocTokenType*
 valadoc_token_type_construct_basic (GType object_type,
@@ -654,7 +635,6 @@ valadoc_token_type_construct_basic (GType object_type,
 	gchar* _tmp0_;
 	gchar* _tmp1_;
 	gint _tmp2_;
-	gint _tmp3_;
 	g_return_val_if_fail (string_value != NULL, NULL);
 	self = (ValadocTokenType*) g_object_new (object_type, NULL);
 	_tmp0_ = g_strdup (string_value);
@@ -663,13 +643,11 @@ valadoc_token_type_construct_basic (GType object_type,
 	_tmp1_ = g_strdup (pretty_string);
 	_g_free0 (self->priv->_pretty_string);
 	self->priv->_pretty_string = _tmp1_;
+	valadoc_token_type__last_basic_value = valadoc_token_type__last_basic_value + 1;
 	_tmp2_ = valadoc_token_type__last_basic_value;
-	valadoc_token_type__last_basic_value = _tmp2_ + 1;
-	_tmp3_ = valadoc_token_type__last_basic_value;
-	self->priv->_basic_value = _tmp3_;
+	self->priv->_basic_value = _tmp2_;
 	return self;
 }
-
 
 static ValadocTokenType*
 valadoc_token_type_new_basic (const gchar* string_value,
@@ -678,24 +656,20 @@ valadoc_token_type_new_basic (const gchar* string_value,
 	return valadoc_token_type_construct_basic (VALADOC_TYPE_TOKEN_TYPE, string_value, pretty_string);
 }
 
-
 ValadocTokenType*
 valadoc_token_type_action (ValadocTokenType* self,
                            ValadocTokenTypeAction action,
                            gpointer action_target)
 {
-	ValadocTokenType* result = NULL;
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	ValadocTokenType* _tmp2_;
+	ValadocTokenType* _tmp1_;
+	ValadocTokenType* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_string_value;
-	_tmp1_ = self->priv->_basic_value;
-	_tmp2_ = valadoc_token_type_new (_tmp0_, _tmp1_, action, action_target);
-	result = _tmp2_;
+	_tmp1_ = valadoc_token_type_new (_tmp0_, self->priv->_basic_value, action, action_target);
+	result = _tmp1_;
 	return result;
 }
-
 
 void
 valadoc_token_type_do_action (ValadocTokenType* self,
@@ -703,138 +677,117 @@ valadoc_token_type_do_action (ValadocTokenType* self,
                               GError** error)
 {
 	ValadocTokenTypeAction _tmp0_;
-	void* _tmp0__target;
-	GError * _inner_error_ = NULL;
+	gpointer _tmp0__target;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (matched_token != NULL);
 	_tmp0_ = self->priv->_action;
 	_tmp0__target = self->priv->_action_target;
 	if (_tmp0_ != NULL) {
 		ValadocTokenTypeAction _tmp1_;
-		void* _tmp1__target;
+		gpointer _tmp1__target;
 		_tmp1_ = self->priv->_action;
 		_tmp1__target = self->priv->_action_target;
-		_tmp1_ (matched_token, _tmp1__target, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		_tmp1_ (matched_token, _tmp1__target, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
 
-
 gboolean
 valadoc_token_type_matches (ValadocTokenType* self,
                             ValadocToken* token)
 {
+	ValadocTokenType* _tmp0_;
 	gboolean result = FALSE;
-	gint _tmp0_;
-	ValadocTokenType* _tmp1_;
-	gint _tmp2_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (token != NULL, FALSE);
-	_tmp0_ = self->priv->_basic_value;
-	_tmp1_ = valadoc_token_type_ANY;
-	_tmp2_ = _tmp1_->priv->_basic_value;
-	if (_tmp0_ == _tmp2_) {
+	_tmp0_ = valadoc_token_type_ANY;
+	if (self->priv->_basic_value == _tmp0_->priv->_basic_value) {
 		result = TRUE;
 		return result;
 	} else {
-		gboolean _tmp3_ = FALSE;
-		gint _tmp4_;
-		ValadocTokenType* _tmp5_;
-		gint _tmp6_;
-		_tmp4_ = self->priv->_basic_value;
-		_tmp5_ = valadoc_token_type_ANY_WORD;
-		_tmp6_ = _tmp5_->priv->_basic_value;
-		if (_tmp4_ == _tmp6_) {
-			gboolean _tmp7_;
-			gboolean _tmp8_;
-			_tmp7_ = valadoc_token_get_is_word (token);
-			_tmp8_ = _tmp7_;
-			_tmp3_ = _tmp8_;
+		gboolean _tmp1_ = FALSE;
+		ValadocTokenType* _tmp2_;
+		_tmp2_ = valadoc_token_type_ANY_WORD;
+		if (self->priv->_basic_value == _tmp2_->priv->_basic_value) {
+			gboolean _tmp3_;
+			gboolean _tmp4_;
+			_tmp3_ = valadoc_token_get_is_word (token);
+			_tmp4_ = _tmp3_;
+			_tmp1_ = _tmp4_;
 		} else {
-			_tmp3_ = FALSE;
+			_tmp1_ = FALSE;
 		}
-		if (_tmp3_) {
+		if (_tmp1_) {
 			result = TRUE;
 			return result;
 		} else {
-			gboolean _tmp9_ = FALSE;
-			gint _tmp10_;
-			ValadocTokenType* _tmp11_;
-			gint _tmp12_;
-			_tmp10_ = self->priv->_basic_value;
-			_tmp11_ = valadoc_token_type_ANY_NUMBER;
-			_tmp12_ = _tmp11_->priv->_basic_value;
-			if (_tmp10_ == _tmp12_) {
-				gboolean _tmp13_;
-				gboolean _tmp14_;
-				_tmp13_ = valadoc_token_get_is_number (token);
-				_tmp14_ = _tmp13_;
-				_tmp9_ = _tmp14_;
+			gboolean _tmp5_ = FALSE;
+			ValadocTokenType* _tmp6_;
+			_tmp6_ = valadoc_token_type_ANY_NUMBER;
+			if (self->priv->_basic_value == _tmp6_->priv->_basic_value) {
+				gboolean _tmp7_;
+				gboolean _tmp8_;
+				_tmp7_ = valadoc_token_get_is_number (token);
+				_tmp8_ = _tmp7_;
+				_tmp5_ = _tmp8_;
 			} else {
-				_tmp9_ = FALSE;
+				_tmp5_ = FALSE;
 			}
-			if (_tmp9_) {
+			if (_tmp5_) {
 				result = TRUE;
 				return result;
 			} else {
-				gboolean _tmp15_ = FALSE;
-				gboolean _tmp16_ = FALSE;
-				gint _tmp17_;
-				gint _tmp18_;
-				_tmp17_ = self->priv->_basic_value;
-				_tmp18_ = valadoc_token_type_EXACT_WORD;
-				if (_tmp17_ == _tmp18_) {
-					gboolean _tmp19_;
-					gboolean _tmp20_;
-					_tmp19_ = valadoc_token_get_is_word (token);
-					_tmp20_ = _tmp19_;
-					_tmp16_ = _tmp20_;
+				gboolean _tmp9_ = FALSE;
+				gboolean _tmp10_ = FALSE;
+				if (self->priv->_basic_value == valadoc_token_type_EXACT_WORD) {
+					gboolean _tmp11_;
+					gboolean _tmp12_;
+					_tmp11_ = valadoc_token_get_is_word (token);
+					_tmp12_ = _tmp11_;
+					_tmp10_ = _tmp12_;
 				} else {
-					_tmp16_ = FALSE;
+					_tmp10_ = FALSE;
 				}
-				if (_tmp16_) {
-					const gchar* _tmp21_;
-					const gchar* _tmp22_;
-					const gchar* _tmp23_;
-					_tmp21_ = valadoc_token_get_word (token);
-					_tmp22_ = _tmp21_;
-					_tmp23_ = self->priv->_string_value;
-					_tmp15_ = g_strcmp0 (_tmp22_, _tmp23_) == 0;
+				if (_tmp10_) {
+					const gchar* _tmp13_;
+					const gchar* _tmp14_;
+					const gchar* _tmp15_;
+					_tmp13_ = valadoc_token_get_word (token);
+					_tmp14_ = _tmp13_;
+					_tmp15_ = self->priv->_string_value;
+					_tmp9_ = g_strcmp0 (_tmp14_, _tmp15_) == 0;
 				} else {
-					_tmp15_ = FALSE;
+					_tmp9_ = FALSE;
 				}
-				if (_tmp15_) {
+				if (_tmp9_) {
 					result = TRUE;
 					return result;
 				} else {
-					gboolean _tmp24_ = FALSE;
-					ValadocTokenType* _tmp25_;
-					ValadocTokenType* _tmp26_;
-					_tmp25_ = valadoc_token_get_token_type (token);
-					_tmp26_ = _tmp25_;
-					if (_tmp26_ != NULL) {
-						ValadocTokenType* _tmp27_;
-						ValadocTokenType* _tmp28_;
-						gint _tmp29_;
-						gint _tmp30_;
-						_tmp27_ = valadoc_token_get_token_type (token);
-						_tmp28_ = _tmp27_;
-						_tmp29_ = _tmp28_->priv->_basic_value;
-						_tmp30_ = self->priv->_basic_value;
-						_tmp24_ = _tmp29_ == _tmp30_;
+					gboolean _tmp16_ = FALSE;
+					ValadocTokenType* _tmp17_;
+					ValadocTokenType* _tmp18_;
+					_tmp17_ = valadoc_token_get_token_type (token);
+					_tmp18_ = _tmp17_;
+					if (_tmp18_ != NULL) {
+						ValadocTokenType* _tmp19_;
+						ValadocTokenType* _tmp20_;
+						_tmp19_ = valadoc_token_get_token_type (token);
+						_tmp20_ = _tmp19_;
+						_tmp16_ = _tmp20_->priv->_basic_value == self->priv->_basic_value;
 					} else {
-						_tmp24_ = FALSE;
+						_tmp16_ = FALSE;
 					}
-					if (_tmp24_) {
+					if (_tmp16_) {
 						result = TRUE;
 						return result;
 					}
@@ -846,25 +799,23 @@ valadoc_token_type_matches (ValadocTokenType* self,
 	return result;
 }
 
-
 const gchar*
 valadoc_token_type_to_string (ValadocTokenType* self)
 {
-	const gchar* result = NULL;
 	const gchar* _tmp0_;
+	const gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_string_value;
 	result = _tmp0_;
 	return result;
 }
 
-
 const gchar*
 valadoc_token_type_to_pretty_string (ValadocTokenType* self)
 {
-	const gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp2_;
+	const gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_pretty_string;
 	if (_tmp0_ != NULL) {
@@ -878,18 +829,18 @@ valadoc_token_type_to_pretty_string (ValadocTokenType* self)
 	return result;
 }
 
-
 static void
-valadoc_token_type_class_init (ValadocTokenTypeClass * klass)
+valadoc_token_type_class_init (ValadocTokenTypeClass * klass,
+                               gpointer klass_data)
 {
 	valadoc_token_type_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocTokenType_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_token_type_finalize;
 }
 
-
 static void
-valadoc_token_type_instance_init (ValadocTokenType * self)
+valadoc_token_type_instance_init (ValadocTokenType * self,
+                                  gpointer klass)
 {
 	self->priv = valadoc_token_type_get_instance_private (self);
 	self->priv->_basic_value = -1;
@@ -897,7 +848,6 @@ valadoc_token_type_instance_init (ValadocTokenType * self)
 	self->priv->_action_target = self;
 	self->priv->_action_target_destroy_notify = NULL;
 }
-
 
 static void
 valadoc_token_type_finalize (GObject * obj)
@@ -913,20 +863,25 @@ valadoc_token_type_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_token_type_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_token_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTokenTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_token_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTokenType), 0, (GInstanceInitFunc) valadoc_token_type_instance_init, NULL };
+	GType valadoc_token_type_type_id;
+	valadoc_token_type_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocTokenType", &g_define_type_info, 0);
+	ValadocTokenType_private_offset = g_type_add_instance_private (valadoc_token_type_type_id, sizeof (ValadocTokenTypePrivate));
+	return valadoc_token_type_type_id;
+}
 
 GType
 valadoc_token_type_get_type (void)
 {
 	static volatile gsize valadoc_token_type_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_token_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocTokenTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_token_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTokenType), 0, (GInstanceInitFunc) valadoc_token_type_instance_init, NULL };
 		GType valadoc_token_type_type_id;
-		valadoc_token_type_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocTokenType", &g_define_type_info, 0);
-		ValadocTokenType_private_offset = g_type_add_instance_private (valadoc_token_type_type_id, sizeof (ValadocTokenTypePrivate));
+		valadoc_token_type_type_id = valadoc_token_type_get_type_once ();
 		g_once_init_leave (&valadoc_token_type_type_id__volatile, valadoc_token_type_type_id);
 	}
 	return valadoc_token_type_type_id__volatile;
 }
-
-
 

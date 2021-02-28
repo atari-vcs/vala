@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CFLAGS = \
-	-DPACKAGE_ICONDIR=\"$(datadir)/valadoc/icons/\" \
+	-DG_LOG_DOMAIN=\"valadoc-gtkdoc\" \
+	-DPACKAGE_VALADOC_ICONDIR=\"$(datadir)/valadoc@PACKAGE_SUFFIX@/icons/\" \
 	-I$(top_srcdir)/gee/ \
 	-I$(top_srcdir)/vala/ \
 	-I$(top_srcdir)/libvaladoc/ \
@@ -16,7 +17,7 @@ BUILT_SOURCES = libdoclet.vala.stamp
 
 doclet_LTLIBRARIES = libdoclet.la
 
-docletdir = $(libdir)/valadoc/doclets/gtkdoc
+docletdir = $(libdir)/valadoc@PACKAGE_SUFFIX@/doclets/gtkdoc
 
 libdoclet_la_LDFLAGS = -module -avoid-version -no-undefined
 

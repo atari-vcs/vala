@@ -23,14 +23,13 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valacodegen.h"
 #include <vala.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdio.h>
 #include <glib/gstdio.h>
 #include <gobject/gvaluecollector.h>
@@ -45,11 +44,10 @@ struct _ValaParamSpecCCodeCompiler {
 	GParamSpec parent_instance;
 };
 
-
 static gpointer vala_ccode_compiler_parent_class = NULL;
 
 static void vala_ccode_compiler_finalize (ValaCCodeCompiler * obj);
-
+static GType vala_ccode_compiler_get_type_once (void);
 
 ValaCCodeCompiler*
 vala_ccode_compiler_construct (GType object_type)
@@ -59,13 +57,11 @@ vala_ccode_compiler_construct (GType object_type)
 	return self;
 }
 
-
 ValaCCodeCompiler*
 vala_ccode_compiler_new (void)
 {
 	return vala_ccode_compiler_construct (VALA_TYPE_CCODE_COMPILER);
 }
-
 
 /**
  * Compile generated C code to object code and optionally link object
@@ -79,59 +75,59 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
-
 
 void
 vala_ccode_compiler_compile (ValaCCodeCompiler* self,
                              ValaCodeContext* context,
                              const gchar* cc_command,
                              gchar** cc_options,
-                             int cc_options_length1)
+                             gint cc_options_length1)
 {
 	gchar* pc = NULL;
 	gchar* _tmp0_;
 	ValaProfile _tmp1_;
 	ValaProfile _tmp2_;
 	gchar* pkgflags = NULL;
-	const gchar* _tmp21_;
+	const gchar* _tmp20_;
+	gint _tmp21_;
 	gint _tmp22_;
-	gint _tmp23_;
 	gchar* cmdline = NULL;
-	gchar* _tmp28_;
+	gchar* _tmp27_;
+	gboolean _tmp28_;
 	gboolean _tmp29_;
-	gboolean _tmp30_;
+	gboolean _tmp32_;
 	gboolean _tmp33_;
-	gboolean _tmp34_;
 	ValaList* source_files = NULL;
+	ValaList* _tmp61_;
 	ValaList* _tmp62_;
 	ValaList* c_source_files = NULL;
-	ValaList* _tmp86_;
-	const gchar* _tmp105_;
-	const gchar* _tmp106_;
+	ValaList* _tmp84_;
+	ValaList* _tmp85_;
+	const gchar* _tmp102_;
+	const gchar* _tmp103_;
+	gchar* _tmp104_;
+	gchar* _tmp105_;
+	gchar* _tmp106_;
 	gchar* _tmp107_;
 	gchar* _tmp108_;
-	gchar* _tmp109_;
-	gchar* _tmp110_;
-	gchar* _tmp111_;
-	gboolean _tmp120_;
-	gboolean _tmp121_;
-	GError * _inner_error_ = NULL;
+	gboolean _tmp117_;
+	gboolean _tmp118_;
+	gboolean _tmp127_;
+	gboolean _tmp128_;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
 	_tmp0_ = g_strdup ("");
@@ -149,179 +145,178 @@ vala_ccode_compiler_compile (ValaCCodeCompiler* self,
 	{
 		ValaList* _pkg_list = NULL;
 		ValaList* _tmp5_;
-		gint _pkg_size = 0;
 		ValaList* _tmp6_;
-		gint _tmp7_;
+		gint _pkg_size = 0;
+		ValaList* _tmp7_;
 		gint _tmp8_;
+		gint _tmp9_;
 		gint _pkg_index = 0;
 		_tmp5_ = vala_code_context_get_packages (context);
-		_pkg_list = _tmp5_;
-		_tmp6_ = _pkg_list;
-		_tmp7_ = vala_collection_get_size ((ValaCollection*) _tmp6_);
-		_tmp8_ = _tmp7_;
-		_pkg_size = _tmp8_;
+		_tmp6_ = _vala_iterable_ref0 (_tmp5_);
+		_pkg_list = _tmp6_;
+		_tmp7_ = _pkg_list;
+		_tmp8_ = vala_collection_get_size ((ValaCollection*) _tmp7_);
+		_tmp9_ = _tmp8_;
+		_pkg_size = _tmp9_;
 		_pkg_index = -1;
 		while (TRUE) {
-			gint _tmp9_;
 			gint _tmp10_;
 			gint _tmp11_;
 			gchar* pkg = NULL;
 			ValaList* _tmp12_;
-			gint _tmp13_;
-			gpointer _tmp14_;
-			const gchar* _tmp15_;
-			_tmp9_ = _pkg_index;
-			_pkg_index = _tmp9_ + 1;
+			gpointer _tmp13_;
+			const gchar* _tmp14_;
+			_pkg_index = _pkg_index + 1;
 			_tmp10_ = _pkg_index;
 			_tmp11_ = _pkg_size;
 			if (!(_tmp10_ < _tmp11_)) {
 				break;
 			}
 			_tmp12_ = _pkg_list;
-			_tmp13_ = _pkg_index;
-			_tmp14_ = vala_list_get (_tmp12_, _tmp13_);
-			pkg = (gchar*) _tmp14_;
-			_tmp15_ = pkg;
-			if (vala_code_context_pkg_config_exists (context, _tmp15_)) {
+			_tmp13_ = vala_list_get (_tmp12_, _pkg_index);
+			pkg = (gchar*) _tmp13_;
+			_tmp14_ = pkg;
+			if (vala_code_context_pkg_config_exists (context, _tmp14_)) {
+				const gchar* _tmp15_;
 				const gchar* _tmp16_;
-				const gchar* _tmp17_;
+				gchar* _tmp17_;
 				gchar* _tmp18_;
 				gchar* _tmp19_;
-				gchar* _tmp20_;
-				_tmp16_ = pc;
-				_tmp17_ = pkg;
-				_tmp18_ = g_strconcat (" ", _tmp17_, NULL);
-				_tmp19_ = _tmp18_;
-				_tmp20_ = g_strconcat (_tmp16_, _tmp19_, NULL);
+				_tmp15_ = pc;
+				_tmp16_ = pkg;
+				_tmp17_ = g_strconcat (" ", _tmp16_, NULL);
+				_tmp18_ = _tmp17_;
+				_tmp19_ = g_strconcat (_tmp15_, _tmp18_, NULL);
 				_g_free0 (pc);
-				pc = _tmp20_;
-				_g_free0 (_tmp19_);
+				pc = _tmp19_;
+				_g_free0 (_tmp18_);
 			}
 			_g_free0 (pkg);
 		}
 		_vala_iterable_unref0 (_pkg_list);
 	}
-	_tmp21_ = pc;
-	_tmp22_ = strlen (_tmp21_);
-	_tmp23_ = _tmp22_;
-	if (_tmp23_ > 0) {
-		const gchar* _tmp24_;
-		gchar* _tmp25_;
-		const gchar* _tmp26_;
-		_tmp24_ = pc;
-		_tmp25_ = vala_code_context_pkg_config_compile_flags (context, _tmp24_);
+	_tmp20_ = pc;
+	_tmp21_ = strlen (_tmp20_);
+	_tmp22_ = _tmp21_;
+	if (_tmp22_ > 0) {
+		const gchar* _tmp23_;
+		gchar* _tmp24_;
+		const gchar* _tmp25_;
+		_tmp23_ = pc;
+		_tmp24_ = vala_code_context_pkg_config_compile_flags (context, _tmp23_);
 		_g_free0 (pkgflags);
-		pkgflags = _tmp25_;
-		_tmp26_ = pkgflags;
-		if (_tmp26_ == NULL) {
+		pkgflags = _tmp24_;
+		_tmp25_ = pkgflags;
+		if (_tmp25_ == NULL) {
 			_g_free0 (pkgflags);
 			_g_free0 (pc);
 			return;
 		}
 	} else {
-		gchar* _tmp27_;
-		_tmp27_ = g_strdup ("");
+		gchar* _tmp26_;
+		_tmp26_ = g_strdup ("");
 		_g_free0 (pkgflags);
-		pkgflags = _tmp27_;
+		pkgflags = _tmp26_;
 	}
 	if (cc_command == NULL) {
 		cc_command = "cc";
 	}
-	_tmp28_ = g_strdup (cc_command);
-	cmdline = _tmp28_;
-	_tmp29_ = vala_code_context_get_debug (context);
-	_tmp30_ = _tmp29_;
-	if (_tmp30_) {
-		const gchar* _tmp31_;
-		gchar* _tmp32_;
-		_tmp31_ = cmdline;
-		_tmp32_ = g_strconcat (_tmp31_, " -g", NULL);
+	_tmp27_ = g_strdup (cc_command);
+	cmdline = _tmp27_;
+	_tmp28_ = vala_code_context_get_debug (context);
+	_tmp29_ = _tmp28_;
+	if (_tmp29_) {
+		const gchar* _tmp30_;
+		gchar* _tmp31_;
+		_tmp30_ = cmdline;
+		_tmp31_ = g_strconcat (_tmp30_, " -g", NULL);
 		_g_free0 (cmdline);
-		cmdline = _tmp32_;
+		cmdline = _tmp31_;
 	}
-	_tmp33_ = vala_code_context_get_compile_only (context);
-	_tmp34_ = _tmp33_;
-	if (_tmp34_) {
-		const gchar* _tmp35_;
-		gchar* _tmp36_;
-		_tmp35_ = cmdline;
-		_tmp36_ = g_strconcat (_tmp35_, " -c", NULL);
+	_tmp32_ = vala_code_context_get_compile_only (context);
+	_tmp33_ = _tmp32_;
+	if (_tmp33_) {
+		const gchar* _tmp34_;
+		gchar* _tmp35_;
+		_tmp34_ = cmdline;
+		_tmp35_ = g_strconcat (_tmp34_, " -c", NULL);
 		_g_free0 (cmdline);
-		cmdline = _tmp36_;
+		cmdline = _tmp35_;
 	} else {
+		const gchar* _tmp36_;
 		const gchar* _tmp37_;
-		const gchar* _tmp38_;
-		_tmp37_ = vala_code_context_get_output (context);
-		_tmp38_ = _tmp37_;
-		if (_tmp38_ != NULL) {
+		_tmp36_ = vala_code_context_get_output (context);
+		_tmp37_ = _tmp36_;
+		if (_tmp37_ != NULL) {
 			gchar* output = NULL;
+			const gchar* _tmp38_;
 			const gchar* _tmp39_;
-			const gchar* _tmp40_;
-			gchar* _tmp41_;
+			gchar* _tmp40_;
+			gboolean _tmp41_ = FALSE;
 			gboolean _tmp42_ = FALSE;
-			gboolean _tmp43_ = FALSE;
+			const gchar* _tmp43_;
 			const gchar* _tmp44_;
-			const gchar* _tmp45_;
+			const gchar* _tmp54_;
 			const gchar* _tmp55_;
-			const gchar* _tmp56_;
+			gchar* _tmp56_;
 			gchar* _tmp57_;
 			gchar* _tmp58_;
 			gchar* _tmp59_;
 			gchar* _tmp60_;
-			gchar* _tmp61_;
-			_tmp39_ = vala_code_context_get_output (context);
-			_tmp40_ = _tmp39_;
-			_tmp41_ = g_strdup (_tmp40_);
-			output = _tmp41_;
-			_tmp44_ = vala_code_context_get_directory (context);
-			_tmp45_ = _tmp44_;
-			if (_tmp45_ != NULL) {
+			_tmp38_ = vala_code_context_get_output (context);
+			_tmp39_ = _tmp38_;
+			_tmp40_ = g_strdup (_tmp39_);
+			output = _tmp40_;
+			_tmp43_ = vala_code_context_get_directory (context);
+			_tmp44_ = _tmp43_;
+			if (_tmp44_ != NULL) {
+				const gchar* _tmp45_;
 				const gchar* _tmp46_;
-				const gchar* _tmp47_;
-				_tmp46_ = vala_code_context_get_directory (context);
-				_tmp47_ = _tmp46_;
-				_tmp43_ = g_strcmp0 (_tmp47_, "") != 0;
-			} else {
-				_tmp43_ = FALSE;
-			}
-			if (_tmp43_) {
-				const gchar* _tmp48_;
-				const gchar* _tmp49_;
-				_tmp48_ = vala_code_context_get_output (context);
-				_tmp49_ = _tmp48_;
-				_tmp42_ = !g_path_is_absolute (_tmp49_);
+				_tmp45_ = vala_code_context_get_directory (context);
+				_tmp46_ = _tmp45_;
+				_tmp42_ = g_strcmp0 (_tmp46_, "") != 0;
 			} else {
 				_tmp42_ = FALSE;
 			}
 			if (_tmp42_) {
+				const gchar* _tmp47_;
+				const gchar* _tmp48_;
+				_tmp47_ = vala_code_context_get_output (context);
+				_tmp48_ = _tmp47_;
+				_tmp41_ = !g_path_is_absolute (_tmp48_);
+			} else {
+				_tmp41_ = FALSE;
+			}
+			if (_tmp41_) {
+				const gchar* _tmp49_;
 				const gchar* _tmp50_;
 				const gchar* _tmp51_;
 				const gchar* _tmp52_;
-				const gchar* _tmp53_;
-				gchar* _tmp54_;
-				_tmp50_ = vala_code_context_get_directory (context);
-				_tmp51_ = _tmp50_;
-				_tmp52_ = vala_code_context_get_output (context);
-				_tmp53_ = _tmp52_;
-				_tmp54_ = g_strdup_printf ("%s%c%s", _tmp51_, (gint) G_DIR_SEPARATOR, _tmp53_);
+				gchar* _tmp53_;
+				_tmp49_ = vala_code_context_get_directory (context);
+				_tmp50_ = _tmp49_;
+				_tmp51_ = vala_code_context_get_output (context);
+				_tmp52_ = _tmp51_;
+				_tmp53_ = g_strdup_printf ("%s%c%s", _tmp50_, (gint) G_DIR_SEPARATOR, _tmp52_);
 				_g_free0 (output);
-				output = _tmp54_;
+				output = _tmp53_;
 			}
-			_tmp55_ = cmdline;
-			_tmp56_ = output;
-			_tmp57_ = g_shell_quote (_tmp56_);
-			_tmp58_ = _tmp57_;
-			_tmp59_ = g_strconcat (" -o ", _tmp58_, NULL);
-			_tmp60_ = _tmp59_;
-			_tmp61_ = g_strconcat (_tmp55_, _tmp60_, NULL);
+			_tmp54_ = cmdline;
+			_tmp55_ = output;
+			_tmp56_ = g_shell_quote (_tmp55_);
+			_tmp57_ = _tmp56_;
+			_tmp58_ = g_strconcat (" -o ", _tmp57_, NULL);
+			_tmp59_ = _tmp58_;
+			_tmp60_ = g_strconcat (_tmp54_, _tmp59_, NULL);
 			_g_free0 (cmdline);
-			cmdline = _tmp61_;
-			_g_free0 (_tmp60_);
-			_g_free0 (_tmp58_);
+			cmdline = _tmp60_;
+			_g_free0 (_tmp59_);
+			_g_free0 (_tmp57_);
 			_g_free0 (output);
 		}
 	}
-	_tmp62_ = vala_code_context_get_source_files (context);
+	_tmp61_ = vala_code_context_get_source_files (context);
+	_tmp62_ = _vala_iterable_ref0 (_tmp61_);
 	source_files = _tmp62_;
 	{
 		ValaList* _file_list = NULL;
@@ -343,128 +338,121 @@ vala_ccode_compiler_compile (ValaCCodeCompiler* self,
 		while (TRUE) {
 			gint _tmp68_;
 			gint _tmp69_;
-			gint _tmp70_;
 			ValaSourceFile* file = NULL;
-			ValaList* _tmp71_;
-			gint _tmp72_;
-			gpointer _tmp73_;
-			ValaSourceFile* _tmp74_;
-			ValaSourceFileType _tmp75_;
-			ValaSourceFileType _tmp76_;
+			ValaList* _tmp70_;
+			gpointer _tmp71_;
+			ValaSourceFile* _tmp72_;
+			ValaSourceFileType _tmp73_;
+			ValaSourceFileType _tmp74_;
+			_file_index = _file_index + 1;
 			_tmp68_ = _file_index;
-			_file_index = _tmp68_ + 1;
-			_tmp69_ = _file_index;
-			_tmp70_ = _file_size;
-			if (!(_tmp69_ < _tmp70_)) {
+			_tmp69_ = _file_size;
+			if (!(_tmp68_ < _tmp69_)) {
 				break;
 			}
-			_tmp71_ = _file_list;
-			_tmp72_ = _file_index;
-			_tmp73_ = vala_list_get (_tmp71_, _tmp72_);
-			file = (ValaSourceFile*) _tmp73_;
-			_tmp74_ = file;
-			_tmp75_ = vala_source_file_get_file_type (_tmp74_);
-			_tmp76_ = _tmp75_;
-			if (_tmp76_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
-				const gchar* _tmp77_;
-				ValaSourceFile* _tmp78_;
+			_tmp70_ = _file_list;
+			_tmp71_ = vala_list_get (_tmp70_, _file_index);
+			file = (ValaSourceFile*) _tmp71_;
+			_tmp72_ = file;
+			_tmp73_ = vala_source_file_get_file_type (_tmp72_);
+			_tmp74_ = _tmp73_;
+			if (_tmp74_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
+				const gchar* _tmp75_;
+				ValaSourceFile* _tmp76_;
+				gchar* _tmp77_;
+				gchar* _tmp78_;
 				gchar* _tmp79_;
 				gchar* _tmp80_;
 				gchar* _tmp81_;
 				gchar* _tmp82_;
 				gchar* _tmp83_;
-				gchar* _tmp84_;
-				gchar* _tmp85_;
-				_tmp77_ = cmdline;
-				_tmp78_ = file;
-				_tmp79_ = vala_source_file_get_csource_filename (_tmp78_);
+				_tmp75_ = cmdline;
+				_tmp76_ = file;
+				_tmp77_ = vala_source_file_get_csource_filename (_tmp76_);
+				_tmp78_ = _tmp77_;
+				_tmp79_ = g_shell_quote (_tmp78_);
 				_tmp80_ = _tmp79_;
-				_tmp81_ = g_shell_quote (_tmp80_);
+				_tmp81_ = g_strconcat (" ", _tmp80_, NULL);
 				_tmp82_ = _tmp81_;
-				_tmp83_ = g_strconcat (" ", _tmp82_, NULL);
-				_tmp84_ = _tmp83_;
-				_tmp85_ = g_strconcat (_tmp77_, _tmp84_, NULL);
+				_tmp83_ = g_strconcat (_tmp75_, _tmp82_, NULL);
 				_g_free0 (cmdline);
-				cmdline = _tmp85_;
-				_g_free0 (_tmp84_);
+				cmdline = _tmp83_;
 				_g_free0 (_tmp82_);
 				_g_free0 (_tmp80_);
+				_g_free0 (_tmp78_);
 			}
 			_vala_source_file_unref0 (file);
 		}
 		_vala_iterable_unref0 (_file_list);
 	}
-	_tmp86_ = vala_code_context_get_c_source_files (context);
-	c_source_files = _tmp86_;
+	_tmp84_ = vala_code_context_get_c_source_files (context);
+	_tmp85_ = _vala_iterable_ref0 (_tmp84_);
+	c_source_files = _tmp85_;
 	{
 		ValaList* _file_list = NULL;
+		ValaList* _tmp86_;
 		ValaList* _tmp87_;
-		ValaList* _tmp88_;
 		gint _file_size = 0;
-		ValaList* _tmp89_;
+		ValaList* _tmp88_;
+		gint _tmp89_;
 		gint _tmp90_;
-		gint _tmp91_;
 		gint _file_index = 0;
-		_tmp87_ = c_source_files;
-		_tmp88_ = _vala_iterable_ref0 (_tmp87_);
-		_file_list = _tmp88_;
-		_tmp89_ = _file_list;
-		_tmp90_ = vala_collection_get_size ((ValaCollection*) _tmp89_);
-		_tmp91_ = _tmp90_;
-		_file_size = _tmp91_;
+		_tmp86_ = c_source_files;
+		_tmp87_ = _vala_iterable_ref0 (_tmp86_);
+		_file_list = _tmp87_;
+		_tmp88_ = _file_list;
+		_tmp89_ = vala_collection_get_size ((ValaCollection*) _tmp88_);
+		_tmp90_ = _tmp89_;
+		_file_size = _tmp90_;
 		_file_index = -1;
 		while (TRUE) {
+			gint _tmp91_;
 			gint _tmp92_;
-			gint _tmp93_;
-			gint _tmp94_;
 			gchar* file = NULL;
-			ValaList* _tmp95_;
-			gint _tmp96_;
-			gpointer _tmp97_;
-			const gchar* _tmp98_;
-			const gchar* _tmp99_;
+			ValaList* _tmp93_;
+			gpointer _tmp94_;
+			const gchar* _tmp95_;
+			const gchar* _tmp96_;
+			gchar* _tmp97_;
+			gchar* _tmp98_;
+			gchar* _tmp99_;
 			gchar* _tmp100_;
 			gchar* _tmp101_;
-			gchar* _tmp102_;
-			gchar* _tmp103_;
-			gchar* _tmp104_;
-			_tmp92_ = _file_index;
-			_file_index = _tmp92_ + 1;
-			_tmp93_ = _file_index;
-			_tmp94_ = _file_size;
-			if (!(_tmp93_ < _tmp94_)) {
+			_file_index = _file_index + 1;
+			_tmp91_ = _file_index;
+			_tmp92_ = _file_size;
+			if (!(_tmp91_ < _tmp92_)) {
 				break;
 			}
-			_tmp95_ = _file_list;
-			_tmp96_ = _file_index;
-			_tmp97_ = vala_list_get (_tmp95_, _tmp96_);
-			file = (gchar*) _tmp97_;
-			_tmp98_ = cmdline;
-			_tmp99_ = file;
-			_tmp100_ = g_shell_quote (_tmp99_);
-			_tmp101_ = _tmp100_;
-			_tmp102_ = g_strconcat (" ", _tmp101_, NULL);
-			_tmp103_ = _tmp102_;
-			_tmp104_ = g_strconcat (_tmp98_, _tmp103_, NULL);
+			_tmp93_ = _file_list;
+			_tmp94_ = vala_list_get (_tmp93_, _file_index);
+			file = (gchar*) _tmp94_;
+			_tmp95_ = cmdline;
+			_tmp96_ = file;
+			_tmp97_ = g_shell_quote (_tmp96_);
+			_tmp98_ = _tmp97_;
+			_tmp99_ = g_strconcat (" ", _tmp98_, NULL);
+			_tmp100_ = _tmp99_;
+			_tmp101_ = g_strconcat (_tmp95_, _tmp100_, NULL);
 			_g_free0 (cmdline);
-			cmdline = _tmp104_;
-			_g_free0 (_tmp103_);
-			_g_free0 (_tmp101_);
+			cmdline = _tmp101_;
+			_g_free0 (_tmp100_);
+			_g_free0 (_tmp98_);
 			_g_free0 (file);
 		}
 		_vala_iterable_unref0 (_file_list);
 	}
-	_tmp105_ = cmdline;
-	_tmp106_ = pkgflags;
-	_tmp107_ = string_strip (_tmp106_);
-	_tmp108_ = _tmp107_;
-	_tmp109_ = g_strconcat (" ", _tmp108_, NULL);
-	_tmp110_ = _tmp109_;
-	_tmp111_ = g_strconcat (_tmp105_, _tmp110_, NULL);
+	_tmp102_ = cmdline;
+	_tmp103_ = pkgflags;
+	_tmp104_ = string_strip (_tmp103_);
+	_tmp105_ = _tmp104_;
+	_tmp106_ = g_strconcat (" ", _tmp105_, NULL);
+	_tmp107_ = _tmp106_;
+	_tmp108_ = g_strconcat (_tmp102_, _tmp107_, NULL);
 	_g_free0 (cmdline);
-	cmdline = _tmp111_;
-	_g_free0 (_tmp110_);
-	_g_free0 (_tmp108_);
+	cmdline = _tmp108_;
+	_g_free0 (_tmp107_);
+	_g_free0 (_tmp105_);
 	{
 		gchar** cc_option_collection = NULL;
 		gint cc_option_collection_length1 = 0;
@@ -472,161 +460,151 @@ vala_ccode_compiler_compile (ValaCCodeCompiler* self,
 		gint cc_option_it = 0;
 		cc_option_collection = cc_options;
 		cc_option_collection_length1 = cc_options_length1;
-		for (cc_option_it = 0; cc_option_it < cc_options_length1; cc_option_it = cc_option_it + 1) {
-			gchar* _tmp112_;
+		for (cc_option_it = 0; cc_option_it < cc_option_collection_length1; cc_option_it = cc_option_it + 1) {
+			gchar* _tmp109_;
 			gchar* cc_option = NULL;
-			_tmp112_ = g_strdup (cc_option_collection[cc_option_it]);
-			cc_option = _tmp112_;
+			_tmp109_ = g_strdup (cc_option_collection[cc_option_it]);
+			cc_option = _tmp109_;
 			{
-				const gchar* _tmp113_;
-				const gchar* _tmp114_;
+				const gchar* _tmp110_;
+				const gchar* _tmp111_;
+				gchar* _tmp112_;
+				gchar* _tmp113_;
+				gchar* _tmp114_;
 				gchar* _tmp115_;
 				gchar* _tmp116_;
-				gchar* _tmp117_;
-				gchar* _tmp118_;
-				gchar* _tmp119_;
-				_tmp113_ = cmdline;
-				_tmp114_ = cc_option;
-				_tmp115_ = g_shell_quote (_tmp114_);
-				_tmp116_ = _tmp115_;
-				_tmp117_ = g_strconcat (" ", _tmp116_, NULL);
-				_tmp118_ = _tmp117_;
-				_tmp119_ = g_strconcat (_tmp113_, _tmp118_, NULL);
+				_tmp110_ = cmdline;
+				_tmp111_ = cc_option;
+				_tmp112_ = g_shell_quote (_tmp111_);
+				_tmp113_ = _tmp112_;
+				_tmp114_ = g_strconcat (" ", _tmp113_, NULL);
+				_tmp115_ = _tmp114_;
+				_tmp116_ = g_strconcat (_tmp110_, _tmp115_, NULL);
 				_g_free0 (cmdline);
-				cmdline = _tmp119_;
-				_g_free0 (_tmp118_);
-				_g_free0 (_tmp116_);
+				cmdline = _tmp116_;
+				_g_free0 (_tmp115_);
+				_g_free0 (_tmp113_);
 				_g_free0 (cc_option);
 			}
 		}
 	}
-	_tmp120_ = vala_code_context_get_verbose_mode (context);
-	_tmp121_ = _tmp120_;
-	if (_tmp121_) {
-		FILE* _tmp122_;
-		const gchar* _tmp123_;
-		_tmp122_ = stdout;
-		_tmp123_ = cmdline;
-		fprintf (_tmp122_, "%s\n", _tmp123_);
+	_tmp117_ = vala_code_context_get_verbose_mode (context);
+	_tmp118_ = _tmp117_;
+	if (_tmp118_) {
+		FILE* _tmp119_;
+		const gchar* _tmp120_;
+		_tmp119_ = stdout;
+		_tmp120_ = cmdline;
+		fprintf (_tmp119_, "%s\n", _tmp120_);
 	}
 	{
 		gint exit_status = 0;
-		const gchar* _tmp124_;
-		gint _tmp125_ = 0;
-		gint _tmp126_;
-		_tmp124_ = cmdline;
-		g_spawn_command_line_sync (_tmp124_, NULL, NULL, &_tmp125_, &_inner_error_);
-		exit_status = _tmp125_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_SPAWN_ERROR) {
-				goto __catch3_g_spawn_error;
+		const gchar* _tmp121_;
+		gint _tmp122_ = 0;
+		_tmp121_ = cmdline;
+		g_spawn_command_line_sync (_tmp121_, NULL, NULL, &_tmp122_, &_inner_error0_);
+		exit_status = _tmp122_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_SPAWN_ERROR) {
+				goto __catch0_g_spawn_error;
 			}
 			_vala_iterable_unref0 (c_source_files);
 			_vala_iterable_unref0 (source_files);
 			_g_free0 (cmdline);
 			_g_free0 (pkgflags);
 			_g_free0 (pc);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
-		_tmp126_ = exit_status;
-		if (_tmp126_ != 0) {
-			gint _tmp127_;
-			gchar* _tmp128_;
-			gchar* _tmp129_;
-			_tmp127_ = exit_status;
-			_tmp128_ = g_strdup_printf ("cc exited with status %d", _tmp127_);
-			_tmp129_ = _tmp128_;
-			vala_report_error (NULL, _tmp129_);
-			_g_free0 (_tmp129_);
+		if (exit_status != 0) {
+			gchar* _tmp123_;
+			gchar* _tmp124_;
+			_tmp123_ = g_strdup_printf ("cc exited with status %d", exit_status);
+			_tmp124_ = _tmp123_;
+			vala_report_error (NULL, _tmp124_);
+			_g_free0 (_tmp124_);
 		}
 	}
-	goto __finally3;
-	__catch3_g_spawn_error:
+	goto __finally0;
+	__catch0_g_spawn_error:
 	{
 		GError* e = NULL;
-		GError* _tmp130_;
-		const gchar* _tmp131_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp130_ = e;
-		_tmp131_ = _tmp130_->message;
-		vala_report_error (NULL, _tmp131_);
+		GError* _tmp125_;
+		const gchar* _tmp126_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp125_ = e;
+		_tmp126_ = _tmp125_->message;
+		vala_report_error (NULL, _tmp126_);
 		_g_error_free0 (e);
 	}
-	__finally3:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		_vala_iterable_unref0 (c_source_files);
 		_vala_iterable_unref0 (source_files);
 		_g_free0 (cmdline);
 		_g_free0 (pkgflags);
 		_g_free0 (pc);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
-	{
-		ValaList* _file_list = NULL;
-		ValaList* _tmp132_;
-		ValaList* _tmp133_;
-		gint _file_size = 0;
-		ValaList* _tmp134_;
-		gint _tmp135_;
-		gint _tmp136_;
-		gint _file_index = 0;
-		_tmp132_ = source_files;
-		_tmp133_ = _vala_iterable_ref0 (_tmp132_);
-		_file_list = _tmp133_;
-		_tmp134_ = _file_list;
-		_tmp135_ = vala_collection_get_size ((ValaCollection*) _tmp134_);
-		_tmp136_ = _tmp135_;
-		_file_size = _tmp136_;
-		_file_index = -1;
-		while (TRUE) {
-			gint _tmp137_;
-			gint _tmp138_;
-			gint _tmp139_;
-			ValaSourceFile* file = NULL;
-			ValaList* _tmp140_;
-			gint _tmp141_;
-			gpointer _tmp142_;
-			ValaSourceFile* _tmp143_;
-			ValaSourceFileType _tmp144_;
-			ValaSourceFileType _tmp145_;
-			_tmp137_ = _file_index;
-			_file_index = _tmp137_ + 1;
-			_tmp138_ = _file_index;
-			_tmp139_ = _file_size;
-			if (!(_tmp138_ < _tmp139_)) {
-				break;
-			}
-			_tmp140_ = _file_list;
-			_tmp141_ = _file_index;
-			_tmp142_ = vala_list_get (_tmp140_, _tmp141_);
-			file = (ValaSourceFile*) _tmp142_;
-			_tmp143_ = file;
-			_tmp144_ = vala_source_file_get_file_type (_tmp143_);
-			_tmp145_ = _tmp144_;
-			if (_tmp145_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
-				gboolean _tmp146_;
-				gboolean _tmp147_;
-				_tmp146_ = vala_code_context_get_save_csources (context);
-				_tmp147_ = _tmp146_;
-				if (!_tmp147_) {
-					ValaSourceFile* _tmp148_;
-					gchar* _tmp149_;
-					gchar* _tmp150_;
-					_tmp148_ = file;
-					_tmp149_ = vala_source_file_get_csource_filename (_tmp148_);
-					_tmp150_ = _tmp149_;
-					g_unlink (_tmp150_);
-					_g_free0 (_tmp150_);
+	_tmp127_ = vala_code_context_get_save_csources (context);
+	_tmp128_ = _tmp127_;
+	if (!_tmp128_) {
+		{
+			ValaList* _file_list = NULL;
+			ValaList* _tmp129_;
+			ValaList* _tmp130_;
+			gint _file_size = 0;
+			ValaList* _tmp131_;
+			gint _tmp132_;
+			gint _tmp133_;
+			gint _file_index = 0;
+			_tmp129_ = source_files;
+			_tmp130_ = _vala_iterable_ref0 (_tmp129_);
+			_file_list = _tmp130_;
+			_tmp131_ = _file_list;
+			_tmp132_ = vala_collection_get_size ((ValaCollection*) _tmp131_);
+			_tmp133_ = _tmp132_;
+			_file_size = _tmp133_;
+			_file_index = -1;
+			while (TRUE) {
+				gint _tmp134_;
+				gint _tmp135_;
+				ValaSourceFile* file = NULL;
+				ValaList* _tmp136_;
+				gpointer _tmp137_;
+				ValaSourceFile* _tmp138_;
+				ValaSourceFileType _tmp139_;
+				ValaSourceFileType _tmp140_;
+				_file_index = _file_index + 1;
+				_tmp134_ = _file_index;
+				_tmp135_ = _file_size;
+				if (!(_tmp134_ < _tmp135_)) {
+					break;
 				}
+				_tmp136_ = _file_list;
+				_tmp137_ = vala_list_get (_tmp136_, _file_index);
+				file = (ValaSourceFile*) _tmp137_;
+				_tmp138_ = file;
+				_tmp139_ = vala_source_file_get_file_type (_tmp138_);
+				_tmp140_ = _tmp139_;
+				if (_tmp140_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
+					ValaSourceFile* _tmp141_;
+					gchar* _tmp142_;
+					gchar* _tmp143_;
+					_tmp141_ = file;
+					_tmp142_ = vala_source_file_get_csource_filename (_tmp141_);
+					_tmp143_ = _tmp142_;
+					g_unlink (_tmp143_);
+					_g_free0 (_tmp143_);
+				}
+				_vala_source_file_unref0 (file);
 			}
-			_vala_source_file_unref0 (file);
+			_vala_iterable_unref0 (_file_list);
 		}
-		_vala_iterable_unref0 (_file_list);
 	}
 	_vala_iterable_unref0 (c_source_files);
 	_vala_iterable_unref0 (source_files);
@@ -635,13 +613,11 @@ vala_ccode_compiler_compile (ValaCCodeCompiler* self,
 	_g_free0 (pc);
 }
 
-
 static void
 vala_value_ccode_compiler_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_ccode_compiler_free_value (GValue* value)
@@ -650,7 +626,6 @@ vala_value_ccode_compiler_free_value (GValue* value)
 		vala_ccode_compiler_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_ccode_compiler_copy_value (const GValue* src_value,
@@ -663,13 +638,11 @@ vala_value_ccode_compiler_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_ccode_compiler_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_ccode_compiler_collect_value (GValue* value,
@@ -692,7 +665,6 @@ vala_value_ccode_compiler_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_ccode_compiler_lcopy_value (const GValue* value,
                                        guint n_collect_values,
@@ -714,7 +686,6 @@ vala_value_ccode_compiler_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_ccode_compiler (const gchar* name,
                                 const gchar* nick,
@@ -729,14 +700,12 @@ vala_param_spec_ccode_compiler (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_ccode_compiler (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_CCODE_COMPILER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_ccode_compiler (GValue* value,
@@ -758,7 +727,6 @@ vala_value_set_ccode_compiler (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_ccode_compiler (GValue* value,
                                 gpointer v_object)
@@ -778,21 +746,20 @@ vala_value_take_ccode_compiler (GValue* value,
 	}
 }
 
-
 static void
-vala_ccode_compiler_class_init (ValaCCodeCompilerClass * klass)
+vala_ccode_compiler_class_init (ValaCCodeCompilerClass * klass,
+                                gpointer klass_data)
 {
 	vala_ccode_compiler_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeCompilerClass *) klass)->finalize = vala_ccode_compiler_finalize;
 }
 
-
 static void
-vala_ccode_compiler_instance_init (ValaCCodeCompiler * self)
+vala_ccode_compiler_instance_init (ValaCCodeCompiler * self,
+                                   gpointer klass)
 {
 	self->ref_count = 1;
 }
-
 
 static void
 vala_ccode_compiler_finalize (ValaCCodeCompiler * obj)
@@ -802,25 +769,31 @@ vala_ccode_compiler_finalize (ValaCCodeCompiler * obj)
 	g_signal_handlers_destroy (self);
 }
 
-
 /**
  * Interface to the C compiler.
  */
+static GType
+vala_ccode_compiler_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_ccode_compiler_init, vala_value_ccode_compiler_free_value, vala_value_ccode_compiler_copy_value, vala_value_ccode_compiler_peek_pointer, "p", vala_value_ccode_compiler_collect_value, "p", vala_value_ccode_compiler_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeCompilerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_compiler_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeCompiler), 0, (GInstanceInitFunc) vala_ccode_compiler_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_ccode_compiler_type_id;
+	vala_ccode_compiler_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaCCodeCompiler", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return vala_ccode_compiler_type_id;
+}
+
 GType
 vala_ccode_compiler_get_type (void)
 {
 	static volatile gsize vala_ccode_compiler_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_compiler_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_ccode_compiler_init, vala_value_ccode_compiler_free_value, vala_value_ccode_compiler_copy_value, vala_value_ccode_compiler_peek_pointer, "p", vala_value_ccode_compiler_collect_value, "p", vala_value_ccode_compiler_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeCompilerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_compiler_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeCompiler), 0, (GInstanceInitFunc) vala_ccode_compiler_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_ccode_compiler_type_id;
-		vala_ccode_compiler_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaCCodeCompiler", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		vala_ccode_compiler_type_id = vala_ccode_compiler_get_type_once ();
 		g_once_init_leave (&vala_ccode_compiler_type_id__volatile, vala_ccode_compiler_type_id);
 	}
 	return vala_ccode_compiler_type_id__volatile;
 }
-
 
 gpointer
 vala_ccode_compiler_ref (gpointer instance)
@@ -830,7 +803,6 @@ vala_ccode_compiler_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_ccode_compiler_unref (gpointer instance)
@@ -842,6 +814,4 @@ vala_ccode_compiler_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

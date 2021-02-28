@@ -1,10 +1,19 @@
 NULL =
 
+check: $(top_builddir)/compiler/valac
+	echo "void main () {}" > test.vala; \
+	for vapi in `ls *.vapi | sed -e "s/\.vapi//g"`; do \
+		echo "Checking $$vapi..."; \
+		$(top_builddir)/compiler/valac -C --enable-deprecated --pkg=$$vapi --vapidir=. test.vala || exit 1; \
+	done; \
+	rm -f test.vala test.c
+
 vapidir = $(pkgdatadir)/vapi
 
 dist_vapi_DATA = \
 	alsa.vapi \
 	alsa.deps \
+	atk.deps \
 	atk.vapi \
 	atspi-2.vapi \
 	atspi-2.deps \
@@ -13,6 +22,8 @@ dist_vapi_DATA = \
 	avahi-gobject.vapi \
 	bzlib.vapi \
 	cairo.vapi \
+	cairo-gobject.deps \
+	cairo-gobject.vapi \
 	cairo-xcb.deps \
 	cairo-xcb.vapi \
 	ccss-1.vapi \
@@ -60,11 +71,13 @@ dist_vapi_DATA = \
 	gdl-3.0.vapi \
 	gedit-2.20.vapi \
 	gedit-2.20.deps \
+	gio-2.0.deps \
 	gio-2.0.vapi \
 	gio-unix-2.0.deps \
 	gio-unix-2.0.vapi \
 	gio-windows-2.0.deps \
 	gio-windows-2.0.vapi \
+	gmodule-2.0.deps \
 	gmodule-2.0.vapi \
 	gnet-2.0.deps \
 	gnet-2.0.vapi \
@@ -74,13 +87,20 @@ dist_vapi_DATA = \
 	gnome-desktop-3.0.vapi \
 	gnome-vfs-2.0.vapi \
 	gnutls.vapi \
+	gobject-2.0.deps \
 	gobject-2.0.vapi \
+	gobject-introspection-1.0.deps \
 	gobject-introspection-1.0.vapi \
 	goocanvas.deps \
 	goocanvas.vapi \
+	goocanvas-2.0.deps \
+	goocanvas-2.0.vapi \
 	graphene-1.0.deps \
 	graphene-1.0.vapi \
+	graphene-gobject-1.0.deps \
+	graphene-gobject-1.0.vapi \
 	gsl.vapi \
+	gstreamer-1.0.deps \
 	gstreamer-1.0.vapi \
 	gstreamer-allocators-1.0.vapi \
 	gstreamer-allocators-1.0.deps \
@@ -126,14 +146,14 @@ dist_vapi_DATA = \
 	gtk+-2.0.vapi \
 	gtk+-3.0.deps \
 	gtk+-3.0.vapi \
-	gtk+-4.0.deps \
-	gtk+-4.0.vapi \
 	gtk+-unix-print-2.0.deps \
 	gtk+-unix-print-2.0.vapi \
 	gtk+-unix-print-3.0.deps \
 	gtk+-unix-print-3.0.vapi \
-	gtk+-unix-print-4.0.deps \
-	gtk+-unix-print-4.0.vapi \
+	gtk4.deps \
+	gtk4.vapi \
+	gtk4-unix-print.deps \
+	gtk4-unix-print.vapi \
 	gtkmozembed.deps \
 	gtkmozembed.vapi \
 	gtksourceview-2.0.deps \
@@ -142,6 +162,8 @@ dist_vapi_DATA = \
 	gudev-1.0.vapi \
 	hal.deps \
 	hal.vapi \
+	harfbuzz-gobject.deps \
+	harfbuzz-gobject.vapi \
 	hildon-1.deps \
 	hildon-1.vapi \
 	hildon-fm-2.deps \
@@ -251,10 +273,6 @@ dist_vapi_DATA = \
 	unique-1.0.deps \
 	unique-1.0.vapi \
 	v4l2.vapi \
-	vte.deps \
-	vte.vapi \
-	vte-2.90.deps \
-	vte-2.90.vapi \
 	webkit-1.0.deps \
 	webkit-1.0.vapi \
 	webkit2gtk-4.0.vapi \
@@ -280,7 +298,6 @@ GIDL_BINDINGS = \
 	gconf-2.0 \
 	gdk-2.0 \
 	gdk-x11-2.0 \
-	gdk-x11-3.0 \
 	gdl-1.0 \
 	gio-unix-2.0 \
 	gnome-desktop-2.0 \
@@ -289,7 +306,7 @@ GIDL_BINDINGS = \
 	gtk+-2.0 \
 	gtk+-unix-print-2.0 \
 	gtk+-unix-print-3.0 \
-	gtk+-unix-print-4.0 \
+	gtk4-unix-print \
 	gtksourceview-2.0 \
 	hildon-1 \
 	hildon-fm-2 \
@@ -304,7 +321,6 @@ GIDL_BINDINGS = \
 	loudmouth-1.0 \
 	purple \
 	unique-1.0 \
-	vte \
 	webkit-1.0 \
 	$(NULL)
 
@@ -349,12 +365,15 @@ GIR_BINDINGS = \
 	gdl-3.0 \
 	geocode-glib-1.0 \
 	gio-2.0 \
+	gmodule-2.0 \
 	gnome-desktop-3.0 \
 	gobject-introspection-1.0 \
-	graphene-1.0 \
+	goocanvas-2.0 \
+	graphene-gobject-1.0 \
 	gtk+-3.0 \
-	gtk+-4.0 \
+	gtk4 \
 	gudev-1.0 \
+	harfbuzz-gobject \
 	javascriptcoregtk-4.0 \
 	json-glib-1.0 \
 	libgeoclue-2.0 \
@@ -375,7 +394,6 @@ GIR_BINDINGS = \
 	rest-0.7 \
 	rest-extras-0.7 \
 	udisks2 \
-	vte-2.90 \
 	webkit2gtk-4.0 \
 	webkit2gtk-web-extension-4.0 \
 	$(GSTREAMER_1_0_BINDINGS) \
@@ -404,7 +422,7 @@ atk:
 	$(GENVAPI) --library $(srcdir)/atk --metadatadir $(METADATADIR) $(METADATADIR)/Atk-1.0-custom.vala $(GIRDIR)/Atk-1.0.gir
 
 atspi-2:
-	$(GENVAPI) --library $(srcdir)/atspi-2 --metadatadir $(METADATADIR) $(METADATADIR)/Atspi-2.0-custom.vala $(GIRDIR)/Atspi-2.0.gir
+	$(GENVAPI) --library $(srcdir)/atspi-2 --metadatadir $(METADATADIR) $(GIRDIR)/Atspi-2.0.gir
 
 clutter-1.0:
 	$(GENVAPI) --library $(srcdir)/clutter-1.0 --metadatadir $(METADATADIR) $(METADATADIR)/Clutter-1.0-custom.vala --pkg atk --pkg cairo --pkg pango --pkg cogl-1.0 --pkg cogl-pango-1.0 --pkg json-glib-1.0 $(GIRDIR)/Clutter-1.0.gir
@@ -472,6 +490,9 @@ gio-2.0:
 gio-unix-2.0:
 	$(GENVAPI) --library $(srcdir)/gio-unix-2.0 $(PACKAGESDIR)/gio-unix-2.0/gio-unix-2.0-custom.vala $(PACKAGESDIR)/gio-unix-2.0/gio-unix-2.0.gi
 
+gmodule-2.0:
+	$(GENVAPI) --library $(srcdir)/gmodule-2.0 --metadatadir $(METADATADIR) $(METADATADIR)/GModule-2.0-custom.vala $(GIRDIR)/GModule-2.0.gir
+
 gnome-desktop-2.0:
 	$(GENVAPI) --library $(srcdir)/gnome-desktop-2.0 $(PACKAGESDIR)/gnome-desktop-2.0/gnome-desktop-2.0.gi
 
@@ -487,8 +508,11 @@ gobject-introspection-1.0:
 goocanvas:
 	$(GENVAPI) --library $(srcdir)/goocanvas $(PACKAGESDIR)/goocanvas/goocanvas-custom.vala $(PACKAGESDIR)/goocanvas/goocanvas.gi
 
-graphene-1.0:
-	$(GENVAPI) --library $(srcdir)/graphene-1.0 --pkg gobject-2.0 --metadatadir $(METADATADIR) $(GIRDIR)/Graphene-1.0.gir
+goocanvas-2.0:
+	$(GENVAPI) --library $(srcdir)/goocanvas-2.0 --pkg cairo --pkg gtk+-3.0 --metadatadir $(METADATADIR) $(GIRDIR)/GooCanvas-2.0.gir
+
+graphene-gobject-1.0:
+	$(GENVAPI) --library $(srcdir)/graphene-gobject-1.0 --pkg gobject-2.0 --metadatadir $(METADATADIR) $(GIRDIR)/Graphene-1.0.gir
 
 gstreamer-1.0:
 	$(GENVAPI) --library $(srcdir)/gstreamer-1.0 --metadatadir $(METADATADIR) $(METADATADIR)/Gst-1.0-custom.vala $(GIRDIR)/Gst-1.0.gir
@@ -500,7 +524,7 @@ gstreamer-app-1.0:
 	$(GENVAPI) --library $(srcdir)/gstreamer-app-1.0 --pkg gstreamer-base-1.0 --metadatadir $(METADATADIR) $(GIRDIR)/GstApp-1.0.gir
 
 gstreamer-audio-1.0:
-	$(GENVAPI) --library $(srcdir)/gstreamer-audio-1.0 --pkg gstreamer-base-1.0 --metadatadir $(METADATADIR) $(GIRDIR)/GstAudio-1.0.gir
+	$(GENVAPI) --library $(srcdir)/gstreamer-audio-1.0 --pkg gstreamer-base-1.0 --metadatadir $(METADATADIR) $(METADATADIR)/GstAudio-1.0-custom.vala $(GIRDIR)/GstAudio-1.0.gir
 
 gstreamer-bad-allocators-1.0:
 	$(GENVAPI) --library $(srcdir)/gstreamer-bad-allocators-1.0 --pkg gstreamer-1.0 --metadatadir $(METADATADIR) $(GIRDIR)/GstBadAllocators-1.0.gir
@@ -559,9 +583,10 @@ gtk+-2.0:
 gtk+-3.0:
 	$(GENVAPI) --library $(srcdir)/gtk+-3.0 --pkg atk --pkg gdk-3.0 --pkg gdk-pixbuf-2.0 --pkg gio-2.0 --pkg pango --pkg cairo --metadatadir $(METADATADIR) $(METADATADIR)/Gtk-3.0-custom.vala $(GIRDIR)/Gtk-3.0.gir
 
-gtk+-4.0:
-	$(GENVAPI) --library $(srcdir)/gtk+-4.0 --pkg atk --pkg cairo --pkg gdk-pixbuf-2.0 --pkg gio-2.0 --pkg graphene-1.0 --pkg pango --pkg x11 \
+gtk4:
+	$(GENVAPI) --library $(srcdir)/gtk4 --pkg cairo --pkg gdk-pixbuf-2.0 --pkg gio-2.0 --pkg graphene-gobject-1.0 --pkg pango --pkg x11 \
 		--metadatadir $(METADATADIR) \
+		$(METADATADIR)/GdkWayland-4.0-custom.vala $(GIRDIR)/GdkWayland-4.0.gir \
 		$(METADATADIR)/GdkX11-4.0-custom.vala $(GIRDIR)/GdkX11-4.0.gir \
 		$(METADATADIR)/Gdk-4.0-custom.vala $(GIRDIR)/Gdk-4.0.gir \
 		$(METADATADIR)/Gsk-4.0-custom.vala $(GIRDIR)/Gsk-4.0.gir \
@@ -573,14 +598,17 @@ gtk+-unix-print-2.0:
 gtk+-unix-print-3.0:
 	$(GENVAPI) --library $(srcdir)/gtk+-unix-print-3.0 $(PACKAGESDIR)/gtk+-unix-print-3.0/gtk+-unix-print-3.0-custom.vala $(PACKAGESDIR)/gtk+-unix-print-3.0/gtk+-unix-print-3.0.gi
 
-gtk+-unix-print-4.0:
-	$(GENVAPI) --library $(srcdir)/gtk+-unix-print-4.0 $(PACKAGESDIR)/gtk+-unix-print-4.0/gtk+-unix-print-4.0-custom.vala $(PACKAGESDIR)/gtk+-unix-print-4.0/gtk+-unix-print-4.0.gi
+gtk4-unix-print:
+	$(GENVAPI) --library $(srcdir)/gtk4-unix-print $(PACKAGESDIR)/gtk4-unix-print/gtk4-unix-print-custom.vala $(PACKAGESDIR)/gtk4-unix-print/gtk4-unix-print.gi
 
 gtksourceview-2.0:
 	$(GENVAPI) --library $(srcdir)/gtksourceview-2.0 $(PACKAGESDIR)/gtksourceview-2.0/gtksourceview-2.0.gi
 
 gudev-1.0:
 	$(GENVAPI) --library $(srcdir)/gudev-1.0 --metadatadir $(METADATADIR) $(METADATADIR)/GUdev-1.0-custom.vala $(GIRDIR)/GUdev-1.0.gir
+
+harfbuzz-gobject:
+	$(GENVAPI) --library $(srcdir)/harfbuzz-gobject --metadatadir $(METADATADIR) $(GIRDIR)/HarfBuzz-0.0.gir
 
 hildon-1:
 	$(GENVAPI) --library $(srcdir)/hildon-1 $(PACKAGESDIR)/hildon-1/hildon-1-custom.vala $(PACKAGESDIR)/hildon-1/hildon-1.gi
@@ -652,7 +680,7 @@ packagekit-glib2:
 	$(GENVAPI) --library $(srcdir)/packagekit-glib2 --metadatadir $(METADATADIR) --pkg gio-2.0 $(GIRDIR)/PackageKitGlib-1.0.gir
 
 pango:
-	$(GENVAPI) --library $(srcdir)/pango --metadatadir $(METADATADIR) $(METADATADIR)/Pango-1.0-custom.vala $(GIRDIR)/Pango-1.0.gir
+	$(GENVAPI) --library $(srcdir)/pango --pkg cairo --pkg harfbuzz-gobject --metadatadir $(METADATADIR) $(METADATADIR)/Pango-1.0-custom.vala $(GIRDIR)/Pango-1.0.gir
 
 pangocairo:
 	$(GENVAPI) --library $(srcdir)/pangocairo --metadatadir $(METADATADIR) $(GIRDIR)/PangoCairo-1.0.gir
@@ -680,12 +708,6 @@ udisks2:
 
 unique-1.0:
 	$(GENVAPI) --library $(srcdir)/unique-1.0 $(PACKAGESDIR)/unique-1.0/unique-1.0.gi
-
-vte:
-	$(GENVAPI) --library $(srcdir)/vte $(PACKAGESDIR)/vte/vte.gi
-
-vte-2.90:
-	$(GENVAPI) --library $(srcdir)/vte-2.90 --metadatadir $(METADATADIR) --pkg atk --pkg gdk-3.0 --pkg gtk+-3.0 --pkg gio-2.0 --pkg pango $(GIRDIR)/Vte-2.90.gir $(METADATADIR)/Vte-2.90-custom.vala
 
 webkit-1.0:
 	$(GENVAPI) --library $(srcdir)/webkit-1.0 $(PACKAGESDIR)/webkit-1.0/webkit-1.0.gi

@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vala.h>
+#include <valacodegen.h>
 
 enum  {
 	VALADOC_API_TYPESYMBOL_0_PROPERTY,
@@ -38,40 +37,19 @@ enum  {
 	VALADOC_API_TYPESYMBOL_NUM_PROPERTIES
 };
 static GParamSpec* valadoc_api_typesymbol_properties[VALADOC_API_TYPESYMBOL_NUM_PROPERTIES];
-#define _valadoc_api_source_comment_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_source_comment_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
-#define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 
 struct _ValadocApiTypeSymbolPrivate {
-	ValadocApiSourceComment* source_comment;
-	gchar* type_macro_name;
-	gchar* is_type_macro_name;
-	gchar* type_cast_macro_name;
-	gchar* type_function_name;
 	gboolean _is_basic_type;
 };
-
 
 static gint ValadocApiTypeSymbol_private_offset;
 static gpointer valadoc_api_typesymbol_parent_class = NULL;
 
 static void valadoc_api_typesymbol_set_is_basic_type (ValadocApiTypeSymbol* self,
                                                gboolean value);
-static void valadoc_api_typesymbol_real_parse_comments (ValadocApiItem* base,
-                                                 ValadocSettings* settings,
-                                                 ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_node_set_documentation (ValadocApiNode* self,
-                                         ValadocContentComment* value);
-G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
-static void valadoc_api_typesymbol_real_check_comments (ValadocApiItem* base,
-                                                 ValadocSettings* settings,
-                                                 ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
 static void valadoc_api_typesymbol_finalize (GObject * obj);
+static GType valadoc_api_typesymbol_get_type_once (void);
 static void _vala_valadoc_api_typesymbol_get_property (GObject * object,
                                                 guint property_id,
                                                 GValue * value,
@@ -81,65 +59,53 @@ static void _vala_valadoc_api_typesymbol_set_property (GObject * object,
                                                 const GValue * value,
                                                 GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_typesymbol_get_instance_private (ValadocApiTypeSymbol* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiTypeSymbol_private_offset);
 }
 
-
-static gpointer
-_valadoc_api_source_comment_ref0 (gpointer self)
-{
-	return self ? valadoc_api_source_comment_ref (self) : NULL;
-}
-
-
 ValadocApiTypeSymbol*
 valadoc_api_typesymbol_construct (GType object_type,
                                   ValadocApiNode* parent,
                                   ValadocApiSourceFile* file,
                                   const gchar* name,
-                                  ValadocApiSymbolAccessibility accessibility,
+                                  ValaSymbolAccessibility accessibility,
                                   ValadocApiSourceComment* comment,
-                                  const gchar* type_macro_name,
-                                  const gchar* is_type_macro_name,
-                                  const gchar* type_cast_macro_name,
-                                  const gchar* type_function_name,
                                   gboolean is_basic_type,
                                   ValaTypeSymbol* data)
 {
 	ValadocApiTypeSymbol * self = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	ValadocApiSourceComment* _tmp4_;
 	g_return_val_if_fail (parent != NULL, NULL);
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiTypeSymbol*) valadoc_api_symbol_construct (object_type, parent, file, name, accessibility, (ValaSymbol*) data);
-	_tmp0_ = g_strdup (type_cast_macro_name);
-	_g_free0 (self->priv->type_cast_macro_name);
-	self->priv->type_cast_macro_name = _tmp0_;
-	_tmp1_ = g_strdup (is_type_macro_name);
-	_g_free0 (self->priv->is_type_macro_name);
-	self->priv->is_type_macro_name = _tmp1_;
-	_tmp2_ = g_strdup (type_function_name);
-	_g_free0 (self->priv->type_function_name);
-	self->priv->type_function_name = _tmp2_;
-	_tmp3_ = g_strdup (type_macro_name);
-	_g_free0 (self->priv->type_macro_name);
-	self->priv->type_macro_name = _tmp3_;
+	self = (ValadocApiTypeSymbol*) valadoc_api_symbol_construct (object_type, parent, file, name, accessibility, comment, (ValaSymbol*) data);
 	valadoc_api_typesymbol_set_is_basic_type (self, is_basic_type);
-	_tmp4_ = _valadoc_api_source_comment_ref0 (comment);
-	_valadoc_api_source_comment_unref0 (self->priv->source_comment);
-	self->priv->source_comment = _tmp4_;
 	return self;
 }
 
+gboolean
+valadoc_api_typesymbol_get_is_basic_type (ValadocApiTypeSymbol* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_basic_type;
+	return result;
+}
+
+static void
+valadoc_api_typesymbol_set_is_basic_type (ValadocApiTypeSymbol* self,
+                                          gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_typesymbol_get_is_basic_type (self);
+	if (old_value != value) {
+		self->priv->_is_basic_type = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_typesymbol_properties[VALADOC_API_TYPESYMBOL_IS_BASIC_TYPE_PROPERTY]);
+	}
+}
 
 /**
  * Gets the name of the GType macro which represents the type symbol
@@ -147,16 +113,59 @@ valadoc_api_typesymbol_construct (GType object_type,
 gchar*
 valadoc_api_typesymbol_get_type_macro_name (ValadocApiTypeSymbol* self)
 {
+	gboolean _tmp0_ = FALSE;
+	gboolean _tmp1_ = FALSE;
+	gboolean _tmp2_ = FALSE;
+	ValaCodeNode* _tmp3_;
+	ValaCodeNode* _tmp4_;
+	ValaCodeNode* _tmp13_;
+	ValaCodeNode* _tmp14_;
+	gchar* _tmp15_;
 	gchar* result = NULL;
-	const gchar* _tmp0_;
-	gchar* _tmp1_;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->type_macro_name;
-	_tmp1_ = g_strdup (_tmp0_);
-	result = _tmp1_;
+	_tmp3_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp4_ = _tmp3_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp4_, VALA_TYPE_CLASS)) {
+		ValaCodeNode* _tmp5_;
+		ValaCodeNode* _tmp6_;
+		gboolean _tmp7_;
+		gboolean _tmp8_;
+		_tmp5_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp6_ = _tmp5_;
+		_tmp7_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_CLASS, ValaClass));
+		_tmp8_ = _tmp7_;
+		_tmp2_ = _tmp8_;
+	} else {
+		_tmp2_ = FALSE;
+	}
+	if (_tmp2_) {
+		_tmp1_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp9_;
+		ValaCodeNode* _tmp10_;
+		_tmp9_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp10_ = _tmp9_;
+		_tmp1_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp10_, VALA_TYPE_ERROR_DOMAIN);
+	}
+	if (_tmp1_) {
+		_tmp0_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp11_;
+		ValaCodeNode* _tmp12_;
+		_tmp11_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp12_ = _tmp11_;
+		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp12_, VALA_TYPE_DELEGATE);
+	}
+	if (_tmp0_) {
+		result = NULL;
+		return result;
+	}
+	_tmp13_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp14_ = _tmp13_;
+	_tmp15_ = vala_get_ccode_type_id (_tmp14_);
+	result = _tmp15_;
 	return result;
 }
-
 
 /**
  * Gets the name of the GType macro which casts a type instance to the given type.
@@ -164,16 +173,50 @@ valadoc_api_typesymbol_get_type_macro_name (ValadocApiTypeSymbol* self)
 gchar*
 valadoc_api_typesymbol_get_type_cast_macro_name (ValadocApiTypeSymbol* self)
 {
+	gboolean _tmp0_ = FALSE;
+	gboolean _tmp1_ = FALSE;
+	ValaCodeNode* _tmp2_;
+	ValaCodeNode* _tmp3_;
 	gchar* result = NULL;
-	const gchar* _tmp0_;
-	gchar* _tmp1_;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->type_cast_macro_name;
-	_tmp1_ = g_strdup (_tmp0_);
-	result = _tmp1_;
-	return result;
+	_tmp2_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp3_ = _tmp2_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp3_, VALA_TYPE_CLASS)) {
+		ValaCodeNode* _tmp4_;
+		ValaCodeNode* _tmp5_;
+		gboolean _tmp6_;
+		gboolean _tmp7_;
+		_tmp4_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp5_ = _tmp4_;
+		_tmp6_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALA_TYPE_CLASS, ValaClass));
+		_tmp7_ = _tmp6_;
+		_tmp1_ = !_tmp7_;
+	} else {
+		_tmp1_ = FALSE;
+	}
+	if (_tmp1_) {
+		_tmp0_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp8_;
+		ValaCodeNode* _tmp9_;
+		_tmp8_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp9_ = _tmp8_;
+		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp9_, VALA_TYPE_INTERFACE);
+	}
+	if (_tmp0_) {
+		ValaCodeNode* _tmp10_;
+		ValaCodeNode* _tmp11_;
+		gchar* _tmp12_;
+		_tmp10_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp11_ = _tmp10_;
+		_tmp12_ = vala_get_ccode_upper_case_name ((ValaSymbol*) G_TYPE_CHECK_INSTANCE_CAST (_tmp11_, VALA_TYPE_TYPESYMBOL, ValaTypeSymbol), NULL);
+		result = _tmp12_;
+		return result;
+	} else {
+		result = NULL;
+		return result;
+	}
 }
-
 
 /**
  * Gets the name of the GType macro which determines whether a type instance is of a given type.
@@ -181,16 +224,50 @@ valadoc_api_typesymbol_get_type_cast_macro_name (ValadocApiTypeSymbol* self)
 gchar*
 valadoc_api_typesymbol_get_is_type_macro_name (ValadocApiTypeSymbol* self)
 {
+	gboolean _tmp0_ = FALSE;
+	gboolean _tmp1_ = FALSE;
+	ValaCodeNode* _tmp2_;
+	ValaCodeNode* _tmp3_;
 	gchar* result = NULL;
-	const gchar* _tmp0_;
-	gchar* _tmp1_;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->is_type_macro_name;
-	_tmp1_ = g_strdup (_tmp0_);
-	result = _tmp1_;
-	return result;
+	_tmp2_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp3_ = _tmp2_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp3_, VALA_TYPE_CLASS)) {
+		ValaCodeNode* _tmp4_;
+		ValaCodeNode* _tmp5_;
+		gboolean _tmp6_;
+		gboolean _tmp7_;
+		_tmp4_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp5_ = _tmp4_;
+		_tmp6_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALA_TYPE_CLASS, ValaClass));
+		_tmp7_ = _tmp6_;
+		_tmp1_ = !_tmp7_;
+	} else {
+		_tmp1_ = FALSE;
+	}
+	if (_tmp1_) {
+		_tmp0_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp8_;
+		ValaCodeNode* _tmp9_;
+		_tmp8_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp9_ = _tmp8_;
+		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp9_, VALA_TYPE_INTERFACE);
+	}
+	if (_tmp0_) {
+		ValaCodeNode* _tmp10_;
+		ValaCodeNode* _tmp11_;
+		gchar* _tmp12_;
+		_tmp10_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp11_ = _tmp10_;
+		_tmp12_ = vala_get_ccode_type_check_function (G_TYPE_CHECK_INSTANCE_CAST (_tmp11_, VALA_TYPE_TYPESYMBOL, ValaTypeSymbol));
+		result = _tmp12_;
+		return result;
+	} else {
+		result = NULL;
+		return result;
+	}
 }
-
 
 /**
  * Gets the name of the get_type() function which represents the type symbol
@@ -198,110 +275,73 @@ valadoc_api_typesymbol_get_is_type_macro_name (ValadocApiTypeSymbol* self)
 gchar*
 valadoc_api_typesymbol_get_type_function_name (ValadocApiTypeSymbol* self)
 {
+	gboolean _tmp0_ = FALSE;
+	gboolean _tmp1_ = FALSE;
+	gboolean _tmp2_ = FALSE;
+	ValaCodeNode* _tmp3_;
+	ValaCodeNode* _tmp4_;
+	ValaCodeNode* _tmp13_;
+	ValaCodeNode* _tmp14_;
+	gchar* _tmp15_;
+	gchar* _tmp16_;
+	gchar* _tmp17_;
+	gchar* _tmp18_;
 	gchar* result = NULL;
-	const gchar* _tmp0_;
-	gchar* _tmp1_;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->type_function_name;
-	_tmp1_ = g_strdup (_tmp0_);
-	result = _tmp1_;
+	_tmp3_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp4_ = _tmp3_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp4_, VALA_TYPE_CLASS)) {
+		ValaCodeNode* _tmp5_;
+		ValaCodeNode* _tmp6_;
+		gboolean _tmp7_;
+		gboolean _tmp8_;
+		_tmp5_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp6_ = _tmp5_;
+		_tmp7_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_CLASS, ValaClass));
+		_tmp8_ = _tmp7_;
+		_tmp2_ = _tmp8_;
+	} else {
+		_tmp2_ = FALSE;
+	}
+	if (_tmp2_) {
+		_tmp1_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp9_;
+		ValaCodeNode* _tmp10_;
+		_tmp9_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp10_ = _tmp9_;
+		_tmp1_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp10_, VALA_TYPE_ERROR_DOMAIN);
+	}
+	if (_tmp1_) {
+		_tmp0_ = TRUE;
+	} else {
+		ValaCodeNode* _tmp11_;
+		ValaCodeNode* _tmp12_;
+		_tmp11_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+		_tmp12_ = _tmp11_;
+		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp12_, VALA_TYPE_DELEGATE);
+	}
+	if (_tmp0_) {
+		result = NULL;
+		return result;
+	}
+	_tmp13_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp14_ = _tmp13_;
+	_tmp15_ = vala_get_ccode_lower_case_name (_tmp14_, NULL);
+	_tmp16_ = _tmp15_;
+	_tmp17_ = g_strdup_printf ("%s_get_type", _tmp16_);
+	_tmp18_ = _tmp17_;
+	_g_free0 (_tmp16_);
+	result = _tmp18_;
 	return result;
 }
 
-
-/**
- * {@inheritDoc}
- */
 static void
-valadoc_api_typesymbol_real_parse_comments (ValadocApiItem* base,
-                                            ValadocSettings* settings,
-                                            ValadocDocumentationParser* parser)
-{
-	ValadocApiTypeSymbol * self;
-	ValadocContentComment* _tmp0_;
-	ValadocContentComment* _tmp1_;
-	ValadocApiSourceComment* _tmp2_;
-	self = (ValadocApiTypeSymbol*) base;
-	g_return_if_fail (settings != NULL);
-	g_return_if_fail (parser != NULL);
-	_tmp0_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ != NULL) {
-		return;
-	}
-	_tmp2_ = self->priv->source_comment;
-	if (_tmp2_ != NULL) {
-		ValadocApiSourceComment* _tmp3_;
-		ValadocContentComment* _tmp4_;
-		ValadocContentComment* _tmp5_;
-		_tmp3_ = self->priv->source_comment;
-		_tmp4_ = valadoc_documentation_parser_parse (parser, (ValadocApiNode*) self, _tmp3_);
-		_tmp5_ = _tmp4_;
-		valadoc_api_node_set_documentation ((ValadocApiNode*) self, _tmp5_);
-		_g_object_unref0 (_tmp5_);
-	}
-	VALADOC_API_ITEM_CLASS (valadoc_api_typesymbol_parent_class)->parse_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings, parser);
-}
-
-
-/**
- * {@inheritDoc}
- */
-static void
-valadoc_api_typesymbol_real_check_comments (ValadocApiItem* base,
-                                            ValadocSettings* settings,
-                                            ValadocDocumentationParser* parser)
-{
-	ValadocApiTypeSymbol * self;
-	ValadocContentComment* _tmp0_;
-	ValadocContentComment* _tmp1_;
-	self = (ValadocApiTypeSymbol*) base;
-	g_return_if_fail (settings != NULL);
-	g_return_if_fail (parser != NULL);
-	_tmp0_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ != NULL) {
-		ValadocContentComment* _tmp2_;
-		ValadocContentComment* _tmp3_;
-		_tmp2_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
-		_tmp3_ = _tmp2_;
-		valadoc_documentation_parser_check (parser, (ValadocApiNode*) self, _tmp3_);
-	}
-	VALADOC_API_ITEM_CLASS (valadoc_api_typesymbol_parent_class)->check_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings, parser);
-}
-
-
-gboolean
-valadoc_api_typesymbol_get_is_basic_type (ValadocApiTypeSymbol* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_basic_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_typesymbol_set_is_basic_type (ValadocApiTypeSymbol* self,
-                                          gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_typesymbol_get_is_basic_type (self) != value) {
-		self->priv->_is_basic_type = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_typesymbol_properties[VALADOC_API_TYPESYMBOL_IS_BASIC_TYPE_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_api_typesymbol_class_init (ValadocApiTypeSymbolClass * klass)
+valadoc_api_typesymbol_class_init (ValadocApiTypeSymbolClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_api_typesymbol_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiTypeSymbol_private_offset);
-	((ValadocApiItemClass *) klass)->parse_comments = (void (*) (ValadocApiItem*, ValadocSettings*, ValadocDocumentationParser*)) valadoc_api_typesymbol_real_parse_comments;
-	((ValadocApiItemClass *) klass)->check_comments = (void (*) (ValadocApiItem*, ValadocSettings*, ValadocDocumentationParser*)) valadoc_api_typesymbol_real_check_comments;
 	G_OBJECT_CLASS (klass)->get_property = _vala_valadoc_api_typesymbol_get_property;
 	G_OBJECT_CLASS (klass)->set_property = _vala_valadoc_api_typesymbol_set_property;
 	G_OBJECT_CLASS (klass)->finalize = valadoc_api_typesymbol_finalize;
@@ -311,45 +351,45 @@ valadoc_api_typesymbol_class_init (ValadocApiTypeSymbolClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_TYPESYMBOL_IS_BASIC_TYPE_PROPERTY, valadoc_api_typesymbol_properties[VALADOC_API_TYPESYMBOL_IS_BASIC_TYPE_PROPERTY] = g_param_spec_boolean ("is-basic-type", "is-basic-type", "is-basic-type", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_typesymbol_instance_init (ValadocApiTypeSymbol * self)
+valadoc_api_typesymbol_instance_init (ValadocApiTypeSymbol * self,
+                                      gpointer klass)
 {
 	self->priv = valadoc_api_typesymbol_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_typesymbol_finalize (GObject * obj)
 {
 	ValadocApiTypeSymbol * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_API_TYPE_TYPESYMBOL, ValadocApiTypeSymbol);
-	_valadoc_api_source_comment_unref0 (self->priv->source_comment);
-	_g_free0 (self->priv->type_macro_name);
-	_g_free0 (self->priv->is_type_macro_name);
-	_g_free0 (self->priv->type_cast_macro_name);
-	_g_free0 (self->priv->type_function_name);
 	G_OBJECT_CLASS (valadoc_api_typesymbol_parent_class)->finalize (obj);
 }
-
 
 /**
  * Represents a runtime data type.
  */
+static GType
+valadoc_api_typesymbol_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiTypeSymbolClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_typesymbol_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiTypeSymbol), 0, (GInstanceInitFunc) valadoc_api_typesymbol_instance_init, NULL };
+	GType valadoc_api_typesymbol_type_id;
+	valadoc_api_typesymbol_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiTypeSymbol", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValadocApiTypeSymbol_private_offset = g_type_add_instance_private (valadoc_api_typesymbol_type_id, sizeof (ValadocApiTypeSymbolPrivate));
+	return valadoc_api_typesymbol_type_id;
+}
+
 GType
 valadoc_api_typesymbol_get_type (void)
 {
 	static volatile gsize valadoc_api_typesymbol_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_typesymbol_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiTypeSymbolClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_typesymbol_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiTypeSymbol), 0, (GInstanceInitFunc) valadoc_api_typesymbol_instance_init, NULL };
 		GType valadoc_api_typesymbol_type_id;
-		valadoc_api_typesymbol_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiTypeSymbol", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValadocApiTypeSymbol_private_offset = g_type_add_instance_private (valadoc_api_typesymbol_type_id, sizeof (ValadocApiTypeSymbolPrivate));
+		valadoc_api_typesymbol_type_id = valadoc_api_typesymbol_get_type_once ();
 		g_once_init_leave (&valadoc_api_typesymbol_type_id__volatile, valadoc_api_typesymbol_type_id);
 	}
 	return valadoc_api_typesymbol_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_typesymbol_get_property (GObject * object,
@@ -369,7 +409,6 @@ _vala_valadoc_api_typesymbol_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_typesymbol_set_property (GObject * object,
                                            guint property_id,
@@ -387,6 +426,4 @@ _vala_valadoc_api_typesymbol_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

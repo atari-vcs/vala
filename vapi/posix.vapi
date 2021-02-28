@@ -248,7 +248,7 @@ public struct double {
 [IntegerType (rank = 8)]
 public struct time_t {
 	[CCode (cname = "time")]
-	public time_t ();
+	public time_t (time_t? tloc = null);
 }
 
 [SimpleType]
@@ -580,6 +580,22 @@ namespace Posix {
 	public const int O_RDWR;
 	[CCode (cheader_filename = "fcntl.h")]
 	public const int O_WRONLY;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int O_DIRECTORY;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int O_CLOEXEC;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int O_NOFOLLOW;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int AT_FDCWD;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int AT_EACCESS;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int AT_SYMLINK_FOLLOW;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int AT_SYMLINK_NOFOLLOW;
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public const int AT_REMOVEDIR;
 	[CCode (cheader_filename = "fcntl.h")]
 	public const int POSIX_FADV_NORMAL;
 	[CCode (cheader_filename = "fcntl.h")]
@@ -598,6 +614,8 @@ namespace Posix {
 	public int fcntl (int fd, int cmd, ...);
 	[CCode (cheader_filename = "fcntl.h")]
 	public int open (string path, int oflag, mode_t mode=0);
+	[CCode (cheader_filename = "fcntl.h", feature_test_macro = "_GNU_SOURCE")]
+	public int openat (int dirfd, string path, int oflag, mode_t mode=0);
 	[CCode (cheader_filename = "fcntl.h")]
 	public int posix_fadvise (int fd, long offset, long len, int advice);
 	[CCode (cheader_filename = "fcntl.h")]
@@ -1603,7 +1621,7 @@ namespace Posix {
 	[CCode (has_target = false, cheader_filename = "signal.h", feature_test_macro = "_GNU_SOURCE")]
 	public delegate void sighandler_t (int signal);
 
-	[CCode (has_target = false, cheader_filename = "signal.h")]
+	[CCode (has_typedef = false, has_target = false, cheader_filename = "signal.h")]
 	public delegate void siginfohandler_t (int signal, siginfo_t info, void* data);
 
 	[CCode (cheader_filename = "signal.h")]
@@ -1630,7 +1648,7 @@ namespace Posix {
 	[CCode (cheader_filename = "stdlib.h")]
 	public void _exit (int status);
 
-	[CCode (has_target = false)]
+	[CCode (has_target = false, has_typedef = false)]
 	public delegate void AtExitFunc ();
 
 	[CCode (cheader_filename = "stdlib.h")]
@@ -1673,6 +1691,18 @@ namespace Posix {
 	public const int EXIT_FAILURE;
 	[CCode (cheader_filename = "stdlib.h")]
 	public const int EXIT_SUCCESS;
+
+	/* Memory Allocation */
+	[CCode (cheader_filename = "stdlib.h")]
+	public void* malloc (size_t size);
+	[CCode (cheader_filename = "stdlib.h")]
+	public void* calloc (size_t nmemb, size_t size);
+	[CCode (cheader_filename = "stdlib.h")]
+	public void* realloc (void* ptr, size_t size);
+	[CCode (cheader_filename = "stdlib.h", feature_test_macro = "_GNU_SOURCE")]
+	public void* reallocarray (void* ptr, size_t nmemb, size_t size);
+	[CCode (cheader_filename = "stdlib.h")]
+	public void free (void* ptr);
 
 	[CCode (cheader_filename = "string.h")]
 	public void* memccpy (void* s1, void* s2, int c, size_t n);
@@ -2164,6 +2194,8 @@ namespace Posix {
 
 	[CCode (cheader_filename = "sys/stat.h")]
 	public int mkfifo (string filename, mode_t mode);
+	[CCode (cheader_filename = "sys/stat.h", feature_test_macro = "_GNU_SOURCE")]
+	public int mkfifoat (int dirfd, string pathname, mode_t mode);
 
 	[CCode (cheader_filename = "sys/stat.h")]
 	public const mode_t S_IFMT;
@@ -2248,22 +2280,30 @@ namespace Posix {
 		public blkcnt_t st_blocks;
 	}
 	[CCode (cheader_filename = "sys/stat.h")]
-	int fstat( int fd, out Stat buf);
+	public int fstat (int fd, out Stat buf);
 	[CCode (cheader_filename = "sys/stat.h")]
-	int stat (string filename, out Stat buf);
+	public int stat (string filename, out Stat buf);
 	[CCode (cheader_filename = "sys/stat.h")]
-	int lstat (string filename, out Stat buf);
+	public int lstat (string filename, out Stat buf);
+	[CCode (cheader_filename = "sys/stat.h", feature_test_macro = "_GNU_SOURCE")]
+	public int fstatat (int dirfd, string pathname, out Stat buf, int flags);
 
 	[CCode (cheader_filename = "sys/stat.h")]
 	public int chmod (string filename, mode_t mode);
 	[CCode (cheader_filename = "sys/stat.h")]
 	public int fchmod (int fd, mode_t mode);
+	[CCode (cheader_filename = "sys/stat.h", feature_test_macro = "_GNU_SOURCE")]
+	public int fchmodat (int dirfd, string pathname, mode_t mode, int flags);
 	[CCode (cheader_filename = "sys/stat.h")]
 	public mode_t umask (mode_t mask);
 	[CCode (cheader_filename = "sys/stat.h")]
 	public int mkdir (string path, mode_t mode);
+	[CCode (cheader_filename = "sys/stat.h", feature_test_macro = "_GNU_SOURCE")]
+	public int mkdirat (int dirfd, string pathname, mode_t mode);
 	[CCode (cheader_filename = "sys/types.h,sys/stat.h,fcntl.h,unistd.h")]
-	public pid_t mknod (string pathname, mode_t mode, dev_t dev);
+	public int mknod (string pathname, mode_t mode, dev_t dev);
+	[CCode (cheader_filename = "sys/stat.h", feature_test_macro = "_GNU_SOURCE")]
+	public int mknodat (int dirfd, string pathname, mode_t mode, dev_t dev);
 
 	[CCode (cheader_filename = "sys/stat.h")]
 	public int utimensat (int dirfd, string pathname, [CCode (array_length = false)] timespec[] times, int flags = 0);
@@ -2417,7 +2457,7 @@ namespace Posix {
 	public void tzset ();
 
 	[SimpleType]
-	[IntegerType]
+	[IntegerType (rank = 8)]
 	[CCode (cheader_filename = "time.h", has_type_id = false)]
 	public struct clockid_t {
 	}
@@ -2467,6 +2507,8 @@ namespace Posix {
 	public ssize_t pread (int fd, void* buf, size_t count, off_t offset);
 	[CCode (cheader_filename = "unistd.h")]
 	public ssize_t readlink (string path, char[] buf);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public ssize_t readlinkat (int dirfd, string pathname, char[] buf);
 	[CCode (cheader_filename = "sys/uio.h")]
 	public ssize_t readv (int fd, iovector vector, int iovcnt = 1);
 	[CCode (cname = "readv", cheader_filename = "sys/uio.h")]
@@ -2481,6 +2523,8 @@ namespace Posix {
 	public int setuid (uid_t uid);
 	[CCode (cheader_filename = "unistd.h")]
 	public int unlink (string filename);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public int unlinkat (int dirfd, string pathname, int flags);
 	[CCode (cheader_filename = "unistd.h")]
 	public ssize_t write (int fd, void* buf, size_t count);
 	[CCode (cheader_filename = "unistd.h")]
@@ -2511,12 +2555,18 @@ namespace Posix {
 	public bool isatty (int fd);
 	[CCode (cheader_filename = "unistd.h")]
 	public int link (string from, string to);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public int linkat (int from_dirfd, string from, int to_dirfd, string to, int flags);
 	[CCode (cheader_filename = "unistd.h")]
 	public int symlink (string from, string to);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public int symlinkat (string from, int to_dirfd, string to);
 	[CCode (cheader_filename = "unistd.h")]
 	public long sysconf (int name);
 	[CCode (cheader_filename = "unistd.h")]
 	public int rmdir (string path);
+	[CCode (cheader_filename = "stdio.h", feature_test_macro = "_GNU_SOURCE")]
+	public int renameat (int from_fd, string from, int to_dirfd, string to);
 	[CCode (cheader_filename = "unistd.h")]
 	public pid_t tcgetpgrp (int fd);
 	[CCode (cheader_filename = "unistd.h")]
@@ -2574,7 +2624,7 @@ namespace Posix {
 	[CCode (cheader_filename = "unistd.h")]
 	public const int _SC_VERSION;
 	[CCode (cheader_filename = "unistd.h")]
-	public const int _SC_BASE_MAX;
+	public const int _SC_BC_BASE_MAX;
 	[CCode (cheader_filename = "unistd.h")]
 	public const int _SC_BC_DIM_MAX;
 	[CCode (cheader_filename = "unistd.h")]
@@ -2584,7 +2634,7 @@ namespace Posix {
 	[CCode (cheader_filename = "unistd.h")]
 	public const int _SC_COLL_WEIGHTS_MAX;
 	[CCode (cheader_filename = "unistd.h")]
-	public const int _SC_EXRP_NEST_MAX;
+	public const int _SC_EXPR_NEST_MAX;
 	[CCode (cheader_filename = "unistd.h")]
 	public const int _SC_LINE_MAX;
 	[CCode (cheader_filename = "unistd.h")]
@@ -2621,11 +2671,76 @@ namespace Posix {
 	public int euidaccess (string patchname, int mode);
 	[CCode (cheader_filename = "unistd.h")]
 	public int eaccess (string patchname, int mode);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public int faccessat (int dirfd, string pathname, int mode, int flags);
+
+	/**
+	 * Gets a value for the configuration option name for the open file
+	 * descriptor fd.
+	 */
+	[CCode (cheader_filename = "unistd.h")]
+	public long fpathconf (int fd, Posix.PathConfName name);
+
+	/**
+	 * Gets a value for the configuration option name for the filename path.
+	 */
+	[CCode (cheader_filename = "unistd.h")]
+	public long pathconf (string path, Posix.PathConfName name);
+
+	[CCode (cname = "int", cprefix = "_PC_", has_type_id = false, cheader_filename = "unistd.h")]
+	public enum PathConfName {
+		/**
+		 * Returns the maximum number of links to the file. If fd or path refer
+		 * to a directory, then the value applies to the whole directory.
+		 */
+		LINK_MAX,
+		/**
+		 * Returns the maximum length of a formatted input line, where fd or
+		 * path must refer to a terminal.
+		 */
+		MAX_CANON,
+		/**
+		 * Returns the maximum length of an input line, where fd or path must
+		 * refer to a terminal.
+		 */
+		MAX_INPUT,
+		/**
+		 * Returns the maximum length of a filename in the directory path or fd
+		 * that the process is allowed to create.
+		 */
+		NAME_MAX,
+		/**
+		 * Returns the maximum length of a relative pathname when path or fd is
+		 * the current working directory.
+		 */
+		PATH_MAX,
+		/**
+		 * Returns the size of the pipe buffer, where fd must refer to a pipe or
+		 * FIFO and path must refer to a FIFO.
+		 */
+		PIPE_BUF,
+		/**
+		 * Returns nonzero if the chown call may not be used on this file. If fd
+		 * or path refer to a directory, then this applies to all files in that
+		 * directory.
+		 */
+		CHOWN_RESTRICTED,
+		/**
+		 * Returns nonzero if accessing filenames longer than
+		 * #Posix.PathConfName.NAME_MAX generates an error.
+		 */
+		NO_TRUNC,
+		/**
+		 * Returns nonzero if special character processing can be disabled,
+		 * where fd or path must refer to a terminal.
+		 */
+		VDISABLE
+	}
 
 	[CCode (cheader_filename = "unistd.h")]
 	public uint alarm (uint seconds);
 	[CCode (cheader_filename = "unistd.h")]
-	public uint ualarm (uint useconds);
+	public uint ualarm (uint useconds, uint interval);
 	[CCode (cheader_filename = "unistd.h")]
 	public uint sleep (uint seconds);
 	[CCode (cheader_filename = "unistd.h")]
@@ -2638,6 +2753,8 @@ namespace Posix {
 	public int fchown (int fd, uid_t owner, gid_t group);
 	[CCode (cheader_filename = "unistd.h")]
 	public int lchown (string filename, uid_t owner, gid_t group);
+	[CCode (cheader_filename = "unistd.h", feature_test_macro = "_GNU_SOURCE")]
+	public int fchownat (int dirfd, string pathname, uid_t owner, gid_t group, int flags);
 	[CCode (cheader_filename = "unistd.h")]
 	public int chdir (string filepath);
 	[CCode (cheader_filename = "unistd.h")]
@@ -2674,7 +2791,7 @@ namespace Posix {
 	public int group_member (gid_t gid);
 	[CCode (cheader_filename = "unistd.h")]
 	public pid_t setsid ();
-	[CCode (cheader_filename = "unistd.h")]
+	[CCode (cheader_filename = "termios.h", feature_test_macro = "_GNU_SOURCE")]
 	public pid_t tcgetsid (int fd);
 
 	[CCode (cheader_filename = "unistd.h")]
@@ -3071,11 +3188,17 @@ namespace Posix {
 
 		[CCode (cname = "fopen")]
 		public static FILE? open (string path, string mode);
+		[CCode (cname = "freopen", instance_pos = -1)]
+		[ReturnsModifiedPointer]
+		public void reopen (string filename, string mode);
 		[CCode (cname = "fdopen")]
 		public static FILE? fdopen (int fildes, string mode);
 		[CCode (cname = "popen")]
-		public static FILE? popen (string command, string mode);
+		public static CommandPipe? popen (string command, string mode);
 
+		[CCode (cname = "fclose")]
+		[DestroysInstance]
+		public int close ();
 		[CCode (cname = "fprintf")]
 		[PrintfFormat ()]
 		public int printf (string format, ...);
@@ -3114,6 +3237,46 @@ namespace Posix {
 	public static FILE stderr;
 	public static FILE stdout;
 	public static FILE stdin;
+
+	/**
+	 * A pipe to the given command run in a child process
+	 *
+	 * This is a binding to popen () and pclose (). popen () is the equivalent
+	 * of pipe (), fork (), dup2 () and then exec () in a single operation
+	 */
+	[Compact]
+	[CCode (cname = "FILE", free_function = "pclose", cheader_filename = "stdio.h")]
+	[Version (since = "vala-0.44")]
+	public class CommandPipe : FILE {
+		/**
+		 * A pipe to the given command run in a child process
+		 *
+		 * @param command The command to run
+		 * @param mode Either 'r' or 'w'. 'r' creates a pipe to the command's
+		 * STDOUT, the command's STDIN is the same as the parent process.
+		 * 'w' creates a pipe to the command's STDIN, the command's STDOUT is
+		 * the same as the parent process
+		 */
+		[CCode (cname = "popen")]
+		public CommandPipe (string command, string mode = "r");
+		/**
+		 * Explicitly close the pipe
+		 *
+		 * Explicitly closing the pipe is only necessary when checking the
+		 * termination status of the command language interpreter. Normally
+		 * Vala will generate code to automatically close the pipe when the
+		 * CommandPipe instance goes out of scope
+		 *
+		 * CommandPipe.close () is synchronous and will return when the child
+		 * process has terminated
+		 *
+		 * @return The termination status of the command language interpreter
+		 * or -1 if status could not be obtained. errno will be set if -1
+		 */
+		[CCode (cname = "pclose")]
+		[DestroysInstance]
+		public int close ();
+	}
 
 	[CCode (cheader_filename = "stdio.h")]
 	public void perror (string s);
@@ -3237,8 +3400,8 @@ namespace Posix {
 		}
 	}
 
-	[CCode (has_target = false)]
-	public delegate int GlobErrorFunction (string filename, int errcode);
+	[CCode (has_target = false, has_typedef = false)]
+	public delegate int GlobErrorFunc (string filename, int errcode);
 
 	[CCode (cheader_filename = "glob.h")]
 	public const int GLOB_ERR;
@@ -3288,7 +3451,7 @@ namespace Posix {
 		public size_t offs;
 
 		[CCode (cname = "glob", instance_pos = -1)]
-		public int glob (string pattern, int flags = 0, GlobErrorFunction? errfunc = null);
+		public int glob (string pattern, int flags = 0, GlobErrorFunc? errfunc = null);
 	}
 
 	[CCode (cheader_filename = "langinfo.h", cname = "nl_item", cprefix = "", has_type_id = false)]
@@ -3401,7 +3564,7 @@ namespace Posix {
 	}
 
 	[CCode(cheader_filename = "wordexp.h")]
-	private const int WRDE_APPEND;
+	public const int WRDE_APPEND;
 	[CCode(cheader_filename = "wordexp.h")]
 	public const int WRDE_BADCHAR;
 	[CCode(cheader_filename = "wordexp.h")]

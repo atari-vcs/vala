@@ -46,7 +46,7 @@ public class Vala.TypeofExpression : Expression {
 	 * @param source reference to source code
 	 * @return       newly created typeof expression
 	 */
-	public TypeofExpression (DataType type, SourceReference source) {
+	public TypeofExpression (DataType type, SourceReference? source = null) {
 		type_reference = type;
 		source_reference = source;
 	}
@@ -82,8 +82,12 @@ public class Vala.TypeofExpression : Expression {
 
 		value_type = context.analyzer.type_type;
 
-		if (context.profile == Profile.GOBJECT && type_reference.get_type_arguments ().size > 0) {
+		if (context.profile == Profile.GOBJECT && type_reference.has_type_arguments ()) {
 			Report.warning (_data_type.source_reference, "Type argument list without effect");
+		}
+
+		if (_data_type is ArrayType && ((ArrayType) _data_type).element_type.type_symbol != context.analyzer.string_type.type_symbol) {
+			Report.warning (_data_type.source_reference, "Arrays do not have a `GLib.Type', with the exception of `string[]'");
 		}
 
 		return !error;

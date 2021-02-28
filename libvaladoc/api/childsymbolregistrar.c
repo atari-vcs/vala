@@ -23,11 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_API_CHILD_SYMBOL_REGISTRAR_0_PROPERTY,
@@ -37,7 +36,6 @@ static GParamSpec* valadoc_api_child_symbol_registrar_properties[VALADOC_API_CHI
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _vala_iterator_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterator_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
-
 
 static gpointer valadoc_api_child_symbol_registrar_parent_class = NULL;
 
@@ -55,7 +53,7 @@ static void valadoc_api_child_symbol_registrar_real_visit_struct (ValadocApiVisi
                                                            ValadocApiStruct* item);
 static void valadoc_api_child_symbol_registrar_real_visit_property (ValadocApiVisitor* base,
                                                              ValadocApiProperty* item);
-
+static GType valadoc_api_child_symbol_registrar_get_type_once (void);
 
 /**
  * {@inheritDoc}
@@ -70,7 +68,6 @@ valadoc_api_child_symbol_registrar_real_visit_tree (ValadocApiVisitor* base,
 	valadoc_api_tree_accept_children (item, (ValadocApiVisitor*) self);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -84,7 +81,6 @@ valadoc_api_child_symbol_registrar_real_visit_package (ValadocApiVisitor* base,
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -97,7 +93,6 @@ valadoc_api_child_symbol_registrar_real_visit_namespace (ValadocApiVisitor* base
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -162,7 +157,6 @@ valadoc_api_child_symbol_registrar_real_visit_interface (ValadocApiVisitor* base
 	_vala_iterable_unref0 (interfaces);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -226,7 +220,6 @@ valadoc_api_child_symbol_registrar_real_visit_class (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (interfaces);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -255,7 +248,6 @@ valadoc_api_child_symbol_registrar_real_visit_struct (ValadocApiVisitor* base,
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -269,7 +261,6 @@ valadoc_api_child_symbol_registrar_real_visit_property (ValadocApiVisitor* base,
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 ValadocApiChildSymbolRegistrar*
 valadoc_api_child_symbol_registrar_construct (GType object_type)
 {
@@ -278,16 +269,15 @@ valadoc_api_child_symbol_registrar_construct (GType object_type)
 	return self;
 }
 
-
 ValadocApiChildSymbolRegistrar*
 valadoc_api_child_symbol_registrar_new (void)
 {
 	return valadoc_api_child_symbol_registrar_construct (VALADOC_API_TYPE_CHILD_SYMBOL_REGISTRAR);
 }
 
-
 static void
-valadoc_api_child_symbol_registrar_class_init (ValadocApiChildSymbolRegistrarClass * klass)
+valadoc_api_child_symbol_registrar_class_init (ValadocApiChildSymbolRegistrarClass * klass,
+                                               gpointer klass_data)
 {
 	valadoc_api_child_symbol_registrar_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiVisitorClass *) klass)->visit_tree = (void (*) (ValadocApiVisitor*, ValadocApiTree*)) valadoc_api_child_symbol_registrar_real_visit_tree;
@@ -299,25 +289,30 @@ valadoc_api_child_symbol_registrar_class_init (ValadocApiChildSymbolRegistrarCla
 	((ValadocApiVisitorClass *) klass)->visit_property = (void (*) (ValadocApiVisitor*, ValadocApiProperty*)) valadoc_api_child_symbol_registrar_real_visit_property;
 }
 
-
 static void
-valadoc_api_child_symbol_registrar_instance_init (ValadocApiChildSymbolRegistrar * self)
+valadoc_api_child_symbol_registrar_instance_init (ValadocApiChildSymbolRegistrar * self,
+                                                  gpointer klass)
 {
 }
 
+static GType
+valadoc_api_child_symbol_registrar_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiChildSymbolRegistrarClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_child_symbol_registrar_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiChildSymbolRegistrar), 0, (GInstanceInitFunc) valadoc_api_child_symbol_registrar_instance_init, NULL };
+	GType valadoc_api_child_symbol_registrar_type_id;
+	valadoc_api_child_symbol_registrar_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocApiChildSymbolRegistrar", &g_define_type_info, 0);
+	return valadoc_api_child_symbol_registrar_type_id;
+}
 
 GType
 valadoc_api_child_symbol_registrar_get_type (void)
 {
 	static volatile gsize valadoc_api_child_symbol_registrar_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_child_symbol_registrar_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiChildSymbolRegistrarClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_child_symbol_registrar_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiChildSymbolRegistrar), 0, (GInstanceInitFunc) valadoc_api_child_symbol_registrar_instance_init, NULL };
 		GType valadoc_api_child_symbol_registrar_type_id;
-		valadoc_api_child_symbol_registrar_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocApiChildSymbolRegistrar", &g_define_type_info, 0);
+		valadoc_api_child_symbol_registrar_type_id = valadoc_api_child_symbol_registrar_get_type_once ();
 		g_once_init_leave (&valadoc_api_child_symbol_registrar_type_id__volatile, valadoc_api_child_symbol_registrar_type_id);
 	}
 	return valadoc_api_child_symbol_registrar_type_id__volatile;
 }
-
-
 

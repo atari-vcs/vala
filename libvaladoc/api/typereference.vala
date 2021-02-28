@@ -31,17 +31,46 @@ public class Valadoc.Api.TypeReference : Item {
 	private string? dbus_type_signature;
 	private Ownership ownership;
 
-	public TypeReference (Item parent, Ownership ownership, bool pass_ownership, bool is_dynamic,
+	public TypeReference (Item parent, bool is_dynamic,
 						  bool is_nullable, string? dbus_type_signature, Vala.DataType? data)
 	{
 		base (data);
 
 		this.dbus_type_signature = dbus_type_signature;
-		this.pass_ownership = pass_ownership;
 		this.is_nullable = is_nullable;
 		this.is_dynamic = is_dynamic;
-		this.ownership = ownership;
+		this.ownership = get_type_reference_ownership (data);
 		this.parent = parent;
+	}
+
+	Ownership get_type_reference_ownership (Vala.DataType? element) {
+		unowned Vala.DataType? type = element;
+		if (type != null) {
+			if (type.parent_node is Vala.Parameter) {
+				if (((Vala.Parameter) type.parent_node).direction == Vala.ParameterDirection.IN) {
+					if (type.value_owned) {
+						return Ownership.OWNED;
+					}
+				} else {
+					if (type.is_weak ()) {
+						return Ownership.UNOWNED;
+					}
+				}
+				return Ownership.DEFAULT;
+			} else if (type.parent_node is Vala.PropertyAccessor) {
+				if (((Vala.PropertyAccessor) type.parent_node).value_type.value_owned) {
+					return Ownership.OWNED;
+				}
+				return Ownership.DEFAULT;
+			} else if (type.parent_node is Vala.Constant) {
+				return Ownership.DEFAULT;
+			}
+			if (type.is_weak ()) {
+				return Ownership.UNOWNED;
+			}
+		}
+
+		return Ownership.DEFAULT;
 	}
 
 	/**
@@ -62,11 +91,6 @@ public class Valadoc.Api.TypeReference : Item {
 	 */
 	public Item? data_type {
 		set;
-		get;
-	}
-
-	public bool pass_ownership {
-		private set;
 		get;
 	}
 

@@ -55,7 +55,7 @@ public class Vala.PointerType : DataType {
 
 	public override bool compatible (DataType target_type) {
 		if (target_type is PointerType) {
-			var tt = target_type as PointerType;
+			unowned PointerType? tt = target_type as PointerType;
 
 			if (tt.base_type is VoidType || base_type is VoidType) {
 				return true;
@@ -69,7 +69,7 @@ public class Vala.PointerType : DataType {
 			return base_type.compatible (tt.base_type);
 		}
 
-		if ((target_type.data_type != null && target_type.data_type.get_attribute ("PointerType") != null)) {
+		if ((target_type.type_symbol != null && target_type.type_symbol.get_attribute ("PointerType") != null)) {
 			return true;
 		}
 
@@ -83,7 +83,9 @@ public class Vala.PointerType : DataType {
 			return base_type.compatible (target_type);
 		}
 
-		if (CodeContext.get ().profile == Profile.GOBJECT && target_type.data_type != null && target_type.data_type.is_subtype_of (CodeContext.get ().analyzer.gvalue_type.data_type)) {
+		var context = CodeContext.get ();
+
+		if (context.profile == Profile.GOBJECT && target_type.type_symbol != null && target_type.type_symbol.is_subtype_of (context.analyzer.gvalue_type.type_symbol)) {
 			// allow implicit conversion to GValue
 			return true;
 		}
@@ -96,7 +98,7 @@ public class Vala.PointerType : DataType {
 	}
 
 	public override Symbol? get_pointer_member (string member_name) {
-		Symbol base_symbol = base_type.data_type;
+		unowned Symbol? base_symbol = base_type.type_symbol;
 
 		if (base_symbol == null) {
 			return null;
@@ -113,6 +115,19 @@ public class Vala.PointerType : DataType {
 		base_type.accept (visitor);
 	}
 
+	public override bool stricter (DataType type2) {
+		if (type2 is PointerType) {
+			return compatible (type2);
+		}
+
+		if (base_type is VoidType) {
+			// void* can hold reference types
+			return type2 is ReferenceType;
+		}
+
+		return base_type.stricter (type2);
+	}
+
 	public override void replace_type (DataType old_type, DataType new_type) {
 		if (base_type == old_type) {
 			base_type = new_type;
@@ -123,7 +138,7 @@ public class Vala.PointerType : DataType {
 		return false;
 	}
 
-	public override DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode node_reference) {
+	public override DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode? node_reference) {
 		PointerType result = (PointerType) this.copy ();
 
 		if (derived_instance_type == null && method_type_arguments == null) {
@@ -138,7 +153,7 @@ public class Vala.PointerType : DataType {
 	}
 
 	public override DataType? infer_type_argument (TypeParameter type_param, DataType value_type) {
-		var pointer_type = value_type as PointerType;
+		unowned PointerType? pointer_type = value_type as PointerType;
 		if (pointer_type != null) {
 			return base_type.infer_type_argument (type_param, pointer_type.base_type);
 		}

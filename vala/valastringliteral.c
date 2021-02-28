@@ -23,12 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
@@ -37,7 +35,6 @@ struct _ValaStringLiteralPrivate {
 	gchar* _value;
 	gboolean _translate;
 };
-
 
 static gint ValaStringLiteral_private_offset;
 static gpointer vala_string_literal_parent_class = NULL;
@@ -52,7 +49,7 @@ static gboolean vala_string_literal_real_check (ValaCodeNode* base,
 static void vala_string_literal_real_emit (ValaCodeNode* base,
                                     ValaCodeGenerator* codegen);
 static void vala_string_literal_finalize (ValaCodeNode * obj);
-
+static GType vala_string_literal_get_type_once (void);
 
 static inline gpointer
 vala_string_literal_get_instance_private (ValaStringLiteral* self)
@@ -60,6 +57,44 @@ vala_string_literal_get_instance_private (ValaStringLiteral* self)
 	return G_STRUCT_MEMBER_P (self, ValaStringLiteral_private_offset);
 }
 
+const gchar*
+vala_string_literal_get_value (ValaStringLiteral* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_value;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_string_literal_set_value (ValaStringLiteral* self,
+                               const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_value);
+	self->priv->_value = _tmp0_;
+}
+
+gboolean
+vala_string_literal_get_translate (ValaStringLiteral* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_translate;
+	return result;
+}
+
+void
+vala_string_literal_set_translate (ValaStringLiteral* self,
+                                   gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_translate = value;
+}
 
 /**
  * Creates a new string literal.
@@ -81,14 +116,12 @@ vala_string_literal_construct (GType object_type,
 	return self;
 }
 
-
 ValaStringLiteral*
 vala_string_literal_new (const gchar* value,
                          ValaSourceReference* source_reference)
 {
 	return vala_string_literal_construct (VALA_TYPE_STRING_LITERAL, value, source_reference);
 }
-
 
 /**
  * Evaluates the literal string value.
@@ -99,10 +132,10 @@ static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -117,17 +150,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -144,32 +175,23 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 gchar*
 vala_string_literal_eval (ValaStringLiteral* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* noquotes = NULL;
 	const gchar* _tmp1_;
@@ -179,6 +201,7 @@ vala_string_literal_eval (ValaStringLiteral* self)
 	gchar* _tmp5_;
 	const gchar* _tmp6_;
 	gchar* _tmp7_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_value;
 	if (_tmp0_ == NULL) {
@@ -198,7 +221,6 @@ vala_string_literal_eval (ValaStringLiteral* self)
 	return result;
 }
 
-
 static void
 vala_string_literal_real_accept (ValaCodeNode* base,
                                  ValaCodeVisitor* visitor)
@@ -210,7 +232,6 @@ vala_string_literal_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
 
-
 static gboolean
 vala_string_literal_real_is_pure (ValaExpression* base)
 {
@@ -220,7 +241,6 @@ vala_string_literal_real_is_pure (ValaExpression* base)
 	result = TRUE;
 	return result;
 }
-
 
 static gboolean
 vala_string_literal_real_is_non_null (ValaExpression* base)
@@ -232,14 +252,13 @@ vala_string_literal_real_is_non_null (ValaExpression* base)
 	return result;
 }
 
-
 static gchar*
 vala_string_literal_real_to_string (ValaCodeNode* base)
 {
 	ValaStringLiteral * self;
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	self = (ValaStringLiteral*) base;
 	_tmp0_ = self->priv->_value;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -247,13 +266,11 @@ vala_string_literal_real_to_string (ValaCodeNode* base)
 	return result;
 }
 
-
 static gboolean
 vala_string_literal_real_check (ValaCodeNode* base,
                                 ValaCodeContext* context)
 {
 	ValaStringLiteral * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaSemanticAnalyzer* _tmp4_;
@@ -263,6 +280,7 @@ vala_string_literal_real_check (ValaCodeNode* base,
 	ValaDataType* _tmp8_;
 	gboolean _tmp9_;
 	gboolean _tmp10_;
+	gboolean result = FALSE;
 	self = (ValaStringLiteral*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -289,7 +307,6 @@ vala_string_literal_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_string_literal_real_emit (ValaCodeNode* base,
                                ValaCodeGenerator* codegen)
@@ -301,34 +318,32 @@ vala_string_literal_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
 
-
 ValaStringLiteral*
 vala_string_literal_get_format_literal (ValaExpression* expr)
 {
-	ValaStringLiteral* result = NULL;
 	ValaStringLiteral* format_literal = NULL;
 	ValaStringLiteral* _tmp0_;
-	ValaStringLiteral* _tmp1_;
 	ValaMethodCall* call = NULL;
-	ValaMethodCall* _tmp2_;
 	ValaMethodCall* _tmp3_;
+	ValaStringLiteral* result = NULL;
 	g_return_val_if_fail (expr != NULL, NULL);
-	_tmp0_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (expr, VALA_TYPE_STRING_LITERAL) ? ((ValaStringLiteral*) expr) : NULL);
-	format_literal = _tmp0_;
-	_tmp1_ = format_literal;
-	if (_tmp1_ != NULL) {
-		result = format_literal;
+	format_literal = VALA_IS_STRING_LITERAL (expr) ? ((ValaStringLiteral*) expr) : NULL;
+	_tmp0_ = format_literal;
+	if (_tmp0_ != NULL) {
+		ValaStringLiteral* _tmp1_;
+		ValaStringLiteral* _tmp2_;
+		_tmp1_ = format_literal;
+		_tmp2_ = _vala_code_node_ref0 (_tmp1_);
+		result = _tmp2_;
 		return result;
 	}
-	_tmp2_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (expr, VALA_TYPE_METHOD_CALL) ? ((ValaMethodCall*) expr) : NULL);
-	call = _tmp2_;
+	call = VALA_IS_METHOD_CALL (expr) ? ((ValaMethodCall*) expr) : NULL;
 	_tmp3_ = call;
 	if (_tmp3_ != NULL) {
 		ValaMethodCall* _tmp4_;
@@ -336,64 +351,15 @@ vala_string_literal_get_format_literal (ValaExpression* expr)
 		_tmp4_ = call;
 		_tmp5_ = vala_method_call_get_format_literal (_tmp4_);
 		result = _tmp5_;
-		_vala_code_node_unref0 (call);
-		_vala_code_node_unref0 (format_literal);
 		return result;
 	}
 	result = NULL;
-	_vala_code_node_unref0 (call);
-	_vala_code_node_unref0 (format_literal);
 	return result;
 }
-
-
-const gchar*
-vala_string_literal_get_value (ValaStringLiteral* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_value;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_string_literal_set_value (ValaStringLiteral* self,
-                               const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_value);
-	self->priv->_value = _tmp0_;
-}
-
-
-gboolean
-vala_string_literal_get_translate (ValaStringLiteral* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_translate;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_string_literal_set_translate (ValaStringLiteral* self,
-                                   gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_translate = value;
-}
-
 
 static void
-vala_string_literal_class_init (ValaStringLiteralClass * klass)
+vala_string_literal_class_init (ValaStringLiteralClass * klass,
+                                gpointer klass_data)
 {
 	vala_string_literal_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_string_literal_finalize;
@@ -406,13 +372,12 @@ vala_string_literal_class_init (ValaStringLiteralClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_string_literal_real_emit;
 }
 
-
 static void
-vala_string_literal_instance_init (ValaStringLiteral * self)
+vala_string_literal_instance_init (ValaStringLiteral * self,
+                                   gpointer klass)
 {
 	self->priv = vala_string_literal_get_instance_private (self);
 }
-
 
 static void
 vala_string_literal_finalize (ValaCodeNode * obj)
@@ -423,23 +388,28 @@ vala_string_literal_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_string_literal_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a string literal in the source code.
  */
+static GType
+vala_string_literal_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaStringLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_string_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaStringLiteral), 0, (GInstanceInitFunc) vala_string_literal_instance_init, NULL };
+	GType vala_string_literal_type_id;
+	vala_string_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaStringLiteral", &g_define_type_info, 0);
+	ValaStringLiteral_private_offset = g_type_add_instance_private (vala_string_literal_type_id, sizeof (ValaStringLiteralPrivate));
+	return vala_string_literal_type_id;
+}
+
 GType
 vala_string_literal_get_type (void)
 {
 	static volatile gsize vala_string_literal_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_string_literal_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaStringLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_string_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaStringLiteral), 0, (GInstanceInitFunc) vala_string_literal_instance_init, NULL };
 		GType vala_string_literal_type_id;
-		vala_string_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaStringLiteral", &g_define_type_info, 0);
-		ValaStringLiteral_private_offset = g_type_add_instance_private (vala_string_literal_type_id, sizeof (ValaStringLiteralPrivate));
+		vala_string_literal_type_id = vala_string_literal_get_type_once ();
 		g_once_init_leave (&vala_string_literal_type_id__volatile, vala_string_literal_type_id);
 	}
 	return vala_string_literal_type_id__volatile;
 }
-
-
 

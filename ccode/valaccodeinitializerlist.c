@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
@@ -36,21 +35,19 @@ struct _ValaCCodeInitializerListPrivate {
 	ValaList* initializers;
 };
 
-
 static gint ValaCCodeInitializerList_private_offset;
 static gpointer vala_ccode_initializer_list_parent_class = NULL;
 
 static void vala_ccode_initializer_list_real_write (ValaCCodeNode* base,
                                              ValaCCodeWriter* writer);
 static void vala_ccode_initializer_list_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_initializer_list_get_type_once (void);
 
 static inline gpointer
 vala_ccode_initializer_list_get_instance_private (ValaCCodeInitializerList* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaCCodeInitializerList_private_offset);
 }
-
 
 /**
  * Appends the specified expression to this initializer list.
@@ -68,13 +65,11 @@ vala_ccode_initializer_list_append (ValaCCodeInitializerList* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, expr);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 vala_ccode_initializer_list_real_write (ValaCCodeNode* base,
@@ -106,35 +101,29 @@ vala_ccode_initializer_list_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCCodeExpression* expr = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			gboolean _tmp11_;
-			ValaCCodeExpression* _tmp12_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCCodeExpression* _tmp9_;
+			_expr_index = _expr_index + 1;
 			_tmp5_ = _expr_index;
-			_expr_index = _tmp5_ + 1;
-			_tmp6_ = _expr_index;
-			_tmp7_ = _expr_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _expr_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _expr_list;
-			_tmp9_ = _expr_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			expr = (ValaCCodeExpression*) _tmp10_;
-			_tmp11_ = first;
-			if (!_tmp11_) {
+			_tmp7_ = _expr_list;
+			_tmp8_ = vala_list_get (_tmp7_, _expr_index);
+			expr = (ValaCCodeExpression*) _tmp8_;
+			if (!first) {
 				vala_ccode_writer_write_string (writer, ", ");
 			} else {
 				first = FALSE;
 			}
-			_tmp12_ = expr;
-			if (_tmp12_ != NULL) {
-				ValaCCodeExpression* _tmp13_;
-				_tmp13_ = expr;
-				vala_ccode_node_write ((ValaCCodeNode*) _tmp13_, writer);
+			_tmp9_ = expr;
+			if (_tmp9_ != NULL) {
+				ValaCCodeExpression* _tmp10_;
+				_tmp10_ = expr;
+				vala_ccode_node_write ((ValaCCodeNode*) _tmp10_, writer);
 			}
 			_vala_ccode_node_unref0 (expr);
 		}
@@ -142,7 +131,6 @@ vala_ccode_initializer_list_real_write (ValaCCodeNode* base,
 	}
 	vala_ccode_writer_write_string (writer, "}");
 }
-
 
 ValaCCodeInitializerList*
 vala_ccode_initializer_list_construct (GType object_type)
@@ -152,16 +140,15 @@ vala_ccode_initializer_list_construct (GType object_type)
 	return self;
 }
 
-
 ValaCCodeInitializerList*
 vala_ccode_initializer_list_new (void)
 {
 	return vala_ccode_initializer_list_construct (VALA_TYPE_CCODE_INITIALIZER_LIST);
 }
 
-
 static void
-vala_ccode_initializer_list_class_init (ValaCCodeInitializerListClass * klass)
+vala_ccode_initializer_list_class_init (ValaCCodeInitializerListClass * klass,
+                                        gpointer klass_data)
 {
 	vala_ccode_initializer_list_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_initializer_list_finalize;
@@ -169,9 +156,9 @@ vala_ccode_initializer_list_class_init (ValaCCodeInitializerListClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_initializer_list_real_write;
 }
 
-
 static void
-vala_ccode_initializer_list_instance_init (ValaCCodeInitializerList * self)
+vala_ccode_initializer_list_instance_init (ValaCCodeInitializerList * self,
+                                           gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -180,7 +167,6 @@ vala_ccode_initializer_list_instance_init (ValaCCodeInitializerList * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_EXPRESSION, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->initializers = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_initializer_list_finalize (ValaCCodeNode * obj)
@@ -191,23 +177,28 @@ vala_ccode_initializer_list_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_initializer_list_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a struct or array initializer list in the C code.
  */
+static GType
+vala_ccode_initializer_list_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeInitializerListClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_initializer_list_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeInitializerList), 0, (GInstanceInitFunc) vala_ccode_initializer_list_instance_init, NULL };
+	GType vala_ccode_initializer_list_type_id;
+	vala_ccode_initializer_list_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeInitializerList", &g_define_type_info, 0);
+	ValaCCodeInitializerList_private_offset = g_type_add_instance_private (vala_ccode_initializer_list_type_id, sizeof (ValaCCodeInitializerListPrivate));
+	return vala_ccode_initializer_list_type_id;
+}
+
 GType
 vala_ccode_initializer_list_get_type (void)
 {
 	static volatile gsize vala_ccode_initializer_list_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_initializer_list_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeInitializerListClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_initializer_list_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeInitializerList), 0, (GInstanceInitFunc) vala_ccode_initializer_list_instance_init, NULL };
 		GType vala_ccode_initializer_list_type_id;
-		vala_ccode_initializer_list_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeInitializerList", &g_define_type_info, 0);
-		ValaCCodeInitializerList_private_offset = g_type_add_instance_private (vala_ccode_initializer_list_type_id, sizeof (ValaCCodeInitializerListPrivate));
+		vala_ccode_initializer_list_type_id = vala_ccode_initializer_list_get_type_once ();
 		g_once_init_leave (&vala_ccode_initializer_list_type_id__volatile, vala_ccode_initializer_list_type_id);
 	}
 	return vala_ccode_initializer_list_type_id__volatile;
 }
-
-
 

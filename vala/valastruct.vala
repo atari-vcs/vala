@@ -31,6 +31,7 @@ public class Vala.Struct : TypeSymbol {
 	private List<Field> fields = new ArrayList<Field> ();
 	private List<Method> methods = new ArrayList<Method> ();
 	private List<Property> properties = new ArrayList<Property> ();
+	private Set<weak Field> property_fields = new HashSet<weak Field> ();
 	private DataType _base_type = null;
 
 	private bool? boolean_type;
@@ -62,7 +63,7 @@ public class Vala.Struct : TypeSymbol {
 	public Struct? base_struct {
 		get {
 			if (_base_type != null) {
-				return _base_type.data_type as Struct;
+				return _base_type.type_symbol as Struct;
 			}
 			return null;
 		}
@@ -71,7 +72,7 @@ public class Vala.Struct : TypeSymbol {
 	/**
 	 * Specifies the default construction method.
 	 */
-	public Method default_construction_method { get; set; }
+	public CreationMethod? default_construction_method { get; private set; }
 
 	/**
 	 * Specifies if 'const' should be emitted for input parameters
@@ -178,11 +179,11 @@ public class Vala.Struct : TypeSymbol {
 	}
 
 	/**
-	 * Returns a copy of the type parameter list.
+	 * Returns the type parameter list.
 	 *
 	 * @return list of type parameters
 	 */
-	public List<TypeParameter> get_type_parameters () {
+	public unowned List<TypeParameter> get_type_parameters () {
 		return type_parameters;
 	}
 
@@ -209,20 +210,20 @@ public class Vala.Struct : TypeSymbol {
 	}
 
 	/**
-	 * Returns a copy of the list of fields.
+	 * Returns the list of fields.
 	 *
 	 * @return list of fields
 	 */
-	public List<Field> get_fields () {
+	public unowned List<Field> get_fields () {
 		return fields;
 	}
 
 	/**
-	 * Returns a copy of the list of constants.
+	 * Returns the list of constants.
 	 *
 	 * @return list of constants
 	 */
-	public List<Constant> get_constants () {
+	public unowned List<Constant> get_constants () {
 		return constants;
 	}
 
@@ -233,16 +234,16 @@ public class Vala.Struct : TypeSymbol {
 	 */
 	public override void add_method (Method m) {
 		if (m.binding == MemberBinding.INSTANCE || m is CreationMethod) {
-			m.this_parameter = new Parameter ("this", SemanticAnalyzer.get_data_type_for_symbol (this));
+			m.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (m, this), m.source_reference);
 			m.scope.add (m.this_parameter.name, m.this_parameter);
 		}
 		if (!(m.return_type is VoidType) && m.get_postconditions ().size > 0) {
-			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, source_reference);
+			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, m.source_reference);
 			m.result_var.is_result = true;
 		}
 		if (m is CreationMethod) {
 			if (m.name == null) {
-				default_construction_method = m;
+				default_construction_method = (CreationMethod) m;
 				m.name = ".new";
 			}
 
@@ -260,11 +261,11 @@ public class Vala.Struct : TypeSymbol {
 	}
 
 	/**
-	 * Returns a copy of the list of methods.
+	 * Returns the list of methods.
 	 *
 	 * @return list of methods
 	 */
-	public List<Method> get_methods () {
+	public unowned List<Method> get_methods () {
 		return methods;
 	}
 
@@ -277,20 +278,23 @@ public class Vala.Struct : TypeSymbol {
 		properties.add (prop);
 		scope.add (prop.name, prop);
 
-		prop.this_parameter = new Parameter ("this", SemanticAnalyzer.get_data_type_for_symbol (this));
-		prop.scope.add (prop.this_parameter.name, prop.this_parameter);
+		if (prop.binding == MemberBinding.INSTANCE) {
+			prop.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (prop, this), prop.source_reference);
+			prop.scope.add (prop.this_parameter.name, prop.this_parameter);
+		}
 
 		if (prop.field != null) {
 			add_field (prop.field);
+			property_fields.add (prop.field);
 		}
 	}
 
 	/**
-	 * Returns a copy of the list of properties.
+	 * Returns the list of properties.
 	 *
 	 * @return list of properties
 	 */
-	public List<Property> get_properties () {
+	public unowned List<Property> get_properties () {
 		return properties;
 	}
 
@@ -330,7 +334,7 @@ public class Vala.Struct : TypeSymbol {
 	 * @return true if this is a boolean type, false otherwise
 	 */
 	public bool is_boolean_type () {
-		var st = base_struct;
+		unowned Struct? st = base_struct;
 		if (st != null && st.is_boolean_type ()) {
 			return true;
 		}
@@ -346,7 +350,7 @@ public class Vala.Struct : TypeSymbol {
 	 * @return true if this is an integer type, false otherwise
 	 */
 	public bool is_integer_type () {
-		var st = base_struct;
+		unowned Struct? st = base_struct;
 		if (st != null && st.is_integer_type ()) {
 			return true;
 		}
@@ -362,7 +366,7 @@ public class Vala.Struct : TypeSymbol {
 	 * @return true if this is a floating point type, false otherwise
 	 */
 	public bool is_floating_type () {
-		var st = base_struct;
+		unowned Struct? st = base_struct;
 		if (st != null && st.is_floating_type ()) {
 			return true;
 		}
@@ -373,7 +377,7 @@ public class Vala.Struct : TypeSymbol {
 	}
 
 	public bool is_decimal_floating_type () {
-		var st = base_struct;
+		unowned Struct? st = base_struct;
 		if (st != null && st.is_decimal_floating_type ()) {
 			return true;
 		}
@@ -401,7 +405,7 @@ public class Vala.Struct : TypeSymbol {
 	 * instances are passed by value.
 	 */
 	public bool is_simple_type () {
-		var st = base_struct;
+		unowned Struct? st = base_struct;
 		if (st != null && st.is_simple_type ()) {
 			return true;
 		}
@@ -432,7 +436,7 @@ public class Vala.Struct : TypeSymbol {
 		}
 
 		if (base_type != null) {
-			if (base_type.data_type != null && base_type.data_type.is_subtype_of (t)) {
+			if (base_type.type_symbol != null && base_type.type_symbol.is_subtype_of (t)) {
 				return true;
 			}
 		}
@@ -445,10 +449,18 @@ public class Vala.Struct : TypeSymbol {
 			return true;
 		}
 
+		if (base_struct != null) {
+			return base_struct.is_disposable ();
+		}
+
 		foreach (Field f in fields) {
 			if (f.binding == MemberBinding.INSTANCE
 			    && f.get_attribute_bool ("CCode", "delegate_target", true)
 			    && f.variable_type.is_disposable ()) {
+				if (is_simple_type ()) {
+					error = true;
+					Report.error (f.source_reference, "[SimpleType] struct `%s' cannot have owned heap-allocated fields".printf (get_full_name ()));
+				}
 				return true;
 			}
 		}
@@ -456,15 +468,18 @@ public class Vala.Struct : TypeSymbol {
 		return false;
 	}
 
-	bool is_recursive_value_type (DataType type) {
-		var struct_type = type as StructValueType;
+	bool is_recursive_value_type (CodeContext context, DataType type) {
+		unowned StructValueType? struct_type = type as StructValueType;
 		if (struct_type != null && !struct_type.nullable) {
-			var st = (Struct) struct_type.type_symbol;
+			unowned Struct st = (Struct) struct_type.type_symbol;
 			if (st == this) {
 				return true;
 			}
+			if (!st.check (context)) {
+				return false;
+			}
 			foreach (Field f in st.fields) {
-				if (f.binding == MemberBinding.INSTANCE && is_recursive_value_type (f.variable_type)) {
+				if (f.binding == MemberBinding.INSTANCE && is_recursive_value_type (context, f.variable_type)) {
 					return true;
 				}
 			}
@@ -504,7 +519,7 @@ public class Vala.Struct : TypeSymbol {
 		foreach (Field f in fields) {
 			f.check (context);
 
-			if (f.binding == MemberBinding.INSTANCE && is_recursive_value_type (f.variable_type)) {
+			if (f.binding == MemberBinding.INSTANCE && is_recursive_value_type (context, f.variable_type)) {
 				error = true;
 				Report.error (f.source_reference, "Recursive value types are not allowed");
 				return false;
@@ -514,6 +529,14 @@ public class Vala.Struct : TypeSymbol {
 				error = true;
 				Report.error (f.source_reference, "Instance field initializers not supported");
 				return false;
+			}
+
+			if (f.binding == MemberBinding.STATIC && f.initializer != null) {
+				// for backing property fields a dedicated error will be reported later
+				if (!(f in property_fields) && !(f.initializer.value_type is NullType) && f.variable_type.is_disposable () && f.variable_type.value_owned) {
+					error = true;
+					Report.error (f.initializer.source_reference, "Owned static struct fields can only be initialized in a function or method");
+				}
 			}
 		}
 
@@ -527,20 +550,30 @@ public class Vala.Struct : TypeSymbol {
 
 		foreach (Property prop in properties) {
 			prop.check (context);
+
+			if (prop.binding == MemberBinding.STATIC) {
+				unowned Field? field = prop.field;
+				if (field != null && field.initializer != null && !(field.initializer.value_type is NullType) && field.variable_type.is_disposable () && field.variable_type.value_owned) {
+					error = true;
+					Report.error (field.initializer.source_reference, "Owned static struct properties can only be initialized in a function or method");
+				}
+			}
 		}
 
 		if (!external && !external_package) {
-			if (base_type == null && get_fields ().size == 0 && !is_boolean_type () && !is_integer_type () && !is_floating_type ()) {
-				error = true;
-				Report.error (source_reference, "structs cannot be empty: %s".printf(name));
-			} else if (base_type != null) {
-				foreach (Field f in fields) {
-					if (f.binding == MemberBinding.INSTANCE) {
-						error = true;
-						Report.error (source_reference, "derived structs may not have instance fields");
-						break;
-					}
+			bool has_instance_field = false;
+			foreach (Field f in fields) {
+				if (f.binding == MemberBinding.INSTANCE) {
+					has_instance_field = true;
+					break;
 				}
+			}
+			if (base_type == null && !has_instance_field && !is_boolean_type () && !is_integer_type () && !is_floating_type ()) {
+				error = true;
+				Report.error (source_reference, "struct `%s' cannot be empty".printf (get_full_name ()));
+			} else if (base_type != null && has_instance_field) {
+				error = true;
+				Report.error (source_reference, "derived struct `%s' may not have instance fields".printf (get_full_name ()));
 			}
 		}
 

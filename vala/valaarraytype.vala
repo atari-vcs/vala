@@ -37,6 +37,19 @@ public class Vala.ArrayType : ReferenceType {
 		}
 	}
 
+	/**
+	 * The length type.
+	 */
+	public DataType? length_type {
+		get { return _length_type; }
+		set {
+			_length_type = value;
+			if (_length_type != null) {
+				_length_type.parent_node = this;
+			}
+		}
+	}
+
 	public bool invalid_syntax { get; set; }
 
 	public bool inline_allocated { get; set; }
@@ -62,6 +75,7 @@ public class Vala.ArrayType : ReferenceType {
 	public int rank { get; set; }
 
 	private DataType _element_type;
+	private DataType _length_type;
 	private Expression _length;
 
 	private ArrayLengthField length_field;
@@ -69,7 +83,8 @@ public class Vala.ArrayType : ReferenceType {
 	private ArrayMoveMethod move_method;
 	private ArrayCopyMethod copy_method;
 
-	public ArrayType (DataType element_type, int rank, SourceReference? source_reference) {
+	public ArrayType (DataType element_type, int rank, SourceReference? source_reference = null) {
+		base (null);
 		this.element_type = element_type;
 		this.rank = rank;
 		this.source_reference = source_reference;
@@ -91,45 +106,44 @@ public class Vala.ArrayType : ReferenceType {
 		return null;
 	}
 
-	private ArrayLengthField get_length_field () {
+	unowned ArrayLengthField get_length_field () {
 		if (length_field == null) {
 			length_field = new ArrayLengthField (source_reference);
 
 			length_field.access = SymbolAccessibility.PUBLIC;
 
-			var root_symbol = source_reference.file.context.root;
 			if (rank > 1) {
 				// length is an int[] containing the dimensions of the array, starting at 0
-				ValueType integer = new IntegerType ((Struct) root_symbol.scope.lookup ("int"));
-				length_field.variable_type = new ArrayType (integer, 1, source_reference);
+				length_field.variable_type = new ArrayType (length_type.copy (), 1, source_reference);
 			} else {
-				length_field.variable_type = new IntegerType ((Struct) root_symbol.scope.lookup ("int"));
+				length_field.variable_type = length_type.copy ();
 			}
 
 		}
 		return length_field;
 	}
 
-	private ArrayResizeMethod get_resize_method () {
+	unowned ArrayResizeMethod get_resize_method () {
 		if (resize_method == null) {
 			resize_method = new ArrayResizeMethod (source_reference);
 
 			resize_method.return_type = new VoidType ();
 			resize_method.access = SymbolAccessibility.PUBLIC;
 
-			resize_method.set_attribute_string ("CCode", "cname", "g_renew");
+			if (CodeContext.get ().profile == Profile.POSIX) {
+				resize_method.set_attribute_string ("CCode", "cname", "realloc");
+			} else {
+				resize_method.set_attribute_string ("CCode", "cname", "g_renew");
+			}
 
-			var root_symbol = source_reference.file.context.root;
-			var int_type = new IntegerType ((Struct) root_symbol.scope.lookup ("int"));
-
-			resize_method.add_parameter (new Parameter ("length", int_type));
+			resize_method.add_parameter (new Parameter ("length", length_type));
 
 			resize_method.returns_modified_pointer = true;
 		}
 		return resize_method;
 	}
 
-	private ArrayMoveMethod get_move_method () {
+	unowned ArrayMoveMethod get_move_method () {
 		if (move_method == null) {
 			move_method = new ArrayMoveMethod (source_reference);
 
@@ -138,17 +152,14 @@ public class Vala.ArrayType : ReferenceType {
 
 			move_method.set_attribute_string ("CCode", "cname", "_vala_array_move");
 
-			var root_symbol = source_reference.file.context.root;
-			var int_type = new IntegerType ((Struct) root_symbol.scope.lookup ("int"));
-
-			move_method.add_parameter (new Parameter ("src", int_type));
-			move_method.add_parameter (new Parameter ("dest", int_type));
-			move_method.add_parameter (new Parameter ("length", int_type));
+			move_method.add_parameter (new Parameter ("src", length_type));
+			move_method.add_parameter (new Parameter ("dest", length_type));
+			move_method.add_parameter (new Parameter ("length", length_type));
 		}
 		return move_method;
 	}
 
-	private ArrayCopyMethod get_copy_method () {
+	unowned ArrayCopyMethod get_copy_method () {
 		if (copy_method == null) {
 			copy_method = new ArrayCopyMethod (source_reference);
 
@@ -163,6 +174,10 @@ public class Vala.ArrayType : ReferenceType {
 
 	public override DataType copy () {
 		var result = new ArrayType (element_type.copy (), rank, source_reference);
+		if (length_type != null) {
+			result.length_type = length_type.copy ();
+		}
+
 		result.value_owned = value_owned;
 		result.nullable = nullable;
 		result.floating_reference = floating_reference;
@@ -174,10 +189,6 @@ public class Vala.ArrayType : ReferenceType {
 		}
 
 		return result;
-	}
-
-	public override bool is_array () {
-		return true;
 	}
 
 	public override string to_qualified_string (Scope? scope) {
@@ -194,19 +205,21 @@ public class Vala.ArrayType : ReferenceType {
 	}
 
 	public override bool compatible (DataType target_type) {
-		if (CodeContext.get ().profile == Profile.GOBJECT && target_type.data_type != null) {
-			if (target_type.data_type.is_subtype_of (CodeContext.get ().analyzer.gvalue_type.data_type) && element_type.data_type == CodeContext.get ().root.scope.lookup ("string")) {
+		var context = CodeContext.get ();
+
+		if (context.profile == Profile.GOBJECT && target_type.type_symbol != null) {
+			if (target_type.type_symbol.is_subtype_of (context.analyzer.gvalue_type.type_symbol) && element_type.type_symbol == context.root.scope.lookup ("string")) {
 				// allow implicit conversion from string[] to GValue
 				return true;
 			}
 
-			if (target_type.data_type.is_subtype_of (CodeContext.get ().analyzer.gvariant_type.data_type)) {
+			if (target_type.type_symbol.is_subtype_of (context.analyzer.gvariant_type.type_symbol)) {
 				// allow implicit conversion to GVariant
 				return true;
 			}
 		}
 
-		if (target_type is PointerType || (target_type.data_type != null && target_type.data_type.get_attribute ("PointerType") != null)) {
+		if (target_type is PointerType || (target_type.type_symbol != null && target_type.type_symbol.get_attribute ("PointerType") != null)) {
 			/* any array type can be cast to a generic pointer */
 			return true;
 		}
@@ -216,7 +229,7 @@ public class Vala.ArrayType : ReferenceType {
 			return true;
 		}
 
-		var target_array_type = target_type as ArrayType;
+		unowned ArrayType? target_array_type = target_type as ArrayType;
 		if (target_array_type == null) {
 			return false;
 		}
@@ -226,6 +239,10 @@ public class Vala.ArrayType : ReferenceType {
 		}
 
 		if (element_type is ValueType && element_type.nullable != target_array_type.element_type.nullable) {
+			return false;
+		}
+
+		if (!length_type.compatible (target_array_type.length_type)) {
 			return false;
 		}
 
@@ -243,15 +260,24 @@ public class Vala.ArrayType : ReferenceType {
 
 	public override void accept_children (CodeVisitor visitor) {
 		element_type.accept (visitor);
+		if (length_type != null) {
+			length_type.accept (visitor);
+		}
 	}
 
 	public override void replace_type (DataType old_type, DataType new_type) {
 		if (element_type == old_type) {
 			element_type = new_type;
 		}
+		if (length_type == old_type) {
+			length_type = new_type;
+		}
 	}
 
 	public override bool is_accessible (Symbol sym) {
+		if (length_type != null && !length_type.is_accessible (sym)) {
+			return false;
+		}
 		return element_type.is_accessible (sym);
 	}
 
@@ -265,19 +291,35 @@ public class Vala.ArrayType : ReferenceType {
 		if (fixed_length && length != null) {
 			length.check (context);
 
-			if (length.value_type == null || !(length.value_type is IntegerType) || !length.is_constant ()) {
+			if (length.value_type == null || !(length.value_type is IntegerType || length.value_type is EnumValueType)
+			    || !length.is_constant ()) {
+				error = true;
 				Report.error (length.source_reference, "Expression of constant integer type expected");
 				return false;
 			}
 		}
 
 		if (element_type is ArrayType) {
+			error = true;
 			Report.error (source_reference, "Stacked arrays are not supported");
 			return false;
 		} else if (element_type is DelegateType) {
 			var delegate_type = (DelegateType) element_type;
 			if (delegate_type.delegate_symbol.has_target) {
+				error = true;
 				Report.error (source_reference, "Delegates with target are not supported as array element type");
+				return false;
+			}
+		}
+
+		if (length_type == null) {
+			// Make sure that "int" is still picked up as default
+			length_type = context.analyzer.int_type.copy ();
+		} else {
+			length_type.check (context);
+			if (!(length_type is IntegerType)) {
+				error = true;
+				Report.error (length_type.source_reference, "Expected integer type as length type of array");
 				return false;
 			}
 		}
@@ -285,7 +327,7 @@ public class Vala.ArrayType : ReferenceType {
 		return element_type.check (context);
 	}
 
-	public override DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode node_reference) {
+	public override DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode? node_reference) {
 		ArrayType result = (ArrayType) this.copy ();
 
 		if (derived_instance_type == null && method_type_arguments == null) {
@@ -300,7 +342,7 @@ public class Vala.ArrayType : ReferenceType {
 	}
 
 	public override DataType? infer_type_argument (TypeParameter type_param, DataType value_type) {
-		var array_type = value_type as ArrayType;
+		unowned ArrayType? array_type = value_type as ArrayType;
 		if (array_type != null) {
 			return element_type.infer_type_argument (type_param, array_type.element_type);
 		}

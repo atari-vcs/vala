@@ -23,17 +23,15 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
+#include "valadoc.h"
 #include <glib.h>
 #include <glib-object.h>
-#include "valadoc.h"
 
 enum  {
 	VALADOC_API_VISITOR_0_PROPERTY,
 	VALADOC_API_VISITOR_NUM_PROPERTIES
 };
 static GParamSpec* valadoc_api_visitor_properties[VALADOC_API_VISITOR_NUM_PROPERTIES];
-
 
 static gpointer valadoc_api_visitor_parent_class = NULL;
 
@@ -64,7 +62,7 @@ static void valadoc_api_visitor_real_visit_method (ValadocApiVisitor* self,
 static void valadoc_api_visitor_real_visit_type_parameter (ValadocApiVisitor* self,
                                                     ValadocApiTypeParameter* item);
 static void valadoc_api_visitor_real_visit_formal_parameter (ValadocApiVisitor* self,
-                                                      ValadocApiFormalParameter* item);
+                                                      ValadocApiParameter* item);
 static void valadoc_api_visitor_real_visit_error_domain (ValadocApiVisitor* self,
                                                   ValadocApiErrorDomain* item);
 static void valadoc_api_visitor_real_visit_error_code (ValadocApiVisitor* self,
@@ -73,7 +71,7 @@ static void valadoc_api_visitor_real_visit_enum (ValadocApiVisitor* self,
                                           ValadocApiEnum* item);
 static void valadoc_api_visitor_real_visit_enum_value (ValadocApiVisitor* self,
                                                 ValadocApiEnumValue* item);
-
+static GType valadoc_api_visitor_get_type_once (void);
 
 /**
  * Visit operation called for api trees.
@@ -87,7 +85,6 @@ valadoc_api_visitor_real_visit_tree (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_tree (ValadocApiVisitor* self,
                                 ValadocApiTree* item)
@@ -95,7 +92,6 @@ valadoc_api_visitor_visit_tree (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_tree (self, item);
 }
-
 
 /**
  * Visit operation called for packages like gir-files and vapi-files.
@@ -109,7 +105,6 @@ valadoc_api_visitor_real_visit_package (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_package (ValadocApiVisitor* self,
                                    ValadocApiPackage* item)
@@ -117,7 +112,6 @@ valadoc_api_visitor_visit_package (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_package (self, item);
 }
-
 
 /**
  * Visit operation called for namespaces
@@ -131,7 +125,6 @@ valadoc_api_visitor_real_visit_namespace (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_namespace (ValadocApiVisitor* self,
                                      ValadocApiNamespace* item)
@@ -139,7 +132,6 @@ valadoc_api_visitor_visit_namespace (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_namespace (self, item);
 }
-
 
 /**
  * Visit operation called for interfaces.
@@ -153,7 +145,6 @@ valadoc_api_visitor_real_visit_interface (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_interface (ValadocApiVisitor* self,
                                      ValadocApiInterface* item)
@@ -161,7 +152,6 @@ valadoc_api_visitor_visit_interface (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_interface (self, item);
 }
-
 
 /**
  * Visit operation called for classes.
@@ -175,7 +165,6 @@ valadoc_api_visitor_real_visit_class (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_class (ValadocApiVisitor* self,
                                  ValadocApiClass* item)
@@ -183,7 +172,6 @@ valadoc_api_visitor_visit_class (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_class (self, item);
 }
-
 
 /**
  * Visit operation called for structs.
@@ -197,7 +185,6 @@ valadoc_api_visitor_real_visit_struct (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_struct (ValadocApiVisitor* self,
                                   ValadocApiStruct* item)
@@ -205,7 +192,6 @@ valadoc_api_visitor_visit_struct (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_struct (self, item);
 }
-
 
 /**
  * Visit operation called for properties.
@@ -219,7 +205,6 @@ valadoc_api_visitor_real_visit_property (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_property (ValadocApiVisitor* self,
                                     ValadocApiProperty* item)
@@ -227,7 +212,6 @@ valadoc_api_visitor_visit_property (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_property (self, item);
 }
-
 
 /**
  * Visit operation called for fields.
@@ -241,7 +225,6 @@ valadoc_api_visitor_real_visit_field (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_field (ValadocApiVisitor* self,
                                  ValadocApiField* item)
@@ -249,7 +232,6 @@ valadoc_api_visitor_visit_field (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_field (self, item);
 }
-
 
 /**
  * Visit operation called for constants.
@@ -263,7 +245,6 @@ valadoc_api_visitor_real_visit_constant (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_constant (ValadocApiVisitor* self,
                                     ValadocApiConstant* item)
@@ -271,7 +252,6 @@ valadoc_api_visitor_visit_constant (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_constant (self, item);
 }
-
 
 /**
  * Visit operation called for delegates.
@@ -285,7 +265,6 @@ valadoc_api_visitor_real_visit_delegate (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_delegate (ValadocApiVisitor* self,
                                     ValadocApiDelegate* item)
@@ -293,7 +272,6 @@ valadoc_api_visitor_visit_delegate (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_delegate (self, item);
 }
-
 
 /**
  * Visit operation called for signals.
@@ -307,7 +285,6 @@ valadoc_api_visitor_real_visit_signal (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_signal (ValadocApiVisitor* self,
                                   ValadocApiSignal* item)
@@ -315,7 +292,6 @@ valadoc_api_visitor_visit_signal (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_signal (self, item);
 }
-
 
 /**
  * Visit operation called for methods.
@@ -329,7 +305,6 @@ valadoc_api_visitor_real_visit_method (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_method (ValadocApiVisitor* self,
                                   ValadocApiMethod* item)
@@ -337,7 +312,6 @@ valadoc_api_visitor_visit_method (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_method (self, item);
 }
-
 
 /**
  * Visit operation called for type parameters.
@@ -351,7 +325,6 @@ valadoc_api_visitor_real_visit_type_parameter (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_type_parameter (ValadocApiVisitor* self,
                                           ValadocApiTypeParameter* item)
@@ -360,28 +333,25 @@ valadoc_api_visitor_visit_type_parameter (ValadocApiVisitor* self,
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_type_parameter (self, item);
 }
 
-
 /**
- * Visit operation called for formal parameters.
+ * Visit operation called for parameters.
  *
- * @param item a formal parameter
+ * @param item a parameter
  */
 static void
 valadoc_api_visitor_real_visit_formal_parameter (ValadocApiVisitor* self,
-                                                 ValadocApiFormalParameter* item)
+                                                 ValadocApiParameter* item)
 {
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_formal_parameter (ValadocApiVisitor* self,
-                                            ValadocApiFormalParameter* item)
+                                            ValadocApiParameter* item)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_formal_parameter (self, item);
 }
-
 
 /**
  * Visit operation called for error domains.
@@ -395,7 +365,6 @@ valadoc_api_visitor_real_visit_error_domain (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_error_domain (ValadocApiVisitor* self,
                                         ValadocApiErrorDomain* item)
@@ -403,7 +372,6 @@ valadoc_api_visitor_visit_error_domain (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_error_domain (self, item);
 }
-
 
 /**
  * Visit operation called for error codes.
@@ -417,7 +385,6 @@ valadoc_api_visitor_real_visit_error_code (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_error_code (ValadocApiVisitor* self,
                                       ValadocApiErrorCode* item)
@@ -425,7 +392,6 @@ valadoc_api_visitor_visit_error_code (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_error_code (self, item);
 }
-
 
 /**
  * Visit operation called for enums.
@@ -439,7 +405,6 @@ valadoc_api_visitor_real_visit_enum (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_enum (ValadocApiVisitor* self,
                                 ValadocApiEnum* item)
@@ -447,7 +412,6 @@ valadoc_api_visitor_visit_enum (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_enum (self, item);
 }
-
 
 /**
  * Visit operation called for enum values.
@@ -461,7 +425,6 @@ valadoc_api_visitor_real_visit_enum_value (ValadocApiVisitor* self,
 	g_return_if_fail (item != NULL);
 }
 
-
 void
 valadoc_api_visitor_visit_enum_value (ValadocApiVisitor* self,
                                       ValadocApiEnumValue* item)
@@ -469,7 +432,6 @@ valadoc_api_visitor_visit_enum_value (ValadocApiVisitor* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_VISITOR_GET_CLASS (self)->visit_enum_value (self, item);
 }
-
 
 ValadocApiVisitor*
 valadoc_api_visitor_construct (GType object_type)
@@ -479,9 +441,9 @@ valadoc_api_visitor_construct (GType object_type)
 	return self;
 }
 
-
 static void
-valadoc_api_visitor_class_init (ValadocApiVisitorClass * klass)
+valadoc_api_visitor_class_init (ValadocApiVisitorClass * klass,
+                                gpointer klass_data)
 {
 	valadoc_api_visitor_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiVisitorClass *) klass)->visit_tree = (void (*) (ValadocApiVisitor*, ValadocApiTree*)) valadoc_api_visitor_real_visit_tree;
@@ -497,35 +459,40 @@ valadoc_api_visitor_class_init (ValadocApiVisitorClass * klass)
 	((ValadocApiVisitorClass *) klass)->visit_signal = (void (*) (ValadocApiVisitor*, ValadocApiSignal*)) valadoc_api_visitor_real_visit_signal;
 	((ValadocApiVisitorClass *) klass)->visit_method = (void (*) (ValadocApiVisitor*, ValadocApiMethod*)) valadoc_api_visitor_real_visit_method;
 	((ValadocApiVisitorClass *) klass)->visit_type_parameter = (void (*) (ValadocApiVisitor*, ValadocApiTypeParameter*)) valadoc_api_visitor_real_visit_type_parameter;
-	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiFormalParameter*)) valadoc_api_visitor_real_visit_formal_parameter;
+	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiParameter*)) valadoc_api_visitor_real_visit_formal_parameter;
 	((ValadocApiVisitorClass *) klass)->visit_error_domain = (void (*) (ValadocApiVisitor*, ValadocApiErrorDomain*)) valadoc_api_visitor_real_visit_error_domain;
 	((ValadocApiVisitorClass *) klass)->visit_error_code = (void (*) (ValadocApiVisitor*, ValadocApiErrorCode*)) valadoc_api_visitor_real_visit_error_code;
 	((ValadocApiVisitorClass *) klass)->visit_enum = (void (*) (ValadocApiVisitor*, ValadocApiEnum*)) valadoc_api_visitor_real_visit_enum;
 	((ValadocApiVisitorClass *) klass)->visit_enum_value = (void (*) (ValadocApiVisitor*, ValadocApiEnumValue*)) valadoc_api_visitor_real_visit_enum_value;
 }
 
-
 static void
-valadoc_api_visitor_instance_init (ValadocApiVisitor * self)
+valadoc_api_visitor_instance_init (ValadocApiVisitor * self,
+                                   gpointer klass)
 {
 }
-
 
 /**
  * Abstract visitor for traversing API.
  */
+static GType
+valadoc_api_visitor_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiVisitorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_visitor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiVisitor), 0, (GInstanceInitFunc) valadoc_api_visitor_instance_init, NULL };
+	GType valadoc_api_visitor_type_id;
+	valadoc_api_visitor_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocApiVisitor", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return valadoc_api_visitor_type_id;
+}
+
 GType
 valadoc_api_visitor_get_type (void)
 {
 	static volatile gsize valadoc_api_visitor_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_visitor_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiVisitorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_visitor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiVisitor), 0, (GInstanceInitFunc) valadoc_api_visitor_instance_init, NULL };
 		GType valadoc_api_visitor_type_id;
-		valadoc_api_visitor_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocApiVisitor", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+		valadoc_api_visitor_type_id = valadoc_api_visitor_get_type_once ();
 		g_once_init_leave (&valadoc_api_visitor_type_id__volatile, valadoc_api_visitor_type_id);
 	}
 	return valadoc_api_visitor_type_id__volatile;
 }
-
-
 

@@ -24,10 +24,9 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
+#include "valadoc.h"
 #include <glib.h>
 #include <glib-object.h>
-#include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,7 +42,6 @@ struct _ValadocContentContentFactoryPrivate {
 	ValadocResourceLocator* _locator;
 	ValadocModuleLoader* _modules;
 };
-
 
 static gint ValadocContentContentFactory_private_offset;
 static gpointer valadoc_content_content_factory_parent_class = NULL;
@@ -87,7 +85,7 @@ G_GNUC_INTERNAL ValadocContentText* valadoc_content_text_new (const gchar* text)
 G_GNUC_INTERNAL ValadocContentText* valadoc_content_text_construct (GType object_type,
                                                     const gchar* text);
 static void valadoc_content_content_factory_finalize (GObject * obj);
-
+static GType valadoc_content_content_factory_get_type_once (void);
 
 static inline gpointer
 valadoc_content_content_factory_get_instance_private (ValadocContentContentFactory* self)
@@ -95,13 +93,11 @@ valadoc_content_content_factory_get_instance_private (ValadocContentContentFacto
 	return G_STRUCT_MEMBER_P (self, ValadocContentContentFactory_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocContentContentFactory*
 valadoc_content_content_factory_construct (GType object_type,
@@ -129,7 +125,6 @@ valadoc_content_content_factory_construct (GType object_type,
 	return self;
 }
 
-
 ValadocContentContentFactory*
 valadoc_content_content_factory_new (ValadocSettings* settings,
                                      ValadocResourceLocator* locator,
@@ -138,15 +133,14 @@ valadoc_content_content_factory_new (ValadocSettings* settings,
 	return valadoc_content_content_factory_construct (VALADOC_CONTENT_TYPE_CONTENT_FACTORY, settings, locator, modules);
 }
 
-
 static inline ValadocContentContentElement*
 valadoc_content_content_factory_configure (ValadocContentContentFactory* self,
                                            ValadocContentContentElement* element)
 {
-	ValadocContentContentElement* result = NULL;
 	ValadocSettings* _tmp0_;
 	ValadocResourceLocator* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
+	ValadocContentContentElement* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	_tmp0_ = self->priv->_settings;
@@ -157,15 +151,14 @@ valadoc_content_content_factory_configure (ValadocContentContentFactory* self,
 	return result;
 }
 
-
 ValadocContentComment*
 valadoc_content_content_factory_create_comment (ValadocContentContentFactory* self)
 {
-	ValadocContentComment* result = NULL;
 	ValadocContentComment* _tmp0_;
 	ValadocContentComment* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentComment* _tmp3_;
+	ValadocContentComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_comment_new ();
 	_tmp1_ = _tmp0_;
@@ -176,15 +169,14 @@ valadoc_content_content_factory_create_comment (ValadocContentContentFactory* se
 	return result;
 }
 
-
 ValadocContentEmbedded*
 valadoc_content_content_factory_create_embedded (ValadocContentContentFactory* self)
 {
-	ValadocContentEmbedded* result = NULL;
 	ValadocContentEmbedded* _tmp0_;
 	ValadocContentEmbedded* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentEmbedded* _tmp3_;
+	ValadocContentEmbedded* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_embedded_new ();
 	_tmp1_ = _tmp0_;
@@ -195,15 +187,14 @@ valadoc_content_content_factory_create_embedded (ValadocContentContentFactory* s
 	return result;
 }
 
-
 ValadocContentHeadline*
 valadoc_content_content_factory_create_headline (ValadocContentContentFactory* self)
 {
-	ValadocContentHeadline* result = NULL;
 	ValadocContentHeadline* _tmp0_;
 	ValadocContentHeadline* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentHeadline* _tmp3_;
+	ValadocContentHeadline* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_headline_new ();
 	_tmp1_ = _tmp0_;
@@ -214,15 +205,14 @@ valadoc_content_content_factory_create_headline (ValadocContentContentFactory* s
 	return result;
 }
 
-
 ValadocContentLink*
 valadoc_content_content_factory_create_link (ValadocContentContentFactory* self)
 {
-	ValadocContentLink* result = NULL;
 	ValadocContentLink* _tmp0_;
 	ValadocContentLink* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentLink* _tmp3_;
+	ValadocContentLink* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_link_new ();
 	_tmp1_ = _tmp0_;
@@ -233,15 +223,14 @@ valadoc_content_content_factory_create_link (ValadocContentContentFactory* self)
 	return result;
 }
 
-
 ValadocContentWikiLink*
 valadoc_content_content_factory_create_wiki_link (ValadocContentContentFactory* self)
 {
-	ValadocContentWikiLink* result = NULL;
 	ValadocContentWikiLink* _tmp0_;
 	ValadocContentWikiLink* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentWikiLink* _tmp3_;
+	ValadocContentWikiLink* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_wiki_link_new ();
 	_tmp1_ = _tmp0_;
@@ -252,15 +241,14 @@ valadoc_content_content_factory_create_wiki_link (ValadocContentContentFactory* 
 	return result;
 }
 
-
 ValadocContentList*
 valadoc_content_content_factory_create_list (ValadocContentContentFactory* self)
 {
-	ValadocContentList* result = NULL;
 	ValadocContentList* _tmp0_;
 	ValadocContentList* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentList* _tmp3_;
+	ValadocContentList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_list_new ();
 	_tmp1_ = _tmp0_;
@@ -271,15 +259,14 @@ valadoc_content_content_factory_create_list (ValadocContentContentFactory* self)
 	return result;
 }
 
-
 ValadocContentListItem*
 valadoc_content_content_factory_create_list_item (ValadocContentContentFactory* self)
 {
-	ValadocContentListItem* result = NULL;
 	ValadocContentListItem* _tmp0_;
 	ValadocContentListItem* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentListItem* _tmp3_;
+	ValadocContentListItem* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_list_item_new ();
 	_tmp1_ = _tmp0_;
@@ -290,15 +277,14 @@ valadoc_content_content_factory_create_list_item (ValadocContentContentFactory* 
 	return result;
 }
 
-
 ValadocContentPage*
 valadoc_content_content_factory_create_page (ValadocContentContentFactory* self)
 {
-	ValadocContentPage* result = NULL;
 	ValadocContentPage* _tmp0_;
 	ValadocContentPage* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentPage* _tmp3_;
+	ValadocContentPage* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_page_new ();
 	_tmp1_ = _tmp0_;
@@ -309,15 +295,14 @@ valadoc_content_content_factory_create_page (ValadocContentContentFactory* self)
 	return result;
 }
 
-
 ValadocContentParagraph*
 valadoc_content_content_factory_create_paragraph (ValadocContentContentFactory* self)
 {
-	ValadocContentParagraph* result = NULL;
 	ValadocContentParagraph* _tmp0_;
 	ValadocContentParagraph* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentParagraph* _tmp3_;
+	ValadocContentParagraph* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_paragraph_new ();
 	_tmp1_ = _tmp0_;
@@ -328,15 +313,14 @@ valadoc_content_content_factory_create_paragraph (ValadocContentContentFactory* 
 	return result;
 }
 
-
 ValadocContentWarning*
 valadoc_content_content_factory_create_warning (ValadocContentContentFactory* self)
 {
-	ValadocContentWarning* result = NULL;
 	ValadocContentWarning* _tmp0_;
 	ValadocContentWarning* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentWarning* _tmp3_;
+	ValadocContentWarning* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_warning_new ();
 	_tmp1_ = _tmp0_;
@@ -347,15 +331,14 @@ valadoc_content_content_factory_create_warning (ValadocContentContentFactory* se
 	return result;
 }
 
-
 ValadocContentNote*
 valadoc_content_content_factory_create_note (ValadocContentContentFactory* self)
 {
-	ValadocContentNote* result = NULL;
 	ValadocContentNote* _tmp0_;
 	ValadocContentNote* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentNote* _tmp3_;
+	ValadocContentNote* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_note_new ();
 	_tmp1_ = _tmp0_;
@@ -366,16 +349,15 @@ valadoc_content_content_factory_create_note (ValadocContentContentFactory* self)
 	return result;
 }
 
-
 ValadocContentRun*
 valadoc_content_content_factory_create_run (ValadocContentContentFactory* self,
                                             ValadocContentRunStyle style)
 {
-	ValadocContentRun* result = NULL;
 	ValadocContentRun* _tmp0_;
 	ValadocContentRun* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentRun* _tmp3_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (style);
 	_tmp1_ = _tmp0_;
@@ -386,15 +368,14 @@ valadoc_content_content_factory_create_run (ValadocContentContentFactory* self,
 	return result;
 }
 
-
 ValadocContentSourceCode*
 valadoc_content_content_factory_create_source_code (ValadocContentContentFactory* self)
 {
-	ValadocContentSourceCode* result = NULL;
 	ValadocContentSourceCode* _tmp0_;
 	ValadocContentSourceCode* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentSourceCode* _tmp3_;
+	ValadocContentSourceCode* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_source_code_new ();
 	_tmp1_ = _tmp0_;
@@ -405,15 +386,14 @@ valadoc_content_content_factory_create_source_code (ValadocContentContentFactory
 	return result;
 }
 
-
 ValadocContentTable*
 valadoc_content_content_factory_create_table (ValadocContentContentFactory* self)
 {
-	ValadocContentTable* result = NULL;
 	ValadocContentTable* _tmp0_;
 	ValadocContentTable* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentTable* _tmp3_;
+	ValadocContentTable* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_table_new ();
 	_tmp1_ = _tmp0_;
@@ -424,15 +404,14 @@ valadoc_content_content_factory_create_table (ValadocContentContentFactory* self
 	return result;
 }
 
-
 ValadocContentTableCell*
 valadoc_content_content_factory_create_table_cell (ValadocContentContentFactory* self)
 {
-	ValadocContentTableCell* result = NULL;
 	ValadocContentTableCell* _tmp0_;
 	ValadocContentTableCell* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentTableCell* _tmp3_;
+	ValadocContentTableCell* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_table_cell_new ();
 	_tmp1_ = _tmp0_;
@@ -443,15 +422,14 @@ valadoc_content_content_factory_create_table_cell (ValadocContentContentFactory*
 	return result;
 }
 
-
 ValadocContentTableRow*
 valadoc_content_content_factory_create_table_row (ValadocContentContentFactory* self)
 {
-	ValadocContentTableRow* result = NULL;
 	ValadocContentTableRow* _tmp0_;
 	ValadocContentTableRow* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentTableRow* _tmp3_;
+	ValadocContentTableRow* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_table_row_new ();
 	_tmp1_ = _tmp0_;
@@ -462,14 +440,13 @@ valadoc_content_content_factory_create_table_row (ValadocContentContentFactory* 
 	return result;
 }
 
-
 ValadocContentTaglet*
 valadoc_content_content_factory_create_taglet (ValadocContentContentFactory* self,
                                                const gchar* name)
 {
-	ValadocContentTaglet* result = NULL;
 	ValadocModuleLoader* _tmp0_;
 	ValadocContentTaglet* _tmp1_;
+	ValadocContentTaglet* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->_modules;
@@ -478,16 +455,15 @@ valadoc_content_content_factory_create_taglet (ValadocContentContentFactory* sel
 	return result;
 }
 
-
 ValadocContentText*
 valadoc_content_content_factory_create_text (ValadocContentContentFactory* self,
                                              const gchar* text)
 {
-	ValadocContentText* result = NULL;
 	ValadocContentText* _tmp0_;
 	ValadocContentText* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
 	ValadocContentText* _tmp3_;
+	ValadocContentText* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_text_new (text);
 	_tmp1_ = _tmp0_;
@@ -498,7 +474,6 @@ valadoc_content_content_factory_create_text (ValadocContentContentFactory* self,
 	return result;
 }
 
-
 ValadocContentContentElement*
 valadoc_content_content_factory_set_style_attributes (ValadocContentContentFactory* self,
                                                       ValadocContentStyleAttributes* element,
@@ -506,8 +481,8 @@ valadoc_content_content_factory_set_style_attributes (ValadocContentContentFacto
                                                       ValadocContentHorizontalAlign* halign,
                                                       const gchar* style)
 {
-	ValadocContentContentElement* result = NULL;
 	ValadocContentContentElement* _tmp0_;
+	ValadocContentContentElement* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	valadoc_content_style_attributes_set_vertical_align (element, *valign);
@@ -518,22 +493,21 @@ valadoc_content_content_factory_set_style_attributes (ValadocContentContentFacto
 	return result;
 }
 
-
 static void
-valadoc_content_content_factory_class_init (ValadocContentContentFactoryClass * klass)
+valadoc_content_content_factory_class_init (ValadocContentContentFactoryClass * klass,
+                                            gpointer klass_data)
 {
 	valadoc_content_content_factory_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentContentFactory_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_content_content_factory_finalize;
 }
 
-
 static void
-valadoc_content_content_factory_instance_init (ValadocContentContentFactory * self)
+valadoc_content_content_factory_instance_init (ValadocContentContentFactory * self,
+                                               gpointer klass)
 {
 	self->priv = valadoc_content_content_factory_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_content_factory_finalize (GObject * obj)
@@ -546,20 +520,25 @@ valadoc_content_content_factory_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_content_factory_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_content_factory_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentContentFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_content_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentContentFactory), 0, (GInstanceInitFunc) valadoc_content_content_factory_instance_init, NULL };
+	GType valadoc_content_content_factory_type_id;
+	valadoc_content_content_factory_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocContentContentFactory", &g_define_type_info, 0);
+	ValadocContentContentFactory_private_offset = g_type_add_instance_private (valadoc_content_content_factory_type_id, sizeof (ValadocContentContentFactoryPrivate));
+	return valadoc_content_content_factory_type_id;
+}
 
 GType
 valadoc_content_content_factory_get_type (void)
 {
 	static volatile gsize valadoc_content_content_factory_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_content_factory_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentContentFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_content_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentContentFactory), 0, (GInstanceInitFunc) valadoc_content_content_factory_instance_init, NULL };
 		GType valadoc_content_content_factory_type_id;
-		valadoc_content_content_factory_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocContentContentFactory", &g_define_type_info, 0);
-		ValadocContentContentFactory_private_offset = g_type_add_instance_private (valadoc_content_content_factory_type_id, sizeof (ValadocContentContentFactoryPrivate));
+		valadoc_content_content_factory_type_id = valadoc_content_content_factory_get_type_once ();
 		g_once_init_leave (&valadoc_content_content_factory_type_id__volatile, valadoc_content_content_factory_type_id);
 	}
 	return valadoc_content_content_factory_type_id__volatile;
 }
-
-
 

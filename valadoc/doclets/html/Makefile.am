@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CFLAGS = \
-	-DPACKAGE_ICONDIR=\"$(datadir)/valadoc/icons/\" \
+	-DG_LOG_DOMAIN=\"valadoc-html\" \
+	-DPACKAGE_VALADOC_ICONDIR=\"$(datadir)/valadoc@PACKAGE_SUFFIX@/icons/\" \
 	-I$(top_srcdir)/gee/ \
 	-I$(top_srcdir)/vala/ \
 	-I$(top_srcdir)/libvaladoc/ \
@@ -16,7 +17,7 @@ BUILT_SOURCES = libdoclet.vala.stamp
 
 doclet_LTLIBRARIES = libdoclet.la
 
-docletdir = $(libdir)/valadoc/doclets/html
+docletdir = $(libdir)/valadoc@PACKAGE_SUFFIX@/doclets/html
 
 libdoclet_la_LDFLAGS = -module -avoid-version -no-undefined
 
@@ -35,7 +36,7 @@ libdoclet.vala.stamp: $(libdoclet_la_VALASOURCES)
 		$(VALAFLAGS) \
 		-C \
 		--vapidir $(top_srcdir)/vala --pkg libvala@PACKAGE_SUFFIX@ \
-		--vapidir $(top_srcdir)/vapi \
+		--vapidir $(top_srcdir)/vapi --pkg config \
 		--vapidir $(top_srcdir)/libvaladoc --pkg valadoc@PACKAGE_SUFFIX@ \
 		$(filter %.vala %.c,$^)
 	touch $@

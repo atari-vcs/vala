@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -39,7 +38,6 @@ struct _ValaErrorDomainPrivate {
 	ValaList* codes;
 	ValaList* methods;
 };
-
 
 static gint ValaErrorDomain_private_offset;
 static gpointer vala_error_domain_parent_class = NULL;
@@ -54,14 +52,13 @@ static gboolean vala_error_domain_real_is_reference_type (ValaTypeSymbol* base);
 static gboolean vala_error_domain_real_check (ValaCodeNode* base,
                                        ValaCodeContext* context);
 static void vala_error_domain_finalize (ValaCodeNode * obj);
-
+static GType vala_error_domain_get_type_once (void);
 
 static inline gpointer
 vala_error_domain_get_instance_private (ValaErrorDomain* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaErrorDomain_private_offset);
 }
-
 
 /**
  * Creates a new error domain.
@@ -82,7 +79,6 @@ vala_error_domain_construct (GType object_type,
 	return self;
 }
 
-
 ValaErrorDomain*
 vala_error_domain_new (const gchar* name,
                        ValaSourceReference* source_reference,
@@ -90,7 +86,6 @@ vala_error_domain_new (const gchar* name,
 {
 	return vala_error_domain_construct (VALA_TYPE_ERROR_DOMAIN, name, source_reference, comment);
 }
-
 
 /**
  * Appends the specified code to the list of error codes.
@@ -117,7 +112,6 @@ vala_error_domain_add_code (ValaErrorDomain* self,
 	vala_scope_add (_tmp2_, _tmp4_, (ValaSymbol*) ecode);
 }
 
-
 /**
  * Adds the specified method as a member to this error domain.
  *
@@ -130,14 +124,14 @@ vala_error_domain_real_add_method (ValaSymbol* base,
 	ValaErrorDomain * self;
 	ValaMemberBinding _tmp2_;
 	ValaMemberBinding _tmp3_;
-	ValaList* _tmp16_;
-	ValaScope* _tmp17_;
-	ValaScope* _tmp18_;
-	const gchar* _tmp19_;
-	const gchar* _tmp20_;
+	ValaList* _tmp18_;
+	ValaScope* _tmp19_;
+	ValaScope* _tmp20_;
+	const gchar* _tmp21_;
+	const gchar* _tmp22_;
 	self = (ValaErrorDomain*) base;
 	g_return_if_fail (m != NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (m, VALA_TYPE_CREATION_METHOD)) {
+	if (VALA_IS_CREATION_METHOD (m)) {
 		ValaSourceReference* _tmp0_;
 		ValaSourceReference* _tmp1_;
 		_tmp0_ = vala_code_node_get_source_reference ((ValaCodeNode*) m);
@@ -151,87 +145,77 @@ vala_error_domain_real_add_method (ValaSymbol* base,
 	if (_tmp3_ == VALA_MEMBER_BINDING_INSTANCE) {
 		ValaErrorType* _tmp4_;
 		ValaErrorType* _tmp5_;
-		ValaParameter* _tmp6_;
-		ValaParameter* _tmp7_;
-		ValaScope* _tmp8_;
-		ValaScope* _tmp9_;
-		ValaParameter* _tmp10_;
-		ValaParameter* _tmp11_;
-		const gchar* _tmp12_;
-		const gchar* _tmp13_;
-		ValaParameter* _tmp14_;
-		ValaParameter* _tmp15_;
+		ValaSourceReference* _tmp6_;
+		ValaSourceReference* _tmp7_;
+		ValaParameter* _tmp8_;
+		ValaParameter* _tmp9_;
+		ValaScope* _tmp10_;
+		ValaScope* _tmp11_;
+		ValaParameter* _tmp12_;
+		ValaParameter* _tmp13_;
+		const gchar* _tmp14_;
+		const gchar* _tmp15_;
+		ValaParameter* _tmp16_;
+		ValaParameter* _tmp17_;
 		_tmp4_ = vala_error_type_new (self, NULL, NULL);
 		_tmp5_ = _tmp4_;
-		_tmp6_ = vala_parameter_new ("this", (ValaDataType*) _tmp5_, NULL);
+		_tmp6_ = vala_code_node_get_source_reference ((ValaCodeNode*) m);
 		_tmp7_ = _tmp6_;
-		vala_method_set_this_parameter (m, _tmp7_);
-		_vala_code_node_unref0 (_tmp7_);
-		_vala_code_node_unref0 (_tmp5_);
-		_tmp8_ = vala_symbol_get_scope ((ValaSymbol*) m);
+		_tmp8_ = vala_parameter_new ("this", (ValaDataType*) _tmp5_, _tmp7_);
 		_tmp9_ = _tmp8_;
-		_tmp10_ = vala_method_get_this_parameter (m);
+		vala_method_set_this_parameter (m, _tmp9_);
+		_vala_code_node_unref0 (_tmp9_);
+		_vala_code_node_unref0 (_tmp5_);
+		_tmp10_ = vala_symbol_get_scope ((ValaSymbol*) m);
 		_tmp11_ = _tmp10_;
-		_tmp12_ = vala_symbol_get_name ((ValaSymbol*) _tmp11_);
+		_tmp12_ = vala_method_get_this_parameter (m);
 		_tmp13_ = _tmp12_;
-		_tmp14_ = vala_method_get_this_parameter (m);
+		_tmp14_ = vala_symbol_get_name ((ValaSymbol*) _tmp13_);
 		_tmp15_ = _tmp14_;
-		vala_scope_add (_tmp9_, _tmp13_, (ValaSymbol*) _tmp15_);
+		_tmp16_ = vala_method_get_this_parameter (m);
+		_tmp17_ = _tmp16_;
+		vala_scope_add (_tmp11_, _tmp15_, (ValaSymbol*) _tmp17_);
 	}
-	_tmp16_ = self->priv->methods;
-	vala_collection_add ((ValaCollection*) _tmp16_, m);
-	_tmp17_ = vala_symbol_get_scope ((ValaSymbol*) self);
-	_tmp18_ = _tmp17_;
-	_tmp19_ = vala_symbol_get_name ((ValaSymbol*) m);
+	_tmp18_ = self->priv->methods;
+	vala_collection_add ((ValaCollection*) _tmp18_, m);
+	_tmp19_ = vala_symbol_get_scope ((ValaSymbol*) self);
 	_tmp20_ = _tmp19_;
-	vala_scope_add (_tmp18_, _tmp20_, (ValaSymbol*) m);
+	_tmp21_ = vala_symbol_get_name ((ValaSymbol*) m);
+	_tmp22_ = _tmp21_;
+	vala_scope_add (_tmp20_, _tmp22_, (ValaSymbol*) m);
 }
 
-
 /**
- * Returns a copy of the list of error codes.
+ * Returns the list of error codes.
  *
  * @return list of error codes
  */
-static gpointer
-_vala_iterable_ref0 (gpointer self)
-{
-	return self ? vala_iterable_ref (self) : NULL;
-}
-
-
 ValaList*
 vala_error_domain_get_codes (ValaErrorDomain* self)
 {
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
-	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->codes;
-	_tmp1_ = _vala_iterable_ref0 (_tmp0_);
-	result = _tmp1_;
+	result = _tmp0_;
 	return result;
 }
 
-
 /**
- * Returns a copy of the list of methods.
+ * Returns the list of methods.
  *
  * @return list of methods
  */
 ValaList*
 vala_error_domain_get_methods (ValaErrorDomain* self)
 {
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
-	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->methods;
-	_tmp1_ = _vala_iterable_ref0 (_tmp0_);
-	result = _tmp1_;
+	result = _tmp0_;
 	return result;
 }
-
 
 static void
 vala_error_domain_real_accept (ValaCodeNode* base,
@@ -243,6 +227,11 @@ vala_error_domain_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_error_domain (visitor, self);
 }
 
+static gpointer
+_vala_iterable_ref0 (gpointer self)
+{
+	return self ? vala_iterable_ref (self) : NULL;
+}
 
 static void
 vala_error_domain_real_accept_children (ValaCodeNode* base,
@@ -271,74 +260,65 @@ vala_error_domain_real_accept_children (ValaCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaErrorCode* ecode = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaErrorCode* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaErrorCode* _tmp9_;
+			_ecode_index = _ecode_index + 1;
 			_tmp5_ = _ecode_index;
-			_ecode_index = _tmp5_ + 1;
-			_tmp6_ = _ecode_index;
-			_tmp7_ = _ecode_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _ecode_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _ecode_list;
-			_tmp9_ = _ecode_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			ecode = (ValaErrorCode*) _tmp10_;
-			_tmp11_ = ecode;
-			vala_code_node_accept ((ValaCodeNode*) _tmp11_, visitor);
+			_tmp7_ = _ecode_list;
+			_tmp8_ = vala_list_get (_tmp7_, _ecode_index);
+			ecode = (ValaErrorCode*) _tmp8_;
+			_tmp9_ = ecode;
+			vala_code_node_accept ((ValaCodeNode*) _tmp9_, visitor);
 			_vala_code_node_unref0 (ecode);
 		}
 		_vala_iterable_unref0 (_ecode_list);
 	}
 	{
 		ValaList* _m_list = NULL;
-		ValaList* _tmp12_;
-		ValaList* _tmp13_;
+		ValaList* _tmp10_;
+		ValaList* _tmp11_;
 		gint _m_size = 0;
-		ValaList* _tmp14_;
-		gint _tmp15_;
-		gint _tmp16_;
+		ValaList* _tmp12_;
+		gint _tmp13_;
+		gint _tmp14_;
 		gint _m_index = 0;
-		_tmp12_ = self->priv->methods;
-		_tmp13_ = _vala_iterable_ref0 (_tmp12_);
-		_m_list = _tmp13_;
-		_tmp14_ = _m_list;
-		_tmp15_ = vala_collection_get_size ((ValaCollection*) _tmp14_);
-		_tmp16_ = _tmp15_;
-		_m_size = _tmp16_;
+		_tmp10_ = self->priv->methods;
+		_tmp11_ = _vala_iterable_ref0 (_tmp10_);
+		_m_list = _tmp11_;
+		_tmp12_ = _m_list;
+		_tmp13_ = vala_collection_get_size ((ValaCollection*) _tmp12_);
+		_tmp14_ = _tmp13_;
+		_m_size = _tmp14_;
 		_m_index = -1;
 		while (TRUE) {
-			gint _tmp17_;
-			gint _tmp18_;
-			gint _tmp19_;
+			gint _tmp15_;
+			gint _tmp16_;
 			ValaMethod* m = NULL;
-			ValaList* _tmp20_;
-			gint _tmp21_;
-			gpointer _tmp22_;
-			ValaMethod* _tmp23_;
-			_tmp17_ = _m_index;
-			_m_index = _tmp17_ + 1;
-			_tmp18_ = _m_index;
-			_tmp19_ = _m_size;
-			if (!(_tmp18_ < _tmp19_)) {
+			ValaList* _tmp17_;
+			gpointer _tmp18_;
+			ValaMethod* _tmp19_;
+			_m_index = _m_index + 1;
+			_tmp15_ = _m_index;
+			_tmp16_ = _m_size;
+			if (!(_tmp15_ < _tmp16_)) {
 				break;
 			}
-			_tmp20_ = _m_list;
-			_tmp21_ = _m_index;
-			_tmp22_ = vala_list_get (_tmp20_, _tmp21_);
-			m = (ValaMethod*) _tmp22_;
-			_tmp23_ = m;
-			vala_code_node_accept ((ValaCodeNode*) _tmp23_, visitor);
+			_tmp17_ = _m_list;
+			_tmp18_ = vala_list_get (_tmp17_, _m_index);
+			m = (ValaMethod*) _tmp18_;
+			_tmp19_ = m;
+			vala_code_node_accept ((ValaCodeNode*) _tmp19_, visitor);
 			_vala_code_node_unref0 (m);
 		}
 		_vala_iterable_unref0 (_m_list);
 	}
 }
-
 
 static gboolean
 vala_error_domain_real_is_reference_type (ValaTypeSymbol* base)
@@ -350,20 +330,19 @@ vala_error_domain_real_is_reference_type (ValaTypeSymbol* base)
 	return result;
 }
 
-
 static gboolean
 vala_error_domain_real_check (ValaCodeNode* base,
                               ValaCodeContext* context)
 {
 	ValaErrorDomain * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaList* _tmp4_;
 	gint _tmp5_;
 	gint _tmp6_;
-	gboolean _tmp37_;
-	gboolean _tmp38_;
+	gboolean _tmp44_;
+	gboolean _tmp45_;
+	gboolean result = FALSE;
 	self = (ValaErrorDomain*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -420,81 +399,103 @@ vala_error_domain_real_check (ValaCodeNode* base,
 		while (TRUE) {
 			gint _tmp18_;
 			gint _tmp19_;
-			gint _tmp20_;
 			ValaErrorCode* ecode = NULL;
-			ValaList* _tmp21_;
-			gint _tmp22_;
-			gpointer _tmp23_;
-			ValaErrorCode* _tmp24_;
+			ValaList* _tmp20_;
+			gpointer _tmp21_;
+			ValaErrorCode* _tmp22_;
+			_ecode_index = _ecode_index + 1;
 			_tmp18_ = _ecode_index;
-			_ecode_index = _tmp18_ + 1;
-			_tmp19_ = _ecode_index;
-			_tmp20_ = _ecode_size;
-			if (!(_tmp19_ < _tmp20_)) {
+			_tmp19_ = _ecode_size;
+			if (!(_tmp18_ < _tmp19_)) {
 				break;
 			}
-			_tmp21_ = _ecode_list;
-			_tmp22_ = _ecode_index;
-			_tmp23_ = vala_list_get (_tmp21_, _tmp22_);
-			ecode = (ValaErrorCode*) _tmp23_;
-			_tmp24_ = ecode;
-			vala_code_node_check ((ValaCodeNode*) _tmp24_, context);
+			_tmp20_ = _ecode_list;
+			_tmp21_ = vala_list_get (_tmp20_, _ecode_index);
+			ecode = (ValaErrorCode*) _tmp21_;
+			_tmp22_ = ecode;
+			vala_code_node_check ((ValaCodeNode*) _tmp22_, context);
 			_vala_code_node_unref0 (ecode);
 		}
 		_vala_iterable_unref0 (_ecode_list);
 	}
 	{
 		ValaList* _m_list = NULL;
-		ValaList* _tmp25_;
-		ValaList* _tmp26_;
+		ValaList* _tmp23_;
+		ValaList* _tmp24_;
 		gint _m_size = 0;
-		ValaList* _tmp27_;
-		gint _tmp28_;
-		gint _tmp29_;
+		ValaList* _tmp25_;
+		gint _tmp26_;
+		gint _tmp27_;
 		gint _m_index = 0;
-		_tmp25_ = self->priv->methods;
-		_tmp26_ = _vala_iterable_ref0 (_tmp25_);
-		_m_list = _tmp26_;
-		_tmp27_ = _m_list;
-		_tmp28_ = vala_collection_get_size ((ValaCollection*) _tmp27_);
-		_tmp29_ = _tmp28_;
-		_m_size = _tmp29_;
+		_tmp23_ = self->priv->methods;
+		_tmp24_ = _vala_iterable_ref0 (_tmp23_);
+		_m_list = _tmp24_;
+		_tmp25_ = _m_list;
+		_tmp26_ = vala_collection_get_size ((ValaCollection*) _tmp25_);
+		_tmp27_ = _tmp26_;
+		_m_size = _tmp27_;
 		_m_index = -1;
 		while (TRUE) {
-			gint _tmp30_;
-			gint _tmp31_;
-			gint _tmp32_;
+			gint _tmp28_;
+			gint _tmp29_;
 			ValaMethod* m = NULL;
-			ValaList* _tmp33_;
-			gint _tmp34_;
-			gpointer _tmp35_;
-			ValaMethod* _tmp36_;
-			_tmp30_ = _m_index;
-			_m_index = _tmp30_ + 1;
-			_tmp31_ = _m_index;
-			_tmp32_ = _m_size;
-			if (!(_tmp31_ < _tmp32_)) {
+			ValaList* _tmp30_;
+			gpointer _tmp31_;
+			ValaMethod* _tmp32_;
+			ValaMemberBinding _tmp33_;
+			ValaMemberBinding _tmp34_;
+			ValaMethod* _tmp43_;
+			_m_index = _m_index + 1;
+			_tmp28_ = _m_index;
+			_tmp29_ = _m_size;
+			if (!(_tmp28_ < _tmp29_)) {
 				break;
 			}
-			_tmp33_ = _m_list;
-			_tmp34_ = _m_index;
-			_tmp35_ = vala_list_get (_tmp33_, _tmp34_);
-			m = (ValaMethod*) _tmp35_;
-			_tmp36_ = m;
-			vala_code_node_check ((ValaCodeNode*) _tmp36_, context);
+			_tmp30_ = _m_list;
+			_tmp31_ = vala_list_get (_tmp30_, _m_index);
+			m = (ValaMethod*) _tmp31_;
+			_tmp32_ = m;
+			_tmp33_ = vala_method_get_binding (_tmp32_);
+			_tmp34_ = _tmp33_;
+			if (_tmp34_ == VALA_MEMBER_BINDING_INSTANCE) {
+				gboolean _tmp35_;
+				gboolean _tmp36_;
+				_tmp35_ = vala_symbol_get_external_package ((ValaSymbol*) self);
+				_tmp36_ = _tmp35_;
+				if (_tmp36_) {
+					ValaMethod* _tmp37_;
+					ValaSourceReference* _tmp38_;
+					ValaSourceReference* _tmp39_;
+					_tmp37_ = m;
+					_tmp38_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp37_);
+					_tmp39_ = _tmp38_;
+					vala_report_warning (_tmp39_, "Instance methods are not supported in error domains yet");
+				} else {
+					ValaMethod* _tmp40_;
+					ValaSourceReference* _tmp41_;
+					ValaSourceReference* _tmp42_;
+					_tmp40_ = m;
+					_tmp41_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp40_);
+					_tmp42_ = _tmp41_;
+					vala_report_error (_tmp42_, "Instance methods are not supported in error domains yet");
+				}
+				vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
+			}
+			_tmp43_ = m;
+			vala_code_node_check ((ValaCodeNode*) _tmp43_, context);
 			_vala_code_node_unref0 (m);
 		}
 		_vala_iterable_unref0 (_m_list);
 	}
-	_tmp37_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp38_ = _tmp37_;
-	result = !_tmp38_;
+	_tmp44_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp45_ = _tmp44_;
+	result = !_tmp45_;
 	return result;
 }
 
-
 static void
-vala_error_domain_class_init (ValaErrorDomainClass * klass)
+vala_error_domain_class_init (ValaErrorDomainClass * klass,
+                              gpointer klass_data)
 {
 	vala_error_domain_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_error_domain_finalize;
@@ -506,9 +507,9 @@ vala_error_domain_class_init (ValaErrorDomainClass * klass)
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_error_domain_real_check;
 }
 
-
 static void
-vala_error_domain_instance_init (ValaErrorDomain * self)
+vala_error_domain_instance_init (ValaErrorDomain * self,
+                                 gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -523,7 +524,6 @@ vala_error_domain_instance_init (ValaErrorDomain * self)
 	self->priv->methods = (ValaList*) _tmp3_;
 }
 
-
 static void
 vala_error_domain_finalize (ValaCodeNode * obj)
 {
@@ -534,23 +534,28 @@ vala_error_domain_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_error_domain_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an error domain declaration in the source code.
  */
+static GType
+vala_error_domain_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaErrorDomainClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_error_domain_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaErrorDomain), 0, (GInstanceInitFunc) vala_error_domain_instance_init, NULL };
+	GType vala_error_domain_type_id;
+	vala_error_domain_type_id = g_type_register_static (VALA_TYPE_TYPESYMBOL, "ValaErrorDomain", &g_define_type_info, 0);
+	ValaErrorDomain_private_offset = g_type_add_instance_private (vala_error_domain_type_id, sizeof (ValaErrorDomainPrivate));
+	return vala_error_domain_type_id;
+}
+
 GType
 vala_error_domain_get_type (void)
 {
 	static volatile gsize vala_error_domain_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_error_domain_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaErrorDomainClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_error_domain_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaErrorDomain), 0, (GInstanceInitFunc) vala_error_domain_instance_init, NULL };
 		GType vala_error_domain_type_id;
-		vala_error_domain_type_id = g_type_register_static (VALA_TYPE_TYPESYMBOL, "ValaErrorDomain", &g_define_type_info, 0);
-		ValaErrorDomain_private_offset = g_type_add_instance_private (vala_error_domain_type_id, sizeof (ValaErrorDomainPrivate));
+		vala_error_domain_type_id = vala_error_domain_get_type_once ();
 		g_once_init_leave (&vala_error_domain_type_id__volatile, vala_error_domain_type_id);
 	}
 	return vala_error_domain_type_id__volatile;
 }
-
-
 

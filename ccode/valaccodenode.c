@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
@@ -41,7 +39,6 @@ struct _ValaParamSpecCCodeNode {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaCCodeNode_private_offset;
 static gpointer vala_ccode_node_parent_class = NULL;
 
@@ -52,7 +49,7 @@ static void vala_ccode_node_real_write_declaration (ValaCCodeNode* self,
 static void vala_ccode_node_real_write_combined (ValaCCodeNode* self,
                                           ValaCCodeWriter* writer);
 static void vala_ccode_node_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_node_get_type_once (void);
 
 static inline gpointer
 vala_ccode_node_get_instance_private (ValaCCodeNode* self)
@@ -60,6 +57,52 @@ vala_ccode_node_get_instance_private (ValaCCodeNode* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeNode_private_offset);
 }
 
+ValaCCodeLineDirective*
+vala_ccode_node_get_line (ValaCCodeNode* self)
+{
+	ValaCCodeLineDirective* result;
+	ValaCCodeLineDirective* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_line;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_ccode_node_ref0 (gpointer self)
+{
+	return self ? vala_ccode_node_ref (self) : NULL;
+}
+
+void
+vala_ccode_node_set_line (ValaCCodeNode* self,
+                          ValaCCodeLineDirective* value)
+{
+	ValaCCodeLineDirective* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_line);
+	self->priv->_line = _tmp0_;
+}
+
+ValaCCodeModifiers
+vala_ccode_node_get_modifiers (ValaCCodeNode* self)
+{
+	ValaCCodeModifiers result;
+	ValaCCodeModifiers _tmp0_;
+	g_return_val_if_fail (self != NULL, 0U);
+	_tmp0_ = self->priv->_modifiers;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_node_set_modifiers (ValaCCodeNode* self,
+                               ValaCCodeModifiers value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_modifiers = value;
+}
 
 /**
  * Writes this code node and all children with the specified C code
@@ -75,7 +118,6 @@ vala_ccode_node_real_write (ValaCCodeNode* self,
 	return;
 }
 
-
 void
 vala_ccode_node_write (ValaCCodeNode* self,
                        ValaCCodeWriter* writer)
@@ -83,7 +125,6 @@ vala_ccode_node_write (ValaCCodeNode* self,
 	g_return_if_fail (self != NULL);
 	VALA_CCODE_NODE_GET_CLASS (self)->write (self, writer);
 }
-
 
 /**
  * Writes declaration for this code node with the specified C code
@@ -98,7 +139,6 @@ vala_ccode_node_real_write_declaration (ValaCCodeNode* self,
 	g_return_if_fail (writer != NULL);
 }
 
-
 void
 vala_ccode_node_write_declaration (ValaCCodeNode* self,
                                    ValaCCodeWriter* writer)
@@ -106,7 +146,6 @@ vala_ccode_node_write_declaration (ValaCCodeNode* self,
 	g_return_if_fail (self != NULL);
 	VALA_CCODE_NODE_GET_CLASS (self)->write_declaration (self, writer);
 }
-
 
 /**
  * Writes declaration and implementation combined for this code node and
@@ -123,7 +162,6 @@ vala_ccode_node_real_write_combined (ValaCCodeNode* self,
 	vala_ccode_node_write (self, writer);
 }
 
-
 void
 vala_ccode_node_write_combined (ValaCCodeNode* self,
                                 ValaCCodeWriter* writer)
@@ -131,7 +169,6 @@ vala_ccode_node_write_combined (ValaCCodeNode* self,
 	g_return_if_fail (self != NULL);
 	VALA_CCODE_NODE_GET_CLASS (self)->write_combined (self, writer);
 }
-
 
 ValaCCodeNode*
 vala_ccode_node_construct (GType object_type)
@@ -141,65 +178,11 @@ vala_ccode_node_construct (GType object_type)
 	return self;
 }
 
-
-ValaCCodeLineDirective*
-vala_ccode_node_get_line (ValaCCodeNode* self)
-{
-	ValaCCodeLineDirective* result;
-	ValaCCodeLineDirective* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_line;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_ccode_node_ref0 (gpointer self)
-{
-	return self ? vala_ccode_node_ref (self) : NULL;
-}
-
-
-void
-vala_ccode_node_set_line (ValaCCodeNode* self,
-                          ValaCCodeLineDirective* value)
-{
-	ValaCCodeLineDirective* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_line);
-	self->priv->_line = _tmp0_;
-}
-
-
-ValaCCodeModifiers
-vala_ccode_node_get_modifiers (ValaCCodeNode* self)
-{
-	ValaCCodeModifiers result;
-	ValaCCodeModifiers _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_modifiers;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_node_set_modifiers (ValaCCodeNode* self,
-                               ValaCCodeModifiers value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_modifiers = value;
-}
-
-
 static void
 vala_value_ccode_node_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_ccode_node_free_value (GValue* value)
@@ -208,7 +191,6 @@ vala_value_ccode_node_free_value (GValue* value)
 		vala_ccode_node_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_ccode_node_copy_value (const GValue* src_value,
@@ -221,13 +203,11 @@ vala_value_ccode_node_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_ccode_node_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_ccode_node_collect_value (GValue* value,
@@ -250,7 +230,6 @@ vala_value_ccode_node_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_ccode_node_lcopy_value (const GValue* value,
                                    guint n_collect_values,
@@ -272,7 +251,6 @@ vala_value_ccode_node_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_ccode_node (const gchar* name,
                             const gchar* nick,
@@ -287,14 +265,12 @@ vala_param_spec_ccode_node (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_ccode_node (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_CCODE_NODE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_ccode_node (GValue* value,
@@ -316,7 +292,6 @@ vala_value_set_ccode_node (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_ccode_node (GValue* value,
                             gpointer v_object)
@@ -336,9 +311,9 @@ vala_value_take_ccode_node (GValue* value,
 	}
 }
 
-
 static void
-vala_ccode_node_class_init (ValaCCodeNodeClass * klass)
+vala_ccode_node_class_init (ValaCCodeNodeClass * klass,
+                            gpointer klass_data)
 {
 	vala_ccode_node_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_node_finalize;
@@ -348,14 +323,13 @@ vala_ccode_node_class_init (ValaCCodeNodeClass * klass)
 	((ValaCCodeNodeClass *) klass)->write_combined = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_node_real_write_combined;
 }
 
-
 static void
-vala_ccode_node_instance_init (ValaCCodeNode * self)
+vala_ccode_node_instance_init (ValaCCodeNode * self,
+                               gpointer klass)
 {
 	self->priv = vala_ccode_node_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_ccode_node_finalize (ValaCCodeNode * obj)
@@ -366,26 +340,32 @@ vala_ccode_node_finalize (ValaCCodeNode * obj)
 	_vala_ccode_node_unref0 (self->priv->_line);
 }
 
-
 /**
  * Represents a node in the C code tree.
  */
+static GType
+vala_ccode_node_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_ccode_node_init, vala_value_ccode_node_free_value, vala_value_ccode_node_copy_value, vala_value_ccode_node_peek_pointer, "p", vala_value_ccode_node_collect_value, "p", vala_value_ccode_node_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeNodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_node_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeNode), 0, (GInstanceInitFunc) vala_ccode_node_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_ccode_node_type_id;
+	vala_ccode_node_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaCCodeNode", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
+	ValaCCodeNode_private_offset = g_type_add_instance_private (vala_ccode_node_type_id, sizeof (ValaCCodeNodePrivate));
+	return vala_ccode_node_type_id;
+}
+
 GType
 vala_ccode_node_get_type (void)
 {
 	static volatile gsize vala_ccode_node_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_node_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_ccode_node_init, vala_value_ccode_node_free_value, vala_value_ccode_node_copy_value, vala_value_ccode_node_peek_pointer, "p", vala_value_ccode_node_collect_value, "p", vala_value_ccode_node_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeNodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_node_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeNode), 0, (GInstanceInitFunc) vala_ccode_node_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_ccode_node_type_id;
-		vala_ccode_node_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaCCodeNode", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
-		ValaCCodeNode_private_offset = g_type_add_instance_private (vala_ccode_node_type_id, sizeof (ValaCCodeNodePrivate));
+		vala_ccode_node_type_id = vala_ccode_node_get_type_once ();
 		g_once_init_leave (&vala_ccode_node_type_id__volatile, vala_ccode_node_type_id);
 	}
 	return vala_ccode_node_type_id__volatile;
 }
-
 
 gpointer
 vala_ccode_node_ref (gpointer instance)
@@ -395,7 +375,6 @@ vala_ccode_node_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_ccode_node_unref (gpointer instance)
@@ -407,6 +386,4 @@ vala_ccode_node_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

@@ -23,13 +23,12 @@
  * 	Brosch Florian <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <glib-object.h>
 #include <gmodule.h>
 #include <stdarg.h>
 
@@ -47,7 +46,6 @@ static GParamSpec* valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_NUM_
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _g_regex_unref0(var) ((var == NULL) ? NULL : (var = (g_regex_unref (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _g_module_close0(var) ((var == NULL) ? NULL : (var = (g_module_close (var), NULL)))
 typedef gint (*ValadocErrorReporterAttyFunc) (gint fd);
 
@@ -72,7 +70,6 @@ struct _ValadocErrorReporterPrivate {
 	ValadocSettings* _settings;
 };
 
-
 static gint ValadocErrorReporter_private_offset;
 static gpointer valadoc_error_reporter_parent_class = NULL;
 
@@ -93,6 +90,7 @@ static inline void valadoc_error_reporter_msg (ValadocErrorReporter* self,
 static void valadoc_error_reporter_print_highlighted_message (ValadocErrorReporter* self,
                                                        const gchar* message);
 static void valadoc_error_reporter_finalize (GObject * obj);
+static GType valadoc_error_reporter_get_type_once (void);
 static void _vala_valadoc_error_reporter_get_property (GObject * object,
                                                 guint property_id,
                                                 GValue * value,
@@ -109,13 +107,134 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 valadoc_error_reporter_get_instance_private (ValadocErrorReporter* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocErrorReporter_private_offset);
 }
 
+gint
+valadoc_error_reporter_get_warnings_offset (ValadocErrorReporter* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_warnings_offset;
+	return result;
+}
+
+void
+valadoc_error_reporter_set_warnings_offset (ValadocErrorReporter* self,
+                                            gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_error_reporter_get_warnings_offset (self);
+	if (old_value != value) {
+		self->priv->_warnings_offset = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_WARNINGS_OFFSET_PROPERTY]);
+	}
+}
+
+gint
+valadoc_error_reporter_get_errors_offset (ValadocErrorReporter* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_errors_offset;
+	return result;
+}
+
+void
+valadoc_error_reporter_set_errors_offset (ValadocErrorReporter* self,
+                                          gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_error_reporter_get_errors_offset (self);
+	if (old_value != value) {
+		self->priv->_errors_offset = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_ERRORS_OFFSET_PROPERTY]);
+	}
+}
+
+FILE*
+valadoc_error_reporter_get_stream (ValadocErrorReporter* self)
+{
+	FILE* result;
+	FILE* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_stream;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_error_reporter_set_stream (ValadocErrorReporter* self,
+                                   FILE* value)
+{
+	FILE* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_error_reporter_get_stream (self);
+	if (old_value != value) {
+		self->priv->_stream = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_STREAM_PROPERTY]);
+	}
+}
+
+ValadocSettings*
+valadoc_error_reporter_get_settings (ValadocErrorReporter* self)
+{
+	ValadocSettings* result;
+	ValadocSettings* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_settings;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_error_reporter_set_settings (ValadocErrorReporter* self,
+                                     ValadocSettings* value)
+{
+	ValadocSettings* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_error_reporter_get_settings (self);
+	if (old_value != value) {
+		ValadocSettings* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_settings);
+		self->priv->_settings = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_SETTINGS_PROPERTY]);
+	}
+}
+
+gint
+valadoc_error_reporter_get_errors (ValadocErrorReporter* self)
+{
+	gint result;
+	gint _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_errors_offset;
+	result = self->priv->_errors + _tmp0_;
+	return result;
+}
+
+gint
+valadoc_error_reporter_get_warnings (ValadocErrorReporter* self)
+{
+	gint result;
+	gint _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_warnings_offset;
+	result = self->priv->_warnings + _tmp0_;
+	return result;
+}
 
 ValadocErrorReporter*
 valadoc_error_reporter_construct (GType object_type,
@@ -130,13 +249,11 @@ valadoc_error_reporter_construct (GType object_type,
 	return self;
 }
 
-
 ValadocErrorReporter*
 valadoc_error_reporter_new (ValadocSettings* settings)
 {
 	return valadoc_error_reporter_construct (VALADOC_TYPE_ERROR_REPORTER, settings);
 }
-
 
 /**
  * Set all colors by string
@@ -149,7 +266,6 @@ gboolean
 valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
                                    const gchar* str)
 {
-	gboolean result = FALSE;
 	GRegex* val_regex = NULL;
 	gchar* error_color = NULL;
 	gchar* warning_color = NULL;
@@ -165,23 +281,24 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 	gchar** _tmp7_;
 	gint _tmp7__length1;
 	FILE* _tmp36_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
 	{
 		GRegex* _tmp0_ = NULL;
 		GRegex* _tmp1_;
 		GRegex* _tmp3_;
-		_tmp1_ = g_regex_new ("^\\s*[0-9]+(;[0-9]*)*\\s*$", 0, 0, &_inner_error_);
+		_tmp1_ = g_regex_new ("^\\s*[0-9]+(;[0-9]*)*\\s*$", 0, 0, &_inner_error0_);
 		_tmp0_ = _tmp1_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			gboolean _tmp2_ = FALSE;
-			if (_inner_error_->domain == G_REGEX_ERROR) {
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
 				goto __catch0_g_regex_error;
 			}
 			_g_regex_unref0 (val_regex);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp2_;
 		}
 		_tmp3_ = _tmp0_;
@@ -193,18 +310,15 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 	goto __finally0;
 	__catch0_g_regex_error:
 	{
-		GError* e = NULL;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		g_assert_not_reached ();
-		_g_error_free0 (e);
 	}
 	__finally0:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gboolean _tmp4_ = FALSE;
 		_g_regex_unref0 (val_regex);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp4_;
 	}
 	error_color = NULL;
@@ -226,7 +340,7 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 		gint fragment_it = 0;
 		fragment_collection = _tmp7_;
 		fragment_collection_length1 = _tmp7__length1;
-		for (fragment_it = 0; fragment_it < _tmp7__length1; fragment_it = fragment_it + 1) {
+		for (fragment_it = 0; fragment_it < fragment_collection_length1; fragment_it = fragment_it + 1) {
 			const gchar* fragment = NULL;
 			fragment = fragment_collection[fragment_it];
 			{
@@ -518,12 +632,10 @@ valadoc_error_reporter_set_colors (ValadocErrorReporter* self,
 	return result;
 }
 
-
 static gboolean
 valadoc_error_reporter_is_atty (ValadocErrorReporter* self,
                                 gint fd)
 {
-	gboolean result = FALSE;
 	GModule* module = NULL;
 	GModule* _tmp0_;
 	GModule* _tmp1_;
@@ -534,6 +646,7 @@ valadoc_error_reporter_is_atty (ValadocErrorReporter* self,
 	ValadocErrorReporterAttyFunc func = NULL;
 	void* _tmp5_;
 	ValadocErrorReporterAttyFunc _tmp6_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = g_module_open (NULL, G_MODULE_BIND_LAZY);
 	module = _tmp0_;
@@ -560,19 +673,17 @@ valadoc_error_reporter_is_atty (ValadocErrorReporter* self,
 	return result;
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static inline void
 valadoc_error_reporter_msg (ValadocErrorReporter* self,
@@ -614,9 +725,9 @@ valadoc_error_reporter_msg (ValadocErrorReporter* self,
 		FILE* _tmp6_;
 		FILE* _tmp7_;
 		const gchar* _tmp8_;
-		FILE* _tmp19_;
-		const gchar* _tmp20_;
-		FILE* _tmp21_;
+		FILE* _tmp15_;
+		const gchar* _tmp16_;
+		FILE* _tmp17_;
 		_tmp6_ = self->priv->_stream;
 		fprintf (_tmp6_, "%s\n", errline);
 		_tmp7_ = self->priv->_stream;
@@ -629,64 +740,55 @@ valadoc_error_reporter_msg (ValadocErrorReporter* self,
 				gboolean _tmp9_ = FALSE;
 				_tmp9_ = TRUE;
 				while (TRUE) {
-					gint _tmp11_;
-					gint _tmp12_;
 					if (!_tmp9_) {
 						gint _tmp10_;
 						_tmp10_ = i;
 						i = _tmp10_ + 1;
 					}
 					_tmp9_ = FALSE;
-					_tmp11_ = i;
-					if (!(_tmp11_ < (g_utf8_strlen (errline, (gssize) -1) + 1))) {
+					if (!(i < (g_utf8_strlen (errline, (gssize) -1) + 1))) {
 						break;
 					}
-					_tmp12_ = i;
-					if (string_get (errline, (glong) _tmp12_) == '\t') {
-						FILE* _tmp13_;
-						_tmp13_ = self->priv->_stream;
-						fprintf (_tmp13_, "\t");
+					if (string_get (errline, (glong) i) == '\t') {
+						FILE* _tmp11_;
+						_tmp11_ = self->priv->_stream;
+						fprintf (_tmp11_, "\t");
 					} else {
-						gboolean _tmp14_ = FALSE;
-						gint _tmp15_;
-						_tmp15_ = i;
-						if (((glong) _tmp15_) >= (startpos - 1)) {
-							gint _tmp16_;
-							_tmp16_ = i;
-							_tmp14_ = ((glong) _tmp16_) < (endpos - 1);
+						gboolean _tmp12_ = FALSE;
+						if (((glong) i) >= (startpos - 1)) {
+							_tmp12_ = ((glong) i) < (endpos - 1);
 						} else {
-							_tmp14_ = FALSE;
+							_tmp12_ = FALSE;
 						}
-						if (_tmp14_) {
-							FILE* _tmp17_;
-							_tmp17_ = self->priv->_stream;
-							fprintf (_tmp17_, "^");
+						if (_tmp12_) {
+							FILE* _tmp13_;
+							_tmp13_ = self->priv->_stream;
+							fprintf (_tmp13_, "^");
 						} else {
-							FILE* _tmp18_;
-							_tmp18_ = self->priv->_stream;
-							fprintf (_tmp18_, " ");
+							FILE* _tmp14_;
+							_tmp14_ = self->priv->_stream;
+							fprintf (_tmp14_, " ");
 						}
 					}
 				}
 			}
 		}
-		_tmp19_ = self->priv->_stream;
-		_tmp20_ = self->priv->caret_color_end;
-		fputs (_tmp20_, _tmp19_);
-		_tmp21_ = self->priv->_stream;
-		fprintf (_tmp21_, "\n");
+		_tmp15_ = self->priv->_stream;
+		_tmp16_ = self->priv->caret_color_end;
+		fputs (_tmp16_, _tmp15_);
+		_tmp17_ = self->priv->_stream;
+		fprintf (_tmp17_, "\n");
 	}
 }
-
 
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -701,17 +803,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -728,37 +828,29 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gint
 string_index_of_char (const gchar* self,
                       gunichar c,
                       gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -774,7 +866,6 @@ string_index_of_char (const gchar* self,
 	}
 }
 
-
 static const gchar*
 string_offset (const gchar* self,
                glong offset)
@@ -785,145 +876,103 @@ string_offset (const gchar* self,
 	return result;
 }
 
-
 static void
 valadoc_error_reporter_print_highlighted_message (ValadocErrorReporter* self,
                                                   const gchar* message)
 {
 	gint start = 0;
 	gint cur = 0;
-	FILE* _tmp38_;
-	gint _tmp39_;
-	const gchar* _tmp40_;
+	FILE* _tmp19_;
+	const gchar* _tmp20_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	start = 0;
 	cur = 0;
 	while (TRUE) {
-		gint _tmp0_;
-		gboolean _tmp1_ = FALSE;
-		gint _tmp2_;
-		_tmp0_ = cur;
-		if (!(string_get (message, (glong) _tmp0_) != '\0')) {
+		gboolean _tmp0_ = FALSE;
+		if (!(string_get (message, (glong) cur) != '\0')) {
 			break;
 		}
-		_tmp2_ = cur;
-		if (string_get (message, (glong) _tmp2_) == '\'') {
-			_tmp1_ = TRUE;
+		if (string_get (message, (glong) cur) == '\'') {
+			_tmp0_ = TRUE;
 		} else {
-			gint _tmp3_;
-			_tmp3_ = cur;
-			_tmp1_ = string_get (message, (glong) _tmp3_) == '`';
+			_tmp0_ = string_get (message, (glong) cur) == '`';
 		}
-		if (_tmp1_) {
-			const gchar* _tmp4_ = NULL;
-			gint _tmp5_;
+		if (_tmp0_) {
+			const gchar* _tmp1_ = NULL;
 			const gchar* end_chars = NULL;
-			FILE* _tmp6_;
-			gint _tmp7_;
-			gint _tmp8_;
-			gint _tmp9_;
-			gchar* _tmp10_;
-			gchar* _tmp11_;
-			gint _tmp12_;
-			gint _tmp13_;
-			gint _tmp19_;
-			_tmp5_ = cur;
-			if (string_get (message, (glong) _tmp5_) == '`') {
-				_tmp4_ = "`'";
+			FILE* _tmp2_;
+			gchar* _tmp3_;
+			gchar* _tmp4_;
+			gint _tmp5_;
+			if (string_get (message, (glong) cur) == '`') {
+				_tmp1_ = "`'";
 			} else {
-				_tmp4_ = "'";
+				_tmp1_ = "'";
 			}
-			end_chars = _tmp4_;
-			_tmp6_ = self->priv->_stream;
-			_tmp7_ = start;
-			_tmp8_ = cur;
-			_tmp9_ = start;
-			_tmp10_ = string_substring (message, (glong) _tmp7_, (glong) (_tmp8_ - _tmp9_));
-			_tmp11_ = _tmp10_;
-			fputs (_tmp11_, _tmp6_);
-			_g_free0 (_tmp11_);
-			_tmp12_ = cur;
-			start = _tmp12_;
-			_tmp13_ = cur;
-			cur = _tmp13_ + 1;
+			end_chars = _tmp1_;
+			_tmp2_ = self->priv->_stream;
+			_tmp3_ = string_substring (message, (glong) start, (glong) (cur - start));
+			_tmp4_ = _tmp3_;
+			fputs (_tmp4_, _tmp2_);
+			_g_free0 (_tmp4_);
+			start = cur;
+			_tmp5_ = cur;
+			cur = _tmp5_ + 1;
 			while (TRUE) {
-				gboolean _tmp14_ = FALSE;
-				gint _tmp15_;
-				gint _tmp18_;
-				_tmp15_ = cur;
-				if (string_get (message, (glong) _tmp15_) != '\0') {
-					const gchar* _tmp16_;
-					gint _tmp17_;
-					_tmp16_ = end_chars;
-					_tmp17_ = cur;
-					_tmp14_ = string_index_of_char (_tmp16_, (gunichar) string_get (message, (glong) _tmp17_), 0) < 0;
+				gboolean _tmp6_ = FALSE;
+				gint _tmp8_;
+				if (string_get (message, (glong) cur) != '\0') {
+					const gchar* _tmp7_;
+					_tmp7_ = end_chars;
+					_tmp6_ = string_index_of_char (_tmp7_, (gunichar) string_get (message, (glong) cur), 0) < 0;
 				} else {
-					_tmp14_ = FALSE;
+					_tmp6_ = FALSE;
 				}
-				if (!_tmp14_) {
+				if (!_tmp6_) {
 					break;
 				}
-				_tmp18_ = cur;
-				cur = _tmp18_ + 1;
+				_tmp8_ = cur;
+				cur = _tmp8_ + 1;
 			}
-			_tmp19_ = cur;
-			if (string_get (message, (glong) _tmp19_) == '\0') {
-				FILE* _tmp20_;
-				gint _tmp21_;
-				gint _tmp22_;
-				gint _tmp23_;
-				gchar* _tmp24_;
-				gchar* _tmp25_;
-				gint _tmp26_;
-				_tmp20_ = self->priv->_stream;
-				_tmp21_ = start;
-				_tmp22_ = cur;
-				_tmp23_ = start;
-				_tmp24_ = string_substring (message, (glong) _tmp21_, (glong) (_tmp22_ - _tmp23_));
-				_tmp25_ = _tmp24_;
-				fputs (_tmp25_, _tmp20_);
-				_g_free0 (_tmp25_);
-				_tmp26_ = cur;
-				start = _tmp26_;
+			if (string_get (message, (glong) cur) == '\0') {
+				FILE* _tmp9_;
+				gchar* _tmp10_;
+				gchar* _tmp11_;
+				_tmp9_ = self->priv->_stream;
+				_tmp10_ = string_substring (message, (glong) start, (glong) (cur - start));
+				_tmp11_ = _tmp10_;
+				fputs (_tmp11_, _tmp9_);
+				_g_free0 (_tmp11_);
+				start = cur;
 			} else {
-				gint _tmp27_;
-				FILE* _tmp28_;
-				const gchar* _tmp29_;
-				gint _tmp30_;
-				gint _tmp31_;
-				gint _tmp32_;
-				gchar* _tmp33_;
-				gchar* _tmp34_;
-				const gchar* _tmp35_;
-				gint _tmp36_;
-				_tmp27_ = cur;
-				cur = _tmp27_ + 1;
-				_tmp28_ = self->priv->_stream;
-				_tmp29_ = self->priv->quote_color_start;
-				_tmp30_ = start;
-				_tmp31_ = cur;
-				_tmp32_ = start;
-				_tmp33_ = string_substring (message, (glong) _tmp30_, (glong) (_tmp31_ - _tmp32_));
-				_tmp34_ = _tmp33_;
-				_tmp35_ = self->priv->quote_color_end;
-				fprintf (_tmp28_, "%s%s%s", _tmp29_, _tmp34_, _tmp35_);
-				_g_free0 (_tmp34_);
-				_tmp36_ = cur;
-				start = _tmp36_;
+				gint _tmp12_;
+				FILE* _tmp13_;
+				const gchar* _tmp14_;
+				gchar* _tmp15_;
+				gchar* _tmp16_;
+				const gchar* _tmp17_;
+				_tmp12_ = cur;
+				cur = _tmp12_ + 1;
+				_tmp13_ = self->priv->_stream;
+				_tmp14_ = self->priv->quote_color_start;
+				_tmp15_ = string_substring (message, (glong) start, (glong) (cur - start));
+				_tmp16_ = _tmp15_;
+				_tmp17_ = self->priv->quote_color_end;
+				fprintf (_tmp13_, "%s%s%s", _tmp14_, _tmp16_, _tmp17_);
+				_g_free0 (_tmp16_);
+				start = cur;
 			}
 		} else {
-			gint _tmp37_;
-			_tmp37_ = cur;
-			cur = _tmp37_ + 1;
+			gint _tmp18_;
+			_tmp18_ = cur;
+			cur = _tmp18_ + 1;
 		}
 	}
-	_tmp38_ = self->priv->_stream;
-	_tmp39_ = start;
-	_tmp40_ = string_offset (message, (glong) _tmp39_);
-	fputs (_tmp40_, _tmp38_);
+	_tmp19_ = self->priv->_stream;
+	_tmp20_ = string_offset (message, (glong) start);
+	fputs (_tmp20_, _tmp19_);
 }
-
 
 void
 valadoc_error_reporter_simple_warning (ValadocErrorReporter* self,
@@ -980,7 +1029,6 @@ valadoc_error_reporter_simple_warning (ValadocErrorReporter* self,
 	self->priv->_warnings = _tmp14_ + 1;
 	va_end (args);
 }
-
 
 void
 valadoc_error_reporter_simple_error (ValadocErrorReporter* self,
@@ -1041,7 +1089,6 @@ valadoc_error_reporter_simple_error (ValadocErrorReporter* self,
 	va_end (args);
 }
 
-
 void
 valadoc_error_reporter_simple_note (ValadocErrorReporter* self,
                                     const gchar* location,
@@ -1057,64 +1104,61 @@ valadoc_error_reporter_simple_note (ValadocErrorReporter* self,
 		_tmp0_ = TRUE;
 	} else {
 		ValadocSettings* _tmp2_;
-		gboolean _tmp3_;
 		_tmp2_ = self->priv->_settings;
-		_tmp3_ = _tmp2_->verbose;
-		_tmp0_ = _tmp3_;
+		_tmp0_ = _tmp2_->verbose;
 	}
 	if (_tmp0_) {
 		va_list args = {0};
-		FILE* _tmp11_;
-		const gchar* _tmp12_;
+		FILE* _tmp10_;
+		const gchar* _tmp11_;
+		FILE* _tmp12_;
 		FILE* _tmp13_;
-		FILE* _tmp14_;
-		const gchar* _tmp15_;
+		const gchar* _tmp14_;
+		gchar* _tmp15_;
 		gchar* _tmp16_;
-		gchar* _tmp17_;
-		FILE* _tmp18_;
-		gint _tmp19_;
+		FILE* _tmp17_;
+		gint _tmp18_;
 		va_start (args, msg_format);
 		if (location != NULL) {
-			FILE* _tmp4_;
-			const gchar* _tmp5_;
+			FILE* _tmp3_;
+			const gchar* _tmp4_;
+			FILE* _tmp5_;
 			FILE* _tmp6_;
 			FILE* _tmp7_;
-			FILE* _tmp8_;
-			const gchar* _tmp9_;
-			FILE* _tmp10_;
-			_tmp4_ = self->priv->_stream;
-			_tmp5_ = self->priv->locus_color_start;
-			fputs (_tmp5_, _tmp4_);
+			const gchar* _tmp8_;
+			FILE* _tmp9_;
+			_tmp3_ = self->priv->_stream;
+			_tmp4_ = self->priv->locus_color_start;
+			fputs (_tmp4_, _tmp3_);
+			_tmp5_ = self->priv->_stream;
+			fputs (location, _tmp5_);
 			_tmp6_ = self->priv->_stream;
-			fputs (location, _tmp6_);
+			fputs (": ", _tmp6_);
 			_tmp7_ = self->priv->_stream;
-			fputs (": ", _tmp7_);
-			_tmp8_ = self->priv->_stream;
-			_tmp9_ = self->priv->locus_color_end;
-			fputs (_tmp9_, _tmp8_);
-			_tmp10_ = self->priv->_stream;
-			fputc (' ', _tmp10_);
+			_tmp8_ = self->priv->locus_color_end;
+			fputs (_tmp8_, _tmp7_);
+			_tmp9_ = self->priv->_stream;
+			fputc (' ', _tmp9_);
 		}
-		_tmp11_ = self->priv->_stream;
-		_tmp12_ = self->priv->note_color_start;
-		fputs (_tmp12_, _tmp11_);
+		_tmp10_ = self->priv->_stream;
+		_tmp11_ = self->priv->note_color_start;
+		fputs (_tmp11_, _tmp10_);
+		_tmp12_ = self->priv->_stream;
+		fputs ("note: ", _tmp12_);
 		_tmp13_ = self->priv->_stream;
-		fputs ("note: ", _tmp13_);
-		_tmp14_ = self->priv->_stream;
-		_tmp15_ = self->priv->note_color_end;
-		fputs (_tmp15_, _tmp14_);
-		_tmp16_ = g_strdup_vprintf (msg_format, args);
-		_tmp17_ = _tmp16_;
-		valadoc_error_reporter_print_highlighted_message (self, _tmp17_);
-		_g_free0 (_tmp17_);
-		_tmp18_ = self->priv->_stream;
-		fputc ('\n', _tmp18_);
-		_tmp19_ = self->priv->_warnings;
-		self->priv->_warnings = _tmp19_ + 1;
+		_tmp14_ = self->priv->note_color_end;
+		fputs (_tmp14_, _tmp13_);
+		_tmp15_ = g_strdup_vprintf (msg_format, args);
+		_tmp16_ = _tmp15_;
+		valadoc_error_reporter_print_highlighted_message (self, _tmp16_);
+		_g_free0 (_tmp16_);
+		_tmp17_ = self->priv->_stream;
+		fputc ('\n', _tmp17_);
+		_tmp18_ = self->priv->_warnings;
+		self->priv->_warnings = _tmp18_ + 1;
 		va_end (args);
 	}
 }
-
 
 void
 valadoc_error_reporter_error (ValadocErrorReporter* self,
@@ -1143,7 +1187,6 @@ valadoc_error_reporter_error (ValadocErrorReporter* self,
 	va_end (args);
 }
 
-
 void
 valadoc_error_reporter_warning (ValadocErrorReporter* self,
                                 const gchar* file,
@@ -1171,143 +1214,9 @@ valadoc_error_reporter_warning (ValadocErrorReporter* self,
 	va_end (args);
 }
 
-
-gint
-valadoc_error_reporter_get_warnings_offset (ValadocErrorReporter* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_warnings_offset;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_error_reporter_set_warnings_offset (ValadocErrorReporter* self,
-                                            gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_error_reporter_get_warnings_offset (self) != value) {
-		self->priv->_warnings_offset = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_WARNINGS_OFFSET_PROPERTY]);
-	}
-}
-
-
-gint
-valadoc_error_reporter_get_errors_offset (ValadocErrorReporter* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_errors_offset;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_error_reporter_set_errors_offset (ValadocErrorReporter* self,
-                                          gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_error_reporter_get_errors_offset (self) != value) {
-		self->priv->_errors_offset = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_ERRORS_OFFSET_PROPERTY]);
-	}
-}
-
-
-FILE*
-valadoc_error_reporter_get_stream (ValadocErrorReporter* self)
-{
-	FILE* result;
-	FILE* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_stream;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_error_reporter_set_stream (ValadocErrorReporter* self,
-                                   FILE* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_error_reporter_get_stream (self) != value) {
-		self->priv->_stream = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_STREAM_PROPERTY]);
-	}
-}
-
-
-ValadocSettings*
-valadoc_error_reporter_get_settings (ValadocErrorReporter* self)
-{
-	ValadocSettings* result;
-	ValadocSettings* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_settings;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
-void
-valadoc_error_reporter_set_settings (ValadocErrorReporter* self,
-                                     ValadocSettings* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_error_reporter_get_settings (self) != value) {
-		ValadocSettings* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_settings);
-		self->priv->_settings = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_SETTINGS_PROPERTY]);
-	}
-}
-
-
-gint
-valadoc_error_reporter_get_errors (ValadocErrorReporter* self)
-{
-	gint result;
-	gint _tmp0_;
-	gint _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_errors;
-	_tmp1_ = self->priv->_errors_offset;
-	result = _tmp0_ + _tmp1_;
-	return result;
-}
-
-
-gint
-valadoc_error_reporter_get_warnings (ValadocErrorReporter* self)
-{
-	gint result;
-	gint _tmp0_;
-	gint _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_warnings;
-	_tmp1_ = self->priv->_warnings_offset;
-	result = _tmp0_ + _tmp1_;
-	return result;
-}
-
-
 static void
-valadoc_error_reporter_class_init (ValadocErrorReporterClass * klass)
+valadoc_error_reporter_class_init (ValadocErrorReporterClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_error_reporter_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocErrorReporter_private_offset);
@@ -1322,9 +1231,9 @@ valadoc_error_reporter_class_init (ValadocErrorReporterClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_ERROR_REPORTER_WARNINGS_PROPERTY, valadoc_error_reporter_properties[VALADOC_ERROR_REPORTER_WARNINGS_PROPERTY] = g_param_spec_int ("warnings", "warnings", "warnings", G_MININT, G_MAXINT, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_error_reporter_instance_init (ValadocErrorReporter * self)
+valadoc_error_reporter_instance_init (ValadocErrorReporter * self,
+                                      gpointer klass)
 {
 	gchar* _tmp0_;
 	gchar* _tmp1_;
@@ -1355,7 +1264,6 @@ valadoc_error_reporter_instance_init (ValadocErrorReporter * self)
 	self->priv->quote_color_end = "";
 }
 
-
 static void
 valadoc_error_reporter_finalize (GObject * obj)
 {
@@ -1371,21 +1279,27 @@ valadoc_error_reporter_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_error_reporter_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_error_reporter_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocErrorReporterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_error_reporter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocErrorReporter), 0, (GInstanceInitFunc) valadoc_error_reporter_instance_init, NULL };
+	GType valadoc_error_reporter_type_id;
+	valadoc_error_reporter_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocErrorReporter", &g_define_type_info, 0);
+	ValadocErrorReporter_private_offset = g_type_add_instance_private (valadoc_error_reporter_type_id, sizeof (ValadocErrorReporterPrivate));
+	return valadoc_error_reporter_type_id;
+}
 
 GType
 valadoc_error_reporter_get_type (void)
 {
 	static volatile gsize valadoc_error_reporter_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_error_reporter_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocErrorReporterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_error_reporter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocErrorReporter), 0, (GInstanceInitFunc) valadoc_error_reporter_instance_init, NULL };
 		GType valadoc_error_reporter_type_id;
-		valadoc_error_reporter_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocErrorReporter", &g_define_type_info, 0);
-		ValadocErrorReporter_private_offset = g_type_add_instance_private (valadoc_error_reporter_type_id, sizeof (ValadocErrorReporterPrivate));
+		valadoc_error_reporter_type_id = valadoc_error_reporter_get_type_once ();
 		g_once_init_leave (&valadoc_error_reporter_type_id__volatile, valadoc_error_reporter_type_id);
 	}
 	return valadoc_error_reporter_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_error_reporter_get_property (GObject * object,
@@ -1420,7 +1334,6 @@ _vala_valadoc_error_reporter_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_error_reporter_set_property (GObject * object,
                                            guint property_id,
@@ -1448,14 +1361,13 @@ _vala_valadoc_error_reporter_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1463,7 +1375,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1474,11 +1385,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1487,6 +1397,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

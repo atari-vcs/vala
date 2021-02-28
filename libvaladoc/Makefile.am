@@ -3,8 +3,8 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CFLAGS = \
-	-DPACKAGE_ICONDIR=\"$(datadir)/valadoc/icons/\" \
-	-DPACKAGE_DATADIR=\"$(libdir)/valadoc\" \
+	-DG_LOG_DOMAIN=\"valadoc\" \
+	-DPACKAGE_VALADOC_LIBDIR=\"$(libdir)/valadoc@PACKAGE_SUFFIX@\" \
 	-DPACKAGE_VERSION=\"$(VERSION)\" \
 	$(COVERAGE_CFLAGS) \
 	$(LIBGVC_CFLAGS) \
@@ -53,10 +53,8 @@ libvaladoc_la_VALASOURCES = \
 	importer/valadocdocumentationimporterscanner.vala \
 	importer/girdocumentationimporter.vala \
 	importer/internalidregistrar.vala \
-	api/symbolaccessibility.vala \
 	api/sourcecomment.vala \
 	api/girsourcecomment.vala \
-	api/attributeargument.vala \
 	api/attribute.vala \
 	api/array.vala \
 	api/callable.vala \
@@ -69,23 +67,18 @@ libvaladoc_la_VALASOURCES = \
 	api/errorcode.vala \
 	api/errordomain.vala \
 	api/field.vala \
-	api/formalparameter.vala \
-	api/formalparametertype.vala \
 	api/interface.vala \
 	api/item.vala \
-	api/member.vala \
 	api/method.vala \
-	api/methodbindingtype.vala \
 	api/namespace.vala \
 	api/node.vala \
 	api/nodetype.vala \
 	api/ownership.vala \
 	api/package.vala \
+	api/parameter.vala \
 	api/pointer.vala \
 	api/property.vala \
 	api/propertyaccessor.vala \
-	api/propertyaccessortype.vala \
-	api/propertybindingtype.vala \
 	api/signal.vala \
 	api/signaturebuilder.vala \
 	api/sourcefile.vala \
@@ -95,9 +88,7 @@ libvaladoc_la_VALASOURCES = \
 	api/typeparameter.vala \
 	api/typereference.vala \
 	api/typesymbol.vala \
-	api/browsable.vala \
 	api/visitor.vala \
-	api/driver.vala \
 	content/block.vala \
 	content/blockcontent.vala \
 	content/comment.vala \

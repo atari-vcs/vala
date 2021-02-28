@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CONTENT_HEADLINE_0_PROPERTY,
@@ -44,7 +43,6 @@ static GParamSpec* valadoc_content_headline_properties[VALADOC_CONTENT_HEADLINE_
 struct _ValadocContentHeadlinePrivate {
 	gint _level;
 };
-
 
 static gint ValadocContentHeadline_private_offset;
 static gpointer valadoc_content_headline_parent_class = NULL;
@@ -67,6 +65,7 @@ static ValadocContentContentElement* valadoc_content_headline_real_copy (Valadoc
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_headline_finalize (GObject * obj);
+static GType valadoc_content_headline_get_type_once (void);
 static void _vala_valadoc_content_headline_get_property (GObject * object,
                                                   guint property_id,
                                                   GValue * value,
@@ -76,13 +75,33 @@ static void _vala_valadoc_content_headline_set_property (GObject * object,
                                                   const GValue * value,
                                                   GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_content_headline_get_instance_private (ValadocContentHeadline* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentHeadline_private_offset);
 }
 
+gint
+valadoc_content_headline_get_level (ValadocContentHeadline* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_level;
+	return result;
+}
+
+void
+valadoc_content_headline_set_level (ValadocContentHeadline* self,
+                                    gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_headline_get_level (self);
+	if (old_value != value) {
+		self->priv->_level = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_headline_properties[VALADOC_CONTENT_HEADLINE_LEVEL_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentHeadline*
 valadoc_content_headline_construct (GType object_type)
@@ -93,13 +112,11 @@ valadoc_content_headline_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentHeadline*
 valadoc_content_headline_new (void)
 {
 	return valadoc_content_headline_construct (VALADOC_CONTENT_TYPE_HEADLINE);
 }
-
 
 static void
 valadoc_content_headline_real_check (ValadocContentContentElement* base,
@@ -119,7 +136,6 @@ valadoc_content_headline_real_check (ValadocContentContentElement* base,
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_content_headline_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_INLINE_CONTENT, ValadocContentInlineContent), api_root, container, file_path, reporter, settings);
 }
 
-
 static void
 valadoc_content_headline_real_accept (ValadocContentContentElement* base,
                                       ValadocContentContentVisitor* visitor)
@@ -129,7 +145,6 @@ valadoc_content_headline_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_headline (visitor, self);
 }
-
 
 static gboolean
 valadoc_content_headline_real_is_empty (ValadocContentContentElement* base)
@@ -141,25 +156,23 @@ valadoc_content_headline_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_headline_real_copy (ValadocContentContentElement* base,
                                     ValadocContentContentElement* new_parent)
 {
 	ValadocContentHeadline * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentHeadline* headline = NULL;
 	ValadocContentHeadline* _tmp0_;
 	ValadocContentHeadline* _tmp1_;
 	ValadocContentHeadline* _tmp2_;
 	gint _tmp3_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentHeadline*) base;
 	_tmp0_ = valadoc_content_headline_new ();
 	headline = _tmp0_;
@@ -190,44 +203,40 @@ valadoc_content_headline_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp10_;
 			gint _tmp11_;
-			gint _tmp12_;
 			ValadocContentInline* element = NULL;
-			ValaList* _tmp13_;
-			gint _tmp14_;
-			gpointer _tmp15_;
+			ValaList* _tmp12_;
+			gpointer _tmp13_;
 			ValadocContentInline* copy = NULL;
-			ValadocContentInline* _tmp16_;
-			ValadocContentHeadline* _tmp17_;
-			ValadocContentContentElement* _tmp18_;
-			ValadocContentInline* _tmp19_;
-			ValadocContentHeadline* _tmp20_;
-			ValaList* _tmp21_;
-			ValaList* _tmp22_;
-			ValadocContentInline* _tmp23_;
+			ValadocContentInline* _tmp14_;
+			ValadocContentHeadline* _tmp15_;
+			ValadocContentContentElement* _tmp16_;
+			ValadocContentInline* _tmp17_;
+			ValadocContentHeadline* _tmp18_;
+			ValaList* _tmp19_;
+			ValaList* _tmp20_;
+			ValadocContentInline* _tmp21_;
+			_element_index = _element_index + 1;
 			_tmp10_ = _element_index;
-			_element_index = _tmp10_ + 1;
-			_tmp11_ = _element_index;
-			_tmp12_ = _element_size;
-			if (!(_tmp11_ < _tmp12_)) {
+			_tmp11_ = _element_size;
+			if (!(_tmp10_ < _tmp11_)) {
 				break;
 			}
-			_tmp13_ = _element_list;
-			_tmp14_ = _element_index;
-			_tmp15_ = vala_list_get (_tmp13_, _tmp14_);
-			element = (ValadocContentInline*) _tmp15_;
-			_tmp16_ = element;
-			_tmp17_ = headline;
-			_tmp18_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp16_, (ValadocContentContentElement*) _tmp17_);
-			_tmp19_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp18_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp18_) : NULL;
-			if (_tmp19_ == NULL) {
-				_g_object_unref0 (_tmp18_);
+			_tmp12_ = _element_list;
+			_tmp13_ = vala_list_get (_tmp12_, _element_index);
+			element = (ValadocContentInline*) _tmp13_;
+			_tmp14_ = element;
+			_tmp15_ = headline;
+			_tmp16_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp14_, (ValadocContentContentElement*) _tmp15_);
+			_tmp17_ = VALADOC_CONTENT_IS_INLINE (_tmp16_) ? ((ValadocContentInline*) _tmp16_) : NULL;
+			if (_tmp17_ == NULL) {
+				_g_object_unref0 (_tmp16_);
 			}
-			copy = _tmp19_;
-			_tmp20_ = headline;
-			_tmp21_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp20_);
-			_tmp22_ = _tmp21_;
-			_tmp23_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp22_, _tmp23_);
+			copy = _tmp17_;
+			_tmp18_ = headline;
+			_tmp19_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp18_);
+			_tmp20_ = _tmp19_;
+			_tmp21_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp20_, _tmp21_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -237,33 +246,9 @@ valadoc_content_headline_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-gint
-valadoc_content_headline_get_level (ValadocContentHeadline* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_level;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_headline_set_level (ValadocContentHeadline* self,
-                                    gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_headline_get_level (self) != value) {
-		self->priv->_level = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_headline_properties[VALADOC_CONTENT_HEADLINE_LEVEL_PROPERTY]);
-	}
-}
-
-
 static void
-valadoc_content_headline_class_init (ValadocContentHeadlineClass * klass)
+valadoc_content_headline_class_init (ValadocContentHeadlineClass * klass,
+                                     gpointer klass_data)
 {
 	valadoc_content_headline_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentHeadline_private_offset);
@@ -277,20 +262,19 @@ valadoc_content_headline_class_init (ValadocContentHeadlineClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_HEADLINE_LEVEL_PROPERTY, valadoc_content_headline_properties[VALADOC_CONTENT_HEADLINE_LEVEL_PROPERTY] = g_param_spec_int ("level", "level", "level", G_MININT, G_MAXINT, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_headline_valadoc_content_block_interface_init (ValadocContentBlockIface * iface)
+valadoc_content_headline_valadoc_content_block_interface_init (ValadocContentBlockIface * iface,
+                                                               gpointer iface_data)
 {
 	valadoc_content_headline_valadoc_content_block_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_headline_instance_init (ValadocContentHeadline * self)
+valadoc_content_headline_instance_init (ValadocContentHeadline * self,
+                                        gpointer klass)
 {
 	self->priv = valadoc_content_headline_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_headline_finalize (GObject * obj)
@@ -300,23 +284,29 @@ valadoc_content_headline_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_headline_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_headline_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentHeadlineClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_headline_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentHeadline), 0, (GInstanceInitFunc) valadoc_content_headline_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_headline_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_headline_type_id;
+	valadoc_content_headline_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentHeadline", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_headline_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
+	ValadocContentHeadline_private_offset = g_type_add_instance_private (valadoc_content_headline_type_id, sizeof (ValadocContentHeadlinePrivate));
+	return valadoc_content_headline_type_id;
+}
 
 GType
 valadoc_content_headline_get_type (void)
 {
 	static volatile gsize valadoc_content_headline_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_headline_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentHeadlineClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_headline_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentHeadline), 0, (GInstanceInitFunc) valadoc_content_headline_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_headline_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_headline_type_id;
-		valadoc_content_headline_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentHeadline", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_headline_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
-		ValadocContentHeadline_private_offset = g_type_add_instance_private (valadoc_content_headline_type_id, sizeof (ValadocContentHeadlinePrivate));
+		valadoc_content_headline_type_id = valadoc_content_headline_get_type_once ();
 		g_once_init_leave (&valadoc_content_headline_type_id__volatile, valadoc_content_headline_type_id);
 	}
 	return valadoc_content_headline_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_headline_get_property (GObject * object,
@@ -336,7 +326,6 @@ _vala_valadoc_content_headline_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_headline_set_property (GObject * object,
                                              guint property_id,
@@ -354,6 +343,4 @@ _vala_valadoc_content_headline_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

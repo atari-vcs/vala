@@ -23,62 +23,26 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
-#include <stdlib.h>
-#include <string.h>
 
-
-
-
-
-
-const gchar*
-valadoc_api_ownership_to_string (ValadocApiOwnership self)
+static GType
+valadoc_api_ownership_get_type_once (void)
 {
-	const gchar* result = NULL;
-	switch (self) {
-		case VALADOC_API_OWNERSHIP_UNOWNED:
-		{
-			result = "unowned";
-			return result;
-		}
-		case VALADOC_API_OWNERSHIP_OWNED:
-		{
-			result = "owned";
-			return result;
-		}
-		case VALADOC_API_OWNERSHIP_WEAK:
-		{
-			result = "weak";
-			return result;
-		}
-		case VALADOC_API_OWNERSHIP_DEFAULT:
-		{
-			result = "";
-			return result;
-		}
-		default:
-		break;
-	}
-	g_assert_not_reached ();
+	static const GEnumValue values[] = {{VALADOC_API_OWNERSHIP_DEFAULT, "VALADOC_API_OWNERSHIP_DEFAULT", "default"}, {VALADOC_API_OWNERSHIP_UNOWNED, "VALADOC_API_OWNERSHIP_UNOWNED", "unowned"}, {VALADOC_API_OWNERSHIP_OWNED, "VALADOC_API_OWNERSHIP_OWNED", "owned"}, {VALADOC_API_OWNERSHIP_WEAK, "VALADOC_API_OWNERSHIP_WEAK", "weak"}, {0, NULL, NULL}};
+	GType valadoc_api_ownership_type_id;
+	valadoc_api_ownership_type_id = g_enum_register_static ("ValadocApiOwnership", values);
+	return valadoc_api_ownership_type_id;
 }
-
 
 GType
 valadoc_api_ownership_get_type (void)
 {
 	static volatile gsize valadoc_api_ownership_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_ownership_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_API_OWNERSHIP_DEFAULT, "VALADOC_API_OWNERSHIP_DEFAULT", "default"}, {VALADOC_API_OWNERSHIP_UNOWNED, "VALADOC_API_OWNERSHIP_UNOWNED", "unowned"}, {VALADOC_API_OWNERSHIP_OWNED, "VALADOC_API_OWNERSHIP_OWNED", "owned"}, {VALADOC_API_OWNERSHIP_WEAK, "VALADOC_API_OWNERSHIP_WEAK", "weak"}, {0, NULL, NULL}};
 		GType valadoc_api_ownership_type_id;
-		valadoc_api_ownership_type_id = g_enum_register_static ("ValadocApiOwnership", values);
+		valadoc_api_ownership_type_id = valadoc_api_ownership_get_type_once ();
 		g_once_init_leave (&valadoc_api_ownership_type_id__volatile, valadoc_api_ownership_type_id);
 	}
 	return valadoc_api_ownership_type_id__volatile;
 }
-
-
 

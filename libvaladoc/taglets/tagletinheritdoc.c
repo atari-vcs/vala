@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_TAGLETS_INHERIT_DOC_0_PROPERTY,
@@ -51,10 +50,11 @@ struct _ValadocTagletsInheritDocPrivate {
 	ValadocApiNode* _inherited;
 };
 
-
 static gint ValadocTagletsInheritDoc_private_offset;
 static gpointer valadoc_taglets_inherit_doc_parent_class = NULL;
 
+static void valadoc_taglets_inherit_doc_set_inherited (ValadocTagletsInheritDoc* self,
+                                                ValadocApiNode* value);
 static ValadocRule* valadoc_taglets_inherit_doc_real_get_parser_rule (ValadocContentInlineTaglet* base,
                                                                ValadocRule* run_rule);
 static ValadocContentTaglet* valadoc_taglets_inherit_doc_find_parent_taglet (ValadocTagletsInheritDoc* self);
@@ -69,7 +69,7 @@ G_GNUC_INTERNAL void valadoc_api_tree_register_inheritdoc (ValadocApiTree* self,
                                            ValadocTagletsInheritDoc* taglet);
 static ValadocContentRun** valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
                                                            ValadocContentInline* separator,
-                                                           int* result_length1);
+                                                           gint* result_length1);
 G_GNUC_INTERNAL ValadocContentRun* valadoc_content_run_new (ValadocContentRunStyle style);
 G_GNUC_INTERNAL ValadocContentRun* valadoc_content_run_construct (GType object_type,
                                                   ValadocContentRunStyle style);
@@ -92,9 +92,8 @@ G_GNUC_INTERNAL ValadocContentText* valadoc_content_text_construct (GType object
 static gboolean valadoc_taglets_inherit_doc_real_is_empty (ValadocContentContentElement* base);
 static ValadocContentContentElement* valadoc_taglets_inherit_doc_real_copy (ValadocContentContentElement* base,
                                                                      ValadocContentContentElement* new_parent);
-static void valadoc_taglets_inherit_doc_set_inherited (ValadocTagletsInheritDoc* self,
-                                                ValadocApiNode* value);
 static void valadoc_taglets_inherit_doc_finalize (GObject * obj);
+static GType valadoc_taglets_inherit_doc_get_type_once (void);
 static void _vala_valadoc_taglets_inherit_doc_get_property (GObject * object,
                                                      guint property_id,
                                                      GValue * value,
@@ -110,13 +109,44 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_taglets_inherit_doc_get_instance_private (ValadocTagletsInheritDoc* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocTagletsInheritDoc_private_offset);
 }
 
+ValadocApiNode*
+valadoc_taglets_inherit_doc_get_inherited (ValadocTagletsInheritDoc* self)
+{
+	ValadocApiNode* result;
+	ValadocApiNode* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_inherited;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+static void
+valadoc_taglets_inherit_doc_set_inherited (ValadocTagletsInheritDoc* self,
+                                           ValadocApiNode* value)
+{
+	ValadocApiNode* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_inherit_doc_get_inherited (self);
+	if (old_value != value) {
+		ValadocApiNode* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_inherited);
+		self->priv->_inherited = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_inherit_doc_properties[VALADOC_TAGLETS_INHERIT_DOC_INHERITED_PROPERTY]);
+	}
+}
 
 static ValadocRule*
 valadoc_taglets_inherit_doc_real_get_parser_rule (ValadocContentInlineTaglet* base,
@@ -130,22 +160,14 @@ valadoc_taglets_inherit_doc_real_get_parser_rule (ValadocContentInlineTaglet* ba
 	return result;
 }
 
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
 static ValadocContentTaglet*
 valadoc_taglets_inherit_doc_find_parent_taglet (ValadocTagletsInheritDoc* self)
 {
-	ValadocContentTaglet* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	ValadocApiNode* _tmp1_;
 	ValadocContentContentElement* pos = NULL;
 	ValadocContentContentElement* _tmp16_;
+	ValadocContentTaglet* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp1_ = self->priv->_inherited;
 	if (_tmp1_ == NULL) {
@@ -194,7 +216,7 @@ valadoc_taglets_inherit_doc_find_parent_taglet (ValadocTagletsInheritDoc* self)
 			if (_tmp14_ != NULL) {
 				ValadocContentContentElement* _tmp15_;
 				_tmp15_ = pos;
-				_tmp13_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp15_, VALADOC_CONTENT_TYPE_TAGLET) == FALSE;
+				_tmp13_ = VALADOC_CONTENT_IS_TAGLET (_tmp15_) == FALSE;
 			} else {
 				_tmp13_ = FALSE;
 			}
@@ -204,7 +226,7 @@ valadoc_taglets_inherit_doc_find_parent_taglet (ValadocTagletsInheritDoc* self)
 		}
 	}
 	_tmp16_ = pos;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp16_, VALADOC_CONTENT_TYPE_TAGLET)) {
+	if (VALADOC_CONTENT_IS_TAGLET (_tmp16_)) {
 		ValadocContentContentElement* _tmp17_;
 		ValadocContentTaglet* _tmp18_;
 		_tmp17_ = pos;
@@ -217,7 +239,6 @@ valadoc_taglets_inherit_doc_find_parent_taglet (ValadocTagletsInheritDoc* self)
 	_g_object_unref0 (pos);
 	return result;
 }
-
 
 static void
 valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
@@ -237,7 +258,7 @@ valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
 	g_return_if_fail (file_path != NULL);
 	g_return_if_fail (reporter != NULL);
 	g_return_if_fail (settings != NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_METHOD)) {
+	if (VALADOC_API_IS_METHOD (container)) {
 		ValadocApiMethod* _tmp0_;
 		ValadocApiMethod* _tmp1_;
 		ValadocApiNode* _tmp2_;
@@ -247,7 +268,7 @@ valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
 		_g_object_unref0 (self->priv->_inherited);
 		self->priv->_inherited = _tmp2_;
 	} else {
-		if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PROPERTY)) {
+		if (VALADOC_API_IS_PROPERTY (container)) {
 			ValadocApiProperty* _tmp3_;
 			ValadocApiProperty* _tmp4_;
 			ValadocApiNode* _tmp5_;
@@ -258,7 +279,7 @@ valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
 			self->priv->_inherited = _tmp5_;
 		} else {
 			gboolean _tmp6_ = FALSE;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_CLASS)) {
+			if (VALADOC_API_IS_CLASS (container)) {
 				ValadocApiTypeReference* _tmp7_;
 				ValadocApiTypeReference* _tmp8_;
 				_tmp7_ = valadoc_api_class_get_base_type (G_TYPE_CHECK_INSTANCE_CAST (container, VALADOC_API_TYPE_CLASS, ValadocApiClass));
@@ -282,7 +303,7 @@ valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
 				self->priv->_inherited = _tmp13_;
 			} else {
 				gboolean _tmp14_ = FALSE;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_STRUCT)) {
+				if (VALADOC_API_IS_STRUCT (container)) {
 					ValadocApiTypeReference* _tmp15_;
 					ValadocApiTypeReference* _tmp16_;
 					_tmp15_ = valadoc_api_struct_get_base_type (G_TYPE_CHECK_INSTANCE_CAST (container, VALADOC_API_TYPE_STRUCT, ValadocApiStruct));
@@ -324,20 +345,17 @@ valadoc_taglets_inherit_doc_real_check (ValadocContentContentElement* base,
 	}
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static ValadocContentRun**
 valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
                                        ValadocContentInline* separator,
-                                       int* result_length1)
+                                       gint* result_length1)
 {
-	ValadocContentRun** result = NULL;
 	ValadocContentContentElement* parent = NULL;
 	ValadocContentContentElement* _tmp1_;
 	ValadocContentContentElement* _tmp2_;
@@ -346,8 +364,9 @@ valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
 	gboolean _tmp4_ = FALSE;
 	ValadocContentContentElement* _tmp5_;
 	ValaList* _tmp18_;
-	ValadocContentRun** _tmp52_;
-	gint _tmp52__length1;
+	ValadocContentRun** _tmp49_;
+	gint _tmp49__length1;
+	ValadocContentRun** result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (separator == NULL) {
 		ValadocContentRun** _tmp0_;
@@ -366,7 +385,7 @@ valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
 	parent = _tmp3_;
 	parent_content = NULL;
 	_tmp5_ = parent;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp5_, VALADOC_CONTENT_TYPE_RUN)) {
+	if (VALADOC_CONTENT_IS_RUN (_tmp5_)) {
 		ValadocContentContentElement* _tmp6_;
 		ValadocContentRunStyle _tmp7_;
 		ValadocContentRunStyle _tmp8_;
@@ -391,7 +410,7 @@ valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
 	} else {
 		ValadocContentContentElement* _tmp13_;
 		_tmp13_ = parent;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp13_, VALADOC_CONTENT_TYPE_PARAGRAPH)) {
+		if (VALADOC_CONTENT_IS_PARAGRAPH (_tmp13_)) {
 			ValadocContentContentElement* _tmp14_;
 			ValaList* _tmp15_;
 			ValaList* _tmp16_;
@@ -411,13 +430,13 @@ valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
 		ValadocContentRun* left_run = NULL;
 		ValadocContentRun* _tmp20_;
 		gboolean separated = FALSE;
+		ValadocContentRun* _tmp43_;
+		ValadocContentRun* _tmp44_;
+		ValadocContentRun* _tmp45_;
 		ValadocContentRun* _tmp46_;
-		ValadocContentRun* _tmp47_;
-		ValadocContentRun* _tmp48_;
-		ValadocContentRun* _tmp49_;
-		ValadocContentRun** _tmp50_;
-		ValadocContentRun** _tmp51_;
-		gint _tmp51__length1;
+		ValadocContentRun** _tmp47_;
+		ValadocContentRun** _tmp48_;
+		gint _tmp48__length1;
 		_tmp19_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_NONE);
 		right_run = _tmp19_;
 		_tmp20_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_NONE);
@@ -443,95 +462,88 @@ valadoc_taglets_inherit_doc_split_run (ValadocTagletsInheritDoc* self,
 			while (TRUE) {
 				gint _tmp26_;
 				gint _tmp27_;
-				gint _tmp28_;
 				ValadocContentInline* current = NULL;
-				ValaList* _tmp29_;
-				gint _tmp30_;
-				gpointer _tmp31_;
-				ValadocContentInline* _tmp32_;
+				ValaList* _tmp28_;
+				gpointer _tmp29_;
+				ValadocContentInline* _tmp30_;
+				_current_index = _current_index + 1;
 				_tmp26_ = _current_index;
-				_current_index = _tmp26_ + 1;
-				_tmp27_ = _current_index;
-				_tmp28_ = _current_size;
-				if (!(_tmp27_ < _tmp28_)) {
+				_tmp27_ = _current_size;
+				if (!(_tmp26_ < _tmp27_)) {
 					break;
 				}
-				_tmp29_ = _current_list;
-				_tmp30_ = _current_index;
-				_tmp31_ = vala_list_get (_tmp29_, _tmp30_);
-				current = (ValadocContentInline*) _tmp31_;
-				_tmp32_ = current;
-				if (_tmp32_ == separator) {
+				_tmp28_ = _current_list;
+				_tmp29_ = vala_list_get (_tmp28_, _current_index);
+				current = (ValadocContentInline*) _tmp29_;
+				_tmp30_ = current;
+				if (_tmp30_ == separator) {
 					separated = TRUE;
 				} else {
-					gboolean _tmp33_;
-					_tmp33_ = separated;
-					if (_tmp33_) {
-						ValadocContentRun* _tmp34_;
-						ValaList* _tmp35_;
-						ValaList* _tmp36_;
-						ValadocContentInline* _tmp37_;
-						ValadocContentInline* _tmp38_;
-						ValadocContentRun* _tmp39_;
-						_tmp34_ = right_run;
-						_tmp35_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp34_);
-						_tmp36_ = _tmp35_;
-						_tmp37_ = current;
-						vala_collection_add ((ValaCollection*) _tmp36_, _tmp37_);
-						_tmp38_ = current;
-						_tmp39_ = right_run;
-						valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp38_, (ValadocContentContentElement*) _tmp39_);
+					if (separated) {
+						ValadocContentRun* _tmp31_;
+						ValaList* _tmp32_;
+						ValaList* _tmp33_;
+						ValadocContentInline* _tmp34_;
+						ValadocContentInline* _tmp35_;
+						ValadocContentRun* _tmp36_;
+						_tmp31_ = right_run;
+						_tmp32_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp31_);
+						_tmp33_ = _tmp32_;
+						_tmp34_ = current;
+						vala_collection_add ((ValaCollection*) _tmp33_, _tmp34_);
+						_tmp35_ = current;
+						_tmp36_ = right_run;
+						valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp35_, (ValadocContentContentElement*) _tmp36_);
 					} else {
-						ValadocContentRun* _tmp40_;
-						ValaList* _tmp41_;
-						ValaList* _tmp42_;
-						ValadocContentInline* _tmp43_;
-						ValadocContentInline* _tmp44_;
-						ValadocContentRun* _tmp45_;
-						_tmp40_ = left_run;
-						_tmp41_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp40_);
-						_tmp42_ = _tmp41_;
-						_tmp43_ = current;
-						vala_collection_add ((ValaCollection*) _tmp42_, _tmp43_);
-						_tmp44_ = current;
-						_tmp45_ = left_run;
-						valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp44_, (ValadocContentContentElement*) _tmp45_);
+						ValadocContentRun* _tmp37_;
+						ValaList* _tmp38_;
+						ValaList* _tmp39_;
+						ValadocContentInline* _tmp40_;
+						ValadocContentInline* _tmp41_;
+						ValadocContentRun* _tmp42_;
+						_tmp37_ = left_run;
+						_tmp38_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp37_);
+						_tmp39_ = _tmp38_;
+						_tmp40_ = current;
+						vala_collection_add ((ValaCollection*) _tmp39_, _tmp40_);
+						_tmp41_ = current;
+						_tmp42_ = left_run;
+						valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp41_, (ValadocContentContentElement*) _tmp42_);
 					}
 				}
 				_g_object_unref0 (current);
 			}
 			_vala_iterable_unref0 (_current_list);
 		}
-		_tmp46_ = left_run;
-		_tmp47_ = _g_object_ref0 (_tmp46_);
-		_tmp48_ = right_run;
-		_tmp49_ = _g_object_ref0 (_tmp48_);
-		_tmp50_ = g_new0 (ValadocContentRun*, 2 + 1);
-		_tmp50_[0] = _tmp47_;
-		_tmp50_[1] = _tmp49_;
-		_tmp51_ = _tmp50_;
-		_tmp51__length1 = 2;
+		_tmp43_ = left_run;
+		_tmp44_ = _g_object_ref0 (_tmp43_);
+		_tmp45_ = right_run;
+		_tmp46_ = _g_object_ref0 (_tmp45_);
+		_tmp47_ = g_new0 (ValadocContentRun*, 2 + 1);
+		_tmp47_[0] = _tmp44_;
+		_tmp47_[1] = _tmp46_;
+		_tmp48_ = _tmp47_;
+		_tmp48__length1 = 2;
 		if (result_length1) {
-			*result_length1 = _tmp51__length1;
+			*result_length1 = _tmp48__length1;
 		}
-		result = _tmp51_;
+		result = _tmp48_;
 		_g_object_unref0 (left_run);
 		_g_object_unref0 (right_run);
 		_vala_iterable_unref0 (parent_content);
 		_g_object_unref0 (parent);
 		return result;
 	}
-	_tmp52_ = NULL;
-	_tmp52__length1 = 0;
+	_tmp49_ = NULL;
+	_tmp49__length1 = 0;
 	if (result_length1) {
-		*result_length1 = _tmp52__length1;
+		*result_length1 = _tmp49__length1;
 	}
-	result = _tmp52_;
+	result = _tmp49_;
 	_vala_iterable_unref0 (parent_content);
 	_g_object_unref0 (parent);
 	return result;
 }
-
 
 G_GNUC_INTERNAL void
 valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
@@ -562,14 +574,12 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 	ValaList* _tmp49_;
 	ValadocContentContentElement* _tmp50_;
 	gint start_pos = 0;
-	gint _tmp51_;
-	gint _tmp52_;
-	ValadocContentRun* _tmp77_;
-	ValadocContentRun* _tmp115_;
-	ValadocContentComment* _tmp153_;
-	ValaList* _tmp154_;
-	ValaList* _tmp155_;
-	ValadocContentContentElement* _tmp156_;
+	ValadocContentRun* _tmp72_;
+	ValadocContentRun* _tmp106_;
+	ValadocContentComment* _tmp140_;
+	ValaList* _tmp141_;
+	ValaList* _tmp142_;
+	ValadocContentContentElement* _tmp143_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (api_root != NULL);
 	g_return_if_fail (container != NULL);
@@ -601,7 +611,7 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 		ValadocContentRun* _tmp31_;
 		ValadocContentRun* _tmp32_;
 		_tmp1_ = separator;
-		_tmp3_ = valadoc_taglets_inherit_doc_split_run (self, G_TYPE_CHECK_INSTANCE_TYPE (_tmp1_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp1_) : NULL, &_tmp2_);
+		_tmp3_ = valadoc_taglets_inherit_doc_split_run (self, VALADOC_CONTENT_IS_INLINE (_tmp1_) ? ((ValadocContentInline*) _tmp1_) : NULL, &_tmp2_);
 		parts = (_vala_array_free (parts, parts_length1, (GDestroyNotify) g_object_unref), NULL);
 		parts = _tmp3_;
 		parts_length1 = _tmp2_;
@@ -681,7 +691,7 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 		left_run = _tmp32_;
 	}
 	_tmp34_ = separator;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp34_, VALADOC_CONTENT_TYPE_PARAGRAPH) == FALSE) {
+	if (VALADOC_CONTENT_IS_PARAGRAPH (_tmp34_) == FALSE) {
 		_tmp33_ = TRUE;
 	} else {
 		ValadocContentContentElement* _tmp35_;
@@ -690,7 +700,7 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 		_tmp35_ = separator;
 		_tmp36_ = valadoc_content_content_element_get_parent (_tmp35_);
 		_tmp37_ = _tmp36_;
-		_tmp33_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp37_, VALADOC_CONTENT_TYPE_COMMENT) == FALSE;
+		_tmp33_ = VALADOC_CONTENT_IS_COMMENT (_tmp37_) == FALSE;
 	}
 	if (_tmp33_) {
 		gchar* _tmp38_;
@@ -713,7 +723,7 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 	_tmp42_ = separator;
 	_tmp43_ = valadoc_content_content_element_get_parent (_tmp42_);
 	_tmp44_ = _tmp43_;
-	_tmp45_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp44_, VALADOC_CONTENT_TYPE_COMMENT) ? ((ValadocContentComment*) _tmp44_) : NULL);
+	_tmp45_ = _g_object_ref0 (VALADOC_CONTENT_IS_COMMENT (_tmp44_) ? ((ValadocContentComment*) _tmp44_) : NULL);
 	comment = _tmp45_;
 	_tmp46_ = comment;
 	_vala_assert (_tmp46_ != NULL, "comment != null");
@@ -722,268 +732,244 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 	_tmp49_ = _tmp48_;
 	_tmp50_ = separator;
 	insert_pos = vala_list_index_of (_tmp49_, (ValadocContentBlock*) G_TYPE_CHECK_INSTANCE_CAST (_tmp50_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph));
-	_tmp51_ = insert_pos;
-	start_pos = _tmp51_;
-	_tmp52_ = insert_pos;
-	_vala_assert (_tmp52_ >= 0, "insert_pos >= 0");
+	start_pos = insert_pos;
+	_vala_assert (insert_pos >= 0, "insert_pos >= 0");
 	{
 		ValaList* _block_list = NULL;
-		ValadocApiNode* _tmp53_;
-		ValadocContentComment* _tmp54_;
-		ValadocContentComment* _tmp55_;
+		ValadocApiNode* _tmp51_;
+		ValadocContentComment* _tmp52_;
+		ValadocContentComment* _tmp53_;
+		ValaList* _tmp54_;
+		ValaList* _tmp55_;
 		ValaList* _tmp56_;
-		ValaList* _tmp57_;
-		ValaList* _tmp58_;
 		gint _block_size = 0;
-		ValaList* _tmp59_;
-		gint _tmp60_;
-		gint _tmp61_;
+		ValaList* _tmp57_;
+		gint _tmp58_;
+		gint _tmp59_;
 		gint _block_index = 0;
-		_tmp53_ = self->priv->_inherited;
-		_tmp54_ = valadoc_api_node_get_documentation (_tmp53_);
+		_tmp51_ = self->priv->_inherited;
+		_tmp52_ = valadoc_api_node_get_documentation (_tmp51_);
+		_tmp53_ = _tmp52_;
+		_tmp54_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp53_);
 		_tmp55_ = _tmp54_;
-		_tmp56_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp55_);
-		_tmp57_ = _tmp56_;
-		_tmp58_ = _vala_iterable_ref0 (_tmp57_);
-		_block_list = _tmp58_;
-		_tmp59_ = _block_list;
-		_tmp60_ = vala_collection_get_size ((ValaCollection*) _tmp59_);
-		_tmp61_ = _tmp60_;
-		_block_size = _tmp61_;
+		_tmp56_ = _vala_iterable_ref0 (_tmp55_);
+		_block_list = _tmp56_;
+		_tmp57_ = _block_list;
+		_tmp58_ = vala_collection_get_size ((ValaCollection*) _tmp57_);
+		_tmp59_ = _tmp58_;
+		_block_size = _tmp59_;
 		_block_index = -1;
 		while (TRUE) {
-			gint _tmp62_;
-			gint _tmp63_;
-			gint _tmp64_;
+			gint _tmp60_;
+			gint _tmp61_;
 			ValadocContentBlock* block = NULL;
+			ValaList* _tmp62_;
+			gpointer _tmp63_;
+			ValadocContentComment* _tmp64_;
 			ValaList* _tmp65_;
-			gint _tmp66_;
-			gpointer _tmp67_;
+			ValaList* _tmp66_;
+			ValadocContentBlock* _tmp67_;
 			ValadocContentComment* _tmp68_;
-			ValaList* _tmp69_;
-			ValaList* _tmp70_;
+			ValadocContentContentElement* _tmp69_;
+			ValadocContentBlock* _tmp70_;
 			gint _tmp71_;
-			ValadocContentBlock* _tmp72_;
-			ValadocContentComment* _tmp73_;
-			ValadocContentContentElement* _tmp74_;
-			ValadocContentBlock* _tmp75_;
-			gint _tmp76_;
-			_tmp62_ = _block_index;
-			_block_index = _tmp62_ + 1;
-			_tmp63_ = _block_index;
-			_tmp64_ = _block_size;
-			if (!(_tmp63_ < _tmp64_)) {
+			_block_index = _block_index + 1;
+			_tmp60_ = _block_index;
+			_tmp61_ = _block_size;
+			if (!(_tmp60_ < _tmp61_)) {
 				break;
 			}
-			_tmp65_ = _block_list;
-			_tmp66_ = _block_index;
-			_tmp67_ = vala_list_get (_tmp65_, _tmp66_);
-			block = (ValadocContentBlock*) _tmp67_;
+			_tmp62_ = _block_list;
+			_tmp63_ = vala_list_get (_tmp62_, _block_index);
+			block = (ValadocContentBlock*) _tmp63_;
+			_tmp64_ = comment;
+			_tmp65_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp64_);
+			_tmp66_ = _tmp65_;
+			_tmp67_ = block;
 			_tmp68_ = comment;
-			_tmp69_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp68_);
-			_tmp70_ = _tmp69_;
+			_tmp69_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp67_, (ValadocContentContentElement*) _tmp68_);
+			_tmp70_ = G_TYPE_CHECK_INSTANCE_CAST (_tmp69_, VALADOC_CONTENT_TYPE_BLOCK, ValadocContentBlock);
+			vala_list_insert (_tmp66_, insert_pos, _tmp70_);
+			_g_object_unref0 (_tmp70_);
 			_tmp71_ = insert_pos;
-			_tmp72_ = block;
-			_tmp73_ = comment;
-			_tmp74_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp72_, (ValadocContentContentElement*) _tmp73_);
-			_tmp75_ = G_TYPE_CHECK_INSTANCE_CAST (_tmp74_, VALADOC_CONTENT_TYPE_BLOCK, ValadocContentBlock);
-			vala_list_insert (_tmp70_, _tmp71_, _tmp75_);
-			_g_object_unref0 (_tmp75_);
-			_tmp76_ = insert_pos;
-			insert_pos = _tmp76_ + 1;
+			insert_pos = _tmp71_ + 1;
 			_g_object_unref0 (block);
 		}
 		_vala_iterable_unref0 (_block_list);
 	}
-	_tmp77_ = right_run;
-	if (_tmp77_ != NULL) {
-		ValadocContentComment* _tmp78_;
-		ValaList* _tmp79_;
-		ValaList* _tmp80_;
-		gint _tmp81_;
-		gpointer _tmp82_;
-		ValadocContentBlock* _tmp83_;
-		gboolean _tmp84_;
-		_tmp78_ = comment;
-		_tmp79_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp78_);
-		_tmp80_ = _tmp79_;
-		_tmp81_ = insert_pos;
-		_tmp82_ = vala_list_get (_tmp80_, _tmp81_ - 1);
-		_tmp83_ = (ValadocContentBlock*) _tmp82_;
-		_tmp84_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp83_, VALADOC_CONTENT_TYPE_PARAGRAPH);
-		_g_object_unref0 (_tmp83_);
-		if (_tmp84_) {
-			ValadocContentComment* _tmp85_;
-			ValaList* _tmp86_;
-			ValaList* _tmp87_;
-			gint _tmp88_;
-			gpointer _tmp89_;
-			ValadocContentParagraph* _tmp90_;
-			ValaList* _tmp91_;
-			ValaList* _tmp92_;
-			ValadocContentRun* _tmp93_;
-			ValadocContentRun* _tmp94_;
-			ValadocContentComment* _tmp95_;
-			ValaList* _tmp96_;
-			ValaList* _tmp97_;
-			gint _tmp98_;
-			gpointer _tmp99_;
-			ValadocContentBlock* _tmp100_;
-			_tmp85_ = comment;
-			_tmp86_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp85_);
-			_tmp87_ = _tmp86_;
-			_tmp88_ = insert_pos;
-			_tmp89_ = vala_list_get (_tmp87_, _tmp88_ - 1);
-			_tmp90_ = G_TYPE_CHECK_INSTANCE_CAST ((ValadocContentBlock*) _tmp89_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph);
-			_tmp91_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp90_);
-			_tmp92_ = _tmp91_;
-			_tmp93_ = right_run;
-			vala_collection_add ((ValaCollection*) _tmp92_, (ValadocContentInline*) _tmp93_);
-			_g_object_unref0 (_tmp90_);
-			_tmp94_ = right_run;
-			_tmp95_ = comment;
-			_tmp96_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp95_);
-			_tmp97_ = _tmp96_;
-			_tmp98_ = insert_pos;
-			_tmp99_ = vala_list_get (_tmp97_, _tmp98_ - 1);
-			_tmp100_ = (ValadocContentBlock*) _tmp99_;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp94_, (ValadocContentContentElement*) _tmp100_);
-			_g_object_unref0 (_tmp100_);
+	_tmp72_ = right_run;
+	if (_tmp72_ != NULL) {
+		ValadocContentComment* _tmp73_;
+		ValaList* _tmp74_;
+		ValaList* _tmp75_;
+		gpointer _tmp76_;
+		ValadocContentBlock* _tmp77_;
+		gboolean _tmp78_;
+		_tmp73_ = comment;
+		_tmp74_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp73_);
+		_tmp75_ = _tmp74_;
+		_tmp76_ = vala_list_get (_tmp75_, insert_pos - 1);
+		_tmp77_ = (ValadocContentBlock*) _tmp76_;
+		_tmp78_ = VALADOC_CONTENT_IS_PARAGRAPH (_tmp77_);
+		_g_object_unref0 (_tmp77_);
+		if (_tmp78_) {
+			ValadocContentComment* _tmp79_;
+			ValaList* _tmp80_;
+			ValaList* _tmp81_;
+			gpointer _tmp82_;
+			ValadocContentParagraph* _tmp83_;
+			ValaList* _tmp84_;
+			ValaList* _tmp85_;
+			ValadocContentRun* _tmp86_;
+			ValadocContentRun* _tmp87_;
+			ValadocContentComment* _tmp88_;
+			ValaList* _tmp89_;
+			ValaList* _tmp90_;
+			gpointer _tmp91_;
+			ValadocContentBlock* _tmp92_;
+			_tmp79_ = comment;
+			_tmp80_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp79_);
+			_tmp81_ = _tmp80_;
+			_tmp82_ = vala_list_get (_tmp81_, insert_pos - 1);
+			_tmp83_ = G_TYPE_CHECK_INSTANCE_CAST ((ValadocContentBlock*) _tmp82_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph);
+			_tmp84_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp83_);
+			_tmp85_ = _tmp84_;
+			_tmp86_ = right_run;
+			vala_collection_add ((ValaCollection*) _tmp85_, (ValadocContentInline*) _tmp86_);
+			_g_object_unref0 (_tmp83_);
+			_tmp87_ = right_run;
+			_tmp88_ = comment;
+			_tmp89_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp88_);
+			_tmp90_ = _tmp89_;
+			_tmp91_ = vala_list_get (_tmp90_, insert_pos - 1);
+			_tmp92_ = (ValadocContentBlock*) _tmp91_;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp87_, (ValadocContentContentElement*) _tmp92_);
+			_g_object_unref0 (_tmp92_);
 		} else {
 			ValadocContentParagraph* p = NULL;
-			ValadocContentParagraph* _tmp101_;
-			ValadocContentParagraph* _tmp102_;
+			ValadocContentParagraph* _tmp93_;
+			ValadocContentParagraph* _tmp94_;
+			ValaList* _tmp95_;
+			ValaList* _tmp96_;
+			ValadocContentRun* _tmp97_;
+			ValadocContentRun* _tmp98_;
+			ValadocContentParagraph* _tmp99_;
+			ValadocContentParagraph* _tmp100_;
+			ValadocContentComment* _tmp101_;
+			ValadocContentComment* _tmp102_;
 			ValaList* _tmp103_;
 			ValaList* _tmp104_;
-			ValadocContentRun* _tmp105_;
-			ValadocContentRun* _tmp106_;
-			ValadocContentParagraph* _tmp107_;
-			ValadocContentParagraph* _tmp108_;
-			ValadocContentComment* _tmp109_;
-			ValadocContentComment* _tmp110_;
-			ValaList* _tmp111_;
-			ValaList* _tmp112_;
-			gint _tmp113_;
-			ValadocContentParagraph* _tmp114_;
-			_tmp101_ = valadoc_content_paragraph_new ();
-			p = _tmp101_;
-			_tmp102_ = p;
-			_tmp103_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp102_);
+			ValadocContentParagraph* _tmp105_;
+			_tmp93_ = valadoc_content_paragraph_new ();
+			p = _tmp93_;
+			_tmp94_ = p;
+			_tmp95_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp94_);
+			_tmp96_ = _tmp95_;
+			_tmp97_ = right_run;
+			vala_collection_add ((ValaCollection*) _tmp96_, (ValadocContentInline*) _tmp97_);
+			_tmp98_ = right_run;
+			_tmp99_ = p;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp98_, (ValadocContentContentElement*) _tmp99_);
+			_tmp100_ = p;
+			_tmp101_ = comment;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp100_, (ValadocContentContentElement*) _tmp101_);
+			_tmp102_ = comment;
+			_tmp103_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp102_);
 			_tmp104_ = _tmp103_;
-			_tmp105_ = right_run;
-			vala_collection_add ((ValaCollection*) _tmp104_, (ValadocContentInline*) _tmp105_);
-			_tmp106_ = right_run;
-			_tmp107_ = p;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp106_, (ValadocContentContentElement*) _tmp107_);
-			_tmp108_ = p;
-			_tmp109_ = comment;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp108_, (ValadocContentContentElement*) _tmp109_);
-			_tmp110_ = comment;
-			_tmp111_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp110_);
-			_tmp112_ = _tmp111_;
-			_tmp113_ = insert_pos;
-			_tmp114_ = p;
-			vala_list_insert (_tmp112_, _tmp113_, (ValadocContentBlock*) _tmp114_);
+			_tmp105_ = p;
+			vala_list_insert (_tmp104_, insert_pos, (ValadocContentBlock*) _tmp105_);
 			_g_object_unref0 (p);
 		}
 	}
-	_tmp115_ = left_run;
-	if (_tmp115_ != NULL) {
-		ValadocContentComment* _tmp116_;
-		ValaList* _tmp117_;
-		ValaList* _tmp118_;
-		gint _tmp119_;
-		gpointer _tmp120_;
-		ValadocContentBlock* _tmp121_;
-		gboolean _tmp122_;
-		_tmp116_ = comment;
-		_tmp117_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp116_);
-		_tmp118_ = _tmp117_;
-		_tmp119_ = start_pos;
-		_tmp120_ = vala_list_get (_tmp118_, _tmp119_);
-		_tmp121_ = (ValadocContentBlock*) _tmp120_;
-		_tmp122_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp121_, VALADOC_CONTENT_TYPE_PARAGRAPH);
-		_g_object_unref0 (_tmp121_);
-		if (_tmp122_) {
-			ValadocContentComment* _tmp123_;
+	_tmp106_ = left_run;
+	if (_tmp106_ != NULL) {
+		ValadocContentComment* _tmp107_;
+		ValaList* _tmp108_;
+		ValaList* _tmp109_;
+		gpointer _tmp110_;
+		ValadocContentBlock* _tmp111_;
+		gboolean _tmp112_;
+		_tmp107_ = comment;
+		_tmp108_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp107_);
+		_tmp109_ = _tmp108_;
+		_tmp110_ = vala_list_get (_tmp109_, start_pos);
+		_tmp111_ = (ValadocContentBlock*) _tmp110_;
+		_tmp112_ = VALADOC_CONTENT_IS_PARAGRAPH (_tmp111_);
+		_g_object_unref0 (_tmp111_);
+		if (_tmp112_) {
+			ValadocContentComment* _tmp113_;
+			ValaList* _tmp114_;
+			ValaList* _tmp115_;
+			gpointer _tmp116_;
+			ValadocContentParagraph* _tmp117_;
+			ValaList* _tmp118_;
+			ValaList* _tmp119_;
+			ValadocContentRun* _tmp120_;
+			ValadocContentRun* _tmp121_;
+			ValadocContentComment* _tmp122_;
+			ValaList* _tmp123_;
 			ValaList* _tmp124_;
-			ValaList* _tmp125_;
-			gint _tmp126_;
-			gpointer _tmp127_;
+			gpointer _tmp125_;
+			ValadocContentBlock* _tmp126_;
+			_tmp113_ = comment;
+			_tmp114_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp113_);
+			_tmp115_ = _tmp114_;
+			_tmp116_ = vala_list_get (_tmp115_, start_pos);
+			_tmp117_ = G_TYPE_CHECK_INSTANCE_CAST ((ValadocContentBlock*) _tmp116_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph);
+			_tmp118_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp117_);
+			_tmp119_ = _tmp118_;
+			_tmp120_ = left_run;
+			vala_list_insert (_tmp119_, 0, (ValadocContentInline*) _tmp120_);
+			_g_object_unref0 (_tmp117_);
+			_tmp121_ = left_run;
+			_tmp122_ = comment;
+			_tmp123_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp122_);
+			_tmp124_ = _tmp123_;
+			_tmp125_ = vala_list_get (_tmp124_, start_pos);
+			_tmp126_ = (ValadocContentBlock*) _tmp125_;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp121_, (ValadocContentContentElement*) _tmp126_);
+			_g_object_unref0 (_tmp126_);
+		} else {
+			ValadocContentParagraph* p = NULL;
+			ValadocContentParagraph* _tmp127_;
 			ValadocContentParagraph* _tmp128_;
 			ValaList* _tmp129_;
 			ValaList* _tmp130_;
 			ValadocContentRun* _tmp131_;
 			ValadocContentRun* _tmp132_;
-			ValadocContentComment* _tmp133_;
-			ValaList* _tmp134_;
-			ValaList* _tmp135_;
-			gint _tmp136_;
-			gpointer _tmp137_;
-			ValadocContentBlock* _tmp138_;
-			_tmp123_ = comment;
-			_tmp124_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp123_);
-			_tmp125_ = _tmp124_;
-			_tmp126_ = start_pos;
-			_tmp127_ = vala_list_get (_tmp125_, _tmp126_);
-			_tmp128_ = G_TYPE_CHECK_INSTANCE_CAST ((ValadocContentBlock*) _tmp127_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph);
+			ValadocContentParagraph* _tmp133_;
+			ValadocContentParagraph* _tmp134_;
+			ValadocContentComment* _tmp135_;
+			ValadocContentComment* _tmp136_;
+			ValaList* _tmp137_;
+			ValaList* _tmp138_;
+			ValadocContentParagraph* _tmp139_;
+			_tmp127_ = valadoc_content_paragraph_new ();
+			p = _tmp127_;
+			_tmp128_ = p;
 			_tmp129_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp128_);
 			_tmp130_ = _tmp129_;
 			_tmp131_ = left_run;
-			vala_list_insert (_tmp130_, 0, (ValadocContentInline*) _tmp131_);
-			_g_object_unref0 (_tmp128_);
+			vala_collection_add ((ValaCollection*) _tmp130_, (ValadocContentInline*) _tmp131_);
 			_tmp132_ = left_run;
-			_tmp133_ = comment;
-			_tmp134_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp133_);
-			_tmp135_ = _tmp134_;
-			_tmp136_ = start_pos;
-			_tmp137_ = vala_list_get (_tmp135_, _tmp136_);
-			_tmp138_ = (ValadocContentBlock*) _tmp137_;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp132_, (ValadocContentContentElement*) _tmp138_);
-			_g_object_unref0 (_tmp138_);
-		} else {
-			ValadocContentParagraph* p = NULL;
-			ValadocContentParagraph* _tmp139_;
-			ValadocContentParagraph* _tmp140_;
-			ValaList* _tmp141_;
-			ValaList* _tmp142_;
-			ValadocContentRun* _tmp143_;
-			ValadocContentRun* _tmp144_;
-			ValadocContentParagraph* _tmp145_;
-			ValadocContentParagraph* _tmp146_;
-			ValadocContentComment* _tmp147_;
-			ValadocContentComment* _tmp148_;
-			ValaList* _tmp149_;
-			ValaList* _tmp150_;
-			gint _tmp151_;
-			ValadocContentParagraph* _tmp152_;
-			_tmp139_ = valadoc_content_paragraph_new ();
-			p = _tmp139_;
-			_tmp140_ = p;
-			_tmp141_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp140_);
-			_tmp142_ = _tmp141_;
-			_tmp143_ = left_run;
-			vala_collection_add ((ValaCollection*) _tmp142_, (ValadocContentInline*) _tmp143_);
-			_tmp144_ = left_run;
-			_tmp145_ = p;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp144_, (ValadocContentContentElement*) _tmp145_);
-			_tmp146_ = p;
-			_tmp147_ = comment;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp146_, (ValadocContentContentElement*) _tmp147_);
-			_tmp148_ = comment;
-			_tmp149_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp148_);
-			_tmp150_ = _tmp149_;
-			_tmp151_ = start_pos;
-			_tmp152_ = p;
-			vala_list_insert (_tmp150_, _tmp151_, (ValadocContentBlock*) _tmp152_);
+			_tmp133_ = p;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp132_, (ValadocContentContentElement*) _tmp133_);
+			_tmp134_ = p;
+			_tmp135_ = comment;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp134_, (ValadocContentContentElement*) _tmp135_);
+			_tmp136_ = comment;
+			_tmp137_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp136_);
+			_tmp138_ = _tmp137_;
+			_tmp139_ = p;
+			vala_list_insert (_tmp138_, start_pos, (ValadocContentBlock*) _tmp139_);
 			_g_object_unref0 (p);
 		}
 	}
-	_tmp153_ = comment;
-	_tmp154_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp153_);
-	_tmp155_ = _tmp154_;
-	_tmp156_ = separator;
-	vala_collection_remove ((ValaCollection*) _tmp155_, (ValadocContentBlock*) G_TYPE_CHECK_INSTANCE_CAST (_tmp156_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph));
+	_tmp140_ = comment;
+	_tmp141_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp140_);
+	_tmp142_ = _tmp141_;
+	_tmp143_ = separator;
+	vala_collection_remove ((ValaCollection*) _tmp142_, (ValadocContentBlock*) G_TYPE_CHECK_INSTANCE_CAST (_tmp143_, VALADOC_CONTENT_TYPE_PARAGRAPH, ValadocContentParagraph));
 	_g_object_unref0 (comment);
 	parts = (_vala_array_free (parts, parts_length1, (GDestroyNotify) g_object_unref), NULL);
 	_g_object_unref0 (left_run);
@@ -991,15 +977,14 @@ valadoc_taglets_inherit_doc_transform (ValadocTagletsInheritDoc* self,
 	_g_object_unref0 (separator);
 }
 
-
 static ValadocContentRun*
 valadoc_taglets_inherit_doc_content_copy (ValadocTagletsInheritDoc* self,
                                           ValaList* content)
 {
-	ValadocContentRun* result = NULL;
 	ValadocContentRun* run = NULL;
 	ValadocContentRun* _tmp0_;
 	ValadocContentRun* _tmp1_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_NONE);
 	run = _tmp0_;
@@ -1024,41 +1009,37 @@ valadoc_taglets_inherit_doc_content_copy (ValadocTagletsInheritDoc* self,
 			while (TRUE) {
 				gint _tmp6_;
 				gint _tmp7_;
-				gint _tmp8_;
 				ValadocContentContentElement* item = NULL;
-				ValaList* _tmp9_;
-				gint _tmp10_;
-				gpointer _tmp11_;
-				ValadocContentRun* _tmp12_;
-				ValaList* _tmp13_;
-				ValaList* _tmp14_;
-				ValadocContentContentElement* _tmp15_;
-				ValadocContentContentElement* _tmp16_;
-				ValadocContentInline* _tmp17_;
-				ValadocContentInline* _tmp18_;
+				ValaList* _tmp8_;
+				gpointer _tmp9_;
+				ValadocContentRun* _tmp10_;
+				ValaList* _tmp11_;
+				ValaList* _tmp12_;
+				ValadocContentContentElement* _tmp13_;
+				ValadocContentContentElement* _tmp14_;
+				ValadocContentInline* _tmp15_;
+				ValadocContentInline* _tmp16_;
+				_item_index = _item_index + 1;
 				_tmp6_ = _item_index;
-				_item_index = _tmp6_ + 1;
-				_tmp7_ = _item_index;
-				_tmp8_ = _item_size;
-				if (!(_tmp7_ < _tmp8_)) {
+				_tmp7_ = _item_size;
+				if (!(_tmp6_ < _tmp7_)) {
 					break;
 				}
-				_tmp9_ = _item_list;
-				_tmp10_ = _item_index;
-				_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-				item = (ValadocContentContentElement*) _tmp11_;
-				_tmp12_ = run;
-				_tmp13_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp12_);
-				_tmp14_ = _tmp13_;
-				_tmp15_ = item;
-				_tmp16_ = valadoc_content_content_element_copy (_tmp15_, (ValadocContentContentElement*) self);
-				_tmp17_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp16_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp16_) : NULL;
-				if (_tmp17_ == NULL) {
-					_g_object_unref0 (_tmp16_);
+				_tmp8_ = _item_list;
+				_tmp9_ = vala_list_get (_tmp8_, _item_index);
+				item = (ValadocContentContentElement*) _tmp9_;
+				_tmp10_ = run;
+				_tmp11_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp10_);
+				_tmp12_ = _tmp11_;
+				_tmp13_ = item;
+				_tmp14_ = valadoc_content_content_element_copy (_tmp13_, (ValadocContentContentElement*) self);
+				_tmp15_ = VALADOC_CONTENT_IS_INLINE (_tmp14_) ? ((ValadocContentInline*) _tmp14_) : NULL;
+				if (_tmp15_ == NULL) {
+					_g_object_unref0 (_tmp14_);
 				}
-				_tmp18_ = _tmp17_;
-				vala_collection_add ((ValaCollection*) _tmp14_, _tmp18_);
-				_g_object_unref0 (_tmp18_);
+				_tmp16_ = _tmp15_;
+				vala_collection_add ((ValaCollection*) _tmp12_, _tmp16_);
+				_g_object_unref0 (_tmp16_);
 				_g_object_unref0 (item);
 			}
 			_vala_iterable_unref0 (_item_list);
@@ -1068,16 +1049,15 @@ valadoc_taglets_inherit_doc_content_copy (ValadocTagletsInheritDoc* self,
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_taglets_inherit_doc_real_produce_content (ValadocContentInlineTaglet* base)
 {
 	ValadocTagletsInheritDoc * self;
-	ValadocContentContentElement* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
 	ValadocApiNode* _tmp2_;
-	ValadocContentText* _tmp30_;
+	ValadocContentText* _tmp28_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocTagletsInheritDoc*) base;
 	_tmp2_ = self->priv->_inherited;
 	if (_tmp2_ != NULL) {
@@ -1131,39 +1111,35 @@ valadoc_taglets_inherit_doc_real_produce_content (ValadocContentInlineTaglet* ba
 			while (TRUE) {
 				gint _tmp17_;
 				gint _tmp18_;
-				gint _tmp19_;
 				ValadocContentTaglet* parent = NULL;
-				ValaList* _tmp20_;
-				gint _tmp21_;
-				gpointer _tmp22_;
-				ValadocContentTaglet* _tmp23_;
-				ValadocContentTaglet* _tmp24_;
+				ValaList* _tmp19_;
+				gpointer _tmp20_;
+				ValadocContentTaglet* _tmp21_;
+				ValadocContentTaglet* _tmp22_;
+				_parent_index = _parent_index + 1;
 				_tmp17_ = _parent_index;
-				_parent_index = _tmp17_ + 1;
-				_tmp18_ = _parent_index;
-				_tmp19_ = _parent_size;
-				if (!(_tmp18_ < _tmp19_)) {
+				_tmp18_ = _parent_size;
+				if (!(_tmp17_ < _tmp18_)) {
 					break;
 				}
-				_tmp20_ = _parent_list;
-				_tmp21_ = _parent_index;
-				_tmp22_ = vala_list_get (_tmp20_, _tmp21_);
-				parent = (ValadocContentTaglet*) _tmp22_;
-				_tmp23_ = parent;
-				_tmp24_ = self->priv->parent_taglet;
-				if (valadoc_content_taglet_inheritable (_tmp23_, _tmp24_)) {
-					ValadocContentTaglet* _tmp25_;
-					ValaList* _tmp26_;
-					ValaList* _tmp27_;
-					ValadocContentRun* _tmp28_;
-					ValadocContentContentElement* _tmp29_;
-					_tmp25_ = parent;
-					_tmp26_ = valadoc_content_taglet_get_inheritable_documentation (_tmp25_);
-					_tmp27_ = _tmp26_;
-					_tmp28_ = valadoc_taglets_inherit_doc_content_copy (self, _tmp27_);
-					_tmp29_ = (ValadocContentContentElement*) _tmp28_;
-					_vala_iterable_unref0 (_tmp27_);
-					result = _tmp29_;
+				_tmp19_ = _parent_list;
+				_tmp20_ = vala_list_get (_tmp19_, _parent_index);
+				parent = (ValadocContentTaglet*) _tmp20_;
+				_tmp21_ = parent;
+				_tmp22_ = self->priv->parent_taglet;
+				if (valadoc_content_taglet_inheritable (_tmp21_, _tmp22_)) {
+					ValadocContentTaglet* _tmp23_;
+					ValaList* _tmp24_;
+					ValaList* _tmp25_;
+					ValadocContentRun* _tmp26_;
+					ValadocContentContentElement* _tmp27_;
+					_tmp23_ = parent;
+					_tmp24_ = valadoc_content_taglet_get_inheritable_documentation (_tmp23_);
+					_tmp25_ = _tmp24_;
+					_tmp26_ = valadoc_taglets_inherit_doc_content_copy (self, _tmp25_);
+					_tmp27_ = (ValadocContentContentElement*) _tmp26_;
+					_vala_iterable_unref0 (_tmp25_);
+					result = _tmp27_;
 					_g_object_unref0 (parent);
 					_vala_iterable_unref0 (_parent_list);
 					_vala_iterable_unref0 (parent_taglets);
@@ -1175,11 +1151,10 @@ valadoc_taglets_inherit_doc_real_produce_content (ValadocContentInlineTaglet* ba
 		}
 		_vala_iterable_unref0 (parent_taglets);
 	}
-	_tmp30_ = valadoc_content_text_new ("");
-	result = (ValadocContentContentElement*) _tmp30_;
+	_tmp28_ = valadoc_content_text_new ("");
+	result = (ValadocContentContentElement*) _tmp28_;
 	return result;
 }
-
 
 static gboolean
 valadoc_taglets_inherit_doc_real_is_empty (ValadocContentContentElement* base)
@@ -1191,13 +1166,11 @@ valadoc_taglets_inherit_doc_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_taglets_inherit_doc_real_copy (ValadocContentContentElement* base,
                                        ValadocContentContentElement* new_parent)
 {
 	ValadocTagletsInheritDoc * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocTagletsInheritDoc* doc = NULL;
 	ValadocTagletsInheritDoc* _tmp0_;
 	ValadocSettings* _tmp1_;
@@ -1206,6 +1179,7 @@ valadoc_taglets_inherit_doc_real_copy (ValadocContentContentElement* base,
 	ValadocResourceLocator* _tmp4_;
 	ValadocApiNode* _tmp5_;
 	ValadocApiNode* _tmp6_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocTagletsInheritDoc*) base;
 	_tmp0_ = valadoc_taglets_inherit_doc_new ();
 	doc = _tmp0_;
@@ -1226,7 +1200,6 @@ valadoc_taglets_inherit_doc_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
 ValadocTagletsInheritDoc*
 valadoc_taglets_inherit_doc_construct (GType object_type)
 {
@@ -1235,43 +1208,15 @@ valadoc_taglets_inherit_doc_construct (GType object_type)
 	return self;
 }
 
-
 ValadocTagletsInheritDoc*
 valadoc_taglets_inherit_doc_new (void)
 {
 	return valadoc_taglets_inherit_doc_construct (VALADOC_TAGLETS_TYPE_INHERIT_DOC);
 }
 
-
-ValadocApiNode*
-valadoc_taglets_inherit_doc_get_inherited (ValadocTagletsInheritDoc* self)
-{
-	ValadocApiNode* result;
-	ValadocApiNode* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_inherited;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_taglets_inherit_doc_set_inherited (ValadocTagletsInheritDoc* self,
-                                           ValadocApiNode* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_inherit_doc_get_inherited (self) != value) {
-		ValadocApiNode* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_inherited);
-		self->priv->_inherited = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_inherit_doc_properties[VALADOC_TAGLETS_INHERIT_DOC_INHERITED_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_taglets_inherit_doc_class_init (ValadocTagletsInheritDocClass * klass)
+valadoc_taglets_inherit_doc_class_init (ValadocTagletsInheritDocClass * klass,
+                                        gpointer klass_data)
 {
 	valadoc_taglets_inherit_doc_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocTagletsInheritDoc_private_offset);
@@ -1286,14 +1231,13 @@ valadoc_taglets_inherit_doc_class_init (ValadocTagletsInheritDocClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_TAGLETS_INHERIT_DOC_INHERITED_PROPERTY, valadoc_taglets_inherit_doc_properties[VALADOC_TAGLETS_INHERIT_DOC_INHERITED_PROPERTY] = g_param_spec_object ("inherited", "inherited", "inherited", VALADOC_API_TYPE_NODE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_taglets_inherit_doc_instance_init (ValadocTagletsInheritDoc * self)
+valadoc_taglets_inherit_doc_instance_init (ValadocTagletsInheritDoc * self,
+                                           gpointer klass)
 {
 	self->priv = valadoc_taglets_inherit_doc_get_instance_private (self);
 	self->priv->parent_taglet = NULL;
 }
-
 
 static void
 valadoc_taglets_inherit_doc_finalize (GObject * obj)
@@ -1305,21 +1249,27 @@ valadoc_taglets_inherit_doc_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_taglets_inherit_doc_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_taglets_inherit_doc_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsInheritDocClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_inherit_doc_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsInheritDoc), 0, (GInstanceInitFunc) valadoc_taglets_inherit_doc_instance_init, NULL };
+	GType valadoc_taglets_inherit_doc_type_id;
+	valadoc_taglets_inherit_doc_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_TAGLET, "ValadocTagletsInheritDoc", &g_define_type_info, 0);
+	ValadocTagletsInheritDoc_private_offset = g_type_add_instance_private (valadoc_taglets_inherit_doc_type_id, sizeof (ValadocTagletsInheritDocPrivate));
+	return valadoc_taglets_inherit_doc_type_id;
+}
 
 GType
 valadoc_taglets_inherit_doc_get_type (void)
 {
 	static volatile gsize valadoc_taglets_inherit_doc_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_taglets_inherit_doc_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsInheritDocClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_inherit_doc_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsInheritDoc), 0, (GInstanceInitFunc) valadoc_taglets_inherit_doc_instance_init, NULL };
 		GType valadoc_taglets_inherit_doc_type_id;
-		valadoc_taglets_inherit_doc_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_TAGLET, "ValadocTagletsInheritDoc", &g_define_type_info, 0);
-		ValadocTagletsInheritDoc_private_offset = g_type_add_instance_private (valadoc_taglets_inherit_doc_type_id, sizeof (ValadocTagletsInheritDocPrivate));
+		valadoc_taglets_inherit_doc_type_id = valadoc_taglets_inherit_doc_get_type_once ();
 		g_once_init_leave (&valadoc_taglets_inherit_doc_type_id__volatile, valadoc_taglets_inherit_doc_type_id);
 	}
 	return valadoc_taglets_inherit_doc_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_taglets_inherit_doc_get_property (GObject * object,
@@ -1339,7 +1289,6 @@ _vala_valadoc_taglets_inherit_doc_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_taglets_inherit_doc_set_property (GObject * object,
                                                 guint property_id,
@@ -1358,14 +1307,13 @@ _vala_valadoc_taglets_inherit_doc_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1373,7 +1321,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1383,6 +1330,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

@@ -23,12 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 
@@ -36,14 +34,13 @@ struct _ValaCCodeIdentifierPrivate {
 	gchar* _name;
 };
 
-
 static gint ValaCCodeIdentifier_private_offset;
 static gpointer vala_ccode_identifier_parent_class = NULL;
 
 static void vala_ccode_identifier_real_write (ValaCCodeNode* base,
                                        ValaCCodeWriter* writer);
 static void vala_ccode_identifier_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_identifier_get_type_once (void);
 
 static inline gpointer
 vala_ccode_identifier_get_instance_private (ValaCCodeIdentifier* self)
@@ -51,6 +48,27 @@ vala_ccode_identifier_get_instance_private (ValaCCodeIdentifier* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeIdentifier_private_offset);
 }
 
+const gchar*
+vala_ccode_identifier_get_name (ValaCCodeIdentifier* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_identifier_set_name (ValaCCodeIdentifier* self,
+                                const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
 
 ValaCCodeIdentifier*
 vala_ccode_identifier_construct (GType object_type,
@@ -63,13 +81,11 @@ vala_ccode_identifier_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeIdentifier*
 vala_ccode_identifier_new (const gchar* _name)
 {
 	return vala_ccode_identifier_construct (VALA_TYPE_CCODE_IDENTIFIER, _name);
 }
-
 
 static void
 vala_ccode_identifier_real_write (ValaCCodeNode* base,
@@ -83,33 +99,9 @@ vala_ccode_identifier_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_string (writer, _tmp0_);
 }
 
-
-const gchar*
-vala_ccode_identifier_get_name (ValaCCodeIdentifier* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_identifier_set_name (ValaCCodeIdentifier* self,
-                                const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
 static void
-vala_ccode_identifier_class_init (ValaCCodeIdentifierClass * klass)
+vala_ccode_identifier_class_init (ValaCCodeIdentifierClass * klass,
+                                  gpointer klass_data)
 {
 	vala_ccode_identifier_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_identifier_finalize;
@@ -117,13 +109,12 @@ vala_ccode_identifier_class_init (ValaCCodeIdentifierClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_identifier_real_write;
 }
 
-
 static void
-vala_ccode_identifier_instance_init (ValaCCodeIdentifier * self)
+vala_ccode_identifier_instance_init (ValaCCodeIdentifier * self,
+                                     gpointer klass)
 {
 	self->priv = vala_ccode_identifier_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_identifier_finalize (ValaCCodeNode * obj)
@@ -134,23 +125,28 @@ vala_ccode_identifier_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_identifier_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a identifier in the C code.
  */
+static GType
+vala_ccode_identifier_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIdentifierClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_identifier_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIdentifier), 0, (GInstanceInitFunc) vala_ccode_identifier_instance_init, NULL };
+	GType vala_ccode_identifier_type_id;
+	vala_ccode_identifier_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeIdentifier", &g_define_type_info, 0);
+	ValaCCodeIdentifier_private_offset = g_type_add_instance_private (vala_ccode_identifier_type_id, sizeof (ValaCCodeIdentifierPrivate));
+	return vala_ccode_identifier_type_id;
+}
+
 GType
 vala_ccode_identifier_get_type (void)
 {
 	static volatile gsize vala_ccode_identifier_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_identifier_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIdentifierClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_identifier_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIdentifier), 0, (GInstanceInitFunc) vala_ccode_identifier_instance_init, NULL };
 		GType vala_ccode_identifier_type_id;
-		vala_ccode_identifier_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeIdentifier", &g_define_type_info, 0);
-		ValaCCodeIdentifier_private_offset = g_type_add_instance_private (vala_ccode_identifier_type_id, sizeof (ValaCCodeIdentifierPrivate));
+		vala_ccode_identifier_type_id = vala_ccode_identifier_get_type_once ();
 		g_once_init_leave (&vala_ccode_identifier_type_id__volatile, vala_ccode_identifier_type_id);
 	}
 	return vala_ccode_identifier_type_id__volatile;
 }
-
-
 

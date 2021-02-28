@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
@@ -55,12 +54,12 @@ struct _ValadocGtkdocParamSpecScanner {
 	GParamSpec parent_instance;
 };
 
-
 static gpointer valadoc_gtkdoc_token_parent_class = NULL;
 static gint ValadocGtkdocScanner_private_offset;
 static gpointer valadoc_gtkdoc_scanner_parent_class = NULL;
 
 static void valadoc_gtkdoc_token_finalize (ValadocGtkdocToken * obj);
+static GType valadoc_gtkdoc_token_get_type_once (void);
 static inline gunichar valadoc_gtkdoc_scanner_next_char (ValadocGtkdocScanner* self);
 static inline gunichar valadoc_gtkdoc_scanner_get (ValadocGtkdocScanner* self);
 static inline gboolean valadoc_gtkdoc_scanner_letter (ValadocGtkdocScanner* self,
@@ -95,28 +94,34 @@ static ValadocGtkdocToken* valadoc_gtkdoc_scanner_word_prefix (ValadocGtkdocScan
 static ValadocGtkdocToken* valadoc_gtkdoc_scanner_gtkdoc_source_open_prefix (ValadocGtkdocScanner* self);
 static ValadocGtkdocToken* valadoc_gtkdoc_scanner_gtkdoc_source_close_prefix (ValadocGtkdocScanner* self);
 static void valadoc_gtkdoc_scanner_finalize (ValadocGtkdocScanner * obj);
+static GType valadoc_gtkdoc_scanner_get_type_once (void);
 
+static GType
+valadoc_gtkdoc_token_type_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN, "VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN", "xml-open"}, {VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, "VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE", "xml-close"}, {VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT, "VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT", "xml-comment"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION", "gtkdoc-function"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_CONST, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_CONST", "gtkdoc-const"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_TYPE, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_TYPE", "gtkdoc-type"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM", "gtkdoc-param"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN", "gtkdoc-source-open"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE", "gtkdoc-source-close"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL", "gtkdoc-signal"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY", "gtkdoc-property"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH", "gtkdoc-paragraph"}, {VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE, "VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE", "newline"}, {VALADOC_GTKDOC_TOKEN_TYPE_SPACE, "VALADOC_GTKDOC_TOKEN_TYPE_SPACE", "space"}, {VALADOC_GTKDOC_TOKEN_TYPE_WORD, "VALADOC_GTKDOC_TOKEN_TYPE_WORD", "word"}, {VALADOC_GTKDOC_TOKEN_TYPE_EOF, "VALADOC_GTKDOC_TOKEN_TYPE_EOF", "eof"}, {0, NULL, NULL}};
+	GType valadoc_gtkdoc_token_type_type_id;
+	valadoc_gtkdoc_token_type_type_id = g_enum_register_static ("ValadocGtkdocTokenType", values);
+	return valadoc_gtkdoc_token_type_type_id;
+}
 
 GType
 valadoc_gtkdoc_token_type_get_type (void)
 {
 	static volatile gsize valadoc_gtkdoc_token_type_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_gtkdoc_token_type_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN, "VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN", "xml-open"}, {VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, "VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE", "xml-close"}, {VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT, "VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT", "xml-comment"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION", "gtkdoc-function"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_CONST, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_CONST", "gtkdoc-const"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_TYPE, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_TYPE", "gtkdoc-type"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM", "gtkdoc-param"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN", "gtkdoc-source-open"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE", "gtkdoc-source-close"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL", "gtkdoc-signal"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY", "gtkdoc-property"}, {VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH, "VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH", "gtkdoc-paragraph"}, {VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE, "VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE", "newline"}, {VALADOC_GTKDOC_TOKEN_TYPE_SPACE, "VALADOC_GTKDOC_TOKEN_TYPE_SPACE", "space"}, {VALADOC_GTKDOC_TOKEN_TYPE_WORD, "VALADOC_GTKDOC_TOKEN_TYPE_WORD", "word"}, {VALADOC_GTKDOC_TOKEN_TYPE_EOF, "VALADOC_GTKDOC_TOKEN_TYPE_EOF", "eof"}, {0, NULL, NULL}};
 		GType valadoc_gtkdoc_token_type_type_id;
-		valadoc_gtkdoc_token_type_type_id = g_enum_register_static ("ValadocGtkdocTokenType", values);
+		valadoc_gtkdoc_token_type_type_id = valadoc_gtkdoc_token_type_get_type_once ();
 		g_once_init_leave (&valadoc_gtkdoc_token_type_type_id__volatile, valadoc_gtkdoc_token_type_type_id);
 	}
 	return valadoc_gtkdoc_token_type_type_id__volatile;
 }
-
 
 static gpointer
 _vala_map_ref0 (gpointer self)
 {
 	return self ? vala_map_ref (self) : NULL;
 }
-
 
 ValadocGtkdocToken*
 valadoc_gtkdoc_token_construct (GType object_type,
@@ -150,7 +155,6 @@ valadoc_gtkdoc_token_construct (GType object_type,
 	return self;
 }
 
-
 ValadocGtkdocToken*
 valadoc_gtkdoc_token_new (ValadocGtkdocTokenType type,
                           const gchar* content,
@@ -164,12 +168,11 @@ valadoc_gtkdoc_token_new (ValadocGtkdocTokenType type,
 	return valadoc_gtkdoc_token_construct (VALADOC_GTKDOC_TYPE_TOKEN, type, content, attributes, start, length, line, first_column, last_column);
 }
 
-
 gchar*
 valadoc_gtkdoc_token_to_string (ValadocGtkdocToken* self)
 {
-	gchar* result = NULL;
 	ValadocGtkdocTokenType _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->type;
 	switch (_tmp0_) {
@@ -308,13 +311,11 @@ valadoc_gtkdoc_token_to_string (ValadocGtkdocToken* self)
 	}
 }
 
-
 static void
 valadoc_gtkdoc_value_token_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_gtkdoc_value_token_free_value (GValue* value)
@@ -323,7 +324,6 @@ valadoc_gtkdoc_value_token_free_value (GValue* value)
 		valadoc_gtkdoc_token_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_gtkdoc_value_token_copy_value (const GValue* src_value,
@@ -336,13 +336,11 @@ valadoc_gtkdoc_value_token_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_gtkdoc_value_token_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_gtkdoc_value_token_collect_value (GValue* value,
@@ -365,7 +363,6 @@ valadoc_gtkdoc_value_token_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_gtkdoc_value_token_lcopy_value (const GValue* value,
                                         guint n_collect_values,
@@ -387,7 +384,6 @@ valadoc_gtkdoc_value_token_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_gtkdoc_param_spec_token (const gchar* name,
                                  const gchar* nick,
@@ -402,14 +398,12 @@ valadoc_gtkdoc_param_spec_token (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_gtkdoc_value_get_token (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_GTKDOC_TYPE_TOKEN), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_gtkdoc_value_set_token (GValue* value,
@@ -431,7 +425,6 @@ valadoc_gtkdoc_value_set_token (GValue* value,
 	}
 }
 
-
 void
 valadoc_gtkdoc_value_take_token (GValue* value,
                                  gpointer v_object)
@@ -451,21 +444,20 @@ valadoc_gtkdoc_value_take_token (GValue* value,
 	}
 }
 
-
 static void
-valadoc_gtkdoc_token_class_init (ValadocGtkdocTokenClass * klass)
+valadoc_gtkdoc_token_class_init (ValadocGtkdocTokenClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_gtkdoc_token_parent_class = g_type_class_peek_parent (klass);
 	((ValadocGtkdocTokenClass *) klass)->finalize = valadoc_gtkdoc_token_finalize;
 }
 
-
 static void
-valadoc_gtkdoc_token_instance_init (ValadocGtkdocToken * self)
+valadoc_gtkdoc_token_instance_init (ValadocGtkdocToken * self,
+                                    gpointer klass)
 {
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_gtkdoc_token_finalize (ValadocGtkdocToken * obj)
@@ -477,22 +469,28 @@ valadoc_gtkdoc_token_finalize (ValadocGtkdocToken * obj)
 	_vala_map_unref0 (self->attributes);
 }
 
+static GType
+valadoc_gtkdoc_token_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_gtkdoc_value_token_init, valadoc_gtkdoc_value_token_free_value, valadoc_gtkdoc_value_token_copy_value, valadoc_gtkdoc_value_token_peek_pointer, "p", valadoc_gtkdoc_value_token_collect_value, "p", valadoc_gtkdoc_value_token_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkdocTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtkdoc_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkdocToken), 0, (GInstanceInitFunc) valadoc_gtkdoc_token_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_gtkdoc_token_type_id;
+	valadoc_gtkdoc_token_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocGtkdocToken", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return valadoc_gtkdoc_token_type_id;
+}
 
 GType
 valadoc_gtkdoc_token_get_type (void)
 {
 	static volatile gsize valadoc_gtkdoc_token_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_gtkdoc_token_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_gtkdoc_value_token_init, valadoc_gtkdoc_value_token_free_value, valadoc_gtkdoc_value_token_copy_value, valadoc_gtkdoc_value_token_peek_pointer, "p", valadoc_gtkdoc_value_token_collect_value, "p", valadoc_gtkdoc_value_token_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkdocTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtkdoc_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkdocToken), 0, (GInstanceInitFunc) valadoc_gtkdoc_token_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_gtkdoc_token_type_id;
-		valadoc_gtkdoc_token_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocGtkdocToken", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		valadoc_gtkdoc_token_type_id = valadoc_gtkdoc_token_get_type_once ();
 		g_once_init_leave (&valadoc_gtkdoc_token_type_id__volatile, valadoc_gtkdoc_token_type_id);
 	}
 	return valadoc_gtkdoc_token_type_id__volatile;
 }
-
 
 gpointer
 valadoc_gtkdoc_token_ref (gpointer instance)
@@ -502,7 +500,6 @@ valadoc_gtkdoc_token_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_gtkdoc_token_unref (gpointer instance)
@@ -515,13 +512,11 @@ valadoc_gtkdoc_token_unref (gpointer instance)
 	}
 }
 
-
 static inline gpointer
 valadoc_gtkdoc_scanner_get_instance_private (ValadocGtkdocScanner* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocGtkdocScanner_private_offset);
 }
-
 
 ValadocGtkdocScanner*
 valadoc_gtkdoc_scanner_construct (GType object_type)
@@ -531,13 +526,11 @@ valadoc_gtkdoc_scanner_construct (GType object_type)
 	return self;
 }
 
-
 ValadocGtkdocScanner*
 valadoc_gtkdoc_scanner_new (void)
 {
 	return valadoc_gtkdoc_scanner_construct (VALADOC_GTKDOC_TYPE_SCANNER);
 }
-
 
 static gunichar
 string_get_char (const gchar* self,
@@ -549,16 +542,15 @@ string_get_char (const gchar* self,
 	return result;
 }
 
-
 gchar*
 valadoc_gtkdoc_scanner_unescape (const gchar* txt)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	const gchar* start = NULL;
 	const gchar* pos = NULL;
 	gunichar c = 0U;
+	gchar* result = NULL;
 	g_return_val_if_fail (txt != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
@@ -569,8 +561,6 @@ valadoc_gtkdoc_scanner_unescape (const gchar* txt)
 		_tmp1_ = TRUE;
 		while (TRUE) {
 			const gchar* _tmp4_;
-			gunichar _tmp5_;
-			gunichar _tmp6_;
 			if (!_tmp1_) {
 				const gchar* _tmp2_;
 				const gchar* _tmp3_;
@@ -581,319 +571,317 @@ valadoc_gtkdoc_scanner_unescape (const gchar* txt)
 			_tmp1_ = FALSE;
 			_tmp4_ = pos;
 			c = string_get_char (_tmp4_, (glong) 0);
-			_tmp5_ = c;
-			if (!(_tmp5_ != ((gunichar) '\0'))) {
+			if (!(c != ((gunichar) '\0'))) {
 				break;
 			}
-			_tmp6_ = c;
-			if (_tmp6_ == ((gunichar) '&')) {
-				const gchar* _tmp7_;
-				_tmp7_ = pos;
-				if (g_str_has_prefix (_tmp7_, "&solidus;")) {
-					GString* _tmp8_;
+			if (c == ((gunichar) '&')) {
+				const gchar* _tmp5_;
+				_tmp5_ = pos;
+				if (g_str_has_prefix (_tmp5_, "&solidus;")) {
+					GString* _tmp6_;
+					const gchar* _tmp7_;
+					const gchar* _tmp8_;
 					const gchar* _tmp9_;
 					const gchar* _tmp10_;
 					const gchar* _tmp11_;
-					const gchar* _tmp12_;
-					const gchar* _tmp13_;
-					GString* _tmp14_;
-					_tmp8_ = builder;
+					GString* _tmp12_;
+					_tmp6_ = builder;
+					_tmp7_ = start;
+					_tmp8_ = pos;
 					_tmp9_ = start;
+					g_string_append_len (_tmp6_, _tmp7_, (gssize) (((gchar*) _tmp8_) - ((gchar*) _tmp9_)));
 					_tmp10_ = pos;
-					_tmp11_ = start;
-					g_string_append_len (_tmp8_, _tmp9_, (gssize) (((gchar*) _tmp10_) - ((gchar*) _tmp11_)));
-					_tmp12_ = pos;
-					start = (const gchar*) (((gchar*) _tmp12_) + 9);
-					_tmp13_ = pos;
-					pos = (const gchar*) (((gchar*) _tmp13_) + 8);
-					_tmp14_ = builder;
-					g_string_append_unichar (_tmp14_, 8260U);
+					start = (const gchar*) (((gchar*) _tmp10_) + 9);
+					_tmp11_ = pos;
+					pos = (const gchar*) (((gchar*) _tmp11_) + 8);
+					_tmp12_ = builder;
+					g_string_append_unichar (_tmp12_, 8260U);
 				} else {
-					const gchar* _tmp15_;
-					_tmp15_ = pos;
-					if (g_str_has_prefix (_tmp15_, "&percnt;")) {
-						GString* _tmp16_;
+					const gchar* _tmp13_;
+					_tmp13_ = pos;
+					if (g_str_has_prefix (_tmp13_, "&percnt;")) {
+						GString* _tmp14_;
+						const gchar* _tmp15_;
+						const gchar* _tmp16_;
 						const gchar* _tmp17_;
 						const gchar* _tmp18_;
 						const gchar* _tmp19_;
-						const gchar* _tmp20_;
-						const gchar* _tmp21_;
-						GString* _tmp22_;
-						_tmp16_ = builder;
+						GString* _tmp20_;
+						_tmp14_ = builder;
+						_tmp15_ = start;
+						_tmp16_ = pos;
 						_tmp17_ = start;
+						g_string_append_len (_tmp14_, _tmp15_, (gssize) (((gchar*) _tmp16_) - ((gchar*) _tmp17_)));
 						_tmp18_ = pos;
-						_tmp19_ = start;
-						g_string_append_len (_tmp16_, _tmp17_, (gssize) (((gchar*) _tmp18_) - ((gchar*) _tmp19_)));
-						_tmp20_ = pos;
-						start = (const gchar*) (((gchar*) _tmp20_) + 8);
-						_tmp21_ = pos;
-						pos = (const gchar*) (((gchar*) _tmp21_) + 7);
-						_tmp22_ = builder;
-						g_string_append_c (_tmp22_, '%');
+						start = (const gchar*) (((gchar*) _tmp18_) + 8);
+						_tmp19_ = pos;
+						pos = (const gchar*) (((gchar*) _tmp19_) + 7);
+						_tmp20_ = builder;
+						g_string_append_c (_tmp20_, '%');
 					} else {
-						const gchar* _tmp23_;
-						_tmp23_ = pos;
-						if (g_str_has_prefix (_tmp23_, "&commat;")) {
-							GString* _tmp24_;
+						const gchar* _tmp21_;
+						_tmp21_ = pos;
+						if (g_str_has_prefix (_tmp21_, "&commat;")) {
+							GString* _tmp22_;
+							const gchar* _tmp23_;
+							const gchar* _tmp24_;
 							const gchar* _tmp25_;
 							const gchar* _tmp26_;
 							const gchar* _tmp27_;
-							const gchar* _tmp28_;
-							const gchar* _tmp29_;
-							GString* _tmp30_;
-							_tmp24_ = builder;
+							GString* _tmp28_;
+							_tmp22_ = builder;
+							_tmp23_ = start;
+							_tmp24_ = pos;
 							_tmp25_ = start;
+							g_string_append_len (_tmp22_, _tmp23_, (gssize) (((gchar*) _tmp24_) - ((gchar*) _tmp25_)));
 							_tmp26_ = pos;
-							_tmp27_ = start;
-							g_string_append_len (_tmp24_, _tmp25_, (gssize) (((gchar*) _tmp26_) - ((gchar*) _tmp27_)));
-							_tmp28_ = pos;
-							start = (const gchar*) (((gchar*) _tmp28_) + 8);
-							_tmp29_ = pos;
-							pos = (const gchar*) (((gchar*) _tmp29_) + 7);
-							_tmp30_ = builder;
-							g_string_append_c (_tmp30_, '@');
+							start = (const gchar*) (((gchar*) _tmp26_) + 8);
+							_tmp27_ = pos;
+							pos = (const gchar*) (((gchar*) _tmp27_) + 7);
+							_tmp28_ = builder;
+							g_string_append_c (_tmp28_, '@');
 						} else {
-							const gchar* _tmp31_;
-							_tmp31_ = pos;
-							if (g_str_has_prefix (_tmp31_, "&nbsp;")) {
-								GString* _tmp32_;
+							const gchar* _tmp29_;
+							_tmp29_ = pos;
+							if (g_str_has_prefix (_tmp29_, "&nbsp;")) {
+								GString* _tmp30_;
+								const gchar* _tmp31_;
+								const gchar* _tmp32_;
 								const gchar* _tmp33_;
 								const gchar* _tmp34_;
 								const gchar* _tmp35_;
-								const gchar* _tmp36_;
-								const gchar* _tmp37_;
-								GString* _tmp38_;
-								_tmp32_ = builder;
+								GString* _tmp36_;
+								_tmp30_ = builder;
+								_tmp31_ = start;
+								_tmp32_ = pos;
 								_tmp33_ = start;
+								g_string_append_len (_tmp30_, _tmp31_, (gssize) (((gchar*) _tmp32_) - ((gchar*) _tmp33_)));
 								_tmp34_ = pos;
-								_tmp35_ = start;
-								g_string_append_len (_tmp32_, _tmp33_, (gssize) (((gchar*) _tmp34_) - ((gchar*) _tmp35_)));
-								_tmp36_ = pos;
-								start = (const gchar*) (((gchar*) _tmp36_) + 6);
-								_tmp37_ = pos;
-								pos = (const gchar*) (((gchar*) _tmp37_) + 5);
-								_tmp38_ = builder;
-								g_string_append_c (_tmp38_, ' ');
+								start = (const gchar*) (((gchar*) _tmp34_) + 6);
+								_tmp35_ = pos;
+								pos = (const gchar*) (((gchar*) _tmp35_) + 5);
+								_tmp36_ = builder;
+								g_string_append_c (_tmp36_, ' ');
 							} else {
-								const gchar* _tmp39_;
-								_tmp39_ = pos;
-								if (g_str_has_prefix (_tmp39_, "&quot;")) {
-									GString* _tmp40_;
+								const gchar* _tmp37_;
+								_tmp37_ = pos;
+								if (g_str_has_prefix (_tmp37_, "&quot;")) {
+									GString* _tmp38_;
+									const gchar* _tmp39_;
+									const gchar* _tmp40_;
 									const gchar* _tmp41_;
 									const gchar* _tmp42_;
 									const gchar* _tmp43_;
-									const gchar* _tmp44_;
-									const gchar* _tmp45_;
-									GString* _tmp46_;
-									_tmp40_ = builder;
+									GString* _tmp44_;
+									_tmp38_ = builder;
+									_tmp39_ = start;
+									_tmp40_ = pos;
 									_tmp41_ = start;
+									g_string_append_len (_tmp38_, _tmp39_, (gssize) (((gchar*) _tmp40_) - ((gchar*) _tmp41_)));
 									_tmp42_ = pos;
-									_tmp43_ = start;
-									g_string_append_len (_tmp40_, _tmp41_, (gssize) (((gchar*) _tmp42_) - ((gchar*) _tmp43_)));
-									_tmp44_ = pos;
-									start = (const gchar*) (((gchar*) _tmp44_) + 6);
-									_tmp45_ = pos;
-									pos = (const gchar*) (((gchar*) _tmp45_) + 5);
-									_tmp46_ = builder;
-									g_string_append_c (_tmp46_, '"');
+									start = (const gchar*) (((gchar*) _tmp42_) + 6);
+									_tmp43_ = pos;
+									pos = (const gchar*) (((gchar*) _tmp43_) + 5);
+									_tmp44_ = builder;
+									g_string_append_c (_tmp44_, '"');
 								} else {
-									const gchar* _tmp47_;
-									_tmp47_ = pos;
-									if (g_str_has_prefix (_tmp47_, "&apos;")) {
-										GString* _tmp48_;
+									const gchar* _tmp45_;
+									_tmp45_ = pos;
+									if (g_str_has_prefix (_tmp45_, "&apos;")) {
+										GString* _tmp46_;
+										const gchar* _tmp47_;
+										const gchar* _tmp48_;
 										const gchar* _tmp49_;
 										const gchar* _tmp50_;
 										const gchar* _tmp51_;
-										const gchar* _tmp52_;
-										const gchar* _tmp53_;
-										GString* _tmp54_;
-										_tmp48_ = builder;
+										GString* _tmp52_;
+										_tmp46_ = builder;
+										_tmp47_ = start;
+										_tmp48_ = pos;
 										_tmp49_ = start;
+										g_string_append_len (_tmp46_, _tmp47_, (gssize) (((gchar*) _tmp48_) - ((gchar*) _tmp49_)));
 										_tmp50_ = pos;
-										_tmp51_ = start;
-										g_string_append_len (_tmp48_, _tmp49_, (gssize) (((gchar*) _tmp50_) - ((gchar*) _tmp51_)));
-										_tmp52_ = pos;
-										start = (const gchar*) (((gchar*) _tmp52_) + 6);
-										_tmp53_ = pos;
-										pos = (const gchar*) (((gchar*) _tmp53_) + 5);
-										_tmp54_ = builder;
-										g_string_append_c (_tmp54_, '\'');
+										start = (const gchar*) (((gchar*) _tmp50_) + 6);
+										_tmp51_ = pos;
+										pos = (const gchar*) (((gchar*) _tmp51_) + 5);
+										_tmp52_ = builder;
+										g_string_append_c (_tmp52_, '\'');
 									} else {
-										const gchar* _tmp55_;
-										_tmp55_ = pos;
-										if (g_str_has_prefix (_tmp55_, "&lpar;")) {
-											GString* _tmp56_;
+										const gchar* _tmp53_;
+										_tmp53_ = pos;
+										if (g_str_has_prefix (_tmp53_, "&lpar;")) {
+											GString* _tmp54_;
+											const gchar* _tmp55_;
+											const gchar* _tmp56_;
 											const gchar* _tmp57_;
 											const gchar* _tmp58_;
 											const gchar* _tmp59_;
-											const gchar* _tmp60_;
-											const gchar* _tmp61_;
-											GString* _tmp62_;
-											_tmp56_ = builder;
+											GString* _tmp60_;
+											_tmp54_ = builder;
+											_tmp55_ = start;
+											_tmp56_ = pos;
 											_tmp57_ = start;
+											g_string_append_len (_tmp54_, _tmp55_, (gssize) (((gchar*) _tmp56_) - ((gchar*) _tmp57_)));
 											_tmp58_ = pos;
-											_tmp59_ = start;
-											g_string_append_len (_tmp56_, _tmp57_, (gssize) (((gchar*) _tmp58_) - ((gchar*) _tmp59_)));
-											_tmp60_ = pos;
-											start = (const gchar*) (((gchar*) _tmp60_) + 6);
-											_tmp61_ = pos;
-											pos = (const gchar*) (((gchar*) _tmp61_) + 5);
-											_tmp62_ = builder;
-											g_string_append_c (_tmp62_, '(');
+											start = (const gchar*) (((gchar*) _tmp58_) + 6);
+											_tmp59_ = pos;
+											pos = (const gchar*) (((gchar*) _tmp59_) + 5);
+											_tmp60_ = builder;
+											g_string_append_c (_tmp60_, '(');
 										} else {
-											const gchar* _tmp63_;
-											_tmp63_ = pos;
-											if (g_str_has_prefix (_tmp63_, "&rpar;")) {
-												GString* _tmp64_;
+											const gchar* _tmp61_;
+											_tmp61_ = pos;
+											if (g_str_has_prefix (_tmp61_, "&rpar;")) {
+												GString* _tmp62_;
+												const gchar* _tmp63_;
+												const gchar* _tmp64_;
 												const gchar* _tmp65_;
 												const gchar* _tmp66_;
 												const gchar* _tmp67_;
-												const gchar* _tmp68_;
-												const gchar* _tmp69_;
-												GString* _tmp70_;
-												_tmp64_ = builder;
+												GString* _tmp68_;
+												_tmp62_ = builder;
+												_tmp63_ = start;
+												_tmp64_ = pos;
 												_tmp65_ = start;
+												g_string_append_len (_tmp62_, _tmp63_, (gssize) (((gchar*) _tmp64_) - ((gchar*) _tmp65_)));
 												_tmp66_ = pos;
-												_tmp67_ = start;
-												g_string_append_len (_tmp64_, _tmp65_, (gssize) (((gchar*) _tmp66_) - ((gchar*) _tmp67_)));
-												_tmp68_ = pos;
-												start = (const gchar*) (((gchar*) _tmp68_) + 6);
-												_tmp69_ = pos;
-												pos = (const gchar*) (((gchar*) _tmp69_) + 5);
-												_tmp70_ = builder;
-												g_string_append_c (_tmp70_, ')');
+												start = (const gchar*) (((gchar*) _tmp66_) + 6);
+												_tmp67_ = pos;
+												pos = (const gchar*) (((gchar*) _tmp67_) + 5);
+												_tmp68_ = builder;
+												g_string_append_c (_tmp68_, ')');
 											} else {
-												const gchar* _tmp71_;
-												_tmp71_ = pos;
-												if (g_str_has_prefix (_tmp71_, "&num;")) {
-													GString* _tmp72_;
+												const gchar* _tmp69_;
+												_tmp69_ = pos;
+												if (g_str_has_prefix (_tmp69_, "&num;")) {
+													GString* _tmp70_;
+													const gchar* _tmp71_;
+													const gchar* _tmp72_;
 													const gchar* _tmp73_;
 													const gchar* _tmp74_;
 													const gchar* _tmp75_;
-													const gchar* _tmp76_;
-													const gchar* _tmp77_;
-													GString* _tmp78_;
-													_tmp72_ = builder;
+													GString* _tmp76_;
+													_tmp70_ = builder;
+													_tmp71_ = start;
+													_tmp72_ = pos;
 													_tmp73_ = start;
+													g_string_append_len (_tmp70_, _tmp71_, (gssize) (((gchar*) _tmp72_) - ((gchar*) _tmp73_)));
 													_tmp74_ = pos;
-													_tmp75_ = start;
-													g_string_append_len (_tmp72_, _tmp73_, (gssize) (((gchar*) _tmp74_) - ((gchar*) _tmp75_)));
-													_tmp76_ = pos;
-													start = (const gchar*) (((gchar*) _tmp76_) + 5);
-													_tmp77_ = pos;
-													pos = (const gchar*) (((gchar*) _tmp77_) + 4);
-													_tmp78_ = builder;
-													g_string_append_c (_tmp78_, '#');
+													start = (const gchar*) (((gchar*) _tmp74_) + 5);
+													_tmp75_ = pos;
+													pos = (const gchar*) (((gchar*) _tmp75_) + 4);
+													_tmp76_ = builder;
+													g_string_append_c (_tmp76_, '#');
 												} else {
-													const gchar* _tmp79_;
-													_tmp79_ = pos;
-													if (g_str_has_prefix (_tmp79_, "&amp;")) {
-														GString* _tmp80_;
+													const gchar* _tmp77_;
+													_tmp77_ = pos;
+													if (g_str_has_prefix (_tmp77_, "&amp;")) {
+														GString* _tmp78_;
+														const gchar* _tmp79_;
+														const gchar* _tmp80_;
 														const gchar* _tmp81_;
 														const gchar* _tmp82_;
 														const gchar* _tmp83_;
-														const gchar* _tmp84_;
-														const gchar* _tmp85_;
-														GString* _tmp86_;
-														_tmp80_ = builder;
+														GString* _tmp84_;
+														_tmp78_ = builder;
+														_tmp79_ = start;
+														_tmp80_ = pos;
 														_tmp81_ = start;
+														g_string_append_len (_tmp78_, _tmp79_, (gssize) (((gchar*) _tmp80_) - ((gchar*) _tmp81_)));
 														_tmp82_ = pos;
-														_tmp83_ = start;
-														g_string_append_len (_tmp80_, _tmp81_, (gssize) (((gchar*) _tmp82_) - ((gchar*) _tmp83_)));
-														_tmp84_ = pos;
-														start = (const gchar*) (((gchar*) _tmp84_) + 5);
-														_tmp85_ = pos;
-														pos = (const gchar*) (((gchar*) _tmp85_) + 4);
-														_tmp86_ = builder;
-														g_string_append_c (_tmp86_, '&');
+														start = (const gchar*) (((gchar*) _tmp82_) + 5);
+														_tmp83_ = pos;
+														pos = (const gchar*) (((gchar*) _tmp83_) + 4);
+														_tmp84_ = builder;
+														g_string_append_c (_tmp84_, '&');
 													} else {
-														const gchar* _tmp87_;
-														_tmp87_ = pos;
-														if (g_str_has_prefix (_tmp87_, "&ast;")) {
-															GString* _tmp88_;
+														const gchar* _tmp85_;
+														_tmp85_ = pos;
+														if (g_str_has_prefix (_tmp85_, "&ast;")) {
+															GString* _tmp86_;
+															const gchar* _tmp87_;
+															const gchar* _tmp88_;
 															const gchar* _tmp89_;
 															const gchar* _tmp90_;
 															const gchar* _tmp91_;
-															const gchar* _tmp92_;
-															const gchar* _tmp93_;
-															GString* _tmp94_;
-															_tmp88_ = builder;
+															GString* _tmp92_;
+															_tmp86_ = builder;
+															_tmp87_ = start;
+															_tmp88_ = pos;
 															_tmp89_ = start;
+															g_string_append_len (_tmp86_, _tmp87_, (gssize) (((gchar*) _tmp88_) - ((gchar*) _tmp89_)));
 															_tmp90_ = pos;
-															_tmp91_ = start;
-															g_string_append_len (_tmp88_, _tmp89_, (gssize) (((gchar*) _tmp90_) - ((gchar*) _tmp91_)));
-															_tmp92_ = pos;
-															start = (const gchar*) (((gchar*) _tmp92_) + 5);
-															_tmp93_ = pos;
-															pos = (const gchar*) (((gchar*) _tmp93_) + 4);
-															_tmp94_ = builder;
-															g_string_append_c (_tmp94_, '*');
+															start = (const gchar*) (((gchar*) _tmp90_) + 5);
+															_tmp91_ = pos;
+															pos = (const gchar*) (((gchar*) _tmp91_) + 4);
+															_tmp92_ = builder;
+															g_string_append_c (_tmp92_, '*');
 														} else {
-															const gchar* _tmp95_;
-															_tmp95_ = pos;
-															if (g_str_has_prefix (_tmp95_, "&pi;")) {
-																GString* _tmp96_;
+															const gchar* _tmp93_;
+															_tmp93_ = pos;
+															if (g_str_has_prefix (_tmp93_, "&pi;")) {
+																GString* _tmp94_;
+																const gchar* _tmp95_;
+																const gchar* _tmp96_;
 																const gchar* _tmp97_;
 																const gchar* _tmp98_;
 																const gchar* _tmp99_;
-																const gchar* _tmp100_;
-																const gchar* _tmp101_;
-																GString* _tmp102_;
-																_tmp96_ = builder;
+																GString* _tmp100_;
+																_tmp94_ = builder;
+																_tmp95_ = start;
+																_tmp96_ = pos;
 																_tmp97_ = start;
+																g_string_append_len (_tmp94_, _tmp95_, (gssize) (((gchar*) _tmp96_) - ((gchar*) _tmp97_)));
 																_tmp98_ = pos;
-																_tmp99_ = start;
-																g_string_append_len (_tmp96_, _tmp97_, (gssize) (((gchar*) _tmp98_) - ((gchar*) _tmp99_)));
-																_tmp100_ = pos;
-																start = (const gchar*) (((gchar*) _tmp100_) + 4);
-																_tmp101_ = pos;
-																pos = (const gchar*) (((gchar*) _tmp101_) + 3);
-																_tmp102_ = builder;
-																g_string_append_unichar (_tmp102_, 960U);
+																start = (const gchar*) (((gchar*) _tmp98_) + 4);
+																_tmp99_ = pos;
+																pos = (const gchar*) (((gchar*) _tmp99_) + 3);
+																_tmp100_ = builder;
+																g_string_append_unichar (_tmp100_, 960U);
 															} else {
-																const gchar* _tmp103_;
-																_tmp103_ = pos;
-																if (g_str_has_prefix (_tmp103_, "&lt;")) {
-																	GString* _tmp104_;
+																const gchar* _tmp101_;
+																_tmp101_ = pos;
+																if (g_str_has_prefix (_tmp101_, "&lt;")) {
+																	GString* _tmp102_;
+																	const gchar* _tmp103_;
+																	const gchar* _tmp104_;
 																	const gchar* _tmp105_;
 																	const gchar* _tmp106_;
 																	const gchar* _tmp107_;
-																	const gchar* _tmp108_;
-																	const gchar* _tmp109_;
-																	GString* _tmp110_;
-																	_tmp104_ = builder;
+																	GString* _tmp108_;
+																	_tmp102_ = builder;
+																	_tmp103_ = start;
+																	_tmp104_ = pos;
 																	_tmp105_ = start;
+																	g_string_append_len (_tmp102_, _tmp103_, (gssize) (((gchar*) _tmp104_) - ((gchar*) _tmp105_)));
 																	_tmp106_ = pos;
-																	_tmp107_ = start;
-																	g_string_append_len (_tmp104_, _tmp105_, (gssize) (((gchar*) _tmp106_) - ((gchar*) _tmp107_)));
-																	_tmp108_ = pos;
-																	start = (const gchar*) (((gchar*) _tmp108_) + 4);
-																	_tmp109_ = pos;
-																	pos = (const gchar*) (((gchar*) _tmp109_) + 3);
-																	_tmp110_ = builder;
-																	g_string_append_c (_tmp110_, '<');
+																	start = (const gchar*) (((gchar*) _tmp106_) + 4);
+																	_tmp107_ = pos;
+																	pos = (const gchar*) (((gchar*) _tmp107_) + 3);
+																	_tmp108_ = builder;
+																	g_string_append_c (_tmp108_, '<');
 																} else {
-																	const gchar* _tmp111_;
-																	_tmp111_ = pos;
-																	if (g_str_has_prefix (_tmp111_, "&gt;")) {
-																		GString* _tmp112_;
+																	const gchar* _tmp109_;
+																	_tmp109_ = pos;
+																	if (g_str_has_prefix (_tmp109_, "&gt;")) {
+																		GString* _tmp110_;
+																		const gchar* _tmp111_;
+																		const gchar* _tmp112_;
 																		const gchar* _tmp113_;
 																		const gchar* _tmp114_;
 																		const gchar* _tmp115_;
-																		const gchar* _tmp116_;
-																		const gchar* _tmp117_;
-																		GString* _tmp118_;
-																		_tmp112_ = builder;
+																		GString* _tmp116_;
+																		_tmp110_ = builder;
+																		_tmp111_ = start;
+																		_tmp112_ = pos;
 																		_tmp113_ = start;
+																		g_string_append_len (_tmp110_, _tmp111_, (gssize) (((gchar*) _tmp112_) - ((gchar*) _tmp113_)));
 																		_tmp114_ = pos;
-																		_tmp115_ = start;
-																		g_string_append_len (_tmp112_, _tmp113_, (gssize) (((gchar*) _tmp114_) - ((gchar*) _tmp115_)));
-																		_tmp116_ = pos;
-																		start = (const gchar*) (((gchar*) _tmp116_) + 4);
-																		_tmp117_ = pos;
-																		pos = (const gchar*) (((gchar*) _tmp117_) + 3);
-																		_tmp118_ = builder;
-																		g_string_append_c (_tmp118_, '>');
+																		start = (const gchar*) (((gchar*) _tmp114_) + 4);
+																		_tmp115_ = pos;
+																		pos = (const gchar*) (((gchar*) _tmp115_) + 3);
+																		_tmp116_ = builder;
+																		g_string_append_c (_tmp116_, '>');
 																	}
 																}
 															}
@@ -912,33 +900,32 @@ valadoc_gtkdoc_scanner_unescape (const gchar* txt)
 		}
 	}
 	if ((&txt) == (&start)) {
-		gchar* _tmp119_;
-		_tmp119_ = g_strdup (txt);
-		result = _tmp119_;
+		gchar* _tmp117_;
+		_tmp117_ = g_strdup (txt);
+		result = _tmp117_;
 		_g_string_free0 (builder);
 		return result;
 	} else {
-		GString* _tmp120_;
+		GString* _tmp118_;
+		const gchar* _tmp119_;
+		const gchar* _tmp120_;
 		const gchar* _tmp121_;
-		const gchar* _tmp122_;
-		const gchar* _tmp123_;
-		GString* _tmp124_;
-		gchar* _tmp125_;
-		_tmp120_ = builder;
+		GString* _tmp122_;
+		gchar* _tmp123_;
+		_tmp118_ = builder;
+		_tmp119_ = start;
+		_tmp120_ = pos;
 		_tmp121_ = start;
-		_tmp122_ = pos;
-		_tmp123_ = start;
-		g_string_append_len (_tmp120_, _tmp121_, (gssize) (((gchar*) _tmp122_) - ((gchar*) _tmp123_)));
-		_tmp124_ = builder;
-		_tmp125_ = _tmp124_->str;
-		_tmp124_->str = NULL;
-		result = _tmp125_;
+		g_string_append_len (_tmp118_, _tmp119_, (gssize) (((gchar*) _tmp120_) - ((gchar*) _tmp121_)));
+		_tmp122_ = builder;
+		_tmp123_ = _tmp122_->str;
+		_tmp122_->str = NULL;
+		result = _tmp123_;
 		_g_string_free0 (builder);
 		return result;
 	}
 	_g_string_free0 (builder);
 }
-
 
 void
 valadoc_gtkdoc_scanner_reset (ValadocGtkdocScanner* self,
@@ -954,15 +941,14 @@ valadoc_gtkdoc_scanner_reset (ValadocGtkdocScanner* self,
 	self->priv->line = 0;
 }
 
-
 static inline gunichar
 valadoc_gtkdoc_scanner_next_char (ValadocGtkdocScanner* self)
 {
-	gunichar result = 0U;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
 	gint _tmp2_;
 	const gchar* _tmp3_;
+	gunichar result = 0U;
 	g_return_val_if_fail (self != NULL, 0U);
 	_tmp0_ = self->priv->pos;
 	_tmp1_ = g_utf8_next_char (_tmp0_);
@@ -974,26 +960,24 @@ valadoc_gtkdoc_scanner_next_char (ValadocGtkdocScanner* self)
 	return result;
 }
 
-
 static inline gunichar
 valadoc_gtkdoc_scanner_get (ValadocGtkdocScanner* self)
 {
-	gunichar result = 0U;
 	const gchar* _tmp0_;
+	gunichar result = 0U;
 	g_return_val_if_fail (self != NULL, 0U);
 	_tmp0_ = self->priv->pos;
 	result = string_get_char (_tmp0_, (glong) 0);
 	return result;
 }
 
-
 static inline gboolean
 valadoc_gtkdoc_scanner_letter (ValadocGtkdocScanner* self,
                                gunichar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	if (c >= ((gunichar) 'a')) {
 		_tmp1_ = c <= ((gunichar) 'z');
@@ -1015,15 +999,14 @@ valadoc_gtkdoc_scanner_letter (ValadocGtkdocScanner* self,
 	return result;
 }
 
-
 static inline gboolean
 valadoc_gtkdoc_scanner_letter_or_number (ValadocGtkdocScanner* self,
                                          gunichar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
 	gboolean _tmp2_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	if (c >= ((gunichar) 'a')) {
 		_tmp2_ = c <= ((gunichar) 'z');
@@ -1056,13 +1039,12 @@ valadoc_gtkdoc_scanner_letter_or_number (ValadocGtkdocScanner* self,
 	return result;
 }
 
-
 static inline gboolean
 valadoc_gtkdoc_scanner_space (ValadocGtkdocScanner* self,
                               gunichar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	if (c == ((gunichar) ' ')) {
 		_tmp0_ = TRUE;
@@ -1072,7 +1054,6 @@ valadoc_gtkdoc_scanner_space (ValadocGtkdocScanner* self,
 	result = _tmp0_;
 	return result;
 }
-
 
 static inline gboolean
 valadoc_gtkdoc_scanner_space_or_newline (ValadocGtkdocScanner* self,
@@ -1092,7 +1073,6 @@ valadoc_gtkdoc_scanner_space_or_newline (ValadocGtkdocScanner* self,
 	return result;
 }
 
-
 static inline gint
 valadoc_gtkdoc_scanner_offset (ValadocGtkdocScanner* self,
                                const gchar* a,
@@ -1106,12 +1086,11 @@ valadoc_gtkdoc_scanner_offset (ValadocGtkdocScanner* self,
 	return result;
 }
 
-
 static inline gint
 valadoc_gtkdoc_scanner_vararg_prefix (ValadocGtkdocScanner* self)
 {
-	gint result = 0;
 	const gchar* _tmp0_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = self->priv->pos;
 	if (g_str_has_prefix (_tmp0_, "...")) {
@@ -1125,25 +1104,17 @@ valadoc_gtkdoc_scanner_vararg_prefix (ValadocGtkdocScanner* self)
 	return result;
 }
 
-
 static inline gint
 valadoc_gtkdoc_scanner_id_prefix (ValadocGtkdocScanner* self)
 {
-	gint result = 0;
 	gunichar c = 0U;
 	gboolean _tmp0_ = FALSE;
-	gunichar _tmp1_;
 	gint start = 0;
-	gint _tmp3_;
-	gint _tmp7_;
-	gint _tmp8_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	c = valadoc_gtkdoc_scanner_get (self);
-	_tmp1_ = c;
-	if (!valadoc_gtkdoc_scanner_letter (self, _tmp1_)) {
-		gunichar _tmp2_;
-		_tmp2_ = c;
-		_tmp0_ = _tmp2_ != ((gunichar) '_');
+	if (!valadoc_gtkdoc_scanner_letter (self, c)) {
+		_tmp0_ = c != ((gunichar) '_');
 	} else {
 		_tmp0_ = FALSE;
 	}
@@ -1151,89 +1122,72 @@ valadoc_gtkdoc_scanner_id_prefix (ValadocGtkdocScanner* self)
 		result = 0;
 		return result;
 	}
-	_tmp3_ = self->priv->column;
-	start = _tmp3_;
+	start = self->priv->column;
 	while (TRUE) {
-		gboolean _tmp4_ = FALSE;
-		gunichar _tmp5_;
+		gboolean _tmp1_ = FALSE;
 		c = valadoc_gtkdoc_scanner_next_char (self);
-		_tmp5_ = c;
-		if (_tmp5_ == ((gunichar) '_')) {
-			_tmp4_ = TRUE;
+		if (c == ((gunichar) '_')) {
+			_tmp1_ = TRUE;
 		} else {
-			gunichar _tmp6_;
-			_tmp6_ = c;
-			_tmp4_ = valadoc_gtkdoc_scanner_letter_or_number (self, _tmp6_);
+			_tmp1_ = valadoc_gtkdoc_scanner_letter_or_number (self, c);
 		}
-		if (!_tmp4_) {
+		if (!_tmp1_) {
 			break;
 		}
 	}
-	_tmp7_ = self->priv->column;
-	_tmp8_ = start;
-	result = _tmp7_ - _tmp8_;
+	result = self->priv->column - start;
 	return result;
 }
-
 
 static inline gint
 valadoc_gtkdoc_scanner_g_id_prefix (ValadocGtkdocScanner* self)
 {
-	gint result = 0;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gunichar c = 0U;
-	gunichar _tmp1_;
-	const gchar* _tmp7_;
-	const gchar* _tmp8_;
+	const gchar* _tmp3_;
+	const gchar* _tmp4_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
 	c = valadoc_gtkdoc_scanner_get (self);
-	_tmp1_ = c;
-	if (!valadoc_gtkdoc_scanner_letter (self, _tmp1_)) {
+	if (!valadoc_gtkdoc_scanner_letter (self, c)) {
 		result = 0;
 		return result;
 	}
 	while (TRUE) {
+		gboolean _tmp1_ = FALSE;
 		gboolean _tmp2_ = FALSE;
-		gboolean _tmp3_ = FALSE;
-		gunichar _tmp4_;
 		c = valadoc_gtkdoc_scanner_next_char (self);
-		_tmp4_ = c;
-		if (_tmp4_ == ((gunichar) '_')) {
-			_tmp3_ = TRUE;
-		} else {
-			gunichar _tmp5_;
-			_tmp5_ = c;
-			_tmp3_ = _tmp5_ == ((gunichar) '-');
-		}
-		if (_tmp3_) {
+		if (c == ((gunichar) '_')) {
 			_tmp2_ = TRUE;
 		} else {
-			gunichar _tmp6_;
-			_tmp6_ = c;
-			_tmp2_ = valadoc_gtkdoc_scanner_letter_or_number (self, _tmp6_);
+			_tmp2_ = c == ((gunichar) '-');
 		}
-		if (!_tmp2_) {
+		if (_tmp2_) {
+			_tmp1_ = TRUE;
+		} else {
+			_tmp1_ = valadoc_gtkdoc_scanner_letter_or_number (self, c);
+		}
+		if (!_tmp1_) {
 			break;
 		}
 	}
-	_tmp7_ = self->priv->pos;
-	_tmp8_ = start;
-	result = valadoc_gtkdoc_scanner_offset (self, _tmp7_, _tmp8_);
+	_tmp3_ = self->priv->pos;
+	_tmp4_ = start;
+	result = valadoc_gtkdoc_scanner_offset (self, _tmp3_, _tmp4_);
 	return result;
 }
-
 
 static inline gint
 valadoc_gtkdoc_scanner_skip_spaces_and_newlines (ValadocGtkdocScanner* self)
 {
-	gint result = 0;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
@@ -1250,15 +1204,14 @@ valadoc_gtkdoc_scanner_skip_spaces_and_newlines (ValadocGtkdocScanner* self)
 	return result;
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -1273,17 +1226,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -1300,138 +1251,107 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_function_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint column_start = 0;
-	gint _tmp1_;
 	gint id_len = 0;
-	gint _tmp2_;
-	ValadocGtkdocToken* _tmp3_;
+	ValadocGtkdocToken* _tmp1_;
+	ValadocGtkdocToken* _tmp2_;
 	ValadocGtkdocToken* _tmp4_;
-	ValadocGtkdocToken* _tmp7_;
-	ValadocGtkdocToken* _tmp8_;
+	ValadocGtkdocToken* _tmp5_;
+	const gchar* _tmp7_;
+	gchar* _tmp8_;
+	gchar* _tmp9_;
+	const gchar* _tmp10_;
 	const gchar* _tmp11_;
-	gint _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	const gchar* _tmp15_;
-	const gchar* _tmp16_;
-	const gchar* _tmp17_;
-	gint _tmp18_;
-	gint _tmp19_;
-	gint _tmp20_;
-	ValadocGtkdocToken* _tmp21_;
-	ValadocGtkdocToken* _tmp22_;
+	const gchar* _tmp12_;
+	ValadocGtkdocToken* _tmp13_;
+	ValadocGtkdocToken* _tmp14_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
+	column_start = self->priv->column;
 	id_len = 0;
 	id_len = valadoc_gtkdoc_scanner_id_prefix (self);
-	_tmp2_ = id_len;
-	if (_tmp2_ == 0) {
+	if (id_len == 0) {
 		result = NULL;
 		return result;
 	}
-	_tmp3_ = valadoc_gtkdoc_scanner_space_prefix (self);
-	_tmp4_ = _tmp3_;
-	_valadoc_gtkdoc_token_unref0 (_tmp4_);
+	_tmp1_ = valadoc_gtkdoc_scanner_space_prefix (self);
+	_tmp2_ = _tmp1_;
+	_valadoc_gtkdoc_token_unref0 (_tmp2_);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '(')) {
-		gint _tmp5_;
+		const gchar* _tmp3_;
+		self->priv->column = column_start;
+		_tmp3_ = start;
+		self->priv->pos = _tmp3_;
+		result = NULL;
+		return result;
+	}
+	valadoc_gtkdoc_scanner_next_char (self);
+	_tmp4_ = valadoc_gtkdoc_scanner_space_prefix (self);
+	_tmp5_ = _tmp4_;
+	_valadoc_gtkdoc_token_unref0 (_tmp5_);
+	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) ')')) {
 		const gchar* _tmp6_;
-		_tmp5_ = column_start;
-		self->priv->column = _tmp5_;
+		self->priv->column = column_start;
 		_tmp6_ = start;
 		self->priv->pos = _tmp6_;
 		result = NULL;
 		return result;
 	}
 	valadoc_gtkdoc_scanner_next_char (self);
-	_tmp7_ = valadoc_gtkdoc_scanner_space_prefix (self);
-	_tmp8_ = _tmp7_;
-	_valadoc_gtkdoc_token_unref0 (_tmp8_);
-	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) ')')) {
-		gint _tmp9_;
-		const gchar* _tmp10_;
-		_tmp9_ = column_start;
-		self->priv->column = _tmp9_;
-		_tmp10_ = start;
-		self->priv->pos = _tmp10_;
-		result = NULL;
-		return result;
-	}
-	valadoc_gtkdoc_scanner_next_char (self);
-	_tmp11_ = start;
-	_tmp12_ = id_len;
-	_tmp13_ = string_substring (_tmp11_, (glong) 0, (glong) _tmp12_);
+	_tmp7_ = start;
+	_tmp8_ = string_substring (_tmp7_, (glong) 0, (glong) id_len);
+	_tmp9_ = _tmp8_;
+	_tmp10_ = start;
+	_tmp11_ = self->priv->pos;
+	_tmp12_ = start;
+	_tmp13_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION, _tmp9_, NULL, _tmp10_, valadoc_gtkdoc_scanner_offset (self, _tmp11_, _tmp12_), self->priv->line, column_start, self->priv->column);
 	_tmp14_ = _tmp13_;
-	_tmp15_ = start;
-	_tmp16_ = self->priv->pos;
-	_tmp17_ = start;
-	_tmp18_ = self->priv->line;
-	_tmp19_ = column_start;
-	_tmp20_ = self->priv->column;
-	_tmp21_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_FUNCTION, _tmp14_, NULL, _tmp15_, valadoc_gtkdoc_scanner_offset (self, _tmp16_, _tmp17_), _tmp18_, _tmp19_, _tmp20_);
-	_tmp22_ = _tmp21_;
-	_g_free0 (_tmp14_);
-	result = _tmp22_;
+	_g_free0 (_tmp9_);
+	result = _tmp14_;
 	return result;
 }
-
 
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_symbolic_link_prefix (ValadocGtkdocScanner* self,
                                                     gunichar c,
                                                     ValadocGtkdocTokenType type)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint column_start = 0;
-	gint _tmp1_;
 	gint id_len = 0;
-	gint _tmp2_;
 	const gchar* separator = NULL;
-	const gchar* _tmp7_;
-	const gchar* _tmp34_;
-	gint _tmp35_;
-	gchar* _tmp36_;
-	gchar* _tmp37_;
-	const gchar* _tmp38_;
-	const gchar* _tmp39_;
-	const gchar* _tmp40_;
-	gint _tmp41_;
-	gint _tmp42_;
-	gint _tmp43_;
-	ValadocGtkdocToken* _tmp44_;
-	ValadocGtkdocToken* _tmp45_;
+	const gchar* _tmp3_;
+	const gchar* _tmp18_;
+	gchar* _tmp19_;
+	gchar* _tmp20_;
+	const gchar* _tmp21_;
+	const gchar* _tmp22_;
+	const gchar* _tmp23_;
+	ValadocGtkdocToken* _tmp24_;
+	ValadocGtkdocToken* _tmp25_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != c) {
 		result = NULL;
@@ -1439,175 +1359,134 @@ valadoc_gtkdoc_scanner_gtkdoc_symbolic_link_prefix (ValadocGtkdocScanner* self,
 	}
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
+	column_start = self->priv->column;
 	valadoc_gtkdoc_scanner_next_char (self);
 	id_len = 0;
 	id_len = valadoc_gtkdoc_scanner_id_prefix (self);
-	_tmp2_ = id_len;
-	if (_tmp2_ == 0) {
-		gboolean _tmp3_ = FALSE;
+	if (id_len == 0) {
+		gboolean _tmp1_ = FALSE;
 		if (type == VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM) {
-			gint _tmp4_;
 			id_len = valadoc_gtkdoc_scanner_vararg_prefix (self);
-			_tmp4_ = id_len;
-			_tmp3_ = _tmp4_ == 0;
+			_tmp1_ = id_len == 0;
 		} else {
-			_tmp3_ = FALSE;
+			_tmp1_ = FALSE;
 		}
-		if (_tmp3_) {
-			gint _tmp5_;
-			const gchar* _tmp6_;
-			_tmp5_ = column_start;
-			self->priv->column = _tmp5_;
-			_tmp6_ = start;
-			self->priv->pos = _tmp6_;
+		if (_tmp1_) {
+			const gchar* _tmp2_;
+			self->priv->column = column_start;
+			_tmp2_ = start;
+			self->priv->pos = _tmp2_;
 			result = NULL;
 			return result;
 		}
 	}
-	_tmp7_ = self->priv->pos;
-	separator = _tmp7_;
+	_tmp3_ = self->priv->pos;
+	separator = _tmp3_;
 	if (valadoc_gtkdoc_scanner_get (self) == ((gunichar) ':')) {
 		gint separator_len = 0;
 		gint id_len2 = 0;
-		gint _tmp9_;
 		separator_len = 1;
 		if (valadoc_gtkdoc_scanner_next_char (self) == ((gunichar) ':')) {
-			gint _tmp8_;
+			gint _tmp4_;
 			valadoc_gtkdoc_scanner_next_char (self);
-			_tmp8_ = separator_len;
-			separator_len = _tmp8_ + 1;
+			_tmp4_ = separator_len;
+			separator_len = _tmp4_ + 1;
 		}
 		id_len2 = valadoc_gtkdoc_scanner_g_id_prefix (self);
-		_tmp9_ = id_len2;
-		if (_tmp9_ == 0) {
-			const gchar* _tmp10_;
-			_tmp10_ = separator;
-			self->priv->pos = _tmp10_;
+		if (id_len2 == 0) {
+			const gchar* _tmp5_;
+			_tmp5_ = separator;
+			self->priv->pos = _tmp5_;
 		} else {
-			gint _tmp11_;
-			gint _tmp12_;
-			gint _tmp13_;
-			_tmp11_ = id_len;
-			_tmp12_ = id_len2;
-			_tmp13_ = separator_len;
-			id_len = _tmp11_ + (_tmp12_ + _tmp13_);
+			id_len += id_len2 + separator_len;
 		}
 	} else {
-		gboolean _tmp14_ = FALSE;
-		const gchar* _tmp15_;
-		_tmp15_ = self->priv->pos;
-		if (g_str_has_prefix (_tmp15_, "->")) {
-			_tmp14_ = TRUE;
+		gboolean _tmp6_ = FALSE;
+		const gchar* _tmp7_;
+		_tmp7_ = self->priv->pos;
+		if (g_str_has_prefix (_tmp7_, "->")) {
+			_tmp6_ = TRUE;
 		} else {
-			const gchar* _tmp16_;
-			_tmp16_ = self->priv->pos;
-			_tmp14_ = g_str_has_prefix (_tmp16_, ".");
+			const gchar* _tmp8_;
+			_tmp8_ = self->priv->pos;
+			_tmp6_ = g_str_has_prefix (_tmp8_, ".");
 		}
-		if (_tmp14_) {
+		if (_tmp6_) {
 			const gchar* sep_start = NULL;
-			const gchar* _tmp17_;
+			const gchar* _tmp9_;
 			gint sep_column_start = 0;
-			gint _tmp18_;
 			gint separator_len = 0;
-			const gchar* _tmp19_;
+			const gchar* _tmp10_;
 			ValadocGtkdocToken* func_token = NULL;
-			ValadocGtkdocToken* _tmp20_;
-			ValadocGtkdocToken* _tmp21_;
-			_tmp17_ = self->priv->pos;
-			sep_start = _tmp17_;
-			_tmp18_ = self->priv->column;
-			sep_column_start = _tmp18_;
+			ValadocGtkdocToken* _tmp11_;
+			ValadocGtkdocToken* _tmp12_;
+			_tmp9_ = self->priv->pos;
+			sep_start = _tmp9_;
+			sep_column_start = self->priv->column;
 			separator_len = 1;
-			_tmp19_ = self->priv->pos;
-			if (g_str_has_prefix (_tmp19_, "->")) {
+			_tmp10_ = self->priv->pos;
+			if (g_str_has_prefix (_tmp10_, "->")) {
 				separator_len = 2;
 				valadoc_gtkdoc_scanner_next_char (self);
 			}
 			valadoc_gtkdoc_scanner_next_char (self);
-			_tmp20_ = valadoc_gtkdoc_scanner_function_prefix (self);
-			func_token = _tmp20_;
-			_tmp21_ = func_token;
-			if (_tmp21_ == NULL) {
+			_tmp11_ = valadoc_gtkdoc_scanner_function_prefix (self);
+			func_token = _tmp11_;
+			_tmp12_ = func_token;
+			if (_tmp12_ == NULL) {
 				gint id_len2 = 0;
-				gint _tmp22_;
 				id_len2 = valadoc_gtkdoc_scanner_id_prefix (self);
-				_tmp22_ = id_len2;
-				if (_tmp22_ > 0) {
-					gint _tmp23_;
-					gint _tmp24_;
-					gint _tmp25_;
-					_tmp23_ = id_len;
-					_tmp24_ = separator_len;
-					_tmp25_ = id_len2;
-					id_len = _tmp23_ + (_tmp24_ + _tmp25_);
+				if (id_len2 > 0) {
+					id_len += separator_len + id_len2;
 				} else {
-					gint _tmp26_;
-					const gchar* _tmp27_;
-					_tmp26_ = sep_column_start;
-					self->priv->column = _tmp26_;
-					_tmp27_ = sep_start;
-					self->priv->pos = _tmp27_;
+					const gchar* _tmp13_;
+					self->priv->column = sep_column_start;
+					_tmp13_ = sep_start;
+					self->priv->pos = _tmp13_;
 				}
 			} else {
-				gint _tmp28_;
-				gint _tmp29_;
-				ValadocGtkdocToken* _tmp30_;
-				const gchar* _tmp31_;
-				gint _tmp32_;
-				gint _tmp33_;
-				_tmp28_ = id_len;
-				_tmp29_ = separator_len;
-				_tmp30_ = func_token;
-				_tmp31_ = _tmp30_->content;
-				_tmp32_ = strlen (_tmp31_);
-				_tmp33_ = _tmp32_;
-				id_len = _tmp28_ + (_tmp29_ + _tmp33_);
+				ValadocGtkdocToken* _tmp14_;
+				const gchar* _tmp15_;
+				gint _tmp16_;
+				gint _tmp17_;
+				_tmp14_ = func_token;
+				_tmp15_ = _tmp14_->content;
+				_tmp16_ = strlen (_tmp15_);
+				_tmp17_ = _tmp16_;
+				id_len += separator_len + _tmp17_;
 			}
 			_valadoc_gtkdoc_token_unref0 (func_token);
 		}
 	}
-	_tmp34_ = start;
-	_tmp35_ = id_len;
-	_tmp36_ = string_substring (_tmp34_, (glong) 1, (glong) _tmp35_);
-	_tmp37_ = _tmp36_;
-	_tmp38_ = start;
-	_tmp39_ = self->priv->pos;
-	_tmp40_ = start;
-	_tmp41_ = self->priv->line;
-	_tmp42_ = column_start;
-	_tmp43_ = self->priv->column;
-	_tmp44_ = valadoc_gtkdoc_token_new (type, _tmp37_, NULL, _tmp38_, valadoc_gtkdoc_scanner_offset (self, _tmp39_, _tmp40_), _tmp41_, _tmp42_, _tmp43_);
-	_tmp45_ = _tmp44_;
-	_g_free0 (_tmp37_);
-	result = _tmp45_;
+	_tmp18_ = start;
+	_tmp19_ = string_substring (_tmp18_, (glong) 1, (glong) id_len);
+	_tmp20_ = _tmp19_;
+	_tmp21_ = start;
+	_tmp22_ = self->priv->pos;
+	_tmp23_ = start;
+	_tmp24_ = valadoc_gtkdoc_token_new (type, _tmp20_, NULL, _tmp21_, valadoc_gtkdoc_scanner_offset (self, _tmp22_, _tmp23_), self->priv->line, column_start, self->priv->column);
+	_tmp25_ = _tmp24_;
+	_g_free0 (_tmp20_);
+	result = _tmp25_;
 	return result;
 }
-
 
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_property_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint column_start = 0;
-	gint _tmp1_;
 	gint id_len = 0;
-	gint _tmp2_;
+	const gchar* _tmp2_;
+	gchar* _tmp3_;
+	gchar* _tmp4_;
 	const gchar* _tmp5_;
-	gint _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	const gchar* _tmp9_;
-	const gchar* _tmp10_;
-	const gchar* _tmp11_;
-	gint _tmp12_;
-	gint _tmp13_;
-	gint _tmp14_;
-	ValadocGtkdocToken* _tmp15_;
-	ValadocGtkdocToken* _tmp16_;
+	const gchar* _tmp6_;
+	const gchar* _tmp7_;
+	ValadocGtkdocToken* _tmp8_;
+	ValadocGtkdocToken* _tmp9_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) ':')) {
 		result = NULL;
@@ -1615,63 +1494,48 @@ valadoc_gtkdoc_scanner_gtkdoc_property_prefix (ValadocGtkdocScanner* self)
 	}
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
+	column_start = self->priv->column;
 	valadoc_gtkdoc_scanner_next_char (self);
 	id_len = 0;
 	id_len = valadoc_gtkdoc_scanner_g_id_prefix (self);
-	_tmp2_ = id_len;
-	if (_tmp2_ == 0) {
-		gint _tmp3_;
-		const gchar* _tmp4_;
-		_tmp3_ = column_start;
-		self->priv->column = _tmp3_;
-		_tmp4_ = start;
-		self->priv->pos = _tmp4_;
+	if (id_len == 0) {
+		const gchar* _tmp1_;
+		self->priv->column = column_start;
+		_tmp1_ = start;
+		self->priv->pos = _tmp1_;
 		result = NULL;
 		return result;
 	}
+	_tmp2_ = start;
+	_tmp3_ = string_substring (_tmp2_, (glong) 1, (glong) id_len);
+	_tmp4_ = _tmp3_;
 	_tmp5_ = start;
-	_tmp6_ = id_len;
-	_tmp7_ = string_substring (_tmp5_, (glong) 1, (glong) _tmp6_);
-	_tmp8_ = _tmp7_;
-	_tmp9_ = start;
-	_tmp10_ = self->priv->pos;
-	_tmp11_ = start;
-	_tmp12_ = self->priv->line;
-	_tmp13_ = column_start;
-	_tmp14_ = self->priv->column;
-	_tmp15_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY, _tmp8_, NULL, _tmp9_, valadoc_gtkdoc_scanner_offset (self, _tmp10_, _tmp11_), _tmp12_, _tmp13_, _tmp14_);
-	_tmp16_ = _tmp15_;
-	_g_free0 (_tmp8_);
-	result = _tmp16_;
+	_tmp6_ = self->priv->pos;
+	_tmp7_ = start;
+	_tmp8_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PROPERTY, _tmp4_, NULL, _tmp5_, valadoc_gtkdoc_scanner_offset (self, _tmp6_, _tmp7_), self->priv->line, column_start, self->priv->column);
+	_tmp9_ = _tmp8_;
+	_g_free0 (_tmp4_);
+	result = _tmp9_;
 	return result;
 }
-
 
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_signal_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint column_start = 0;
-	gint _tmp1_;
-	const gchar* _tmp4_;
+	const gchar* _tmp2_;
 	gint id_len = 0;
-	gint _tmp5_;
+	const gchar* _tmp4_;
+	gchar* _tmp5_;
+	gchar* _tmp6_;
+	const gchar* _tmp7_;
 	const gchar* _tmp8_;
-	gint _tmp9_;
-	gchar* _tmp10_;
-	gchar* _tmp11_;
-	const gchar* _tmp12_;
-	const gchar* _tmp13_;
-	const gchar* _tmp14_;
-	gint _tmp15_;
-	gint _tmp16_;
-	gint _tmp17_;
-	ValadocGtkdocToken* _tmp18_;
-	ValadocGtkdocToken* _tmp19_;
+	const gchar* _tmp9_;
+	ValadocGtkdocToken* _tmp10_;
+	ValadocGtkdocToken* _tmp11_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) ':')) {
 		result = NULL;
@@ -1679,113 +1543,93 @@ valadoc_gtkdoc_scanner_gtkdoc_signal_prefix (ValadocGtkdocScanner* self)
 	}
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
+	column_start = self->priv->column;
 	if (valadoc_gtkdoc_scanner_next_char (self) != ((gunichar) ':')) {
-		gint _tmp2_;
+		const gchar* _tmp1_;
+		self->priv->column = column_start;
+		_tmp1_ = start;
+		self->priv->pos = _tmp1_;
+		result = NULL;
+		return result;
+	}
+	_tmp2_ = self->priv->pos;
+	start = _tmp2_;
+	valadoc_gtkdoc_scanner_next_char (self);
+	id_len = 0;
+	id_len = valadoc_gtkdoc_scanner_g_id_prefix (self);
+	if (id_len == 0) {
 		const gchar* _tmp3_;
-		_tmp2_ = column_start;
-		self->priv->column = _tmp2_;
+		self->priv->column = column_start;
 		_tmp3_ = start;
 		self->priv->pos = _tmp3_;
 		result = NULL;
 		return result;
 	}
-	_tmp4_ = self->priv->pos;
-	start = _tmp4_;
-	valadoc_gtkdoc_scanner_next_char (self);
-	id_len = 0;
-	id_len = valadoc_gtkdoc_scanner_g_id_prefix (self);
-	_tmp5_ = id_len;
-	if (_tmp5_ == 0) {
-		gint _tmp6_;
-		const gchar* _tmp7_;
-		_tmp6_ = column_start;
-		self->priv->column = _tmp6_;
-		_tmp7_ = start;
-		self->priv->pos = _tmp7_;
-		result = NULL;
-		return result;
-	}
-	_tmp8_ = start;
-	_tmp9_ = id_len;
-	_tmp10_ = string_substring (_tmp8_, (glong) 1, (glong) _tmp9_);
+	_tmp4_ = start;
+	_tmp5_ = string_substring (_tmp4_, (glong) 1, (glong) id_len);
+	_tmp6_ = _tmp5_;
+	_tmp7_ = start;
+	_tmp8_ = self->priv->pos;
+	_tmp9_ = start;
+	_tmp10_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL, _tmp6_, NULL, _tmp7_, valadoc_gtkdoc_scanner_offset (self, _tmp8_, _tmp9_), self->priv->line, column_start, self->priv->column);
 	_tmp11_ = _tmp10_;
-	_tmp12_ = start;
-	_tmp13_ = self->priv->pos;
-	_tmp14_ = start;
-	_tmp15_ = self->priv->line;
-	_tmp16_ = column_start;
-	_tmp17_ = self->priv->column;
-	_tmp18_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SIGNAL, _tmp11_, NULL, _tmp12_, valadoc_gtkdoc_scanner_offset (self, _tmp13_, _tmp14_), _tmp15_, _tmp16_, _tmp17_);
-	_tmp19_ = _tmp18_;
-	_g_free0 (_tmp11_);
-	result = _tmp19_;
+	_g_free0 (_tmp6_);
+	result = _tmp11_;
 	return result;
 }
-
 
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_const_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	ValadocGtkdocToken* _tmp0_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_gtkdoc_scanner_gtkdoc_symbolic_link_prefix (self, (gunichar) '%', VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_CONST);
 	result = _tmp0_;
 	return result;
 }
 
-
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_param_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	ValadocGtkdocToken* _tmp0_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_gtkdoc_scanner_gtkdoc_symbolic_link_prefix (self, (gunichar) '@', VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAM);
 	result = _tmp0_;
 	return result;
 }
 
-
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_type_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	ValadocGtkdocToken* _tmp0_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = valadoc_gtkdoc_scanner_gtkdoc_symbolic_link_prefix (self, (gunichar) '#', VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_TYPE);
 	result = _tmp0_;
 	return result;
 }
 
-
 static inline ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint line_start = 0;
-	gint _tmp1_;
 	gint column_start = 0;
-	gint _tmp2_;
 	gboolean close = FALSE;
 	const gchar* id_start = NULL;
-	const gchar* _tmp41_;
+	const gchar* _tmp26_;
 	gint id_len = 0;
-	gint _tmp42_;
 	ValaHashMap* map = NULL;
-	GHashFunc _tmp45_;
-	GEqualFunc _tmp46_;
-	GEqualFunc _tmp47_;
-	ValaHashMap* _tmp48_;
+	GHashFunc _tmp28_;
+	GEqualFunc _tmp29_;
+	GEqualFunc _tmp30_;
+	ValaHashMap* _tmp31_;
 	gboolean open_and_close = FALSE;
-	gboolean _tmp70_ = FALSE;
-	gboolean _tmp71_;
-	gboolean _tmp75_;
-	gboolean _tmp87_;
+	gboolean _tmp47_ = FALSE;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '<')) {
 		result = NULL;
@@ -1793,23 +1637,17 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 	}
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->line;
-	line_start = _tmp1_;
-	_tmp2_ = self->priv->column;
-	column_start = _tmp2_;
+	line_start = self->priv->line;
+	column_start = self->priv->column;
 	valadoc_gtkdoc_scanner_next_char (self);
 	if (valadoc_gtkdoc_scanner_get (self) == ((gunichar) '!')) {
-		const gchar* _tmp38_;
-		gint _tmp39_;
-		gint _tmp40_;
+		const gchar* _tmp25_;
 		if (valadoc_gtkdoc_scanner_next_char (self) == ((gunichar) '-')) {
 			if (valadoc_gtkdoc_scanner_next_char (self) != ((gunichar) '-')) {
-				gint _tmp3_;
-				const gchar* _tmp4_;
-				_tmp3_ = column_start;
-				self->priv->column = _tmp3_;
-				_tmp4_ = start;
-				self->priv->pos = _tmp4_;
+				const gchar* _tmp1_;
+				self->priv->column = column_start;
+				_tmp1_ = start;
+				self->priv->pos = _tmp1_;
 				result = NULL;
 				return result;
 			}
@@ -1817,47 +1655,37 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 				gunichar c = 0U;
 				c = valadoc_gtkdoc_scanner_next_char (self);
 				{
-					gboolean _tmp5_ = FALSE;
-					_tmp5_ = TRUE;
+					gboolean _tmp2_ = FALSE;
+					_tmp2_ = TRUE;
 					while (TRUE) {
-						gunichar _tmp6_;
-						gunichar _tmp7_;
-						if (!_tmp5_) {
+						if (!_tmp2_) {
 							c = valadoc_gtkdoc_scanner_next_char (self);
 						}
-						_tmp5_ = FALSE;
-						_tmp6_ = c;
-						if (!(_tmp6_ != ((gunichar) '\0'))) {
+						_tmp2_ = FALSE;
+						if (!(c != ((gunichar) '\0'))) {
 							break;
 						}
-						_tmp7_ = c;
-						if (_tmp7_ == ((gunichar) '\n')) {
-							gint _tmp8_;
-							_tmp8_ = self->priv->line;
-							self->priv->line = _tmp8_ + 1;
+						if (c == ((gunichar) '\n')) {
+							gint _tmp3_;
+							_tmp3_ = self->priv->line;
+							self->priv->line = _tmp3_ + 1;
 							self->priv->column = 0;
 						} else {
-							const gchar* _tmp9_;
-							_tmp9_ = self->priv->pos;
-							if (g_str_has_prefix (_tmp9_, "-->")) {
-								const gchar* _tmp10_;
-								const gchar* _tmp11_;
-								const gchar* _tmp12_;
-								gint _tmp13_;
-								gint _tmp14_;
-								gint _tmp15_;
-								ValadocGtkdocToken* _tmp16_;
+							const gchar* _tmp4_;
+							_tmp4_ = self->priv->pos;
+							if (g_str_has_prefix (_tmp4_, "-->")) {
+								const gchar* _tmp5_;
+								const gchar* _tmp6_;
+								const gchar* _tmp7_;
+								ValadocGtkdocToken* _tmp8_;
 								valadoc_gtkdoc_scanner_next_char (self);
 								valadoc_gtkdoc_scanner_next_char (self);
 								valadoc_gtkdoc_scanner_next_char (self);
-								_tmp10_ = start;
-								_tmp11_ = self->priv->pos;
-								_tmp12_ = start;
-								_tmp13_ = self->priv->line;
-								_tmp14_ = column_start;
-								_tmp15_ = self->priv->column;
-								_tmp16_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT, "", NULL, _tmp10_, valadoc_gtkdoc_scanner_offset (self, _tmp11_, _tmp12_), _tmp13_, _tmp14_, _tmp15_);
-								result = _tmp16_;
+								_tmp5_ = start;
+								_tmp6_ = self->priv->pos;
+								_tmp7_ = start;
+								_tmp8_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_COMMENT, "", NULL, _tmp5_, valadoc_gtkdoc_scanner_offset (self, _tmp6_, _tmp7_), self->priv->line, column_start, self->priv->column);
+								result = _tmp8_;
 								return result;
 							}
 						}
@@ -1865,9 +1693,9 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 				}
 			}
 		} else {
-			const gchar* _tmp17_;
-			_tmp17_ = self->priv->pos;
-			if (g_str_has_prefix (_tmp17_, "[CDATA[")) {
+			const gchar* _tmp9_;
+			_tmp9_ = self->priv->pos;
+			if (g_str_has_prefix (_tmp9_, "[CDATA[")) {
 				valadoc_gtkdoc_scanner_next_char (self);
 				valadoc_gtkdoc_scanner_next_char (self);
 				valadoc_gtkdoc_scanner_next_char (self);
@@ -1878,66 +1706,56 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 					gunichar c = 0U;
 					c = valadoc_gtkdoc_scanner_next_char (self);
 					{
-						gboolean _tmp18_ = FALSE;
-						_tmp18_ = TRUE;
+						gboolean _tmp10_ = FALSE;
+						_tmp10_ = TRUE;
 						while (TRUE) {
-							gunichar _tmp19_;
-							gunichar _tmp20_;
-							if (!_tmp18_) {
+							if (!_tmp10_) {
 								c = valadoc_gtkdoc_scanner_next_char (self);
 							}
-							_tmp18_ = FALSE;
-							_tmp19_ = c;
-							if (!(_tmp19_ != ((gunichar) '\0'))) {
+							_tmp10_ = FALSE;
+							if (!(c != ((gunichar) '\0'))) {
 								break;
 							}
-							_tmp20_ = c;
-							if (_tmp20_ == ((gunichar) '\n')) {
-								gint _tmp21_;
-								_tmp21_ = self->priv->line;
-								self->priv->line = _tmp21_ + 1;
+							if (c == ((gunichar) '\n')) {
+								gint _tmp11_;
+								_tmp11_ = self->priv->line;
+								self->priv->line = _tmp11_ + 1;
 								self->priv->column = 0;
 							} else {
-								const gchar* _tmp22_;
-								_tmp22_ = self->priv->pos;
-								if (g_str_has_prefix (_tmp22_, "]]>")) {
+								const gchar* _tmp12_;
+								_tmp12_ = self->priv->pos;
+								if (g_str_has_prefix (_tmp12_, "]]>")) {
 									gchar* content = NULL;
-									const gchar* _tmp23_;
-									const gchar* _tmp24_;
-									const gchar* _tmp25_;
-									gchar* _tmp26_;
-									const gchar* _tmp27_;
-									gchar* _tmp28_;
-									gchar* _tmp29_;
-									const gchar* _tmp30_;
-									const gchar* _tmp31_;
-									const gchar* _tmp32_;
-									gint _tmp33_;
-									gint _tmp34_;
-									gint _tmp35_;
-									ValadocGtkdocToken* _tmp36_;
-									ValadocGtkdocToken* _tmp37_;
-									_tmp23_ = start;
-									_tmp24_ = self->priv->pos;
-									_tmp25_ = start;
-									_tmp26_ = string_substring (_tmp23_, (glong) 9, (glong) (valadoc_gtkdoc_scanner_offset (self, _tmp24_, _tmp25_) - 9));
-									content = _tmp26_;
+									const gchar* _tmp13_;
+									const gchar* _tmp14_;
+									const gchar* _tmp15_;
+									gchar* _tmp16_;
+									const gchar* _tmp17_;
+									gchar* _tmp18_;
+									gchar* _tmp19_;
+									const gchar* _tmp20_;
+									const gchar* _tmp21_;
+									const gchar* _tmp22_;
+									ValadocGtkdocToken* _tmp23_;
+									ValadocGtkdocToken* _tmp24_;
+									_tmp13_ = start;
+									_tmp14_ = self->priv->pos;
+									_tmp15_ = start;
+									_tmp16_ = string_substring (_tmp13_, (glong) 9, (glong) (valadoc_gtkdoc_scanner_offset (self, _tmp14_, _tmp15_) - 9));
+									content = _tmp16_;
 									valadoc_gtkdoc_scanner_next_char (self);
 									valadoc_gtkdoc_scanner_next_char (self);
 									valadoc_gtkdoc_scanner_next_char (self);
-									_tmp27_ = content;
-									_tmp28_ = valadoc_gtkdoc_scanner_unescape (_tmp27_);
-									_tmp29_ = _tmp28_;
-									_tmp30_ = start;
-									_tmp31_ = self->priv->pos;
-									_tmp32_ = start;
-									_tmp33_ = self->priv->line;
-									_tmp34_ = column_start;
-									_tmp35_ = self->priv->column;
-									_tmp36_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_WORD, _tmp29_, NULL, _tmp30_, valadoc_gtkdoc_scanner_offset (self, _tmp31_, _tmp32_), _tmp33_, _tmp34_, _tmp35_);
-									_tmp37_ = _tmp36_;
-									_g_free0 (_tmp29_);
-									result = _tmp37_;
+									_tmp17_ = content;
+									_tmp18_ = valadoc_gtkdoc_scanner_unescape (_tmp17_);
+									_tmp19_ = _tmp18_;
+									_tmp20_ = start;
+									_tmp21_ = self->priv->pos;
+									_tmp22_ = start;
+									_tmp23_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_WORD, _tmp19_, NULL, _tmp20_, valadoc_gtkdoc_scanner_offset (self, _tmp21_, _tmp22_), self->priv->line, column_start, self->priv->column);
+									_tmp24_ = _tmp23_;
+									_g_free0 (_tmp19_);
+									result = _tmp24_;
 									_g_free0 (content);
 									return result;
 								}
@@ -1947,12 +1765,10 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 				}
 			}
 		}
-		_tmp38_ = start;
-		self->priv->pos = _tmp38_;
-		_tmp39_ = column_start;
-		self->priv->column = _tmp39_;
-		_tmp40_ = line_start;
-		self->priv->line = _tmp40_;
+		_tmp25_ = start;
+		self->priv->pos = _tmp25_;
+		self->priv->column = column_start;
+		self->priv->line = line_start;
 		result = NULL;
 		return result;
 	}
@@ -1961,71 +1777,62 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 		valadoc_gtkdoc_scanner_next_char (self);
 		close = TRUE;
 	}
-	_tmp41_ = self->priv->pos;
-	id_start = _tmp41_;
+	_tmp26_ = self->priv->pos;
+	id_start = _tmp26_;
 	id_len = 0;
 	id_len = valadoc_gtkdoc_scanner_id_prefix (self);
-	_tmp42_ = id_len;
-	if (_tmp42_ == 0) {
-		gint _tmp43_;
-		const gchar* _tmp44_;
-		_tmp43_ = column_start;
-		self->priv->column = _tmp43_;
-		_tmp44_ = start;
-		self->priv->pos = _tmp44_;
+	if (id_len == 0) {
+		const gchar* _tmp27_;
+		self->priv->column = column_start;
+		_tmp27_ = start;
+		self->priv->pos = _tmp27_;
 		result = NULL;
 		return result;
 	}
-	_tmp45_ = g_str_hash;
-	_tmp46_ = g_str_equal;
-	_tmp47_ = g_direct_equal;
-	_tmp48_ = vala_hash_map_new (G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, _tmp45_, _tmp46_, _tmp47_);
-	map = _tmp48_;
+	_tmp28_ = g_str_hash;
+	_tmp29_ = g_str_equal;
+	_tmp30_ = g_direct_equal;
+	_tmp31_ = vala_hash_map_new (G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, _tmp28_, _tmp29_, _tmp30_);
+	map = _tmp31_;
 	while (TRUE) {
-		gboolean _tmp49_ = FALSE;
-		gboolean _tmp50_;
+		gboolean _tmp32_ = FALSE;
 		gchar* name = NULL;
 		gchar* val = NULL;
 		const gchar* att_pos = NULL;
-		const gchar* _tmp51_;
+		const gchar* _tmp33_;
 		gint att_id_len = 0;
-		gint _tmp52_;
-		const gchar* _tmp53_;
-		gint _tmp54_;
-		gchar* _tmp55_;
+		const gchar* _tmp34_;
+		gchar* _tmp35_;
 		gunichar c = 0U;
-		const gchar* _tmp56_;
-		const gchar* _tmp63_;
-		const gchar* _tmp64_;
-		const gchar* _tmp65_;
-		gchar* _tmp66_;
-		ValaHashMap* _tmp67_;
-		const gchar* _tmp68_;
-		const gchar* _tmp69_;
-		_tmp50_ = close;
-		if (_tmp50_ == FALSE) {
-			_tmp49_ = valadoc_gtkdoc_scanner_skip_spaces_and_newlines (self) > 0;
+		const gchar* _tmp36_;
+		const gchar* _tmp40_;
+		const gchar* _tmp41_;
+		const gchar* _tmp42_;
+		gchar* _tmp43_;
+		ValaHashMap* _tmp44_;
+		const gchar* _tmp45_;
+		const gchar* _tmp46_;
+		if (close == FALSE) {
+			_tmp32_ = valadoc_gtkdoc_scanner_skip_spaces_and_newlines (self) > 0;
 		} else {
-			_tmp49_ = FALSE;
+			_tmp32_ = FALSE;
 		}
-		if (!_tmp49_) {
+		if (!_tmp32_) {
 			break;
 		}
-		_tmp51_ = self->priv->pos;
-		att_pos = _tmp51_;
+		_tmp33_ = self->priv->pos;
+		att_pos = _tmp33_;
 		att_id_len = 0;
 		att_id_len = valadoc_gtkdoc_scanner_id_prefix (self);
-		_tmp52_ = att_id_len;
-		if (_tmp52_ == 0) {
+		if (att_id_len == 0) {
 			_g_free0 (val);
 			_g_free0 (name);
 			break;
 		}
-		_tmp53_ = att_pos;
-		_tmp54_ = att_id_len;
-		_tmp55_ = string_substring (_tmp53_, (glong) 0, (glong) _tmp54_);
+		_tmp34_ = att_pos;
+		_tmp35_ = string_substring (_tmp34_, (glong) 0, (glong) att_id_len);
 		_g_free0 (name);
-		name = _tmp55_;
+		name = _tmp35_;
 		if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '=')) {
 			_g_free0 (val);
 			_g_free0 (name);
@@ -2039,186 +1846,148 @@ valadoc_gtkdoc_scanner_xml_prefix (ValadocGtkdocScanner* self)
 			break;
 		}
 		c = valadoc_gtkdoc_scanner_next_char (self);
-		_tmp56_ = self->priv->pos;
-		att_pos = _tmp56_;
+		_tmp36_ = self->priv->pos;
+		att_pos = _tmp36_;
 		{
-			gboolean _tmp57_ = FALSE;
-			_tmp57_ = TRUE;
+			gboolean _tmp37_ = FALSE;
+			_tmp37_ = TRUE;
 			while (TRUE) {
-				gboolean _tmp58_ = FALSE;
-				gboolean _tmp59_ = FALSE;
-				gunichar _tmp60_;
-				if (!_tmp57_) {
+				gboolean _tmp38_ = FALSE;
+				gboolean _tmp39_ = FALSE;
+				if (!_tmp37_) {
 					c = valadoc_gtkdoc_scanner_next_char (self);
 				}
-				_tmp57_ = FALSE;
-				_tmp60_ = c;
-				if (_tmp60_ != ((gunichar) '\0')) {
-					gunichar _tmp61_;
-					_tmp61_ = c;
-					_tmp59_ = _tmp61_ != ((gunichar) '\n');
+				_tmp37_ = FALSE;
+				if (c != ((gunichar) '\0')) {
+					_tmp39_ = c != ((gunichar) '\n');
 				} else {
-					_tmp59_ = FALSE;
+					_tmp39_ = FALSE;
 				}
-				if (_tmp59_) {
-					gunichar _tmp62_;
-					_tmp62_ = c;
-					_tmp58_ = _tmp62_ != ((gunichar) '"');
+				if (_tmp39_) {
+					_tmp38_ = c != ((gunichar) '"');
 				} else {
-					_tmp58_ = FALSE;
+					_tmp38_ = FALSE;
 				}
-				if (!_tmp58_) {
+				if (!_tmp38_) {
 					break;
 				}
 			}
 		}
-		_tmp63_ = att_pos;
-		_tmp64_ = self->priv->pos;
-		_tmp65_ = att_pos;
-		_tmp66_ = string_substring (_tmp63_, (glong) 0, (glong) valadoc_gtkdoc_scanner_offset (self, _tmp64_, _tmp65_));
+		_tmp40_ = att_pos;
+		_tmp41_ = self->priv->pos;
+		_tmp42_ = att_pos;
+		_tmp43_ = string_substring (_tmp40_, (glong) 0, (glong) valadoc_gtkdoc_scanner_offset (self, _tmp41_, _tmp42_));
 		_g_free0 (val);
-		val = _tmp66_;
+		val = _tmp43_;
 		if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '"')) {
 			_g_free0 (val);
 			_g_free0 (name);
 			break;
 		}
 		valadoc_gtkdoc_scanner_next_char (self);
-		_tmp67_ = map;
-		_tmp68_ = name;
-		_tmp69_ = val;
-		vala_map_set ((ValaMap*) _tmp67_, _tmp68_, _tmp69_);
+		_tmp44_ = map;
+		_tmp45_ = name;
+		_tmp46_ = val;
+		vala_map_set ((ValaMap*) _tmp44_, _tmp45_, _tmp46_);
 		_g_free0 (val);
 		_g_free0 (name);
 	}
 	valadoc_gtkdoc_scanner_skip_spaces_and_newlines (self);
 	open_and_close = FALSE;
-	_tmp71_ = close;
-	if (!_tmp71_) {
-		_tmp70_ = valadoc_gtkdoc_scanner_get (self) == ((gunichar) '/');
+	if (!close) {
+		_tmp47_ = valadoc_gtkdoc_scanner_get (self) == ((gunichar) '/');
 	} else {
-		_tmp70_ = FALSE;
+		_tmp47_ = FALSE;
 	}
-	if (_tmp70_) {
+	if (_tmp47_) {
 		open_and_close = TRUE;
 		valadoc_gtkdoc_scanner_next_char (self);
 	}
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '>')) {
-		gint _tmp72_;
-		gint _tmp73_;
-		const gchar* _tmp74_;
-		_tmp72_ = line_start;
-		self->priv->line = _tmp72_;
-		_tmp73_ = column_start;
-		self->priv->column = _tmp73_;
-		_tmp74_ = start;
-		self->priv->pos = _tmp74_;
+		const gchar* _tmp48_;
+		self->priv->line = line_start;
+		self->priv->column = column_start;
+		_tmp48_ = start;
+		self->priv->pos = _tmp48_;
 		result = NULL;
 		_vala_map_unref0 (map);
 		return result;
 	}
 	valadoc_gtkdoc_scanner_next_char (self);
-	_tmp75_ = open_and_close;
-	if (_tmp75_) {
-		const gchar* _tmp76_;
-		gint _tmp77_;
-		gchar* _tmp78_;
-		gchar* _tmp79_;
-		const gchar* _tmp80_;
-		const gchar* _tmp81_;
-		const gchar* _tmp82_;
-		gint _tmp83_;
-		gint _tmp84_;
-		gint _tmp85_;
-		ValadocGtkdocToken* _tmp86_;
-		_tmp76_ = id_start;
-		_tmp77_ = id_len;
-		_tmp78_ = string_substring (_tmp76_, (glong) 0, (glong) _tmp77_);
-		_tmp79_ = _tmp78_;
-		_tmp80_ = start;
-		_tmp81_ = self->priv->pos;
-		_tmp82_ = start;
-		_tmp83_ = self->priv->line;
-		_tmp84_ = column_start;
-		_tmp85_ = self->priv->column;
-		_tmp86_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, _tmp79_, NULL, _tmp80_, valadoc_gtkdoc_scanner_offset (self, _tmp81_, _tmp82_), _tmp83_, _tmp84_, _tmp85_);
+	if (open_and_close) {
+		const gchar* _tmp49_;
+		gchar* _tmp50_;
+		gchar* _tmp51_;
+		const gchar* _tmp52_;
+		const gchar* _tmp53_;
+		const gchar* _tmp54_;
+		ValadocGtkdocToken* _tmp55_;
+		_tmp49_ = id_start;
+		_tmp50_ = string_substring (_tmp49_, (glong) 0, (glong) id_len);
+		_tmp51_ = _tmp50_;
+		_tmp52_ = start;
+		_tmp53_ = self->priv->pos;
+		_tmp54_ = start;
+		_tmp55_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, _tmp51_, NULL, _tmp52_, valadoc_gtkdoc_scanner_offset (self, _tmp53_, _tmp54_), self->priv->line, column_start, self->priv->column);
 		_valadoc_gtkdoc_token_unref0 (self->priv->tmp_token);
-		self->priv->tmp_token = _tmp86_;
-		_g_free0 (_tmp79_);
+		self->priv->tmp_token = _tmp55_;
+		_g_free0 (_tmp51_);
 	}
-	_tmp87_ = close;
-	if (_tmp87_) {
-		const gchar* _tmp88_;
-		gint _tmp89_;
-		gchar* _tmp90_;
-		gchar* _tmp91_;
-		const gchar* _tmp92_;
-		const gchar* _tmp93_;
-		const gchar* _tmp94_;
-		gint _tmp95_;
-		gint _tmp96_;
-		gint _tmp97_;
-		ValadocGtkdocToken* _tmp98_;
-		ValadocGtkdocToken* _tmp99_;
-		_tmp88_ = id_start;
-		_tmp89_ = id_len;
-		_tmp90_ = string_substring (_tmp88_, (glong) 0, (glong) _tmp89_);
-		_tmp91_ = _tmp90_;
-		_tmp92_ = start;
-		_tmp93_ = self->priv->pos;
-		_tmp94_ = start;
-		_tmp95_ = self->priv->line;
-		_tmp96_ = column_start;
-		_tmp97_ = self->priv->column;
-		_tmp98_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, _tmp91_, NULL, _tmp92_, valadoc_gtkdoc_scanner_offset (self, _tmp93_, _tmp94_), _tmp95_, _tmp96_, _tmp97_);
-		_tmp99_ = _tmp98_;
-		_g_free0 (_tmp91_);
-		result = _tmp99_;
+	if (close) {
+		const gchar* _tmp56_;
+		gchar* _tmp57_;
+		gchar* _tmp58_;
+		const gchar* _tmp59_;
+		const gchar* _tmp60_;
+		const gchar* _tmp61_;
+		ValadocGtkdocToken* _tmp62_;
+		ValadocGtkdocToken* _tmp63_;
+		_tmp56_ = id_start;
+		_tmp57_ = string_substring (_tmp56_, (glong) 0, (glong) id_len);
+		_tmp58_ = _tmp57_;
+		_tmp59_ = start;
+		_tmp60_ = self->priv->pos;
+		_tmp61_ = start;
+		_tmp62_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_CLOSE, _tmp58_, NULL, _tmp59_, valadoc_gtkdoc_scanner_offset (self, _tmp60_, _tmp61_), self->priv->line, column_start, self->priv->column);
+		_tmp63_ = _tmp62_;
+		_g_free0 (_tmp58_);
+		result = _tmp63_;
 		_vala_map_unref0 (map);
 		return result;
 	} else {
-		const gchar* _tmp100_;
-		gint _tmp101_;
-		gchar* _tmp102_;
-		gchar* _tmp103_;
-		ValaHashMap* _tmp104_;
-		const gchar* _tmp105_;
-		const gchar* _tmp106_;
-		const gchar* _tmp107_;
-		gint _tmp108_;
-		gint _tmp109_;
-		gint _tmp110_;
-		ValadocGtkdocToken* _tmp111_;
-		ValadocGtkdocToken* _tmp112_;
-		_tmp100_ = id_start;
-		_tmp101_ = id_len;
-		_tmp102_ = string_substring (_tmp100_, (glong) 0, (glong) _tmp101_);
-		_tmp103_ = _tmp102_;
-		_tmp104_ = map;
-		_tmp105_ = start;
-		_tmp106_ = self->priv->pos;
-		_tmp107_ = start;
-		_tmp108_ = self->priv->line;
-		_tmp109_ = column_start;
-		_tmp110_ = self->priv->column;
-		_tmp111_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN, _tmp103_, _tmp104_, _tmp105_, valadoc_gtkdoc_scanner_offset (self, _tmp106_, _tmp107_), _tmp108_, _tmp109_, _tmp110_);
-		_tmp112_ = _tmp111_;
-		_g_free0 (_tmp103_);
-		result = _tmp112_;
+		const gchar* _tmp64_;
+		gchar* _tmp65_;
+		gchar* _tmp66_;
+		ValaHashMap* _tmp67_;
+		const gchar* _tmp68_;
+		const gchar* _tmp69_;
+		const gchar* _tmp70_;
+		ValadocGtkdocToken* _tmp71_;
+		ValadocGtkdocToken* _tmp72_;
+		_tmp64_ = id_start;
+		_tmp65_ = string_substring (_tmp64_, (glong) 0, (glong) id_len);
+		_tmp66_ = _tmp65_;
+		_tmp67_ = map;
+		_tmp68_ = start;
+		_tmp69_ = self->priv->pos;
+		_tmp70_ = start;
+		_tmp71_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_XML_OPEN, _tmp66_, _tmp67_, _tmp68_, valadoc_gtkdoc_scanner_offset (self, _tmp69_, _tmp70_), self->priv->line, column_start, self->priv->column);
+		_tmp72_ = _tmp71_;
+		_g_free0 (_tmp66_);
+		result = _tmp72_;
 		_vala_map_unref0 (map);
 		return result;
 	}
 	_vala_map_unref0 (map);
 }
 
-
 static ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_newline_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint _tmp1_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '\n')) {
 		result = NULL;
@@ -2237,18 +2006,14 @@ valadoc_gtkdoc_scanner_newline_prefix (ValadocGtkdocScanner* self)
 			_tmp2_ = TRUE;
 			while (TRUE) {
 				gboolean _tmp3_ = FALSE;
-				gunichar _tmp4_;
 				if (!_tmp2_) {
 					c = valadoc_gtkdoc_scanner_next_char (self);
 				}
 				_tmp2_ = FALSE;
-				_tmp4_ = c;
-				if (_tmp4_ == ((gunichar) ' ')) {
+				if (c == ((gunichar) ' ')) {
 					_tmp3_ = TRUE;
 				} else {
-					gunichar _tmp5_;
-					_tmp5_ = c;
-					_tmp3_ = _tmp5_ == ((gunichar) '\t');
+					_tmp3_ = c == ((gunichar) '\t');
 				}
 				if (!_tmp3_) {
 					break;
@@ -2257,313 +2022,239 @@ valadoc_gtkdoc_scanner_newline_prefix (ValadocGtkdocScanner* self)
 		}
 	}
 	if (valadoc_gtkdoc_scanner_get (self) == ((gunichar) '\n')) {
-		gint _tmp6_;
+		gint _tmp4_;
+		const gchar* _tmp5_;
+		const gchar* _tmp6_;
 		const gchar* _tmp7_;
-		const gchar* _tmp8_;
-		const gchar* _tmp9_;
-		gint _tmp10_;
-		gint _tmp11_;
-		gint _tmp12_;
-		ValadocGtkdocToken* _tmp13_;
+		ValadocGtkdocToken* _tmp8_;
 		valadoc_gtkdoc_scanner_next_char (self);
-		_tmp6_ = self->priv->line;
-		self->priv->line = _tmp6_ + 1;
+		_tmp4_ = self->priv->line;
+		self->priv->line = _tmp4_ + 1;
 		self->priv->column = 0;
+		_tmp5_ = start;
+		_tmp6_ = self->priv->pos;
 		_tmp7_ = start;
-		_tmp8_ = self->priv->pos;
-		_tmp9_ = start;
-		_tmp10_ = self->priv->line;
-		_tmp11_ = self->priv->column;
-		_tmp12_ = self->priv->column;
-		_tmp13_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH, "\n\n", NULL, _tmp7_, valadoc_gtkdoc_scanner_offset (self, _tmp8_, _tmp9_), _tmp10_, _tmp11_, _tmp12_);
-		result = _tmp13_;
+		_tmp8_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_PARAGRAPH, "\n\n", NULL, _tmp5_, valadoc_gtkdoc_scanner_offset (self, _tmp6_, _tmp7_), self->priv->line, self->priv->column, self->priv->column);
+		result = _tmp8_;
 		return result;
 	} else {
-		const gchar* _tmp14_;
-		const gchar* _tmp15_;
-		const gchar* _tmp16_;
-		gint _tmp17_;
-		gint _tmp18_;
-		gint _tmp19_;
-		ValadocGtkdocToken* _tmp20_;
-		_tmp14_ = start;
-		_tmp15_ = self->priv->pos;
-		_tmp16_ = start;
-		_tmp17_ = self->priv->line;
-		_tmp18_ = self->priv->column;
-		_tmp19_ = self->priv->column;
-		_tmp20_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE, "\n", NULL, _tmp14_, valadoc_gtkdoc_scanner_offset (self, _tmp15_, _tmp16_), _tmp17_, _tmp18_, _tmp19_);
-		result = _tmp20_;
+		const gchar* _tmp9_;
+		const gchar* _tmp10_;
+		const gchar* _tmp11_;
+		ValadocGtkdocToken* _tmp12_;
+		_tmp9_ = start;
+		_tmp10_ = self->priv->pos;
+		_tmp11_ = start;
+		_tmp12_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_NEWLINE, "\n", NULL, _tmp9_, valadoc_gtkdoc_scanner_offset (self, _tmp10_, _tmp11_), self->priv->line, self->priv->column, self->priv->column);
+		result = _tmp12_;
 		return result;
 	}
 }
 
-
 static ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_eof_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	gint _tmp3_;
-	ValadocGtkdocToken* _tmp4_;
+	ValadocGtkdocToken* _tmp1_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (valadoc_gtkdoc_scanner_get (self) != ((gunichar) '\0')) {
 		result = NULL;
 		return result;
 	}
 	_tmp0_ = self->priv->pos;
-	_tmp1_ = self->priv->line;
-	_tmp2_ = self->priv->column;
-	_tmp3_ = self->priv->column;
-	_tmp4_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_EOF, "", NULL, _tmp0_, 1, _tmp1_, _tmp2_, _tmp3_);
-	result = _tmp4_;
+	_tmp1_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_EOF, "", NULL, _tmp0_, 1, self->priv->line, self->priv->column, self->priv->column);
+	result = _tmp1_;
 	return result;
 }
-
 
 static ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_space_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	gint column_start = 0;
-	gint _tmp1_;
 	gint len = 0;
+	const gchar* _tmp3_;
+	const gchar* _tmp4_;
 	const gchar* _tmp6_;
-	const gchar* _tmp7_;
-	gint _tmp8_;
+	gchar* _tmp7_;
+	gchar* _tmp8_;
+	const gchar* _tmp9_;
+	const gchar* _tmp10_;
 	const gchar* _tmp11_;
-	gint _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	const gchar* _tmp15_;
-	const gchar* _tmp16_;
-	const gchar* _tmp17_;
-	gint _tmp18_;
-	gint _tmp19_;
-	gint _tmp20_;
-	ValadocGtkdocToken* _tmp21_;
-	ValadocGtkdocToken* _tmp22_;
+	ValadocGtkdocToken* _tmp12_;
+	ValadocGtkdocToken* _tmp13_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
+	column_start = self->priv->column;
 	{
 		gunichar c = 0U;
 		c = valadoc_gtkdoc_scanner_get (self);
 		{
-			gboolean _tmp2_ = FALSE;
-			_tmp2_ = TRUE;
+			gboolean _tmp1_ = FALSE;
+			_tmp1_ = TRUE;
 			while (TRUE) {
-				gboolean _tmp3_ = FALSE;
-				gunichar _tmp4_;
-				if (!_tmp2_) {
+				gboolean _tmp2_ = FALSE;
+				if (!_tmp1_) {
 					c = valadoc_gtkdoc_scanner_next_char (self);
 				}
-				_tmp2_ = FALSE;
-				_tmp4_ = c;
-				if (_tmp4_ == ((gunichar) ' ')) {
-					_tmp3_ = TRUE;
+				_tmp1_ = FALSE;
+				if (c == ((gunichar) ' ')) {
+					_tmp2_ = TRUE;
 				} else {
-					gunichar _tmp5_;
-					_tmp5_ = c;
-					_tmp3_ = _tmp5_ == ((gunichar) '\t');
+					_tmp2_ = c == ((gunichar) '\t');
 				}
-				if (!_tmp3_) {
+				if (!_tmp2_) {
 					break;
 				}
 			}
 		}
 	}
-	_tmp6_ = self->priv->pos;
-	_tmp7_ = start;
-	len = valadoc_gtkdoc_scanner_offset (self, _tmp6_, _tmp7_);
-	_tmp8_ = len;
-	if (_tmp8_ == 0) {
-		gint _tmp9_;
+	_tmp3_ = self->priv->pos;
+	_tmp4_ = start;
+	len = valadoc_gtkdoc_scanner_offset (self, _tmp3_, _tmp4_);
+	if (len == 0) {
+		const gchar* _tmp5_;
+		self->priv->column = column_start;
+		_tmp5_ = start;
+		self->priv->pos = _tmp5_;
+		result = NULL;
+		return result;
+	}
+	_tmp6_ = start;
+	_tmp7_ = string_substring (_tmp6_, (glong) 0, (glong) len);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = start;
+	_tmp10_ = self->priv->pos;
+	_tmp11_ = start;
+	_tmp12_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_SPACE, _tmp8_, NULL, _tmp9_, valadoc_gtkdoc_scanner_offset (self, _tmp10_, _tmp11_), self->priv->line, column_start, self->priv->column);
+	_tmp13_ = _tmp12_;
+	_g_free0 (_tmp8_);
+	result = _tmp13_;
+	return result;
+}
+
+static ValadocGtkdocToken*
+valadoc_gtkdoc_scanner_word_prefix (ValadocGtkdocScanner* self)
+{
+	const gchar* start = NULL;
+	const gchar* _tmp0_;
+	gint column_start = 0;
+	gunichar c = 0U;
+	gboolean _tmp1_ = FALSE;
+	gint len = 0;
+	const gchar* _tmp8_;
+	const gchar* _tmp9_;
+	const gchar* _tmp11_;
+	gchar* _tmp12_;
+	gchar* _tmp13_;
+	gchar* _tmp14_;
+	gchar* _tmp15_;
+	const gchar* _tmp16_;
+	const gchar* _tmp17_;
+	const gchar* _tmp18_;
+	ValadocGtkdocToken* _tmp19_;
+	ValadocGtkdocToken* _tmp20_;
+	ValadocGtkdocToken* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->pos;
+	start = _tmp0_;
+	column_start = self->priv->column;
+	c = valadoc_gtkdoc_scanner_get (self);
+	if (c == ((gunichar) '<')) {
+		_tmp1_ = TRUE;
+	} else {
+		_tmp1_ = c == ((gunichar) '@');
+	}
+	if (_tmp1_) {
+		valadoc_gtkdoc_scanner_next_char (self);
+	}
+	{
+		gboolean _tmp2_ = FALSE;
+		c = valadoc_gtkdoc_scanner_get (self);
+		_tmp2_ = TRUE;
+		while (TRUE) {
+			gboolean _tmp3_ = FALSE;
+			gboolean _tmp4_ = FALSE;
+			gboolean _tmp5_ = FALSE;
+			gboolean _tmp6_ = FALSE;
+			gboolean _tmp7_ = FALSE;
+			if (!_tmp2_) {
+				c = valadoc_gtkdoc_scanner_next_char (self);
+			}
+			_tmp2_ = FALSE;
+			if (c != ((gunichar) ' ')) {
+				_tmp7_ = c != ((gunichar) '\t');
+			} else {
+				_tmp7_ = FALSE;
+			}
+			if (_tmp7_) {
+				_tmp6_ = c != ((gunichar) '\n');
+			} else {
+				_tmp6_ = FALSE;
+			}
+			if (_tmp6_) {
+				_tmp5_ = c != ((gunichar) '\0');
+			} else {
+				_tmp5_ = FALSE;
+			}
+			if (_tmp5_) {
+				_tmp4_ = c != ((gunichar) '<');
+			} else {
+				_tmp4_ = FALSE;
+			}
+			if (_tmp4_) {
+				_tmp3_ = c != ((gunichar) '@');
+			} else {
+				_tmp3_ = FALSE;
+			}
+			if (!_tmp3_) {
+				break;
+			}
+		}
+	}
+	_tmp8_ = self->priv->pos;
+	_tmp9_ = start;
+	len = valadoc_gtkdoc_scanner_offset (self, _tmp8_, _tmp9_);
+	if (len == 0) {
 		const gchar* _tmp10_;
-		_tmp9_ = column_start;
-		self->priv->column = _tmp9_;
+		self->priv->column = column_start;
 		_tmp10_ = start;
 		self->priv->pos = _tmp10_;
 		result = NULL;
 		return result;
 	}
 	_tmp11_ = start;
-	_tmp12_ = len;
-	_tmp13_ = string_substring (_tmp11_, (glong) 0, (glong) _tmp12_);
-	_tmp14_ = _tmp13_;
-	_tmp15_ = start;
-	_tmp16_ = self->priv->pos;
-	_tmp17_ = start;
-	_tmp18_ = self->priv->line;
-	_tmp19_ = column_start;
-	_tmp20_ = self->priv->column;
-	_tmp21_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_SPACE, _tmp14_, NULL, _tmp15_, valadoc_gtkdoc_scanner_offset (self, _tmp16_, _tmp17_), _tmp18_, _tmp19_, _tmp20_);
-	_tmp22_ = _tmp21_;
-	_g_free0 (_tmp14_);
-	result = _tmp22_;
-	return result;
-}
-
-
-static ValadocGtkdocToken*
-valadoc_gtkdoc_scanner_word_prefix (ValadocGtkdocScanner* self)
-{
-	ValadocGtkdocToken* result = NULL;
-	const gchar* start = NULL;
-	const gchar* _tmp0_;
-	gint column_start = 0;
-	gint _tmp1_;
-	gunichar c = 0U;
-	gboolean _tmp2_ = FALSE;
-	gunichar _tmp3_;
-	gint len = 0;
-	const gchar* _tmp17_;
-	const gchar* _tmp18_;
-	gint _tmp19_;
-	const gchar* _tmp22_;
-	gint _tmp23_;
-	gchar* _tmp24_;
-	gchar* _tmp25_;
-	gchar* _tmp26_;
-	gchar* _tmp27_;
-	const gchar* _tmp28_;
-	const gchar* _tmp29_;
-	const gchar* _tmp30_;
-	gint _tmp31_;
-	gint _tmp32_;
-	gint _tmp33_;
-	ValadocGtkdocToken* _tmp34_;
-	ValadocGtkdocToken* _tmp35_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->pos;
-	start = _tmp0_;
-	_tmp1_ = self->priv->column;
-	column_start = _tmp1_;
-	c = valadoc_gtkdoc_scanner_get (self);
-	_tmp3_ = c;
-	if (_tmp3_ == ((gunichar) '<')) {
-		_tmp2_ = TRUE;
-	} else {
-		gunichar _tmp4_;
-		_tmp4_ = c;
-		_tmp2_ = _tmp4_ == ((gunichar) '@');
-	}
-	if (_tmp2_) {
-		valadoc_gtkdoc_scanner_next_char (self);
-	}
-	{
-		gboolean _tmp5_ = FALSE;
-		c = valadoc_gtkdoc_scanner_get (self);
-		_tmp5_ = TRUE;
-		while (TRUE) {
-			gboolean _tmp6_ = FALSE;
-			gboolean _tmp7_ = FALSE;
-			gboolean _tmp8_ = FALSE;
-			gboolean _tmp9_ = FALSE;
-			gboolean _tmp10_ = FALSE;
-			gunichar _tmp11_;
-			if (!_tmp5_) {
-				c = valadoc_gtkdoc_scanner_next_char (self);
-			}
-			_tmp5_ = FALSE;
-			_tmp11_ = c;
-			if (_tmp11_ != ((gunichar) ' ')) {
-				gunichar _tmp12_;
-				_tmp12_ = c;
-				_tmp10_ = _tmp12_ != ((gunichar) '\t');
-			} else {
-				_tmp10_ = FALSE;
-			}
-			if (_tmp10_) {
-				gunichar _tmp13_;
-				_tmp13_ = c;
-				_tmp9_ = _tmp13_ != ((gunichar) '\n');
-			} else {
-				_tmp9_ = FALSE;
-			}
-			if (_tmp9_) {
-				gunichar _tmp14_;
-				_tmp14_ = c;
-				_tmp8_ = _tmp14_ != ((gunichar) '\0');
-			} else {
-				_tmp8_ = FALSE;
-			}
-			if (_tmp8_) {
-				gunichar _tmp15_;
-				_tmp15_ = c;
-				_tmp7_ = _tmp15_ != ((gunichar) '<');
-			} else {
-				_tmp7_ = FALSE;
-			}
-			if (_tmp7_) {
-				gunichar _tmp16_;
-				_tmp16_ = c;
-				_tmp6_ = _tmp16_ != ((gunichar) '@');
-			} else {
-				_tmp6_ = FALSE;
-			}
-			if (!_tmp6_) {
-				break;
-			}
-		}
-	}
+	_tmp12_ = string_substring (_tmp11_, (glong) 0, (glong) len);
+	_tmp13_ = _tmp12_;
+	_tmp14_ = valadoc_gtkdoc_scanner_unescape (_tmp13_);
+	_tmp15_ = _tmp14_;
+	_tmp16_ = start;
 	_tmp17_ = self->priv->pos;
 	_tmp18_ = start;
-	len = valadoc_gtkdoc_scanner_offset (self, _tmp17_, _tmp18_);
-	_tmp19_ = len;
-	if (_tmp19_ == 0) {
-		gint _tmp20_;
-		const gchar* _tmp21_;
-		_tmp20_ = column_start;
-		self->priv->column = _tmp20_;
-		_tmp21_ = start;
-		self->priv->pos = _tmp21_;
-		result = NULL;
-		return result;
-	}
-	_tmp22_ = start;
-	_tmp23_ = len;
-	_tmp24_ = string_substring (_tmp22_, (glong) 0, (glong) _tmp23_);
-	_tmp25_ = _tmp24_;
-	_tmp26_ = valadoc_gtkdoc_scanner_unescape (_tmp25_);
-	_tmp27_ = _tmp26_;
-	_tmp28_ = start;
-	_tmp29_ = self->priv->pos;
-	_tmp30_ = start;
-	_tmp31_ = self->priv->line;
-	_tmp32_ = column_start;
-	_tmp33_ = self->priv->column;
-	_tmp34_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_WORD, _tmp27_, NULL, _tmp28_, valadoc_gtkdoc_scanner_offset (self, _tmp29_, _tmp30_), _tmp31_, _tmp32_, _tmp33_);
-	_tmp35_ = _tmp34_;
-	_g_free0 (_tmp27_);
-	_g_free0 (_tmp25_);
-	result = _tmp35_;
+	_tmp19_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_WORD, _tmp15_, NULL, _tmp16_, valadoc_gtkdoc_scanner_offset (self, _tmp17_, _tmp18_), self->priv->line, column_start, self->priv->column);
+	_tmp20_ = _tmp19_;
+	_g_free0 (_tmp15_);
+	_g_free0 (_tmp13_);
+	result = _tmp20_;
 	return result;
 }
-
 
 static ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_source_open_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* start = NULL;
 	const gchar* _tmp1_;
 	gint column_start = 0;
-	gint _tmp2_;
+	const gchar* _tmp2_;
 	const gchar* _tmp3_;
 	const gchar* _tmp4_;
-	const gchar* _tmp5_;
-	gint _tmp6_;
-	gint _tmp7_;
-	gint _tmp8_;
-	ValadocGtkdocToken* _tmp9_;
+	ValadocGtkdocToken* _tmp5_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->pos;
 	if (!g_str_has_prefix (_tmp0_, "|[")) {
@@ -2572,38 +2263,29 @@ valadoc_gtkdoc_scanner_gtkdoc_source_open_prefix (ValadocGtkdocScanner* self)
 	}
 	_tmp1_ = self->priv->pos;
 	start = _tmp1_;
-	_tmp2_ = self->priv->column;
-	column_start = _tmp2_;
+	column_start = self->priv->column;
 	valadoc_gtkdoc_scanner_next_char (self);
 	valadoc_gtkdoc_scanner_next_char (self);
-	_tmp3_ = start;
-	_tmp4_ = self->priv->pos;
-	_tmp5_ = start;
-	_tmp6_ = self->priv->line;
-	_tmp7_ = column_start;
-	_tmp8_ = self->priv->column;
-	_tmp9_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN, "|[", NULL, _tmp3_, valadoc_gtkdoc_scanner_offset (self, _tmp4_, _tmp5_), _tmp6_, _tmp7_, _tmp8_);
-	result = _tmp9_;
+	_tmp2_ = start;
+	_tmp3_ = self->priv->pos;
+	_tmp4_ = start;
+	_tmp5_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_OPEN, "|[", NULL, _tmp2_, valadoc_gtkdoc_scanner_offset (self, _tmp3_, _tmp4_), self->priv->line, column_start, self->priv->column);
+	result = _tmp5_;
 	return result;
 }
-
 
 static ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_gtkdoc_source_close_prefix (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* start = NULL;
 	const gchar* _tmp1_;
 	gint column_start = 0;
-	gint _tmp2_;
+	const gchar* _tmp2_;
 	const gchar* _tmp3_;
 	const gchar* _tmp4_;
-	const gchar* _tmp5_;
-	gint _tmp6_;
-	gint _tmp7_;
-	gint _tmp8_;
-	ValadocGtkdocToken* _tmp9_;
+	ValadocGtkdocToken* _tmp5_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->pos;
 	if (!g_str_has_prefix (_tmp0_, "]|")) {
@@ -2612,21 +2294,16 @@ valadoc_gtkdoc_scanner_gtkdoc_source_close_prefix (ValadocGtkdocScanner* self)
 	}
 	_tmp1_ = self->priv->pos;
 	start = _tmp1_;
-	_tmp2_ = self->priv->column;
-	column_start = _tmp2_;
+	column_start = self->priv->column;
 	valadoc_gtkdoc_scanner_next_char (self);
 	valadoc_gtkdoc_scanner_next_char (self);
-	_tmp3_ = start;
-	_tmp4_ = self->priv->pos;
-	_tmp5_ = start;
-	_tmp6_ = self->priv->line;
-	_tmp7_ = column_start;
-	_tmp8_ = self->priv->column;
-	_tmp9_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE, "]|", NULL, _tmp3_, valadoc_gtkdoc_scanner_offset (self, _tmp4_, _tmp5_), _tmp6_, _tmp7_, _tmp8_);
-	result = _tmp9_;
+	_tmp2_ = start;
+	_tmp3_ = self->priv->pos;
+	_tmp4_ = start;
+	_tmp5_ = valadoc_gtkdoc_token_new (VALADOC_GTKDOC_TOKEN_TYPE_GTKDOC_SOURCE_CLOSE, "]|", NULL, _tmp2_, valadoc_gtkdoc_scanner_offset (self, _tmp3_, _tmp4_), self->priv->line, column_start, self->priv->column);
+	result = _tmp5_;
 	return result;
 }
-
 
 static gpointer
 _valadoc_gtkdoc_token_ref0 (gpointer self)
@@ -2634,11 +2311,9 @@ _valadoc_gtkdoc_token_ref0 (gpointer self)
 	return self ? valadoc_gtkdoc_token_ref (self) : NULL;
 }
 
-
 ValadocGtkdocToken*
 valadoc_gtkdoc_scanner_next (ValadocGtkdocScanner* self)
 {
-	ValadocGtkdocToken* result = NULL;
 	ValadocGtkdocToken* _tmp0_;
 	ValadocGtkdocToken* token = NULL;
 	ValadocGtkdocToken* _tmp3_;
@@ -2667,6 +2342,7 @@ valadoc_gtkdoc_scanner_next (ValadocGtkdocScanner* self)
 	ValadocGtkdocToken* _tmp26_;
 	ValadocGtkdocToken* _tmp27_;
 	ValadocGtkdocToken* _tmp28_;
+	ValadocGtkdocToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->tmp_token;
 	if (_tmp0_ != NULL) {
@@ -2788,13 +2464,11 @@ valadoc_gtkdoc_scanner_next (ValadocGtkdocScanner* self)
 	_valadoc_gtkdoc_token_unref0 (token);
 }
 
-
 static void
 valadoc_gtkdoc_value_scanner_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_gtkdoc_value_scanner_free_value (GValue* value)
@@ -2803,7 +2477,6 @@ valadoc_gtkdoc_value_scanner_free_value (GValue* value)
 		valadoc_gtkdoc_scanner_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_gtkdoc_value_scanner_copy_value (const GValue* src_value,
@@ -2816,13 +2489,11 @@ valadoc_gtkdoc_value_scanner_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_gtkdoc_value_scanner_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_gtkdoc_value_scanner_collect_value (GValue* value,
@@ -2845,7 +2516,6 @@ valadoc_gtkdoc_value_scanner_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_gtkdoc_value_scanner_lcopy_value (const GValue* value,
                                           guint n_collect_values,
@@ -2867,7 +2537,6 @@ valadoc_gtkdoc_value_scanner_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_gtkdoc_param_spec_scanner (const gchar* name,
                                    const gchar* nick,
@@ -2882,14 +2551,12 @@ valadoc_gtkdoc_param_spec_scanner (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_gtkdoc_value_get_scanner (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_GTKDOC_TYPE_SCANNER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_gtkdoc_value_set_scanner (GValue* value,
@@ -2911,7 +2578,6 @@ valadoc_gtkdoc_value_set_scanner (GValue* value,
 	}
 }
 
-
 void
 valadoc_gtkdoc_value_take_scanner (GValue* value,
                                    gpointer v_object)
@@ -2931,23 +2597,22 @@ valadoc_gtkdoc_value_take_scanner (GValue* value,
 	}
 }
 
-
 static void
-valadoc_gtkdoc_scanner_class_init (ValadocGtkdocScannerClass * klass)
+valadoc_gtkdoc_scanner_class_init (ValadocGtkdocScannerClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_gtkdoc_scanner_parent_class = g_type_class_peek_parent (klass);
 	((ValadocGtkdocScannerClass *) klass)->finalize = valadoc_gtkdoc_scanner_finalize;
 	g_type_class_adjust_private_offset (klass, &ValadocGtkdocScanner_private_offset);
 }
 
-
 static void
-valadoc_gtkdoc_scanner_instance_init (ValadocGtkdocScanner * self)
+valadoc_gtkdoc_scanner_instance_init (ValadocGtkdocScanner * self,
+                                      gpointer klass)
 {
 	self->priv = valadoc_gtkdoc_scanner_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_gtkdoc_scanner_finalize (ValadocGtkdocScanner * obj)
@@ -2958,23 +2623,29 @@ valadoc_gtkdoc_scanner_finalize (ValadocGtkdocScanner * obj)
 	_valadoc_gtkdoc_token_unref0 (self->priv->tmp_token);
 }
 
+static GType
+valadoc_gtkdoc_scanner_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_gtkdoc_value_scanner_init, valadoc_gtkdoc_value_scanner_free_value, valadoc_gtkdoc_value_scanner_copy_value, valadoc_gtkdoc_value_scanner_peek_pointer, "p", valadoc_gtkdoc_value_scanner_collect_value, "p", valadoc_gtkdoc_value_scanner_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkdocScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtkdoc_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkdocScanner), 0, (GInstanceInitFunc) valadoc_gtkdoc_scanner_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_gtkdoc_scanner_type_id;
+	valadoc_gtkdoc_scanner_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocGtkdocScanner", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocGtkdocScanner_private_offset = g_type_add_instance_private (valadoc_gtkdoc_scanner_type_id, sizeof (ValadocGtkdocScannerPrivate));
+	return valadoc_gtkdoc_scanner_type_id;
+}
 
 GType
 valadoc_gtkdoc_scanner_get_type (void)
 {
 	static volatile gsize valadoc_gtkdoc_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_gtkdoc_scanner_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_gtkdoc_value_scanner_init, valadoc_gtkdoc_value_scanner_free_value, valadoc_gtkdoc_value_scanner_copy_value, valadoc_gtkdoc_value_scanner_peek_pointer, "p", valadoc_gtkdoc_value_scanner_collect_value, "p", valadoc_gtkdoc_value_scanner_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocGtkdocScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_gtkdoc_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocGtkdocScanner), 0, (GInstanceInitFunc) valadoc_gtkdoc_scanner_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_gtkdoc_scanner_type_id;
-		valadoc_gtkdoc_scanner_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocGtkdocScanner", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocGtkdocScanner_private_offset = g_type_add_instance_private (valadoc_gtkdoc_scanner_type_id, sizeof (ValadocGtkdocScannerPrivate));
+		valadoc_gtkdoc_scanner_type_id = valadoc_gtkdoc_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_gtkdoc_scanner_type_id__volatile, valadoc_gtkdoc_scanner_type_id);
 	}
 	return valadoc_gtkdoc_scanner_type_id__volatile;
 }
-
 
 gpointer
 valadoc_gtkdoc_scanner_ref (gpointer instance)
@@ -2984,7 +2655,6 @@ valadoc_gtkdoc_scanner_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_gtkdoc_scanner_unref (gpointer instance)
@@ -2996,6 +2666,4 @@ valadoc_gtkdoc_scanner_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

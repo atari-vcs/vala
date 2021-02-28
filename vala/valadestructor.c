@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
@@ -34,7 +32,6 @@ struct _ValaDestructorPrivate {
 	ValaParameter* _this_parameter;
 	ValaMemberBinding _binding;
 };
-
 
 static gint ValaDestructor_private_offset;
 static gpointer vala_destructor_parent_class = NULL;
@@ -46,7 +43,7 @@ static void vala_destructor_real_accept_children (ValaCodeNode* base,
 static gboolean vala_destructor_real_check (ValaCodeNode* base,
                                      ValaCodeContext* context);
 static void vala_destructor_finalize (ValaCodeNode * obj);
-
+static GType vala_destructor_get_type_once (void);
 
 static inline gpointer
 vala_destructor_get_instance_private (ValaDestructor* self)
@@ -54,6 +51,62 @@ vala_destructor_get_instance_private (ValaDestructor* self)
 	return G_STRUCT_MEMBER_P (self, ValaDestructor_private_offset);
 }
 
+ValaParameter*
+vala_destructor_get_this_parameter (ValaDestructor* self)
+{
+	ValaParameter* result;
+	ValaParameter* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_this_parameter;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_destructor_set_this_parameter (ValaDestructor* self,
+                                    ValaParameter* value)
+{
+	ValaParameter* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_this_parameter);
+	self->priv->_this_parameter = _tmp0_;
+}
+
+ValaMemberBinding
+vala_destructor_get_binding (ValaDestructor* self)
+{
+	ValaMemberBinding result;
+	ValaMemberBinding _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_binding;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_destructor_set_binding (ValaDestructor* self,
+                             ValaMemberBinding value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_binding = value;
+}
+
+static gboolean
+vala_destructor_real_get_has_result (ValaSubroutine* base)
+{
+	gboolean result;
+	ValaDestructor* self;
+	self = (ValaDestructor*) base;
+	result = FALSE;
+	return result;
+}
 
 /**
  * Creates a new destructor.
@@ -70,13 +123,11 @@ vala_destructor_construct (GType object_type,
 	return self;
 }
 
-
 ValaDestructor*
 vala_destructor_new (ValaSourceReference* source_reference)
 {
 	return vala_destructor_construct (VALA_TYPE_DESTRUCTOR, source_reference);
 }
-
 
 static void
 vala_destructor_real_accept (ValaCodeNode* base,
@@ -87,7 +138,6 @@ vala_destructor_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_destructor (visitor, self);
 }
-
 
 static void
 vala_destructor_real_accept_children (ValaCodeNode* base,
@@ -109,35 +159,25 @@ vala_destructor_real_accept_children (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_destructor_real_check (ValaCodeNode* base,
                             ValaCodeContext* context)
 {
 	ValaDestructor * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
-	ValaSemanticAnalyzer* _tmp4_;
-	ValaSemanticAnalyzer* _tmp5_;
-	ValaSymbol* _tmp6_;
-	ValaSymbol* _tmp7_;
-	ValaScope* _tmp8_;
-	ValaScope* _tmp9_;
-	ValaSemanticAnalyzer* _tmp10_;
-	ValaSemanticAnalyzer* _tmp11_;
-	ValaBlock* _tmp12_;
-	ValaBlock* _tmp13_;
-	ValaSemanticAnalyzer* _tmp16_;
-	ValaSemanticAnalyzer* _tmp17_;
-	ValaSemanticAnalyzer* _tmp18_;
-	ValaSemanticAnalyzer* _tmp19_;
-	ValaSymbol* _tmp20_;
-	ValaSymbol* _tmp21_;
-	ValaSymbol* _tmp22_;
-	ValaSymbol* _tmp23_;
-	gboolean _tmp24_;
-	gboolean _tmp25_;
+	ValaParameter* _tmp4_;
+	ValaSemanticAnalyzer* _tmp6_;
+	ValaSemanticAnalyzer* _tmp7_;
+	ValaBlock* _tmp8_;
+	ValaBlock* _tmp9_;
+	ValaSemanticAnalyzer* _tmp12_;
+	ValaSemanticAnalyzer* _tmp13_;
+	ValaSymbol* _tmp14_;
+	ValaSymbol* _tmp15_;
+	gboolean _tmp16_;
+	gboolean _tmp17_;
+	gboolean result = FALSE;
 	self = (ValaDestructor*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -151,106 +191,38 @@ vala_destructor_real_check (ValaCodeNode* base,
 		return result;
 	}
 	vala_code_node_set_checked ((ValaCodeNode*) self, TRUE);
-	_tmp4_ = vala_code_context_get_analyzer (context);
-	_tmp5_ = _tmp4_;
-	_tmp6_ = vala_semantic_analyzer_get_current_symbol (_tmp5_);
-	_tmp7_ = _tmp6_;
-	_tmp8_ = vala_symbol_get_scope (_tmp7_);
-	_tmp9_ = _tmp8_;
-	vala_symbol_set_owner ((ValaSymbol*) self, _tmp9_);
-	_tmp10_ = vala_code_context_get_analyzer (context);
-	_tmp11_ = _tmp10_;
-	vala_semantic_analyzer_set_current_symbol (_tmp11_, (ValaSymbol*) self);
-	_tmp12_ = vala_subroutine_get_body ((ValaSubroutine*) self);
-	_tmp13_ = _tmp12_;
-	if (_tmp13_ != NULL) {
-		ValaBlock* _tmp14_;
-		ValaBlock* _tmp15_;
-		_tmp14_ = vala_subroutine_get_body ((ValaSubroutine*) self);
-		_tmp15_ = _tmp14_;
-		vala_code_node_check ((ValaCodeNode*) _tmp15_, context);
+	_tmp4_ = self->priv->_this_parameter;
+	if (_tmp4_ != NULL) {
+		ValaParameter* _tmp5_;
+		_tmp5_ = self->priv->_this_parameter;
+		vala_code_node_check ((ValaCodeNode*) _tmp5_, context);
 	}
-	_tmp16_ = vala_code_context_get_analyzer (context);
+	_tmp6_ = vala_code_context_get_analyzer (context);
+	_tmp7_ = _tmp6_;
+	vala_semantic_analyzer_set_current_symbol (_tmp7_, (ValaSymbol*) self);
+	_tmp8_ = vala_subroutine_get_body ((ValaSubroutine*) self);
+	_tmp9_ = _tmp8_;
+	if (_tmp9_ != NULL) {
+		ValaBlock* _tmp10_;
+		ValaBlock* _tmp11_;
+		_tmp10_ = vala_subroutine_get_body ((ValaSubroutine*) self);
+		_tmp11_ = _tmp10_;
+		vala_code_node_check ((ValaCodeNode*) _tmp11_, context);
+	}
+	_tmp12_ = vala_code_context_get_analyzer (context);
+	_tmp13_ = _tmp12_;
+	_tmp14_ = vala_symbol_get_parent_symbol ((ValaSymbol*) self);
+	_tmp15_ = _tmp14_;
+	vala_semantic_analyzer_set_current_symbol (_tmp13_, _tmp15_);
+	_tmp16_ = vala_code_node_get_error ((ValaCodeNode*) self);
 	_tmp17_ = _tmp16_;
-	_tmp18_ = vala_code_context_get_analyzer (context);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = vala_semantic_analyzer_get_current_symbol (_tmp19_);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = vala_symbol_get_parent_symbol (_tmp21_);
-	_tmp23_ = _tmp22_;
-	vala_semantic_analyzer_set_current_symbol (_tmp17_, _tmp23_);
-	_tmp24_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp25_ = _tmp24_;
-	result = !_tmp25_;
+	result = !_tmp17_;
 	return result;
 }
-
-
-ValaParameter*
-vala_destructor_get_this_parameter (ValaDestructor* self)
-{
-	ValaParameter* result;
-	ValaParameter* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_this_parameter;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_destructor_set_this_parameter (ValaDestructor* self,
-                                    ValaParameter* value)
-{
-	ValaParameter* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_this_parameter);
-	self->priv->_this_parameter = _tmp0_;
-}
-
-
-ValaMemberBinding
-vala_destructor_get_binding (ValaDestructor* self)
-{
-	ValaMemberBinding result;
-	ValaMemberBinding _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_binding;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_destructor_set_binding (ValaDestructor* self,
-                             ValaMemberBinding value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_binding = value;
-}
-
-
-static gboolean
-vala_destructor_real_get_has_result (ValaSubroutine* base)
-{
-	gboolean result;
-	ValaDestructor* self;
-	self = (ValaDestructor*) base;
-	result = FALSE;
-	return result;
-}
-
 
 static void
-vala_destructor_class_init (ValaDestructorClass * klass)
+vala_destructor_class_init (ValaDestructorClass * klass,
+                            gpointer klass_data)
 {
 	vala_destructor_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_destructor_finalize;
@@ -261,14 +233,13 @@ vala_destructor_class_init (ValaDestructorClass * klass)
 	VALA_SUBROUTINE_CLASS (klass)->get_has_result = vala_destructor_real_get_has_result;
 }
 
-
 static void
-vala_destructor_instance_init (ValaDestructor * self)
+vala_destructor_instance_init (ValaDestructor * self,
+                               gpointer klass)
 {
 	self->priv = vala_destructor_get_instance_private (self);
 	self->priv->_binding = VALA_MEMBER_BINDING_INSTANCE;
 }
-
 
 static void
 vala_destructor_finalize (ValaCodeNode * obj)
@@ -279,23 +250,28 @@ vala_destructor_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_destructor_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a class or instance destructor.
  */
+static GType
+vala_destructor_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaDestructorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_destructor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDestructor), 0, (GInstanceInitFunc) vala_destructor_instance_init, NULL };
+	GType vala_destructor_type_id;
+	vala_destructor_type_id = g_type_register_static (VALA_TYPE_SUBROUTINE, "ValaDestructor", &g_define_type_info, 0);
+	ValaDestructor_private_offset = g_type_add_instance_private (vala_destructor_type_id, sizeof (ValaDestructorPrivate));
+	return vala_destructor_type_id;
+}
+
 GType
 vala_destructor_get_type (void)
 {
 	static volatile gsize vala_destructor_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_destructor_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaDestructorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_destructor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDestructor), 0, (GInstanceInitFunc) vala_destructor_instance_init, NULL };
 		GType vala_destructor_type_id;
-		vala_destructor_type_id = g_type_register_static (VALA_TYPE_SUBROUTINE, "ValaDestructor", &g_define_type_info, 0);
-		ValaDestructor_private_offset = g_type_add_instance_private (vala_destructor_type_id, sizeof (ValaDestructorPrivate));
+		vala_destructor_type_id = vala_destructor_get_type_once ();
 		g_once_init_leave (&vala_destructor_type_id__volatile, vala_destructor_type_id);
 	}
 	return vala_destructor_type_id__volatile;
 }
-
-
 

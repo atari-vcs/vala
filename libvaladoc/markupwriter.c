@@ -23,10 +23,8 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <gobject/gvaluecollector.h>
@@ -43,7 +41,6 @@ struct _ValadocParamSpecMarkupWriter {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValadocMarkupWriter_private_offset;
 static gpointer valadoc_markup_writer_parent_class = NULL;
 
@@ -57,14 +54,13 @@ static gboolean valadoc_markup_writer_real_inline_element (ValadocMarkupWriter* 
 static gboolean valadoc_markup_writer_real_content_inline_element (ValadocMarkupWriter* self,
                                                             const gchar* name);
 static void valadoc_markup_writer_finalize (ValadocMarkupWriter * obj);
-
+static GType valadoc_markup_writer_get_type_once (void);
 
 static inline gpointer
 valadoc_markup_writer_get_instance_private (ValadocMarkupWriter* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocMarkupWriter_private_offset);
 }
-
 
 static gunichar
 string_get_char (const gchar* self,
@@ -76,16 +72,15 @@ string_get_char (const gchar* self,
 	return result;
 }
 
-
 gchar*
 valadoc_markup_writer_escape (const gchar* txt)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	const gchar* start = NULL;
 	const gchar* pos = NULL;
 	gunichar c = 0U;
+	gchar* result = NULL;
 	g_return_val_if_fail (txt != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
@@ -96,8 +91,6 @@ valadoc_markup_writer_escape (const gchar* txt)
 		_tmp1_ = TRUE;
 		while (TRUE) {
 			const gchar* _tmp4_;
-			gunichar _tmp5_;
-			gunichar _tmp6_;
 			if (!_tmp1_) {
 				const gchar* _tmp2_;
 				const gchar* _tmp3_;
@@ -108,115 +101,113 @@ valadoc_markup_writer_escape (const gchar* txt)
 			_tmp1_ = FALSE;
 			_tmp4_ = pos;
 			c = string_get_char (_tmp4_, (glong) 0);
-			_tmp5_ = c;
-			if (!(_tmp5_ != ((gunichar) '\0'))) {
+			if (!(c != ((gunichar) '\0'))) {
 				break;
 			}
-			_tmp6_ = c;
-			switch (_tmp6_) {
+			switch (c) {
 				case '"':
 				{
-					GString* _tmp7_;
+					GString* _tmp5_;
+					const gchar* _tmp6_;
+					const gchar* _tmp7_;
 					const gchar* _tmp8_;
-					const gchar* _tmp9_;
+					GString* _tmp9_;
 					const gchar* _tmp10_;
-					GString* _tmp11_;
-					const gchar* _tmp12_;
-					const gchar* _tmp13_;
-					_tmp7_ = builder;
+					const gchar* _tmp11_;
+					_tmp5_ = builder;
+					_tmp6_ = start;
+					_tmp7_ = pos;
 					_tmp8_ = start;
-					_tmp9_ = pos;
-					_tmp10_ = start;
-					g_string_append_len (_tmp7_, _tmp8_, (gssize) (((gchar*) _tmp9_) - ((gchar*) _tmp10_)));
-					_tmp11_ = builder;
-					g_string_append (_tmp11_, "&quot;");
-					_tmp12_ = pos;
-					_tmp13_ = g_utf8_next_char (_tmp12_);
-					start = _tmp13_;
+					g_string_append_len (_tmp5_, _tmp6_, (gssize) (((gchar*) _tmp7_) - ((gchar*) _tmp8_)));
+					_tmp9_ = builder;
+					g_string_append (_tmp9_, "&quot;");
+					_tmp10_ = pos;
+					_tmp11_ = g_utf8_next_char (_tmp10_);
+					start = _tmp11_;
 					break;
 				}
 				case '<':
 				{
-					GString* _tmp14_;
+					GString* _tmp12_;
+					const gchar* _tmp13_;
+					const gchar* _tmp14_;
 					const gchar* _tmp15_;
-					const gchar* _tmp16_;
+					GString* _tmp16_;
 					const gchar* _tmp17_;
-					GString* _tmp18_;
-					const gchar* _tmp19_;
-					const gchar* _tmp20_;
-					_tmp14_ = builder;
+					const gchar* _tmp18_;
+					_tmp12_ = builder;
+					_tmp13_ = start;
+					_tmp14_ = pos;
 					_tmp15_ = start;
-					_tmp16_ = pos;
-					_tmp17_ = start;
-					g_string_append_len (_tmp14_, _tmp15_, (gssize) (((gchar*) _tmp16_) - ((gchar*) _tmp17_)));
-					_tmp18_ = builder;
-					g_string_append (_tmp18_, "&lt;");
-					_tmp19_ = pos;
-					_tmp20_ = g_utf8_next_char (_tmp19_);
-					start = _tmp20_;
+					g_string_append_len (_tmp12_, _tmp13_, (gssize) (((gchar*) _tmp14_) - ((gchar*) _tmp15_)));
+					_tmp16_ = builder;
+					g_string_append (_tmp16_, "&lt;");
+					_tmp17_ = pos;
+					_tmp18_ = g_utf8_next_char (_tmp17_);
+					start = _tmp18_;
 					break;
 				}
 				case '>':
 				{
-					GString* _tmp21_;
+					GString* _tmp19_;
+					const gchar* _tmp20_;
+					const gchar* _tmp21_;
 					const gchar* _tmp22_;
-					const gchar* _tmp23_;
+					GString* _tmp23_;
 					const gchar* _tmp24_;
-					GString* _tmp25_;
-					const gchar* _tmp26_;
-					const gchar* _tmp27_;
-					_tmp21_ = builder;
+					const gchar* _tmp25_;
+					_tmp19_ = builder;
+					_tmp20_ = start;
+					_tmp21_ = pos;
 					_tmp22_ = start;
-					_tmp23_ = pos;
-					_tmp24_ = start;
-					g_string_append_len (_tmp21_, _tmp22_, (gssize) (((gchar*) _tmp23_) - ((gchar*) _tmp24_)));
-					_tmp25_ = builder;
-					g_string_append (_tmp25_, "&gt;");
-					_tmp26_ = pos;
-					_tmp27_ = g_utf8_next_char (_tmp26_);
-					start = _tmp27_;
+					g_string_append_len (_tmp19_, _tmp20_, (gssize) (((gchar*) _tmp21_) - ((gchar*) _tmp22_)));
+					_tmp23_ = builder;
+					g_string_append (_tmp23_, "&gt;");
+					_tmp24_ = pos;
+					_tmp25_ = g_utf8_next_char (_tmp24_);
+					start = _tmp25_;
 					break;
 				}
 				case '&':
 				{
-					GString* _tmp28_;
+					GString* _tmp26_;
+					const gchar* _tmp27_;
+					const gchar* _tmp28_;
 					const gchar* _tmp29_;
-					const gchar* _tmp30_;
+					GString* _tmp30_;
 					const gchar* _tmp31_;
-					GString* _tmp32_;
-					const gchar* _tmp33_;
-					const gchar* _tmp34_;
-					_tmp28_ = builder;
+					const gchar* _tmp32_;
+					_tmp26_ = builder;
+					_tmp27_ = start;
+					_tmp28_ = pos;
 					_tmp29_ = start;
-					_tmp30_ = pos;
-					_tmp31_ = start;
-					g_string_append_len (_tmp28_, _tmp29_, (gssize) (((gchar*) _tmp30_) - ((gchar*) _tmp31_)));
-					_tmp32_ = builder;
-					g_string_append (_tmp32_, "&amp;");
-					_tmp33_ = pos;
-					_tmp34_ = g_utf8_next_char (_tmp33_);
-					start = _tmp34_;
+					g_string_append_len (_tmp26_, _tmp27_, (gssize) (((gchar*) _tmp28_) - ((gchar*) _tmp29_)));
+					_tmp30_ = builder;
+					g_string_append (_tmp30_, "&amp;");
+					_tmp31_ = pos;
+					_tmp32_ = g_utf8_next_char (_tmp31_);
+					start = _tmp32_;
 					break;
 				}
 				case '\'':
 				{
-					GString* _tmp35_;
+					GString* _tmp33_;
+					const gchar* _tmp34_;
+					const gchar* _tmp35_;
 					const gchar* _tmp36_;
-					const gchar* _tmp37_;
+					GString* _tmp37_;
 					const gchar* _tmp38_;
-					GString* _tmp39_;
-					const gchar* _tmp40_;
-					const gchar* _tmp41_;
-					_tmp35_ = builder;
+					const gchar* _tmp39_;
+					_tmp33_ = builder;
+					_tmp34_ = start;
+					_tmp35_ = pos;
 					_tmp36_ = start;
-					_tmp37_ = pos;
-					_tmp38_ = start;
-					g_string_append_len (_tmp35_, _tmp36_, (gssize) (((gchar*) _tmp37_) - ((gchar*) _tmp38_)));
-					_tmp39_ = builder;
-					g_string_append (_tmp39_, "&apos;");
-					_tmp40_ = pos;
-					_tmp41_ = g_utf8_next_char (_tmp40_);
-					start = _tmp41_;
+					g_string_append_len (_tmp33_, _tmp34_, (gssize) (((gchar*) _tmp35_) - ((gchar*) _tmp36_)));
+					_tmp37_ = builder;
+					g_string_append (_tmp37_, "&apos;");
+					_tmp38_ = pos;
+					_tmp39_ = g_utf8_next_char (_tmp38_);
+					start = _tmp39_;
 					break;
 				}
 				default:
@@ -225,33 +216,32 @@ valadoc_markup_writer_escape (const gchar* txt)
 		}
 	}
 	if ((&txt) == (&start)) {
-		gchar* _tmp42_;
-		_tmp42_ = g_strdup (txt);
-		result = _tmp42_;
+		gchar* _tmp40_;
+		_tmp40_ = g_strdup (txt);
+		result = _tmp40_;
 		_g_string_free0 (builder);
 		return result;
 	} else {
-		GString* _tmp43_;
+		GString* _tmp41_;
+		const gchar* _tmp42_;
+		const gchar* _tmp43_;
 		const gchar* _tmp44_;
-		const gchar* _tmp45_;
-		const gchar* _tmp46_;
-		GString* _tmp47_;
-		gchar* _tmp48_;
-		_tmp43_ = builder;
+		GString* _tmp45_;
+		gchar* _tmp46_;
+		_tmp41_ = builder;
+		_tmp42_ = start;
+		_tmp43_ = pos;
 		_tmp44_ = start;
-		_tmp45_ = pos;
-		_tmp46_ = start;
-		g_string_append_len (_tmp43_, _tmp44_, (gssize) (((gchar*) _tmp45_) - ((gchar*) _tmp46_)));
-		_tmp47_ = builder;
-		_tmp48_ = _tmp47_->str;
-		_tmp47_->str = NULL;
-		result = _tmp48_;
+		g_string_append_len (_tmp41_, _tmp42_, (gssize) (((gchar*) _tmp43_) - ((gchar*) _tmp44_)));
+		_tmp45_ = builder;
+		_tmp46_ = _tmp45_->str;
+		_tmp45_->str = NULL;
+		result = _tmp46_;
 		_g_string_free0 (builder);
 		return result;
 	}
 	_g_string_free0 (builder);
 }
-
 
 /**
  * Initializes a new instance of the MarkupWriter
@@ -268,7 +258,7 @@ valadoc_markup_writer_construct (GType object_type,
 {
 	ValadocMarkupWriter* self = NULL;
 	ValadocMarkupWriterWriteFunc _tmp0_;
-	void* _tmp0__target;
+	gpointer _tmp0__target;
 	GDestroyNotify _tmp0__target_destroy_notify;
 	self = (ValadocMarkupWriter*) g_type_create_instance (object_type);
 	_tmp0_ = write;
@@ -296,7 +286,6 @@ valadoc_markup_writer_construct (GType object_type,
 	return self;
 }
 
-
 ValadocMarkupWriter*
 valadoc_markup_writer_new (ValadocMarkupWriterWriteFunc write,
                            gpointer write_target,
@@ -305,7 +294,6 @@ valadoc_markup_writer_new (ValadocMarkupWriterWriteFunc write,
 {
 	return valadoc_markup_writer_construct (VALADOC_TYPE_MARKUP_WRITER, write, write_target, write_target_destroy_notify, xml_declaration);
 }
-
 
 /**
  * Writes an start tag of a markup element to the file
@@ -318,85 +306,68 @@ ValadocMarkupWriter*
 valadoc_markup_writer_start_tag (ValadocMarkupWriter* self,
                                  const gchar* name,
                                  gchar** attributes,
-                                 int attributes_length1)
+                                 gint attributes_length1)
 {
-	ValadocMarkupWriter* result = NULL;
 	gint _tmp0_;
 	GString* content = NULL;
-	GString* _tmp3_;
-	GString* _tmp4_;
-	GString* _tmp15_;
-	GString* _tmp16_;
-	const gchar* _tmp17_;
+	GString* _tmp1_;
+	GString* _tmp2_;
+	GString* _tmp8_;
+	GString* _tmp9_;
+	const gchar* _tmp10_;
+	ValadocMarkupWriter* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->indent;
 	self->indent = _tmp0_ + 1;
 	valadoc_markup_writer_check_column (self, name, FALSE);
 	if ((attributes_length1 % 2) != 0) {
-		gint _tmp1_;
-		gchar* _tmp2_;
-		_tmp1_ = attributes_length1 + 1;
-		attributes = g_renew (gchar*, attributes, attributes_length1 + 1);
-		(_tmp1_ > attributes_length1) ? memset (attributes + attributes_length1, 0, sizeof (gchar*) * (_tmp1_ - attributes_length1)) : NULL;
-		attributes_length1 = _tmp1_;
-		_tmp2_ = g_strdup ("");
-		_g_free0 (attributes[attributes_length1 - 1]);
-		attributes[attributes_length1 - 1] = _tmp2_;
+		g_warning ("markupwriter.vala:117: Given attributes array is not a list of pairs (" \
+"name and value)");
+		attributes_length1 = attributes_length1 - 1;
 	}
-	_tmp3_ = g_string_new ("<");
-	content = _tmp3_;
-	_tmp4_ = content;
-	g_string_append (_tmp4_, name);
+	_tmp1_ = g_string_new ("<");
+	content = _tmp1_;
+	_tmp2_ = content;
+	g_string_append (_tmp2_, name);
 	{
 		gint i = 0;
 		i = 0;
 		{
-			gboolean _tmp5_ = FALSE;
-			_tmp5_ = TRUE;
+			gboolean _tmp3_ = FALSE;
+			_tmp3_ = TRUE;
 			while (TRUE) {
-				gint _tmp7_;
-				gint _tmp8_;
-				const gchar* _tmp9_;
-				if (!_tmp5_) {
-					gint _tmp6_;
-					_tmp6_ = i;
-					i = _tmp6_ + 2;
+				const gchar* _tmp4_;
+				if (!_tmp3_) {
+					i = i + 2;
 				}
-				_tmp5_ = FALSE;
-				_tmp7_ = i;
-				if (!(_tmp7_ < attributes_length1)) {
+				_tmp3_ = FALSE;
+				if (!(i < attributes_length1)) {
 					break;
 				}
-				_tmp8_ = i;
-				_tmp9_ = attributes[_tmp8_ + 1];
-				if (_tmp9_ != NULL) {
-					GString* _tmp10_;
-					gint _tmp11_;
-					const gchar* _tmp12_;
-					gint _tmp13_;
-					const gchar* _tmp14_;
-					_tmp10_ = content;
-					_tmp11_ = i;
-					_tmp12_ = attributes[_tmp11_];
-					_tmp13_ = i;
-					_tmp14_ = attributes[_tmp13_ + 1];
-					g_string_append_printf (_tmp10_, " %s=\"%s\"", _tmp12_, _tmp14_);
+				_tmp4_ = attributes[i + 1];
+				if (_tmp4_ != NULL) {
+					GString* _tmp5_;
+					const gchar* _tmp6_;
+					const gchar* _tmp7_;
+					_tmp5_ = content;
+					_tmp6_ = attributes[i];
+					_tmp7_ = attributes[i + 1];
+					g_string_append_printf (_tmp5_, " %s=\"%s\"", _tmp6_, _tmp7_);
 				}
 			}
 		}
 	}
-	_tmp15_ = content;
-	g_string_append (_tmp15_, ">");
-	_tmp16_ = content;
-	_tmp17_ = _tmp16_->str;
-	valadoc_markup_writer_do_write (self, _tmp17_);
+	_tmp8_ = content;
+	g_string_append (_tmp8_, ">");
+	_tmp9_ = content;
+	_tmp10_ = _tmp9_->str;
+	valadoc_markup_writer_do_write (self, _tmp10_);
 	self->last_was_tag = TRUE;
 	result = self;
 	_g_string_free0 (content);
 	return result;
 }
-
 
 /**
  * Writes a simple tag (<name />) to the file
@@ -409,88 +380,71 @@ ValadocMarkupWriter*
 valadoc_markup_writer_simple_tag (ValadocMarkupWriter* self,
                                   const gchar* name,
                                   gchar** attributes,
-                                  int attributes_length1)
+                                  gint attributes_length1)
 {
-	ValadocMarkupWriter* result = NULL;
 	gint _tmp0_;
 	GString* content = NULL;
-	GString* _tmp3_;
-	GString* _tmp4_;
-	GString* _tmp15_;
-	GString* _tmp16_;
-	const gchar* _tmp17_;
-	gint _tmp18_;
+	GString* _tmp1_;
+	GString* _tmp2_;
+	GString* _tmp8_;
+	GString* _tmp9_;
+	const gchar* _tmp10_;
+	gint _tmp11_;
+	ValadocMarkupWriter* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->indent;
 	self->indent = _tmp0_ + 1;
 	valadoc_markup_writer_check_column (self, name, FALSE);
 	if ((attributes_length1 % 2) != 0) {
-		gint _tmp1_;
-		gchar* _tmp2_;
-		_tmp1_ = attributes_length1 + 1;
-		attributes = g_renew (gchar*, attributes, attributes_length1 + 1);
-		(_tmp1_ > attributes_length1) ? memset (attributes + attributes_length1, 0, sizeof (gchar*) * (_tmp1_ - attributes_length1)) : NULL;
-		attributes_length1 = _tmp1_;
-		_tmp2_ = g_strdup ("");
-		_g_free0 (attributes[attributes_length1 - 1]);
-		attributes[attributes_length1 - 1] = _tmp2_;
+		g_warning ("markupwriter.vala:148: Given attributes array is not a list of pairs (" \
+"name and value)");
+		attributes_length1 = attributes_length1 - 1;
 	}
-	_tmp3_ = g_string_new ("<");
-	content = _tmp3_;
-	_tmp4_ = content;
-	g_string_append (_tmp4_, name);
+	_tmp1_ = g_string_new ("<");
+	content = _tmp1_;
+	_tmp2_ = content;
+	g_string_append (_tmp2_, name);
 	{
 		gint i = 0;
 		i = 0;
 		{
-			gboolean _tmp5_ = FALSE;
-			_tmp5_ = TRUE;
+			gboolean _tmp3_ = FALSE;
+			_tmp3_ = TRUE;
 			while (TRUE) {
-				gint _tmp7_;
-				gint _tmp8_;
-				const gchar* _tmp9_;
-				if (!_tmp5_) {
-					gint _tmp6_;
-					_tmp6_ = i;
-					i = _tmp6_ + 2;
+				const gchar* _tmp4_;
+				if (!_tmp3_) {
+					i = i + 2;
 				}
-				_tmp5_ = FALSE;
-				_tmp7_ = i;
-				if (!(_tmp7_ < attributes_length1)) {
+				_tmp3_ = FALSE;
+				if (!(i < attributes_length1)) {
 					break;
 				}
-				_tmp8_ = i;
-				_tmp9_ = attributes[_tmp8_ + 1];
-				if (_tmp9_ != NULL) {
-					GString* _tmp10_;
-					gint _tmp11_;
-					const gchar* _tmp12_;
-					gint _tmp13_;
-					const gchar* _tmp14_;
-					_tmp10_ = content;
-					_tmp11_ = i;
-					_tmp12_ = attributes[_tmp11_];
-					_tmp13_ = i;
-					_tmp14_ = attributes[_tmp13_ + 1];
-					g_string_append_printf (_tmp10_, " %s=\"%s\"", _tmp12_, _tmp14_);
+				_tmp4_ = attributes[i + 1];
+				if (_tmp4_ != NULL) {
+					GString* _tmp5_;
+					const gchar* _tmp6_;
+					const gchar* _tmp7_;
+					_tmp5_ = content;
+					_tmp6_ = attributes[i];
+					_tmp7_ = attributes[i + 1];
+					g_string_append_printf (_tmp5_, " %s=\"%s\"", _tmp6_, _tmp7_);
 				}
 			}
 		}
 	}
-	_tmp15_ = content;
-	g_string_append (_tmp15_, "/>");
-	_tmp16_ = content;
-	_tmp17_ = _tmp16_->str;
-	valadoc_markup_writer_do_write (self, _tmp17_);
-	_tmp18_ = self->indent;
-	self->indent = _tmp18_ - 1;
+	_tmp8_ = content;
+	g_string_append (_tmp8_, "/>");
+	_tmp9_ = content;
+	_tmp10_ = _tmp9_->str;
+	valadoc_markup_writer_do_write (self, _tmp10_);
+	_tmp11_ = self->indent;
+	self->indent = _tmp11_ - 1;
 	self->last_was_tag = TRUE;
 	result = self;
 	_g_string_free0 (content);
 	return result;
 }
-
 
 /**
  * Writes an end tag of a markup element to the file
@@ -502,10 +456,10 @@ ValadocMarkupWriter*
 valadoc_markup_writer_end_tag (ValadocMarkupWriter* self,
                                const gchar* name)
 {
-	ValadocMarkupWriter* result = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
 	gint _tmp2_;
+	ValadocMarkupWriter* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	valadoc_markup_writer_check_column (self, name, TRUE);
@@ -520,7 +474,6 @@ valadoc_markup_writer_end_tag (ValadocMarkupWriter* self,
 	return result;
 }
 
-
 /**
  * Writes the specified string to the output stream
  *
@@ -531,23 +484,22 @@ static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -562,17 +514,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -589,46 +539,34 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 ValadocMarkupWriter*
 valadoc_markup_writer_text (ValadocMarkupWriter* self,
                             const gchar* text)
 {
-	ValadocMarkupWriter* result = NULL;
 	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_;
+	ValadocMarkupWriter* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (text != NULL, NULL);
-	_tmp1_ = self->priv->wrap;
-	if (_tmp1_) {
+	if (self->priv->wrap) {
+		gint _tmp1_;
 		gint _tmp2_;
-		gint _tmp3_;
-		glong _tmp4_;
-		_tmp2_ = strlen (text);
-		_tmp3_ = _tmp2_;
-		_tmp4_ = self->current_column;
-		_tmp0_ = (_tmp3_ + _tmp4_) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN);
+		_tmp1_ = strlen (text);
+		_tmp2_ = _tmp1_;
+		_tmp0_ = (_tmp2_ + self->current_column) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN);
 	} else {
 		_tmp0_ = FALSE;
 	}
@@ -636,111 +574,77 @@ valadoc_markup_writer_text (ValadocMarkupWriter* self,
 		glong wrote = 0L;
 		wrote = (glong) 0;
 		while (TRUE) {
-			glong _tmp5_;
-			gint _tmp6_;
-			gint _tmp7_;
+			gint _tmp3_;
+			gint _tmp4_;
 			glong space_pos = 0L;
-			gint _tmp19_;
-			gint _tmp20_;
-			glong _tmp21_;
-			glong _tmp22_;
-			glong _tmp35_;
-			gint _tmp36_;
-			gint _tmp37_;
-			_tmp5_ = wrote;
-			_tmp6_ = strlen (text);
-			_tmp7_ = _tmp6_;
-			if (!(_tmp5_ < ((glong) _tmp7_))) {
+			gint _tmp9_;
+			gint _tmp10_;
+			gint _tmp17_;
+			gint _tmp18_;
+			_tmp3_ = strlen (text);
+			_tmp4_ = _tmp3_;
+			if (!(wrote < ((glong) _tmp4_))) {
 				break;
 			}
 			space_pos = (glong) -1;
 			{
 				glong i = 0L;
-				glong _tmp8_;
-				_tmp8_ = wrote;
-				i = _tmp8_ + 1;
+				i = wrote + 1;
 				{
-					gboolean _tmp9_ = FALSE;
-					_tmp9_ = TRUE;
+					gboolean _tmp5_ = FALSE;
+					_tmp5_ = TRUE;
 					while (TRUE) {
-						glong _tmp11_;
-						gint _tmp12_;
-						gint _tmp13_;
-						glong _tmp14_;
-						if (!_tmp9_) {
-							glong _tmp10_;
-							_tmp10_ = i;
-							i = _tmp10_ + 1;
+						gint _tmp7_;
+						gint _tmp8_;
+						if (!_tmp5_) {
+							glong _tmp6_;
+							_tmp6_ = i;
+							i = _tmp6_ + 1;
 						}
-						_tmp9_ = FALSE;
-						_tmp11_ = i;
-						_tmp12_ = strlen (text);
-						_tmp13_ = _tmp12_;
-						if (!(_tmp11_ < ((glong) _tmp13_))) {
+						_tmp5_ = FALSE;
+						_tmp7_ = strlen (text);
+						_tmp8_ = _tmp7_;
+						if (!(i < ((glong) _tmp8_))) {
 							break;
 						}
-						_tmp14_ = i;
-						if (string_get (text, _tmp14_) == ' ') {
-							glong _tmp15_;
-							glong _tmp16_;
-							glong _tmp17_;
-							glong _tmp18_;
-							_tmp15_ = i;
-							_tmp16_ = wrote;
-							_tmp17_ = self->current_column;
-							if (((_tmp15_ - _tmp16_) + _tmp17_) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN)) {
+						if (string_get (text, i) == ' ') {
+							if (((i - wrote) + self->current_column) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN)) {
 								break;
 							}
-							_tmp18_ = i;
-							space_pos = _tmp18_;
+							space_pos = i;
 						}
 					}
 				}
 			}
-			_tmp19_ = strlen (text);
-			_tmp20_ = _tmp19_;
-			_tmp21_ = wrote;
-			_tmp22_ = self->current_column;
-			if (((_tmp20_ - _tmp21_) + _tmp22_) <= ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN)) {
-				glong _tmp23_;
-				gchar* _tmp24_;
-				gchar* _tmp25_;
-				gint _tmp26_;
-				gint _tmp27_;
-				_tmp23_ = wrote;
-				_tmp24_ = string_substring (text, _tmp23_, (glong) -1);
-				_tmp25_ = _tmp24_;
-				valadoc_markup_writer_do_write (self, _tmp25_);
-				_g_free0 (_tmp25_);
-				_tmp26_ = strlen (text);
-				_tmp27_ = _tmp26_;
-				wrote = (glong) (_tmp27_ + 1);
+			_tmp9_ = strlen (text);
+			_tmp10_ = _tmp9_;
+			if (((_tmp10_ - wrote) + self->current_column) <= ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN)) {
+				gchar* _tmp11_;
+				gchar* _tmp12_;
+				gint _tmp13_;
+				gint _tmp14_;
+				_tmp11_ = string_substring (text, wrote, (glong) -1);
+				_tmp12_ = _tmp11_;
+				valadoc_markup_writer_do_write (self, _tmp12_);
+				_g_free0 (_tmp12_);
+				_tmp13_ = strlen (text);
+				_tmp14_ = _tmp13_;
+				wrote = (glong) (_tmp14_ + 1);
 			} else {
-				glong _tmp28_;
-				_tmp28_ = space_pos;
-				if (_tmp28_ == ((glong) -1)) {
+				if (space_pos == ((glong) -1)) {
 				} else {
-					glong _tmp29_;
-					glong _tmp30_;
-					glong _tmp31_;
-					gchar* _tmp32_;
-					gchar* _tmp33_;
-					glong _tmp34_;
-					_tmp29_ = wrote;
-					_tmp30_ = space_pos;
-					_tmp31_ = wrote;
-					_tmp32_ = string_substring (text, _tmp29_, _tmp30_ - _tmp31_);
-					_tmp33_ = _tmp32_;
-					valadoc_markup_writer_do_write (self, _tmp33_);
-					_g_free0 (_tmp33_);
-					_tmp34_ = space_pos;
-					wrote = _tmp34_ + 1;
+					gchar* _tmp15_;
+					gchar* _tmp16_;
+					_tmp15_ = string_substring (text, wrote, space_pos - wrote);
+					_tmp16_ = _tmp15_;
+					valadoc_markup_writer_do_write (self, _tmp16_);
+					_g_free0 (_tmp16_);
+					wrote = space_pos + 1;
 				}
 			}
-			_tmp35_ = wrote;
-			_tmp36_ = strlen (text);
-			_tmp37_ = _tmp36_;
-			if (_tmp35_ < ((glong) _tmp37_)) {
+			_tmp17_ = strlen (text);
+			_tmp18_ = _tmp17_;
+			if (wrote < ((glong) _tmp18_)) {
 				valadoc_markup_writer_break_line (self);
 				valadoc_markup_writer_do_write (self, "  ");
 			}
@@ -752,7 +656,6 @@ valadoc_markup_writer_text (ValadocMarkupWriter* self,
 	result = self;
 	return result;
 }
-
 
 /**
  * Writes the specified string to the output stream
@@ -773,7 +676,6 @@ valadoc_markup_writer_raw_text (ValadocMarkupWriter* self,
 	return result;
 }
 
-
 void
 valadoc_markup_writer_set_wrap (ValadocMarkupWriter* self,
                                 gboolean wrap)
@@ -782,111 +684,94 @@ valadoc_markup_writer_set_wrap (ValadocMarkupWriter* self,
 	self->priv->wrap = wrap;
 }
 
-
 static void
 valadoc_markup_writer_break_line (ValadocMarkupWriter* self)
 {
 	ValadocMarkupWriterWriteFunc _tmp0_;
-	void* _tmp0__target;
+	gpointer _tmp0__target;
 	ValadocMarkupWriterWriteFunc _tmp1_;
-	void* _tmp1__target;
-	gint _tmp2_;
+	gpointer _tmp1__target;
+	gchar* _tmp2_;
 	gchar* _tmp3_;
-	gchar* _tmp4_;
-	gint _tmp5_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->write;
 	_tmp0__target = self->write_target;
 	_tmp0_ ("\n", _tmp0__target);
 	_tmp1_ = self->write;
 	_tmp1__target = self->write_target;
-	_tmp2_ = self->indent;
-	_tmp3_ = g_strnfill ((gsize) (_tmp2_ * 2), ' ');
-	_tmp4_ = _tmp3_;
-	_tmp1_ (_tmp4_, _tmp1__target);
-	_g_free0 (_tmp4_);
-	_tmp5_ = self->indent;
-	self->current_column = (glong) (_tmp5_ * 2);
+	_tmp2_ = g_strnfill ((gsize) (self->indent * 2), ' ');
+	_tmp3_ = _tmp2_;
+	_tmp1_ (_tmp3_, _tmp1__target);
+	_g_free0 (_tmp3_);
+	self->current_column = (glong) (self->indent * 2);
 }
-
 
 void
 valadoc_markup_writer_do_write (ValadocMarkupWriter* self,
                                 const gchar* text)
 {
 	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_;
-	ValadocMarkupWriterWriteFunc _tmp5_;
-	void* _tmp5__target;
-	glong _tmp6_;
-	gint _tmp7_;
-	gint _tmp8_;
+	ValadocMarkupWriterWriteFunc _tmp3_;
+	gpointer _tmp3__target;
+	gint _tmp4_;
+	gint _tmp5_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (text != NULL);
-	_tmp1_ = self->priv->wrap;
-	if (_tmp1_) {
-		glong _tmp2_;
-		gint _tmp3_;
-		gint _tmp4_;
-		_tmp2_ = self->current_column;
-		_tmp3_ = strlen (text);
-		_tmp4_ = _tmp3_;
-		_tmp0_ = (_tmp2_ + _tmp4_) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN);
+	if (self->priv->wrap) {
+		gint _tmp1_;
+		gint _tmp2_;
+		_tmp1_ = strlen (text);
+		_tmp2_ = _tmp1_;
+		_tmp0_ = (self->current_column + _tmp2_) > ((glong) VALADOC_MARKUP_WRITER_MAX_COLUMN);
 	} else {
 		_tmp0_ = FALSE;
 	}
 	if (_tmp0_) {
 		valadoc_markup_writer_break_line (self);
 	}
-	_tmp5_ = self->write;
-	_tmp5__target = self->write_target;
-	_tmp5_ (text, _tmp5__target);
-	_tmp6_ = self->current_column;
-	_tmp7_ = strlen (text);
-	_tmp8_ = _tmp7_;
-	self->current_column = _tmp6_ + _tmp8_;
+	_tmp3_ = self->write;
+	_tmp3__target = self->write_target;
+	_tmp3_ (text, _tmp3__target);
+	_tmp4_ = strlen (text);
+	_tmp5_ = _tmp4_;
+	self->current_column = self->current_column + _tmp5_;
 }
-
 
 static void
 valadoc_markup_writer_check_column (ValadocMarkupWriter* self,
                                     const gchar* name,
                                     gboolean end_tag)
 {
-	gboolean _tmp0_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (name != NULL);
-	_tmp0_ = self->priv->wrap;
-	if (!_tmp0_) {
+	if (!self->priv->wrap) {
 		return;
 	} else {
-		gboolean _tmp1_ = FALSE;
+		gboolean _tmp0_ = FALSE;
 		if (!end_tag) {
-			_tmp1_ = valadoc_markup_writer_inline_element (self, name);
+			_tmp0_ = valadoc_markup_writer_inline_element (self, name);
 		} else {
-			_tmp1_ = FALSE;
+			_tmp0_ = FALSE;
 		}
-		if (_tmp1_) {
+		if (_tmp0_) {
 			return;
 		} else {
-			gboolean _tmp2_ = FALSE;
+			gboolean _tmp1_ = FALSE;
 			if (end_tag) {
-				_tmp2_ = valadoc_markup_writer_content_inline_element (self, name);
+				_tmp1_ = valadoc_markup_writer_content_inline_element (self, name);
 			} else {
-				_tmp2_ = FALSE;
+				_tmp1_ = FALSE;
 			}
-			if (_tmp2_) {
+			if (_tmp1_) {
 				return;
 			} else {
-				gboolean _tmp3_ = FALSE;
+				gboolean _tmp2_ = FALSE;
 				if (end_tag) {
-					gboolean _tmp4_;
-					_tmp4_ = self->last_was_tag;
-					_tmp3_ = !_tmp4_;
+					_tmp2_ = !self->last_was_tag;
 				} else {
-					_tmp3_ = FALSE;
+					_tmp2_ = FALSE;
 				}
-				if (_tmp3_) {
+				if (_tmp2_) {
 					return;
 				}
 			}
@@ -894,7 +779,6 @@ valadoc_markup_writer_check_column (ValadocMarkupWriter* self,
 	}
 	valadoc_markup_writer_break_line (self);
 }
-
 
 static gboolean
 valadoc_markup_writer_real_inline_element (ValadocMarkupWriter* self,
@@ -906,7 +790,6 @@ valadoc_markup_writer_real_inline_element (ValadocMarkupWriter* self,
 	return result;
 }
 
-
 gboolean
 valadoc_markup_writer_inline_element (ValadocMarkupWriter* self,
                                       const gchar* name)
@@ -914,7 +797,6 @@ valadoc_markup_writer_inline_element (ValadocMarkupWriter* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALADOC_MARKUP_WRITER_GET_CLASS (self)->inline_element (self, name);
 }
-
 
 static gboolean
 valadoc_markup_writer_real_content_inline_element (ValadocMarkupWriter* self,
@@ -926,7 +808,6 @@ valadoc_markup_writer_real_content_inline_element (ValadocMarkupWriter* self,
 	return result;
 }
 
-
 gboolean
 valadoc_markup_writer_content_inline_element (ValadocMarkupWriter* self,
                                               const gchar* name)
@@ -935,13 +816,11 @@ valadoc_markup_writer_content_inline_element (ValadocMarkupWriter* self,
 	return VALADOC_MARKUP_WRITER_GET_CLASS (self)->content_inline_element (self, name);
 }
 
-
 static void
 valadoc_value_markup_writer_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_value_markup_writer_free_value (GValue* value)
@@ -950,7 +829,6 @@ valadoc_value_markup_writer_free_value (GValue* value)
 		valadoc_markup_writer_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_value_markup_writer_copy_value (const GValue* src_value,
@@ -963,13 +841,11 @@ valadoc_value_markup_writer_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_value_markup_writer_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_value_markup_writer_collect_value (GValue* value,
@@ -992,7 +868,6 @@ valadoc_value_markup_writer_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_value_markup_writer_lcopy_value (const GValue* value,
                                          guint n_collect_values,
@@ -1014,7 +889,6 @@ valadoc_value_markup_writer_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_param_spec_markup_writer (const gchar* name,
                                   const gchar* nick,
@@ -1029,14 +903,12 @@ valadoc_param_spec_markup_writer (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_value_get_markup_writer (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_TYPE_MARKUP_WRITER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_value_set_markup_writer (GValue* value,
@@ -1058,7 +930,6 @@ valadoc_value_set_markup_writer (GValue* value,
 	}
 }
 
-
 void
 valadoc_value_take_markup_writer (GValue* value,
                                   gpointer v_object)
@@ -1078,9 +949,9 @@ valadoc_value_take_markup_writer (GValue* value,
 	}
 }
 
-
 static void
-valadoc_markup_writer_class_init (ValadocMarkupWriterClass * klass)
+valadoc_markup_writer_class_init (ValadocMarkupWriterClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_markup_writer_parent_class = g_type_class_peek_parent (klass);
 	((ValadocMarkupWriterClass *) klass)->finalize = valadoc_markup_writer_finalize;
@@ -1089,16 +960,15 @@ valadoc_markup_writer_class_init (ValadocMarkupWriterClass * klass)
 	((ValadocMarkupWriterClass *) klass)->content_inline_element = (gboolean (*) (ValadocMarkupWriter*, const gchar*)) valadoc_markup_writer_real_content_inline_element;
 }
 
-
 static void
-valadoc_markup_writer_instance_init (ValadocMarkupWriter * self)
+valadoc_markup_writer_instance_init (ValadocMarkupWriter * self,
+                                     gpointer klass)
 {
 	self->priv = valadoc_markup_writer_get_instance_private (self);
 	self->current_column = (glong) 0;
 	self->priv->wrap = TRUE;
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_markup_writer_finalize (ValadocMarkupWriter * obj)
@@ -1112,26 +982,32 @@ valadoc_markup_writer_finalize (ValadocMarkupWriter * obj)
 	self->write_target_destroy_notify = NULL;
 }
 
-
 /**
  * Writes markups and text to a file.
  */
+static GType
+valadoc_markup_writer_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_value_markup_writer_init, valadoc_value_markup_writer_free_value, valadoc_value_markup_writer_copy_value, valadoc_value_markup_writer_peek_pointer, "p", valadoc_value_markup_writer_collect_value, "p", valadoc_value_markup_writer_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocMarkupWriterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_markup_writer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocMarkupWriter), 0, (GInstanceInitFunc) valadoc_markup_writer_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_markup_writer_type_id;
+	valadoc_markup_writer_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocMarkupWriter", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocMarkupWriter_private_offset = g_type_add_instance_private (valadoc_markup_writer_type_id, sizeof (ValadocMarkupWriterPrivate));
+	return valadoc_markup_writer_type_id;
+}
+
 GType
 valadoc_markup_writer_get_type (void)
 {
 	static volatile gsize valadoc_markup_writer_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_markup_writer_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_value_markup_writer_init, valadoc_value_markup_writer_free_value, valadoc_value_markup_writer_copy_value, valadoc_value_markup_writer_peek_pointer, "p", valadoc_value_markup_writer_collect_value, "p", valadoc_value_markup_writer_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocMarkupWriterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_markup_writer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocMarkupWriter), 0, (GInstanceInitFunc) valadoc_markup_writer_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_markup_writer_type_id;
-		valadoc_markup_writer_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocMarkupWriter", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocMarkupWriter_private_offset = g_type_add_instance_private (valadoc_markup_writer_type_id, sizeof (ValadocMarkupWriterPrivate));
+		valadoc_markup_writer_type_id = valadoc_markup_writer_get_type_once ();
 		g_once_init_leave (&valadoc_markup_writer_type_id__volatile, valadoc_markup_writer_type_id);
 	}
 	return valadoc_markup_writer_type_id__volatile;
 }
-
 
 gpointer
 valadoc_markup_writer_ref (gpointer instance)
@@ -1141,7 +1017,6 @@ valadoc_markup_writer_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_markup_writer_unref (gpointer instance)
@@ -1153,6 +1028,4 @@ valadoc_markup_writer_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

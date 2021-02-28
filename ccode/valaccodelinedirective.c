@@ -23,12 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 
@@ -37,14 +35,13 @@ struct _ValaCCodeLineDirectivePrivate {
 	gint _line_number;
 };
 
-
 static gint ValaCCodeLineDirective_private_offset;
 static gpointer vala_ccode_line_directive_parent_class = NULL;
 
 static void vala_ccode_line_directive_real_write (ValaCCodeNode* base,
                                            ValaCCodeWriter* writer);
 static void vala_ccode_line_directive_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_line_directive_get_type_once (void);
 
 static inline gpointer
 vala_ccode_line_directive_get_instance_private (ValaCCodeLineDirective* self)
@@ -52,6 +49,44 @@ vala_ccode_line_directive_get_instance_private (ValaCCodeLineDirective* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeLineDirective_private_offset);
 }
 
+const gchar*
+vala_ccode_line_directive_get_filename (ValaCCodeLineDirective* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_filename;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_line_directive_set_filename (ValaCCodeLineDirective* self,
+                                        const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_filename);
+	self->priv->_filename = _tmp0_;
+}
+
+gint
+vala_ccode_line_directive_get_line_number (ValaCCodeLineDirective* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_line_number;
+	return result;
+}
+
+void
+vala_ccode_line_directive_set_line_number (ValaCCodeLineDirective* self,
+                                           gint value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_line_number = value;
+}
 
 ValaCCodeLineDirective*
 vala_ccode_line_directive_construct (GType object_type,
@@ -66,14 +101,12 @@ vala_ccode_line_directive_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeLineDirective*
 vala_ccode_line_directive_new (const gchar* _filename,
                                gint _line)
 {
 	return vala_ccode_line_directive_construct (VALA_TYPE_CCODE_LINE_DIRECTIVE, _filename, _line);
 }
-
 
 static void
 vala_ccode_line_directive_real_write (ValaCCodeNode* base,
@@ -102,54 +135,9 @@ vala_ccode_line_directive_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_newline (writer);
 }
 
-
-const gchar*
-vala_ccode_line_directive_get_filename (ValaCCodeLineDirective* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_filename;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_line_directive_set_filename (ValaCCodeLineDirective* self,
-                                        const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_filename);
-	self->priv->_filename = _tmp0_;
-}
-
-
-gint
-vala_ccode_line_directive_get_line_number (ValaCCodeLineDirective* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_line_number;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_line_directive_set_line_number (ValaCCodeLineDirective* self,
-                                           gint value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_line_number = value;
-}
-
-
 static void
-vala_ccode_line_directive_class_init (ValaCCodeLineDirectiveClass * klass)
+vala_ccode_line_directive_class_init (ValaCCodeLineDirectiveClass * klass,
+                                      gpointer klass_data)
 {
 	vala_ccode_line_directive_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_line_directive_finalize;
@@ -157,13 +145,12 @@ vala_ccode_line_directive_class_init (ValaCCodeLineDirectiveClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_line_directive_real_write;
 }
 
-
 static void
-vala_ccode_line_directive_instance_init (ValaCCodeLineDirective * self)
+vala_ccode_line_directive_instance_init (ValaCCodeLineDirective * self,
+                                         gpointer klass)
 {
 	self->priv = vala_ccode_line_directive_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_line_directive_finalize (ValaCCodeNode * obj)
@@ -174,23 +161,28 @@ vala_ccode_line_directive_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_line_directive_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a line directive in the C code.
  */
+static GType
+vala_ccode_line_directive_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeLineDirectiveClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_line_directive_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeLineDirective), 0, (GInstanceInitFunc) vala_ccode_line_directive_instance_init, NULL };
+	GType vala_ccode_line_directive_type_id;
+	vala_ccode_line_directive_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeLineDirective", &g_define_type_info, 0);
+	ValaCCodeLineDirective_private_offset = g_type_add_instance_private (vala_ccode_line_directive_type_id, sizeof (ValaCCodeLineDirectivePrivate));
+	return vala_ccode_line_directive_type_id;
+}
+
 GType
 vala_ccode_line_directive_get_type (void)
 {
 	static volatile gsize vala_ccode_line_directive_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_line_directive_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeLineDirectiveClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_line_directive_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeLineDirective), 0, (GInstanceInitFunc) vala_ccode_line_directive_instance_init, NULL };
 		GType vala_ccode_line_directive_type_id;
-		vala_ccode_line_directive_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeLineDirective", &g_define_type_info, 0);
-		ValaCCodeLineDirective_private_offset = g_type_add_instance_private (vala_ccode_line_directive_type_id, sizeof (ValaCCodeLineDirectivePrivate));
+		vala_ccode_line_directive_type_id = vala_ccode_line_directive_get_type_once ();
 		g_once_init_leave (&vala_ccode_line_directive_type_id__volatile, vala_ccode_line_directive_type_id);
 	}
 	return vala_ccode_line_directive_type_id__volatile;
 }
-
-
 

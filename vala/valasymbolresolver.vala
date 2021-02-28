@@ -28,7 +28,6 @@ using GLib;
  * Code visitor resolving symbol names.
  */
 public class Vala.SymbolResolver : CodeVisitor {
-	CodeContext context;
 	Symbol root_symbol;
 	Scope current_scope;
 
@@ -38,13 +37,11 @@ public class Vala.SymbolResolver : CodeVisitor {
 	 * @param context a code context
 	 */
 	public void resolve (CodeContext context) {
-		this.context = context;
 		root_symbol = context.root;
 
 		context.root.accept (this);
 
 		root_symbol = null;
-		this.context = null;
 	}
 
 	public override void visit_namespace (Namespace ns) {
@@ -57,19 +54,23 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_class (Class cl) {
+		if (cl.checked) {
+			return;
+		}
+
 		current_scope = cl.scope;
 
 		cl.accept_children (this);
 
 		cl.base_class = null;
 		foreach (DataType type in cl.get_base_types ()) {
-			if (type.data_type is Class) {
+			if (type.type_symbol is Class) {
 				if (cl.base_class != null) {
 					cl.error = true;
-					Report.error (type.source_reference, "%s: Classes cannot have multiple base classes (`%s' and `%s')".printf (cl.get_full_name (), cl.base_class.get_full_name (), type.data_type.get_full_name ()));
+					Report.error (type.source_reference, "%s: Classes cannot have multiple base classes (`%s' and `%s')".printf (cl.get_full_name (), cl.base_class.get_full_name (), type.type_symbol.get_full_name ()));
 					return;
 				}
-				cl.base_class = (Class) type.data_type;
+				cl.base_class = (Class) type.type_symbol;
 				if (cl.base_class.is_subtype_of (cl)) {
 					cl.error = true;
 					Report.error (type.source_reference, "Base class cycle (`%s' and `%s')".printf (cl.get_full_name (), cl.base_class.get_full_name ()));
@@ -82,6 +83,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_struct (Struct st) {
+		if (st.checked) {
+			return;
+		}
+
 		current_scope = st.scope;
 
 		st.accept_children (this);
@@ -101,14 +106,18 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_interface (Interface iface) {
+		if (iface.checked) {
+			return;
+		}
+
 		current_scope = iface.scope;
 
 		iface.accept_children (this);
 
 		foreach (DataType type in iface.get_prerequisites ()) {
-			if (type.data_type != null && type.data_type.is_subtype_of (iface)) {
+			if (type.type_symbol != null && type.type_symbol.is_subtype_of (iface)) {
 				iface.error = true;
-				Report.error (type.source_reference, "Prerequisite cycle (`%s' and `%s')".printf (iface.get_full_name (), type.data_type.get_full_name ()));
+				Report.error (type.source_reference, "Prerequisite cycle (`%s' and `%s')".printf (iface.get_full_name (), type.type_symbol.get_full_name ()));
 				return;
 			}
 		}
@@ -117,6 +126,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_enum (Enum en) {
+		if (en.checked) {
+			return;
+		}
+
 		current_scope = en.scope;
 
 		en.accept_children (this);
@@ -125,6 +138,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_error_domain (ErrorDomain ed) {
+		if (ed.checked) {
+			return;
+		}
+
 		current_scope = ed.scope;
 
 		ed.accept_children (this);
@@ -133,6 +150,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_delegate (Delegate cb) {
+		if (cb.checked) {
+			return;
+		}
+
 		current_scope = cb.scope;
 
 		cb.accept_children (this);
@@ -141,6 +162,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_constant (Constant c) {
+		if (c.checked) {
+			return;
+		}
+
 		var old_scope = current_scope;
 		if (!(c.parent_symbol is Block)) {
 			// non-local constant
@@ -153,6 +178,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_field (Field f) {
+		if (f.checked) {
+			return;
+		}
+
 		current_scope = f.scope;
 
 		f.accept_children (this);
@@ -161,6 +190,10 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_method (Method m) {
+		if (m.checked) {
+			return;
+		}
+
 		current_scope = m.scope;
 
 		m.accept_children (this);
@@ -169,34 +202,58 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_creation_method (CreationMethod m) {
+		if (m.checked) {
+			return;
+		}
 		m.accept_children (this);
 	}
 
 	public override void visit_formal_parameter (Parameter p) {
+		if (p.checked) {
+			return;
+		}
 		p.accept_children (this);
 	}
 
 	public override void visit_property (Property prop) {
+		if (prop.checked) {
+			return;
+		}
 		prop.accept_children (this);
 	}
 
 	public override void visit_property_accessor (PropertyAccessor acc) {
+		if (acc.checked) {
+			return;
+		}
 		acc.accept_children (this);
 	}
 
 	public override void visit_signal (Signal sig) {
+		if (sig.checked) {
+			return;
+		}
 		sig.accept_children (this);
 	}
 
 	public override void visit_constructor (Constructor c) {
+		if (c.checked) {
+			return;
+		}
 		c.accept_children (this);
 	}
 
 	public override void visit_destructor (Destructor d) {
+		if (d.checked) {
+			return;
+		}
 		d.accept_children (this);
 	}
 
 	public override void visit_block (Block b) {
+		if (b.checked) {
+			return;
+		}
 		b.accept_children (this);
 	}
 
@@ -345,7 +402,7 @@ public class Vala.SymbolResolver : CodeVisitor {
 			if (sym is Delegate) {
 				type = new DelegateType ((Delegate) sym);
 			} else if (sym is Class) {
-				var cl = (Class) sym;
+				unowned Class cl = (Class) sym;
 				if (cl.is_error_base) {
 					type = new ErrorType (null, null, unresolved_type.source_reference);
 				} else {
@@ -403,82 +460,121 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_declaration_statement (DeclarationStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_local_variable (LocalVariable local) {
-		local.accept_children (this);
-		if (!context.experimental_non_null) {
-			// local reference variables are considered nullable
-			// except when using experimental non-null enhancements
-			if (local.variable_type is ReferenceType) {
-				var array_type = local.variable_type as ArrayType;
-				if (array_type != null && array_type.fixed_length) {
-					// local fixed length arrays are not nullable
-				} else {
-					local.variable_type.nullable = true;
-				}
-			}
+		if (local.checked) {
+			return;
 		}
+		local.accept_children (this);
 	}
 
 	public override void visit_initializer_list (InitializerList list) {
+		if (list.checked) {
+			return;
+		}
 		list.accept_children (this);
 	}
 
 	public override void visit_expression_statement (ExpressionStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_if_statement (IfStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_switch_statement (SwitchStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_switch_section (SwitchSection section) {
+		if (section.checked) {
+			return;
+		}
 		section.accept_children (this);
 	}
 
 	public override void visit_switch_label (SwitchLabel label) {
+		if (label.checked) {
+			return;
+		}
 		label.accept_children (this);
 	}
 
 	public override void visit_loop (Loop stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_while_statement (WhileStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_do_statement (DoStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_for_statement (ForStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_foreach_statement (ForeachStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_return_statement (ReturnStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_yield_statement (YieldStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_throw_statement (ThrowStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
 	public override void visit_try_statement (TryStatement stmt) {
+		if (stmt.checked) {
+			return;
+		}
 		stmt.accept_children (this);
 	}
 
@@ -487,58 +583,100 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_catch_clause (CatchClause clause) {
+		if (clause.checked) {
+			return;
+		}
 		clause.accept_children (this);
 	}
 
 	public override void visit_array_creation_expression (ArrayCreationExpression e) {
+		if (e.checked) {
+			return;
+		}
 		e.accept_children (this);
 	}
 
 	public override void visit_template (Template tmpl) {
+		if (tmpl.checked) {
+			return;
+		}
 		tmpl.accept_children (this);
 	}
 
 	public override void visit_tuple (Tuple tuple) {
+		if (tuple.checked) {
+			return;
+		}
 		tuple.accept_children (this);
 	}
 
 	public override void visit_member_access (MemberAccess expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_method_call (MethodCall expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_element_access (ElementAccess expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_slice_expression (SliceExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_postfix_expression (PostfixExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_object_creation_expression (ObjectCreationExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_sizeof_expression (SizeofExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_typeof_expression (TypeofExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_unary_expression (UnaryExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_cast_expression (CastExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
@@ -547,30 +685,51 @@ public class Vala.SymbolResolver : CodeVisitor {
 	}
 
 	public override void visit_addressof_expression (AddressofExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_reference_transfer_expression (ReferenceTransferExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_binary_expression (BinaryExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_type_check (TypeCheck expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_conditional_expression (ConditionalExpression expr) {
+		if (expr.checked) {
+			return;
+		}
 		expr.accept_children (this);
 	}
 
 	public override void visit_lambda_expression (LambdaExpression l) {
+		if (l.checked) {
+			return;
+		}
 		l.accept_children (this);
 	}
 
 	public override void visit_assignment (Assignment a) {
+		if (a.checked) {
+			return;
+		}
 		a.accept_children (this);
 	}
 }

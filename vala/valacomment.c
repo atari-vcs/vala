@@ -23,12 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
@@ -44,19 +42,17 @@ struct _ValaParamSpecComment {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaComment_private_offset;
 static gpointer vala_comment_parent_class = NULL;
 
 static void vala_comment_finalize (ValaComment * obj);
-
+static GType vala_comment_get_type_once (void);
 
 static inline gpointer
 vala_comment_get_instance_private (ValaComment* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaComment_private_offset);
 }
-
 
 ValaComment*
 vala_comment_construct (GType object_type,
@@ -72,14 +68,12 @@ vala_comment_construct (GType object_type,
 	return self;
 }
 
-
 ValaComment*
 vala_comment_new (const gchar* comment,
                   ValaSourceReference* _source_reference)
 {
 	return vala_comment_construct (VALA_TYPE_COMMENT, comment, _source_reference);
 }
-
 
 const gchar*
 vala_comment_get_content (ValaComment* self)
@@ -92,7 +86,6 @@ vala_comment_get_content (ValaComment* self)
 	return result;
 }
 
-
 void
 vala_comment_set_content (ValaComment* self,
                           const gchar* value)
@@ -103,7 +96,6 @@ vala_comment_set_content (ValaComment* self,
 	_g_free0 (self->priv->_content);
 	self->priv->_content = _tmp0_;
 }
-
 
 ValaSourceReference*
 vala_comment_get_source_reference (ValaComment* self)
@@ -116,13 +108,11 @@ vala_comment_get_source_reference (ValaComment* self)
 	return result;
 }
 
-
 static gpointer
 _vala_source_reference_ref0 (gpointer self)
 {
 	return self ? vala_source_reference_ref (self) : NULL;
 }
-
 
 void
 vala_comment_set_source_reference (ValaComment* self,
@@ -135,13 +125,11 @@ vala_comment_set_source_reference (ValaComment* self,
 	self->priv->_source_reference = _tmp0_;
 }
 
-
 static void
 vala_value_comment_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_comment_free_value (GValue* value)
@@ -150,7 +138,6 @@ vala_value_comment_free_value (GValue* value)
 		vala_comment_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_comment_copy_value (const GValue* src_value,
@@ -163,13 +150,11 @@ vala_value_comment_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_comment_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_comment_collect_value (GValue* value,
@@ -192,7 +177,6 @@ vala_value_comment_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_comment_lcopy_value (const GValue* value,
                                 guint n_collect_values,
@@ -214,7 +198,6 @@ vala_value_comment_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_comment (const gchar* name,
                          const gchar* nick,
@@ -229,14 +212,12 @@ vala_param_spec_comment (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_comment (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_COMMENT), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_comment (GValue* value,
@@ -258,7 +239,6 @@ vala_value_set_comment (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_comment (GValue* value,
                          gpointer v_object)
@@ -278,23 +258,22 @@ vala_value_take_comment (GValue* value,
 	}
 }
 
-
 static void
-vala_comment_class_init (ValaCommentClass * klass)
+vala_comment_class_init (ValaCommentClass * klass,
+                         gpointer klass_data)
 {
 	vala_comment_parent_class = g_type_class_peek_parent (klass);
 	((ValaCommentClass *) klass)->finalize = vala_comment_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaComment_private_offset);
 }
 
-
 static void
-vala_comment_instance_init (ValaComment * self)
+vala_comment_instance_init (ValaComment * self,
+                            gpointer klass)
 {
 	self->priv = vala_comment_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_comment_finalize (ValaComment * obj)
@@ -306,26 +285,32 @@ vala_comment_finalize (ValaComment * obj)
 	_vala_source_reference_unref0 (self->priv->_source_reference);
 }
 
-
 /**
  * A documentation comment used by valadoc
  */
+static GType
+vala_comment_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_comment_init, vala_value_comment_free_value, vala_value_comment_copy_value, vala_value_comment_peek_pointer, "p", vala_value_comment_collect_value, "p", vala_value_comment_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaComment), 0, (GInstanceInitFunc) vala_comment_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_comment_type_id;
+	vala_comment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaComment_private_offset = g_type_add_instance_private (vala_comment_type_id, sizeof (ValaCommentPrivate));
+	return vala_comment_type_id;
+}
+
 GType
 vala_comment_get_type (void)
 {
 	static volatile gsize vala_comment_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_comment_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_comment_init, vala_value_comment_free_value, vala_value_comment_copy_value, vala_value_comment_peek_pointer, "p", vala_value_comment_collect_value, "p", vala_value_comment_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaComment), 0, (GInstanceInitFunc) vala_comment_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_comment_type_id;
-		vala_comment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaComment_private_offset = g_type_add_instance_private (vala_comment_type_id, sizeof (ValaCommentPrivate));
+		vala_comment_type_id = vala_comment_get_type_once ();
 		g_once_init_leave (&vala_comment_type_id__volatile, vala_comment_type_id);
 	}
 	return vala_comment_type_id__volatile;
 }
-
 
 gpointer
 vala_comment_ref (gpointer instance)
@@ -335,7 +320,6 @@ vala_comment_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_comment_unref (gpointer instance)
@@ -347,6 +331,4 @@ vala_comment_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

@@ -23,42 +23,40 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <valadoc.h>
+#include <glib-object.h>
 #include <valagee.h>
 #include <vala.h>
+#include <glib.h>
 
+#define VALADOC_TYPE_SYMBOL_RESOLVER (valadoc_symbol_resolver_get_type ())
+#define VALADOC_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolver))
+#define VALADOC_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolverClass))
+#define VALADOC_IS_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_SYMBOL_RESOLVER))
+#define VALADOC_IS_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_SYMBOL_RESOLVER))
+#define VALADOC_SYMBOL_RESOLVER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolverClass))
 
-#define VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER (valadoc_drivers_symbol_resolver_get_type ())
-#define VALADOC_DRIVERS_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER, ValadocDriversSymbolResolver))
-#define VALADOC_DRIVERS_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER, ValadocDriversSymbolResolverClass))
-#define VALADOC_DRIVERS_IS_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER))
-#define VALADOC_DRIVERS_IS_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER))
-#define VALADOC_DRIVERS_SYMBOL_RESOLVER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER, ValadocDriversSymbolResolverClass))
-
-typedef struct _ValadocDriversSymbolResolver ValadocDriversSymbolResolver;
-typedef struct _ValadocDriversSymbolResolverClass ValadocDriversSymbolResolverClass;
-typedef struct _ValadocDriversSymbolResolverPrivate ValadocDriversSymbolResolverPrivate;
+typedef struct _ValadocSymbolResolver ValadocSymbolResolver;
+typedef struct _ValadocSymbolResolverClass ValadocSymbolResolverClass;
+typedef struct _ValadocSymbolResolverPrivate ValadocSymbolResolverPrivate;
 enum  {
-	VALADOC_DRIVERS_SYMBOL_RESOLVER_0_PROPERTY,
-	VALADOC_DRIVERS_SYMBOL_RESOLVER_NUM_PROPERTIES
+	VALADOC_SYMBOL_RESOLVER_0_PROPERTY,
+	VALADOC_SYMBOL_RESOLVER_NUM_PROPERTIES
 };
-static GParamSpec* valadoc_drivers_symbol_resolver_properties[VALADOC_DRIVERS_SYMBOL_RESOLVER_NUM_PROPERTIES];
+static GParamSpec* valadoc_symbol_resolver_properties[VALADOC_SYMBOL_RESOLVER_NUM_PROPERTIES];
 #define _vala_map_unref0(var) ((var == NULL) ? NULL : (var = (vala_map_unref (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _valadoc_api_tree_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_tree_unref (var), NULL)))
 
-#define VALADOC_DRIVERS_TYPE_TREE_BUILDER (valadoc_drivers_tree_builder_get_type ())
-#define VALADOC_DRIVERS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilder))
-#define VALADOC_DRIVERS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilderClass))
-#define VALADOC_DRIVERS_IS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER))
-#define VALADOC_DRIVERS_IS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_DRIVERS_TYPE_TREE_BUILDER))
-#define VALADOC_DRIVERS_TREE_BUILDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilderClass))
+#define VALADOC_TYPE_TREE_BUILDER (valadoc_tree_builder_get_type ())
+#define VALADOC_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilder))
+#define VALADOC_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
+#define VALADOC_IS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_IS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_TREE_BUILDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
 
-typedef struct _ValadocDriversTreeBuilder ValadocDriversTreeBuilder;
-typedef struct _ValadocDriversTreeBuilderClass ValadocDriversTreeBuilderClass;
+typedef struct _ValadocTreeBuilder ValadocTreeBuilder;
+typedef struct _ValadocTreeBuilderClass ValadocTreeBuilderClass;
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _vala_iterator_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterator_unref (var), NULL)))
@@ -75,128 +73,127 @@ typedef struct _ValadocApiInitializerBuilderClass ValadocApiInitializerBuilderCl
 #define _vala_code_visitor_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_visitor_unref (var), NULL)))
 #define _valadoc_api_signature_builder_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_signature_builder_unref (var), NULL)))
 
-struct _ValadocDriversSymbolResolver {
+struct _ValadocSymbolResolver {
 	ValadocApiVisitor parent_instance;
-	ValadocDriversSymbolResolverPrivate * priv;
+	ValadocSymbolResolverPrivate * priv;
 };
 
-struct _ValadocDriversSymbolResolverClass {
+struct _ValadocSymbolResolverClass {
 	ValadocApiVisitorClass parent_class;
 };
 
-struct _ValadocDriversSymbolResolverPrivate {
+struct _ValadocSymbolResolverPrivate {
 	ValaHashMap* symbol_map;
 	ValadocApiClass* glib_error;
 	ValadocApiTree* root;
 };
 
+static gint ValadocSymbolResolver_private_offset;
+static gpointer valadoc_symbol_resolver_parent_class = NULL;
 
-static gint ValadocDriversSymbolResolver_private_offset;
-static gpointer valadoc_drivers_symbol_resolver_parent_class = NULL;
-
-GType valadoc_drivers_symbol_resolver_get_type (void) G_GNUC_CONST;
-GType valadoc_drivers_tree_builder_get_type (void) G_GNUC_CONST;
-ValadocDriversSymbolResolver* valadoc_drivers_symbol_resolver_new (ValadocDriversTreeBuilder* builder);
-ValadocDriversSymbolResolver* valadoc_drivers_symbol_resolver_construct (GType object_type,
-                                                                         ValadocDriversTreeBuilder* builder);
-ValaHashMap* valadoc_drivers_tree_builder_get_symbol_map (ValadocDriversTreeBuilder* self);
-ValadocApiClass* valadoc_drivers_tree_builder_get_glib_error (ValadocDriversTreeBuilder* self);
-ValadocApiSymbol* valadoc_drivers_symbol_resolver_resolve (ValadocDriversSymbolResolver* self,
-                                                           ValaSymbol* symbol);
-static void valadoc_drivers_symbol_resolver_resolve_thrown_list (ValadocDriversSymbolResolver* self,
-                                                          ValadocApiSymbol* symbol,
-                                                          ValaList* types);
-static void valadoc_drivers_symbol_resolver_resolve_array_type_references (ValadocDriversSymbolResolver* self,
-                                                                    ValadocApiArray* ptr);
-static void valadoc_drivers_symbol_resolver_resolve_pointer_type_references (ValadocDriversSymbolResolver* self,
-                                                                      ValadocApiPointer* ptr);
-static void valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolResolver* self,
-                                                             ValadocApiTypeReference* reference);
-static void valadoc_drivers_symbol_resolver_real_visit_tree (ValadocApiVisitor* base,
-                                                      ValadocApiTree* item);
-static void valadoc_drivers_symbol_resolver_real_visit_package (ValadocApiVisitor* base,
-                                                         ValadocApiPackage* item);
-static void valadoc_drivers_symbol_resolver_real_visit_namespace (ValadocApiVisitor* base,
-                                                           ValadocApiNamespace* item);
-static void valadoc_drivers_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
-                                                           ValadocApiInterface* item);
-static void valadoc_drivers_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
-                                                       ValadocApiClass* item);
-static void valadoc_drivers_symbol_resolver_real_visit_struct (ValadocApiVisitor* base,
-                                                        ValadocApiStruct* item);
-static void valadoc_drivers_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
-                                                          ValadocApiProperty* item);
-static void valadoc_drivers_symbol_resolver_real_visit_field (ValadocApiVisitor* base,
-                                                       ValadocApiField* item);
-static void valadoc_drivers_symbol_resolver_real_visit_constant (ValadocApiVisitor* base,
-                                                          ValadocApiConstant* item);
-static void valadoc_drivers_symbol_resolver_real_visit_delegate (ValadocApiVisitor* base,
-                                                          ValadocApiDelegate* item);
-static void valadoc_drivers_symbol_resolver_real_visit_signal (ValadocApiVisitor* base,
-                                                        ValadocApiSignal* item);
-static void valadoc_drivers_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
-                                                        ValadocApiMethod* item);
-static void valadoc_drivers_symbol_resolver_real_visit_type_parameter (ValadocApiVisitor* base,
-                                                                ValadocApiTypeParameter* item);
-static void valadoc_drivers_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* base,
-                                                                  ValadocApiFormalParameter* item);
+GType valadoc_symbol_resolver_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocSymbolResolver, g_object_unref)
+GType valadoc_tree_builder_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocTreeBuilder, vala_code_visitor_unref)
+ValadocSymbolResolver* valadoc_symbol_resolver_new (ValadocTreeBuilder* builder);
+ValadocSymbolResolver* valadoc_symbol_resolver_construct (GType object_type,
+                                                          ValadocTreeBuilder* builder);
+ValaHashMap* valadoc_tree_builder_get_symbol_map (ValadocTreeBuilder* self);
+ValadocApiClass* valadoc_tree_builder_get_glib_error (ValadocTreeBuilder* self);
+ValadocApiSymbol* valadoc_symbol_resolver_resolve (ValadocSymbolResolver* self,
+                                                   ValaSymbol* symbol);
+static void valadoc_symbol_resolver_resolve_thrown_list (ValadocSymbolResolver* self,
+                                                  ValadocApiSymbol* symbol,
+                                                  ValaSymbol* vala_symbol);
+static void valadoc_symbol_resolver_resolve_array_type_references (ValadocSymbolResolver* self,
+                                                            ValadocApiArray* ptr);
+static void valadoc_symbol_resolver_resolve_pointer_type_references (ValadocSymbolResolver* self,
+                                                              ValadocApiPointer* ptr);
+static void valadoc_symbol_resolver_resolve_type_reference (ValadocSymbolResolver* self,
+                                                     ValadocApiTypeReference* reference);
+static void valadoc_symbol_resolver_real_visit_tree (ValadocApiVisitor* base,
+                                              ValadocApiTree* item);
+static void valadoc_symbol_resolver_real_visit_package (ValadocApiVisitor* base,
+                                                 ValadocApiPackage* item);
+static void valadoc_symbol_resolver_real_visit_namespace (ValadocApiVisitor* base,
+                                                   ValadocApiNamespace* item);
+static void valadoc_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
+                                                   ValadocApiInterface* item);
+static void valadoc_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
+                                               ValadocApiClass* item);
+static void valadoc_symbol_resolver_real_visit_struct (ValadocApiVisitor* base,
+                                                ValadocApiStruct* item);
+static void valadoc_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
+                                                  ValadocApiProperty* item);
+static void valadoc_symbol_resolver_real_visit_field (ValadocApiVisitor* base,
+                                               ValadocApiField* item);
+static void valadoc_symbol_resolver_real_visit_constant (ValadocApiVisitor* base,
+                                                  ValadocApiConstant* item);
+static void valadoc_symbol_resolver_real_visit_delegate (ValadocApiVisitor* base,
+                                                  ValadocApiDelegate* item);
+static void valadoc_symbol_resolver_real_visit_signal (ValadocApiVisitor* base,
+                                                ValadocApiSignal* item);
+static void valadoc_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
+                                                ValadocApiMethod* item);
+static void valadoc_symbol_resolver_real_visit_type_parameter (ValadocApiVisitor* base,
+                                                        ValadocApiTypeParameter* item);
+static void valadoc_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* base,
+                                                          ValadocApiParameter* item);
 G_GNUC_INTERNAL GType valadoc_api_initializer_builder_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocApiInitializerBuilder, vala_code_visitor_unref)
 G_GNUC_INTERNAL ValadocApiInitializerBuilder* valadoc_api_initializer_builder_new (ValadocApiSignatureBuilder* signature,
                                                                    ValaHashMap* symbol_map);
 G_GNUC_INTERNAL ValadocApiInitializerBuilder* valadoc_api_initializer_builder_construct (GType object_type,
                                                                          ValadocApiSignatureBuilder* signature,
                                                                          ValaHashMap* symbol_map);
-static void valadoc_drivers_symbol_resolver_real_visit_error_domain (ValadocApiVisitor* base,
-                                                              ValadocApiErrorDomain* item);
-static void valadoc_drivers_symbol_resolver_real_visit_error_code (ValadocApiVisitor* base,
-                                                            ValadocApiErrorCode* item);
-static void valadoc_drivers_symbol_resolver_real_visit_enum (ValadocApiVisitor* base,
-                                                      ValadocApiEnum* item);
-static void valadoc_drivers_symbol_resolver_real_visit_enum_value (ValadocApiVisitor* base,
-                                                            ValadocApiEnumValue* item);
-static void valadoc_drivers_symbol_resolver_finalize (GObject * obj);
-
+static void valadoc_symbol_resolver_real_visit_error_domain (ValadocApiVisitor* base,
+                                                      ValadocApiErrorDomain* item);
+static void valadoc_symbol_resolver_real_visit_error_code (ValadocApiVisitor* base,
+                                                    ValadocApiErrorCode* item);
+static void valadoc_symbol_resolver_real_visit_enum (ValadocApiVisitor* base,
+                                              ValadocApiEnum* item);
+static void valadoc_symbol_resolver_real_visit_enum_value (ValadocApiVisitor* base,
+                                                    ValadocApiEnumValue* item);
+static void valadoc_symbol_resolver_finalize (GObject * obj);
+static GType valadoc_symbol_resolver_get_type_once (void);
 
 static inline gpointer
-valadoc_drivers_symbol_resolver_get_instance_private (ValadocDriversSymbolResolver* self)
+valadoc_symbol_resolver_get_instance_private (ValadocSymbolResolver* self)
 {
-	return G_STRUCT_MEMBER_P (self, ValadocDriversSymbolResolver_private_offset);
+	return G_STRUCT_MEMBER_P (self, ValadocSymbolResolver_private_offset);
 }
 
-
-ValadocDriversSymbolResolver*
-valadoc_drivers_symbol_resolver_construct (GType object_type,
-                                           ValadocDriversTreeBuilder* builder)
+ValadocSymbolResolver*
+valadoc_symbol_resolver_construct (GType object_type,
+                                   ValadocTreeBuilder* builder)
 {
-	ValadocDriversSymbolResolver * self = NULL;
+	ValadocSymbolResolver * self = NULL;
 	ValaHashMap* _tmp0_;
 	ValadocApiClass* _tmp1_;
 	g_return_val_if_fail (builder != NULL, NULL);
-	self = (ValadocDriversSymbolResolver*) valadoc_api_visitor_construct (object_type);
-	_tmp0_ = valadoc_drivers_tree_builder_get_symbol_map (builder);
+	self = (ValadocSymbolResolver*) valadoc_api_visitor_construct (object_type);
+	_tmp0_ = valadoc_tree_builder_get_symbol_map (builder);
 	_vala_map_unref0 (self->priv->symbol_map);
 	self->priv->symbol_map = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_glib_error (builder);
+	_tmp1_ = valadoc_tree_builder_get_glib_error (builder);
 	_g_object_unref0 (self->priv->glib_error);
 	self->priv->glib_error = _tmp1_;
 	return self;
 }
 
-
-ValadocDriversSymbolResolver*
-valadoc_drivers_symbol_resolver_new (ValadocDriversTreeBuilder* builder)
+ValadocSymbolResolver*
+valadoc_symbol_resolver_new (ValadocTreeBuilder* builder)
 {
-	return valadoc_drivers_symbol_resolver_construct (VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER, builder);
+	return valadoc_symbol_resolver_construct (VALADOC_TYPE_SYMBOL_RESOLVER, builder);
 }
 
-
 ValadocApiSymbol*
-valadoc_drivers_symbol_resolver_resolve (ValadocDriversSymbolResolver* self,
-                                         ValaSymbol* symbol)
+valadoc_symbol_resolver_resolve (ValadocSymbolResolver* self,
+                                 ValaSymbol* symbol)
 {
-	ValadocApiSymbol* result = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
+	ValadocApiSymbol* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = self->priv->symbol_map;
@@ -205,99 +202,94 @@ valadoc_drivers_symbol_resolver_resolve (ValadocDriversSymbolResolver* self,
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
 static void
-valadoc_drivers_symbol_resolver_resolve_thrown_list (ValadocDriversSymbolResolver* self,
-                                                     ValadocApiSymbol* symbol,
-                                                     ValaList* types)
+valadoc_symbol_resolver_resolve_thrown_list (ValadocSymbolResolver* self,
+                                             ValadocApiSymbol* symbol,
+                                             ValaSymbol* vala_symbol)
 {
+	ValaArrayList* error_types = NULL;
+	GEqualFunc _tmp0_;
+	ValaArrayList* _tmp1_;
+	ValaArrayList* _tmp2_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (symbol != NULL);
-	g_return_if_fail (types != NULL);
+	g_return_if_fail (vala_symbol != NULL);
+	_tmp0_ = g_direct_equal;
+	_tmp1_ = vala_array_list_new (VALA_TYPE_DATA_TYPE, (GBoxedCopyFunc) vala_code_node_ref, (GDestroyNotify) vala_code_node_unref, _tmp0_);
+	error_types = _tmp1_;
+	_tmp2_ = error_types;
+	vala_code_node_get_error_types ((ValaCodeNode*) vala_symbol, (ValaCollection*) _tmp2_, NULL);
 	{
-		ValaList* _type_list = NULL;
-		ValaList* _tmp0_;
+		ValaArrayList* _type_list = NULL;
+		ValaArrayList* _tmp3_;
+		ValaArrayList* _tmp4_;
 		gint _type_size = 0;
-		ValaList* _tmp1_;
-		gint _tmp2_;
-		gint _tmp3_;
+		ValaArrayList* _tmp5_;
+		gint _tmp6_;
+		gint _tmp7_;
 		gint _type_index = 0;
-		_tmp0_ = _vala_iterable_ref0 (types);
-		_type_list = _tmp0_;
-		_tmp1_ = _type_list;
-		_tmp2_ = vala_collection_get_size ((ValaCollection*) _tmp1_);
-		_tmp3_ = _tmp2_;
-		_type_size = _tmp3_;
+		_tmp3_ = error_types;
+		_tmp4_ = _vala_iterable_ref0 (_tmp3_);
+		_type_list = _tmp4_;
+		_tmp5_ = _type_list;
+		_tmp6_ = vala_collection_get_size ((ValaCollection*) _tmp5_);
+		_tmp7_ = _tmp6_;
+		_type_size = _tmp7_;
 		_type_index = -1;
 		while (TRUE) {
-			gint _tmp4_;
-			gint _tmp5_;
-			gint _tmp6_;
-			ValaDataType* type = NULL;
-			ValaList* _tmp7_;
 			gint _tmp8_;
-			gpointer _tmp9_;
+			gint _tmp9_;
+			ValaDataType* type = NULL;
+			ValaArrayList* _tmp10_;
+			gpointer _tmp11_;
 			ValaErrorDomain* vala_edom = NULL;
-			ValaDataType* _tmp10_;
-			ValaTypeSymbol* _tmp11_;
-			ValaTypeSymbol* _tmp12_;
+			ValaDataType* _tmp12_;
 			ValaErrorDomain* _tmp13_;
+			ValaErrorDomain* _tmp14_;
 			ValadocApiSymbol* edom = NULL;
-			ValaHashMap* _tmp14_;
-			ValaErrorDomain* _tmp15_;
-			gpointer _tmp16_;
-			ValadocApiSymbol* _tmp17_ = NULL;
-			ValadocApiSymbol* _tmp18_;
-			_tmp4_ = _type_index;
-			_type_index = _tmp4_ + 1;
-			_tmp5_ = _type_index;
-			_tmp6_ = _type_size;
-			if (!(_tmp5_ < _tmp6_)) {
+			ValaHashMap* _tmp15_;
+			ValaErrorDomain* _tmp16_;
+			gpointer _tmp17_;
+			ValadocApiSymbol* _tmp18_ = NULL;
+			ValadocApiSymbol* _tmp19_;
+			_type_index = _type_index + 1;
+			_tmp8_ = _type_index;
+			_tmp9_ = _type_size;
+			if (!(_tmp8_ < _tmp9_)) {
 				break;
 			}
-			_tmp7_ = _type_list;
-			_tmp8_ = _type_index;
-			_tmp9_ = vala_list_get (_tmp7_, _tmp8_);
-			type = (ValaDataType*) _tmp9_;
-			_tmp10_ = type;
-			_tmp11_ = vala_data_type_get_data_type (_tmp10_);
-			_tmp12_ = _tmp11_;
-			_tmp13_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp12_, VALA_TYPE_ERROR_DOMAIN, ValaErrorDomain));
-			vala_edom = _tmp13_;
-			_tmp14_ = self->priv->symbol_map;
-			_tmp15_ = vala_edom;
-			_tmp16_ = vala_map_get ((ValaMap*) _tmp14_, (ValaSymbol*) _tmp15_);
-			edom = (ValadocApiSymbol*) _tmp16_;
-			_tmp18_ = edom;
-			_tmp17_ = _tmp18_;
-			if (_tmp17_ == NULL) {
-				ValadocApiClass* _tmp19_;
-				_tmp19_ = self->priv->glib_error;
-				_tmp17_ = (ValadocApiSymbol*) _tmp19_;
+			_tmp10_ = _type_list;
+			_tmp11_ = vala_list_get ((ValaList*) _tmp10_, _type_index);
+			type = (ValaDataType*) _tmp11_;
+			_tmp12_ = type;
+			_tmp13_ = vala_error_type_get_error_domain (G_TYPE_CHECK_INSTANCE_CAST (_tmp12_, VALA_TYPE_ERROR_TYPE, ValaErrorType));
+			_tmp14_ = _tmp13_;
+			vala_edom = _tmp14_;
+			_tmp15_ = self->priv->symbol_map;
+			_tmp16_ = vala_edom;
+			_tmp17_ = vala_map_get ((ValaMap*) _tmp15_, (ValaSymbol*) _tmp16_);
+			edom = (ValadocApiSymbol*) _tmp17_;
+			_tmp19_ = edom;
+			_tmp18_ = _tmp19_;
+			if (_tmp18_ == NULL) {
+				ValadocApiClass* _tmp20_;
+				_tmp20_ = self->priv->glib_error;
+				_tmp18_ = (ValadocApiSymbol*) _tmp20_;
 			}
-			valadoc_api_node_add_child ((ValadocApiNode*) symbol, _tmp17_);
+			valadoc_api_node_add_child ((ValadocApiNode*) symbol, _tmp18_);
 			_g_object_unref0 (edom);
-			_vala_code_node_unref0 (vala_edom);
 			_vala_code_node_unref0 (type);
 		}
 		_vala_iterable_unref0 (_type_list);
 	}
+	_vala_iterable_unref0 (error_types);
 }
-
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -305,10 +297,9 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_resolve_array_type_references (ValadocDriversSymbolResolver* self,
-                                                               ValadocApiArray* ptr)
+valadoc_symbol_resolver_resolve_array_type_references (ValadocSymbolResolver* self,
+                                                       ValadocApiArray* ptr)
 {
 	ValadocApiItem* data_type = NULL;
 	ValadocApiItem* _tmp0_;
@@ -329,28 +320,27 @@ valadoc_drivers_symbol_resolver_resolve_array_type_references (ValadocDriversSym
 		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp4_, VALADOC_API_TYPE_ARRAY)) {
 			ValadocApiItem* _tmp5_;
 			_tmp5_ = data_type;
-			valadoc_drivers_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
+			valadoc_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
 		} else {
 			ValadocApiItem* _tmp6_;
 			_tmp6_ = data_type;
 			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp6_, VALADOC_API_TYPE_POINTER)) {
 				ValadocApiItem* _tmp7_;
 				_tmp7_ = data_type;
-				valadoc_drivers_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
+				valadoc_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
 			} else {
 				ValadocApiItem* _tmp8_;
 				_tmp8_ = data_type;
-				valadoc_drivers_symbol_resolver_resolve_type_reference (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_TYPEREFERENCE, ValadocApiTypeReference));
+				valadoc_symbol_resolver_resolve_type_reference (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_TYPEREFERENCE, ValadocApiTypeReference));
 			}
 		}
 	}
 	_g_object_unref0 (data_type);
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_resolve_pointer_type_references (ValadocDriversSymbolResolver* self,
-                                                                 ValadocApiPointer* ptr)
+valadoc_symbol_resolver_resolve_pointer_type_references (ValadocSymbolResolver* self,
+                                                         ValadocApiPointer* ptr)
 {
 	ValadocApiItem* type = NULL;
 	ValadocApiItem* _tmp0_;
@@ -371,28 +361,33 @@ valadoc_drivers_symbol_resolver_resolve_pointer_type_references (ValadocDriversS
 		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp4_, VALADOC_API_TYPE_ARRAY)) {
 			ValadocApiItem* _tmp5_;
 			_tmp5_ = type;
-			valadoc_drivers_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
+			valadoc_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
 		} else {
 			ValadocApiItem* _tmp6_;
 			_tmp6_ = type;
 			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp6_, VALADOC_API_TYPE_POINTER)) {
 				ValadocApiItem* _tmp7_;
 				_tmp7_ = type;
-				valadoc_drivers_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
+				valadoc_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
 			} else {
 				ValadocApiItem* _tmp8_;
 				_tmp8_ = type;
-				valadoc_drivers_symbol_resolver_resolve_type_reference (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_TYPEREFERENCE, ValadocApiTypeReference));
+				valadoc_symbol_resolver_resolve_type_reference (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_TYPEREFERENCE, ValadocApiTypeReference));
 			}
 		}
 	}
 	_g_object_unref0 (type);
 }
 
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
 
 static void
-valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolResolver* self,
-                                                        ValadocApiTypeReference* reference)
+valadoc_symbol_resolver_resolve_type_reference (ValadocSymbolResolver* self,
+                                                ValadocApiTypeReference* reference)
 {
 	ValaDataType* vtyperef = NULL;
 	ValaCodeNode* _tmp0_;
@@ -426,7 +421,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 			ValadocApiSymbol* _tmp10_;
 			ValadocApiSymbol* _tmp11_;
 			_tmp9_ = verrdom;
-			_tmp10_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp9_);
+			_tmp10_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp9_);
 			_tmp11_ = _tmp10_;
 			valadoc_api_typereference_set_data_type (reference, (ValadocApiItem*) _tmp11_);
 			_g_object_unref0 (_tmp11_);
@@ -448,7 +443,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 			_tmp14_ = vtyperef;
 			_tmp15_ = vala_delegate_type_get_delegate_symbol (G_TYPE_CHECK_INSTANCE_CAST (_tmp14_, VALA_TYPE_DELEGATE_TYPE, ValaDelegateType));
 			_tmp16_ = _tmp15_;
-			_tmp17_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp16_);
+			_tmp17_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp16_);
 			_tmp18_ = _tmp17_;
 			valadoc_api_typereference_set_data_type (reference, (ValadocApiItem*) _tmp18_);
 			_g_object_unref0 (_tmp18_);
@@ -464,7 +459,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 				_tmp20_ = vtyperef;
 				_tmp21_ = vala_generic_type_get_type_parameter (G_TYPE_CHECK_INSTANCE_CAST (_tmp20_, VALA_TYPE_GENERIC_TYPE, ValaGenericType));
 				_tmp22_ = _tmp21_;
-				_tmp23_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp22_);
+				_tmp23_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp22_);
 				_tmp24_ = _tmp23_;
 				valadoc_api_typereference_set_data_type (reference, (ValadocApiItem*) _tmp24_);
 				_g_object_unref0 (_tmp24_);
@@ -473,7 +468,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 				ValaTypeSymbol* _tmp26_;
 				ValaTypeSymbol* _tmp27_;
 				_tmp25_ = vtyperef;
-				_tmp26_ = vala_data_type_get_data_type (_tmp25_);
+				_tmp26_ = vala_data_type_get_type_symbol (_tmp25_);
 				_tmp27_ = _tmp26_;
 				if (_tmp27_ != NULL) {
 					ValaDataType* _tmp28_;
@@ -482,9 +477,9 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 					ValadocApiSymbol* _tmp31_;
 					ValadocApiSymbol* _tmp32_;
 					_tmp28_ = vtyperef;
-					_tmp29_ = vala_data_type_get_data_type (_tmp28_);
+					_tmp29_ = vala_data_type_get_type_symbol (_tmp28_);
 					_tmp30_ = _tmp29_;
-					_tmp31_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp30_);
+					_tmp31_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp30_);
 					_tmp32_ = _tmp31_;
 					valadoc_api_typereference_set_data_type (reference, (ValadocApiItem*) _tmp32_);
 					_g_object_unref0 (_tmp32_);
@@ -518,7 +513,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 			_tmp39_ = vala_iterator_get (_tmp38_);
 			type_param_ref = (ValadocApiTypeReference*) _tmp39_;
 			_tmp40_ = type_param_ref;
-			valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp40_);
+			valadoc_symbol_resolver_resolve_type_reference (self, _tmp40_);
 			_g_object_unref0 (type_param_ref);
 		}
 		_vala_iterator_unref0 (_type_param_ref_it);
@@ -530,7 +525,7 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 		ValadocApiItem* _tmp44_;
 		_tmp43_ = valadoc_api_typereference_get_data_type (reference);
 		_tmp44_ = _tmp43_;
-		valadoc_drivers_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp44_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
+		valadoc_symbol_resolver_resolve_pointer_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp44_, VALADOC_API_TYPE_POINTER, ValadocApiPointer));
 	} else {
 		ValadocApiItem* _tmp45_;
 		ValadocApiItem* _tmp46_;
@@ -541,12 +536,11 @@ valadoc_drivers_symbol_resolver_resolve_type_reference (ValadocDriversSymbolReso
 			ValadocApiItem* _tmp48_;
 			_tmp47_ = valadoc_api_typereference_get_data_type (reference);
 			_tmp48_ = _tmp47_;
-			valadoc_drivers_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp48_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
+			valadoc_symbol_resolver_resolve_array_type_references (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp48_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
 		}
 	}
 	_vala_code_node_unref0 (vtyperef);
 }
-
 
 /**
  * {@inheritDoc}
@@ -557,14 +551,13 @@ _valadoc_api_tree_ref0 (gpointer self)
 	return self ? valadoc_api_tree_ref (self) : NULL;
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_real_visit_tree (ValadocApiVisitor* base,
-                                                 ValadocApiTree* item)
+valadoc_symbol_resolver_real_visit_tree (ValadocApiVisitor* base,
+                                         ValadocApiTree* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValadocApiTree* _tmp0_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = _valadoc_api_tree_ref0 (item);
 	_valadoc_api_tree_unref0 (self->priv->root);
@@ -574,48 +567,45 @@ valadoc_drivers_symbol_resolver_real_visit_tree (ValadocApiVisitor* base,
 	self->priv->root = NULL;
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_package (ValadocApiVisitor* base,
-                                                    ValadocApiPackage* item)
+valadoc_symbol_resolver_real_visit_package (ValadocApiVisitor* base,
+                                            ValadocApiPackage* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_namespace (ValadocApiVisitor* base,
-                                                      ValadocApiNamespace* item)
+valadoc_symbol_resolver_real_visit_namespace (ValadocApiVisitor* base,
+                                              ValadocApiNamespace* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
-                                                      ValadocApiInterface* item)
+valadoc_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
+                                              ValadocApiInterface* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaCollection* interfaces = NULL;
 	ValaCollection* _tmp0_;
 	ValadocApiTypeReference* _tmp7_;
 	ValadocApiTypeReference* _tmp8_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_interface_get_implemented_interface_list (item);
 	interfaces = _tmp0_;
@@ -640,7 +630,7 @@ valadoc_drivers_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
 			_tmp5_ = vala_iterator_get (_tmp4_);
 			type_ref = (ValadocApiTypeReference*) _tmp5_;
 			_tmp6_ = type_ref;
-			valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp6_);
+			valadoc_symbol_resolver_resolve_type_reference (self, _tmp6_);
 			_g_object_unref0 (type_ref);
 		}
 		_vala_iterator_unref0 (_type_ref_it);
@@ -652,26 +642,25 @@ valadoc_drivers_symbol_resolver_real_visit_interface (ValadocApiVisitor* base,
 		ValadocApiTypeReference* _tmp10_;
 		_tmp9_ = valadoc_api_interface_get_base_type (item);
 		_tmp10_ = _tmp9_;
-		valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp10_);
+		valadoc_symbol_resolver_resolve_type_reference (self, _tmp10_);
 	}
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 	_vala_iterable_unref0 (interfaces);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
-                                                  ValadocApiClass* item)
+valadoc_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
+                                          ValadocApiClass* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaCollection* interfaces = NULL;
 	ValaCollection* _tmp0_;
 	ValadocApiTypeReference* _tmp7_;
 	ValadocApiTypeReference* _tmp8_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_class_get_implemented_interface_list (item);
 	interfaces = _tmp0_;
@@ -696,7 +685,7 @@ valadoc_drivers_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
 			_tmp5_ = vala_iterator_get (_tmp4_);
 			type_ref = (ValadocApiTypeReference*) _tmp5_;
 			_tmp6_ = type_ref;
-			valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp6_);
+			valadoc_symbol_resolver_resolve_type_reference (self, _tmp6_);
 			_g_object_unref0 (type_ref);
 		}
 		_vala_iterator_unref0 (_type_ref_it);
@@ -708,24 +697,23 @@ valadoc_drivers_symbol_resolver_real_visit_class (ValadocApiVisitor* base,
 		ValadocApiTypeReference* _tmp10_;
 		_tmp9_ = valadoc_api_class_get_base_type (item);
 		_tmp10_ = _tmp9_;
-		valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp10_);
+		valadoc_symbol_resolver_resolve_type_reference (self, _tmp10_);
 	}
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 	_vala_iterable_unref0 (interfaces);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_struct (ValadocApiVisitor* base,
-                                                   ValadocApiStruct* item)
+valadoc_symbol_resolver_real_visit_struct (ValadocApiVisitor* base,
+                                           ValadocApiStruct* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValadocApiTypeReference* _tmp0_;
 	ValadocApiTypeReference* _tmp1_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_struct_get_base_type (item);
 	_tmp1_ = _tmp0_;
@@ -734,20 +722,19 @@ valadoc_drivers_symbol_resolver_real_visit_struct (ValadocApiVisitor* base,
 		ValadocApiTypeReference* _tmp3_;
 		_tmp2_ = valadoc_api_struct_get_base_type (item);
 		_tmp3_ = _tmp2_;
-		valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp3_);
+		valadoc_symbol_resolver_resolve_type_reference (self, _tmp3_);
 	}
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
-                                                     ValadocApiProperty* item)
+valadoc_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
+                                             ValadocApiProperty* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaProperty* vala_property = NULL;
 	ValaCodeNode* _tmp0_;
 	ValaCodeNode* _tmp1_;
@@ -762,7 +749,7 @@ valadoc_drivers_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
 	ValaProperty* _tmp27_;
 	ValadocApiTypeReference* _tmp31_;
 	ValadocApiTypeReference* _tmp32_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) item);
 	_tmp1_ = _tmp0_;
@@ -834,75 +821,70 @@ valadoc_drivers_symbol_resolver_real_visit_property (ValadocApiVisitor* base,
 		ValadocApiSymbol* _tmp29_;
 		ValadocApiProperty* _tmp30_;
 		_tmp28_ = base_vala_property;
-		_tmp29_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp28_);
+		_tmp29_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp28_);
 		_tmp30_ = G_TYPE_CHECK_INSTANCE_CAST (_tmp29_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty);
 		valadoc_api_property_set_base_property (item, _tmp30_);
 		_g_object_unref0 (_tmp30_);
 	}
 	_tmp31_ = valadoc_api_property_get_property_type (item);
 	_tmp32_ = _tmp31_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp32_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp32_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 	_vala_code_node_unref0 (base_vala_property);
 	_vala_code_node_unref0 (vala_property);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_field (ValadocApiVisitor* base,
-                                                  ValadocApiField* item)
+valadoc_symbol_resolver_real_visit_field (ValadocApiVisitor* base,
+                                          ValadocApiField* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValadocApiTypeReference* _tmp0_;
 	ValadocApiTypeReference* _tmp1_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_field_get_field_type (item);
 	_tmp1_ = _tmp0_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp1_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp1_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_constant (ValadocApiVisitor* base,
-                                                     ValadocApiConstant* item)
+valadoc_symbol_resolver_real_visit_constant (ValadocApiVisitor* base,
+                                             ValadocApiConstant* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValadocApiTypeReference* _tmp0_;
 	ValadocApiTypeReference* _tmp1_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_constant_get_constant_type (item);
 	_tmp1_ = _tmp0_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp1_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp1_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_delegate (ValadocApiVisitor* base,
-                                                     ValadocApiDelegate* item)
+valadoc_symbol_resolver_real_visit_delegate (ValadocApiVisitor* base,
+                                             ValadocApiDelegate* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaDelegate* vala_delegate = NULL;
 	ValaCodeNode* _tmp0_;
 	ValaCodeNode* _tmp1_;
 	ValaDelegate* _tmp2_;
 	ValadocApiTypeReference* _tmp3_;
 	ValadocApiTypeReference* _tmp4_;
-	ValaList* _tmp5_;
-	ValaList* _tmp6_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) item);
 	_tmp1_ = _tmp0_;
@@ -910,43 +892,38 @@ valadoc_drivers_symbol_resolver_real_visit_delegate (ValadocApiVisitor* base,
 	vala_delegate = _tmp2_;
 	_tmp3_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) item);
 	_tmp4_ = _tmp3_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp4_);
-	_tmp5_ = vala_code_node_get_error_types ((ValaCodeNode*) vala_delegate);
-	_tmp6_ = _tmp5_;
-	valadoc_drivers_symbol_resolver_resolve_thrown_list (self, (ValadocApiSymbol*) item, _tmp6_);
-	_vala_iterable_unref0 (_tmp6_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp4_);
+	valadoc_symbol_resolver_resolve_thrown_list (self, (ValadocApiSymbol*) item, (ValaSymbol*) vala_delegate);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 	_vala_code_node_unref0 (vala_delegate);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_signal (ValadocApiVisitor* base,
-                                                   ValadocApiSignal* item)
+valadoc_symbol_resolver_real_visit_signal (ValadocApiVisitor* base,
+                                           ValadocApiSignal* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValadocApiTypeReference* _tmp0_;
 	ValadocApiTypeReference* _tmp1_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) item);
 	_tmp1_ = _tmp0_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp1_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp1_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
-                                                   ValadocApiMethod* item)
+valadoc_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
+                                           ValadocApiMethod* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaMethod* vala_method = NULL;
 	ValaCodeNode* _tmp0_;
 	ValaCodeNode* _tmp1_;
@@ -960,11 +937,9 @@ valadoc_drivers_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
 	ValaMethod* _tmp19_;
 	ValaMethod* _tmp27_;
 	ValaMethod* _tmp31_;
-	ValaList* _tmp32_;
-	ValaList* _tmp33_;
-	ValadocApiTypeReference* _tmp34_;
-	ValadocApiTypeReference* _tmp35_;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocApiTypeReference* _tmp32_;
+	ValadocApiTypeReference* _tmp33_;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) item);
 	_tmp1_ = _tmp0_;
@@ -1036,47 +1011,42 @@ valadoc_drivers_symbol_resolver_real_visit_method (ValadocApiVisitor* base,
 		ValadocApiSymbol* _tmp29_;
 		ValadocApiMethod* _tmp30_;
 		_tmp28_ = base_vala_method;
-		_tmp29_ = valadoc_drivers_symbol_resolver_resolve (self, (ValaSymbol*) _tmp28_);
+		_tmp29_ = valadoc_symbol_resolver_resolve (self, (ValaSymbol*) _tmp28_);
 		_tmp30_ = G_TYPE_CHECK_INSTANCE_CAST (_tmp29_, VALADOC_API_TYPE_METHOD, ValadocApiMethod);
 		valadoc_api_method_set_base_method (item, _tmp30_);
 		_g_object_unref0 (_tmp30_);
 	}
 	_tmp31_ = vala_method;
-	_tmp32_ = vala_code_node_get_error_types ((ValaCodeNode*) _tmp31_);
+	valadoc_symbol_resolver_resolve_thrown_list (self, (ValadocApiSymbol*) item, (ValaSymbol*) _tmp31_);
+	_tmp32_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) item);
 	_tmp33_ = _tmp32_;
-	valadoc_drivers_symbol_resolver_resolve_thrown_list (self, (ValadocApiSymbol*) item, _tmp33_);
-	_vala_iterable_unref0 (_tmp33_);
-	_tmp34_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) item);
-	_tmp35_ = _tmp34_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp35_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp33_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 	_vala_code_node_unref0 (base_vala_method);
 	_vala_code_node_unref0 (vala_method);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_type_parameter (ValadocApiVisitor* base,
-                                                           ValadocApiTypeParameter* item)
+valadoc_symbol_resolver_real_visit_type_parameter (ValadocApiVisitor* base,
+                                                   ValadocApiTypeParameter* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* base,
-                                                             ValadocApiFormalParameter* item)
+valadoc_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* base,
+                                                     ValadocApiParameter* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaCodeNode* _tmp2_;
@@ -1085,9 +1055,9 @@ valadoc_drivers_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* 
 	ValaExpression* _tmp5_;
 	ValadocApiTypeReference* _tmp18_;
 	ValadocApiTypeReference* _tmp19_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
-	_tmp0_ = valadoc_api_formal_parameter_get_ellipsis (item);
+	_tmp0_ = valadoc_api_parameter_get_ellipsis (item);
 	_tmp1_ = _tmp0_;
 	if (_tmp1_) {
 		return;
@@ -1126,73 +1096,69 @@ valadoc_drivers_symbol_resolver_real_visit_formal_parameter (ValadocApiVisitor* 
 		_tmp15_ = signature;
 		_tmp16_ = valadoc_api_signature_builder_get (_tmp15_);
 		_tmp17_ = _tmp16_;
-		valadoc_api_formal_parameter_set_default_value (item, _tmp17_);
+		valadoc_api_parameter_set_default_value (item, _tmp17_);
 		_g_object_unref0 (_tmp17_);
 		_vala_code_visitor_unref0 (ibuilder);
 		_valadoc_api_signature_builder_unref0 (signature);
 	}
-	_tmp18_ = valadoc_api_formal_parameter_get_parameter_type (item);
+	_tmp18_ = valadoc_api_parameter_get_parameter_type (item);
 	_tmp19_ = _tmp18_;
-	valadoc_drivers_symbol_resolver_resolve_type_reference (self, _tmp19_);
+	valadoc_symbol_resolver_resolve_type_reference (self, _tmp19_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_error_domain (ValadocApiVisitor* base,
-                                                         ValadocApiErrorDomain* item)
+valadoc_symbol_resolver_real_visit_error_domain (ValadocApiVisitor* base,
+                                                 ValadocApiErrorDomain* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_error_code (ValadocApiVisitor* base,
-                                                       ValadocApiErrorCode* item)
+valadoc_symbol_resolver_real_visit_error_code (ValadocApiVisitor* base,
+                                               ValadocApiErrorCode* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_enum (ValadocApiVisitor* base,
-                                                 ValadocApiEnum* item)
+valadoc_symbol_resolver_real_visit_enum (ValadocApiVisitor* base,
+                                         ValadocApiEnum* item)
 {
-	ValadocDriversSymbolResolver * self;
-	self = (ValadocDriversSymbolResolver*) base;
+	ValadocSymbolResolver * self;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_symbol_resolver_real_visit_enum_value (ValadocApiVisitor* base,
-                                                       ValadocApiEnumValue* item)
+valadoc_symbol_resolver_real_visit_enum_value (ValadocApiVisitor* base,
+                                               ValadocApiEnumValue* item)
 {
-	ValadocDriversSymbolResolver * self;
+	ValadocSymbolResolver * self;
 	ValaCodeNode* _tmp0_;
 	ValaCodeNode* _tmp1_;
 	ValaExpression* _tmp2_;
 	ValaExpression* _tmp3_;
-	self = (ValadocDriversSymbolResolver*) base;
+	self = (ValadocSymbolResolver*) base;
 	g_return_if_fail (item != NULL);
 	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) item);
 	_tmp1_ = _tmp0_;
@@ -1236,66 +1202,70 @@ valadoc_drivers_symbol_resolver_real_visit_enum_value (ValadocApiVisitor* base,
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) item, (ValadocApiVisitor*) self, FALSE);
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_class_init (ValadocDriversSymbolResolverClass * klass)
+valadoc_symbol_resolver_class_init (ValadocSymbolResolverClass * klass,
+                                    gpointer klass_data)
 {
-	valadoc_drivers_symbol_resolver_parent_class = g_type_class_peek_parent (klass);
-	g_type_class_adjust_private_offset (klass, &ValadocDriversSymbolResolver_private_offset);
-	((ValadocApiVisitorClass *) klass)->visit_tree = (void (*) (ValadocApiVisitor*, ValadocApiTree*)) valadoc_drivers_symbol_resolver_real_visit_tree;
-	((ValadocApiVisitorClass *) klass)->visit_package = (void (*) (ValadocApiVisitor*, ValadocApiPackage*)) valadoc_drivers_symbol_resolver_real_visit_package;
-	((ValadocApiVisitorClass *) klass)->visit_namespace = (void (*) (ValadocApiVisitor*, ValadocApiNamespace*)) valadoc_drivers_symbol_resolver_real_visit_namespace;
-	((ValadocApiVisitorClass *) klass)->visit_interface = (void (*) (ValadocApiVisitor*, ValadocApiInterface*)) valadoc_drivers_symbol_resolver_real_visit_interface;
-	((ValadocApiVisitorClass *) klass)->visit_class = (void (*) (ValadocApiVisitor*, ValadocApiClass*)) valadoc_drivers_symbol_resolver_real_visit_class;
-	((ValadocApiVisitorClass *) klass)->visit_struct = (void (*) (ValadocApiVisitor*, ValadocApiStruct*)) valadoc_drivers_symbol_resolver_real_visit_struct;
-	((ValadocApiVisitorClass *) klass)->visit_property = (void (*) (ValadocApiVisitor*, ValadocApiProperty*)) valadoc_drivers_symbol_resolver_real_visit_property;
-	((ValadocApiVisitorClass *) klass)->visit_field = (void (*) (ValadocApiVisitor*, ValadocApiField*)) valadoc_drivers_symbol_resolver_real_visit_field;
-	((ValadocApiVisitorClass *) klass)->visit_constant = (void (*) (ValadocApiVisitor*, ValadocApiConstant*)) valadoc_drivers_symbol_resolver_real_visit_constant;
-	((ValadocApiVisitorClass *) klass)->visit_delegate = (void (*) (ValadocApiVisitor*, ValadocApiDelegate*)) valadoc_drivers_symbol_resolver_real_visit_delegate;
-	((ValadocApiVisitorClass *) klass)->visit_signal = (void (*) (ValadocApiVisitor*, ValadocApiSignal*)) valadoc_drivers_symbol_resolver_real_visit_signal;
-	((ValadocApiVisitorClass *) klass)->visit_method = (void (*) (ValadocApiVisitor*, ValadocApiMethod*)) valadoc_drivers_symbol_resolver_real_visit_method;
-	((ValadocApiVisitorClass *) klass)->visit_type_parameter = (void (*) (ValadocApiVisitor*, ValadocApiTypeParameter*)) valadoc_drivers_symbol_resolver_real_visit_type_parameter;
-	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiFormalParameter*)) valadoc_drivers_symbol_resolver_real_visit_formal_parameter;
-	((ValadocApiVisitorClass *) klass)->visit_error_domain = (void (*) (ValadocApiVisitor*, ValadocApiErrorDomain*)) valadoc_drivers_symbol_resolver_real_visit_error_domain;
-	((ValadocApiVisitorClass *) klass)->visit_error_code = (void (*) (ValadocApiVisitor*, ValadocApiErrorCode*)) valadoc_drivers_symbol_resolver_real_visit_error_code;
-	((ValadocApiVisitorClass *) klass)->visit_enum = (void (*) (ValadocApiVisitor*, ValadocApiEnum*)) valadoc_drivers_symbol_resolver_real_visit_enum;
-	((ValadocApiVisitorClass *) klass)->visit_enum_value = (void (*) (ValadocApiVisitor*, ValadocApiEnumValue*)) valadoc_drivers_symbol_resolver_real_visit_enum_value;
-	G_OBJECT_CLASS (klass)->finalize = valadoc_drivers_symbol_resolver_finalize;
+	valadoc_symbol_resolver_parent_class = g_type_class_peek_parent (klass);
+	g_type_class_adjust_private_offset (klass, &ValadocSymbolResolver_private_offset);
+	((ValadocApiVisitorClass *) klass)->visit_tree = (void (*) (ValadocApiVisitor*, ValadocApiTree*)) valadoc_symbol_resolver_real_visit_tree;
+	((ValadocApiVisitorClass *) klass)->visit_package = (void (*) (ValadocApiVisitor*, ValadocApiPackage*)) valadoc_symbol_resolver_real_visit_package;
+	((ValadocApiVisitorClass *) klass)->visit_namespace = (void (*) (ValadocApiVisitor*, ValadocApiNamespace*)) valadoc_symbol_resolver_real_visit_namespace;
+	((ValadocApiVisitorClass *) klass)->visit_interface = (void (*) (ValadocApiVisitor*, ValadocApiInterface*)) valadoc_symbol_resolver_real_visit_interface;
+	((ValadocApiVisitorClass *) klass)->visit_class = (void (*) (ValadocApiVisitor*, ValadocApiClass*)) valadoc_symbol_resolver_real_visit_class;
+	((ValadocApiVisitorClass *) klass)->visit_struct = (void (*) (ValadocApiVisitor*, ValadocApiStruct*)) valadoc_symbol_resolver_real_visit_struct;
+	((ValadocApiVisitorClass *) klass)->visit_property = (void (*) (ValadocApiVisitor*, ValadocApiProperty*)) valadoc_symbol_resolver_real_visit_property;
+	((ValadocApiVisitorClass *) klass)->visit_field = (void (*) (ValadocApiVisitor*, ValadocApiField*)) valadoc_symbol_resolver_real_visit_field;
+	((ValadocApiVisitorClass *) klass)->visit_constant = (void (*) (ValadocApiVisitor*, ValadocApiConstant*)) valadoc_symbol_resolver_real_visit_constant;
+	((ValadocApiVisitorClass *) klass)->visit_delegate = (void (*) (ValadocApiVisitor*, ValadocApiDelegate*)) valadoc_symbol_resolver_real_visit_delegate;
+	((ValadocApiVisitorClass *) klass)->visit_signal = (void (*) (ValadocApiVisitor*, ValadocApiSignal*)) valadoc_symbol_resolver_real_visit_signal;
+	((ValadocApiVisitorClass *) klass)->visit_method = (void (*) (ValadocApiVisitor*, ValadocApiMethod*)) valadoc_symbol_resolver_real_visit_method;
+	((ValadocApiVisitorClass *) klass)->visit_type_parameter = (void (*) (ValadocApiVisitor*, ValadocApiTypeParameter*)) valadoc_symbol_resolver_real_visit_type_parameter;
+	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiParameter*)) valadoc_symbol_resolver_real_visit_formal_parameter;
+	((ValadocApiVisitorClass *) klass)->visit_error_domain = (void (*) (ValadocApiVisitor*, ValadocApiErrorDomain*)) valadoc_symbol_resolver_real_visit_error_domain;
+	((ValadocApiVisitorClass *) klass)->visit_error_code = (void (*) (ValadocApiVisitor*, ValadocApiErrorCode*)) valadoc_symbol_resolver_real_visit_error_code;
+	((ValadocApiVisitorClass *) klass)->visit_enum = (void (*) (ValadocApiVisitor*, ValadocApiEnum*)) valadoc_symbol_resolver_real_visit_enum;
+	((ValadocApiVisitorClass *) klass)->visit_enum_value = (void (*) (ValadocApiVisitor*, ValadocApiEnumValue*)) valadoc_symbol_resolver_real_visit_enum_value;
+	G_OBJECT_CLASS (klass)->finalize = valadoc_symbol_resolver_finalize;
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_instance_init (ValadocDriversSymbolResolver * self)
+valadoc_symbol_resolver_instance_init (ValadocSymbolResolver * self,
+                                       gpointer klass)
 {
-	self->priv = valadoc_drivers_symbol_resolver_get_instance_private (self);
+	self->priv = valadoc_symbol_resolver_get_instance_private (self);
 }
 
-
 static void
-valadoc_drivers_symbol_resolver_finalize (GObject * obj)
+valadoc_symbol_resolver_finalize (GObject * obj)
 {
-	ValadocDriversSymbolResolver * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_DRIVERS_TYPE_SYMBOL_RESOLVER, ValadocDriversSymbolResolver);
+	ValadocSymbolResolver * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolver);
 	_vala_map_unref0 (self->priv->symbol_map);
 	_g_object_unref0 (self->priv->glib_error);
 	_valadoc_api_tree_unref0 (self->priv->root);
-	G_OBJECT_CLASS (valadoc_drivers_symbol_resolver_parent_class)->finalize (obj);
+	G_OBJECT_CLASS (valadoc_symbol_resolver_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_symbol_resolver_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocSymbolResolverClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_symbol_resolver_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSymbolResolver), 0, (GInstanceInitFunc) valadoc_symbol_resolver_instance_init, NULL };
+	GType valadoc_symbol_resolver_type_id;
+	valadoc_symbol_resolver_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocSymbolResolver", &g_define_type_info, 0);
+	ValadocSymbolResolver_private_offset = g_type_add_instance_private (valadoc_symbol_resolver_type_id, sizeof (ValadocSymbolResolverPrivate));
+	return valadoc_symbol_resolver_type_id;
+}
 
 GType
-valadoc_drivers_symbol_resolver_get_type (void)
+valadoc_symbol_resolver_get_type (void)
 {
-	static volatile gsize valadoc_drivers_symbol_resolver_type_id__volatile = 0;
-	if (g_once_init_enter (&valadoc_drivers_symbol_resolver_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocDriversSymbolResolverClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_drivers_symbol_resolver_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocDriversSymbolResolver), 0, (GInstanceInitFunc) valadoc_drivers_symbol_resolver_instance_init, NULL };
-		GType valadoc_drivers_symbol_resolver_type_id;
-		valadoc_drivers_symbol_resolver_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocDriversSymbolResolver", &g_define_type_info, 0);
-		ValadocDriversSymbolResolver_private_offset = g_type_add_instance_private (valadoc_drivers_symbol_resolver_type_id, sizeof (ValadocDriversSymbolResolverPrivate));
-		g_once_init_leave (&valadoc_drivers_symbol_resolver_type_id__volatile, valadoc_drivers_symbol_resolver_type_id);
+	static volatile gsize valadoc_symbol_resolver_type_id__volatile = 0;
+	if (g_once_init_enter (&valadoc_symbol_resolver_type_id__volatile)) {
+		GType valadoc_symbol_resolver_type_id;
+		valadoc_symbol_resolver_type_id = valadoc_symbol_resolver_get_type_once ();
+		g_once_init_leave (&valadoc_symbol_resolver_type_id__volatile, valadoc_symbol_resolver_type_id);
 	}
-	return valadoc_drivers_symbol_resolver_type_id__volatile;
+	return valadoc_symbol_resolver_type_id__volatile;
 }
-
-
 

@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_HTML_LINK_HELPER_0_PROPERTY,
@@ -39,7 +38,6 @@ static GParamSpec* valadoc_html_link_helper_properties[VALADOC_HTML_LINK_HELPER_
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_regex_unref0(var) ((var == NULL) ? NULL : (var = (g_regex_unref (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _vala_assert(expr, msg) if G_LIKELY (expr) ; else g_assertion_message_expr (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 #define _vala_return_if_fail(expr, msg) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return; }
 #define _vala_return_val_if_fail(expr, msg, val) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return val; }
@@ -48,7 +46,6 @@ static GParamSpec* valadoc_html_link_helper_properties[VALADOC_HTML_LINK_HELPER_
 struct _ValadocHtmlLinkHelperPrivate {
 	gboolean _enable_browsable_check;
 };
-
 
 static gint ValadocHtmlLinkHelper_private_offset;
 static gpointer valadoc_html_link_helper_parent_class = NULL;
@@ -84,6 +81,7 @@ static gchar* valadoc_html_link_helper_real_from_node_to_node (ValadocHtmlLinkHe
                                                         ValadocApiNode* from,
                                                         ValadocApiNode* to);
 static void valadoc_html_link_helper_finalize (GObject * obj);
+static GType valadoc_html_link_helper_get_type_once (void);
 static void _vala_valadoc_html_link_helper_get_property (GObject * object,
                                                   guint property_id,
                                                   GValue * value,
@@ -93,25 +91,45 @@ static void _vala_valadoc_html_link_helper_set_property (GObject * object,
                                                   const GValue * value,
                                                   GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_html_link_helper_get_instance_private (ValadocHtmlLinkHelper* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocHtmlLinkHelper_private_offset);
 }
 
+gboolean
+valadoc_html_link_helper_get_enable_browsable_check (ValadocHtmlLinkHelper* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_enable_browsable_check;
+	return result;
+}
+
+void
+valadoc_html_link_helper_set_enable_browsable_check (ValadocHtmlLinkHelper* self,
+                                                     gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_html_link_helper_get_enable_browsable_check (self);
+	if (old_value != value) {
+		self->priv->_enable_browsable_check = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_html_link_helper_properties[VALADOC_HTML_LINK_HELPER_ENABLE_BROWSABLE_CHECK_PROPERTY]);
+	}
+}
 
 static gchar*
 valadoc_html_link_helper_real_get_package_link (ValadocHtmlLinkHelper* self,
                                                 ValadocApiPackage* package,
                                                 ValadocSettings* settings)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
 	gchar* _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (package != NULL, NULL);
 	g_return_val_if_fail (settings != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -131,7 +149,6 @@ valadoc_html_link_helper_real_get_package_link (ValadocHtmlLinkHelper* self,
 	return result;
 }
 
-
 gchar*
 valadoc_html_link_helper_get_package_link (ValadocHtmlLinkHelper* self,
                                            ValadocApiPackage* package,
@@ -141,13 +158,11 @@ valadoc_html_link_helper_get_package_link (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->get_package_link (self, package, settings);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 gchar*
 valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
@@ -155,8 +170,8 @@ valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
                                             ValadocDocumentation* to,
                                             ValadocSettings* settings)
 {
-	gchar* result = NULL;
 	ValadocSettings* _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
@@ -164,20 +179,20 @@ valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
 	_tmp0_ = _g_object_ref0 (settings);
 	_g_object_unref0 (self->_settings);
 	self->_settings = _tmp0_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (from, VALADOC_API_TYPE_PACKAGE)) {
-		if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_PACKAGE)) {
+	if (VALADOC_API_IS_PACKAGE (from)) {
+		if (VALADOC_API_IS_PACKAGE (to)) {
 			gchar* _tmp1_;
 			_tmp1_ = valadoc_html_link_helper_from_package_to_package (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage));
 			result = _tmp1_;
 			return result;
 		} else {
-			if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_NODE)) {
+			if (VALADOC_API_IS_NODE (to)) {
 				gchar* _tmp2_;
 				_tmp2_ = valadoc_html_link_helper_from_package_to_node (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_NODE, ValadocApiNode));
 				result = _tmp2_;
 				return result;
 			} else {
-				if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_TYPE_WIKI_PAGE)) {
+				if (VALADOC_IS_WIKI_PAGE (to)) {
 					gchar* _tmp3_;
 					_tmp3_ = valadoc_html_link_helper_from_package_to_wiki (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage));
 					result = _tmp3_;
@@ -188,20 +203,20 @@ valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
 			}
 		}
 	} else {
-		if (G_TYPE_CHECK_INSTANCE_TYPE (from, VALADOC_API_TYPE_NODE)) {
-			if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_PACKAGE)) {
+		if (VALADOC_API_IS_NODE (from)) {
+			if (VALADOC_API_IS_PACKAGE (to)) {
 				gchar* _tmp4_;
 				_tmp4_ = valadoc_html_link_helper_from_node_to_package (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_NODE, ValadocApiNode), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage));
 				result = _tmp4_;
 				return result;
 			} else {
-				if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_NODE)) {
+				if (VALADOC_API_IS_NODE (to)) {
 					gchar* _tmp5_;
 					_tmp5_ = valadoc_html_link_helper_from_node_to_node (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_NODE, ValadocApiNode), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_NODE, ValadocApiNode));
 					result = _tmp5_;
 					return result;
 				} else {
-					if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_TYPE_WIKI_PAGE)) {
+					if (VALADOC_IS_WIKI_PAGE (to)) {
 						gchar* _tmp6_;
 						_tmp6_ = valadoc_html_link_helper_from_node_to_wiki (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_API_TYPE_NODE, ValadocApiNode), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage));
 						result = _tmp6_;
@@ -212,20 +227,20 @@ valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
 				}
 			}
 		} else {
-			if (G_TYPE_CHECK_INSTANCE_TYPE (from, VALADOC_TYPE_WIKI_PAGE)) {
-				if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_PACKAGE)) {
+			if (VALADOC_IS_WIKI_PAGE (from)) {
+				if (VALADOC_API_IS_PACKAGE (to)) {
 					gchar* _tmp7_;
 					_tmp7_ = valadoc_html_link_helper_from_wiki_to_package (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage));
 					result = _tmp7_;
 					return result;
 				} else {
-					if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_API_TYPE_NODE)) {
+					if (VALADOC_API_IS_NODE (to)) {
 						gchar* _tmp8_;
 						_tmp8_ = valadoc_html_link_helper_from_wiki_to_node (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_API_TYPE_NODE, ValadocApiNode));
 						result = _tmp8_;
 						return result;
 					} else {
-						if (G_TYPE_CHECK_INSTANCE_TYPE (to, VALADOC_TYPE_WIKI_PAGE)) {
+						if (VALADOC_IS_WIKI_PAGE (to)) {
 							gchar* _tmp9_;
 							_tmp9_ = valadoc_html_link_helper_from_wiki_to_wiki (self, G_TYPE_CHECK_INSTANCE_CAST (from, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage), G_TYPE_CHECK_INSTANCE_CAST (to, VALADOC_TYPE_WIKI_PAGE, ValadocWikiPage));
 							result = _tmp9_;
@@ -244,15 +259,14 @@ valadoc_html_link_helper_get_relative_link (ValadocHtmlLinkHelper* self,
 	return result;
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -267,17 +281,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -294,37 +306,29 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gint
 string_last_index_of_char (const gchar* self,
                            gunichar c,
                            gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -340,16 +344,15 @@ string_last_index_of_char (const gchar* self,
 	}
 }
 
-
 static gchar*
 string_replace (const gchar* self,
                 const gchar* old,
                 const gchar* replacement)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (old != NULL, NULL);
 	g_return_val_if_fail (replacement != NULL, NULL);
@@ -381,29 +384,31 @@ string_replace (const gchar* self,
 		gchar* _tmp10_;
 		_tmp3_ = g_regex_escape_string (old, -1);
 		_tmp4_ = _tmp3_;
-		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error_);
+		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error0_);
 		_tmp6_ = _tmp5_;
 		_g_free0 (_tmp4_);
 		regex = _tmp6_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch22_g_regex_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (_tmp7_);
+			_g_regex_unref0 (regex);
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp8_ = regex;
-		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error_);
+		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error0_);
 		_tmp7_ = _tmp9_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (_tmp7_);
 			_g_regex_unref0 (regex);
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch22_g_regex_error;
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			_g_regex_unref0 (regex);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp10_ = _tmp7_;
@@ -413,29 +418,22 @@ string_replace (const gchar* self,
 		_g_regex_unref0 (regex);
 		return result;
 	}
-	goto __finally22;
-	__catch22_g_regex_error:
+	goto __finally0;
+	__catch0_g_regex_error:
 	{
-		GError* e = NULL;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		g_assert_not_reached ();
-		_g_error_free0 (e);
 	}
-	__finally22:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return NULL;
-	}
+	__finally0:
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
+	return NULL;
 }
-
 
 gchar*
 valadoc_html_link_helper_translate_wiki_name (ValadocHtmlLinkHelper* self,
                                               ValadocWikiPage* page)
 {
-	gchar* result = NULL;
 	gchar* name = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -446,6 +444,7 @@ valadoc_html_link_helper_translate_wiki_name (ValadocHtmlLinkHelper* self,
 	gchar* _tmp6_;
 	gchar* _tmp7_;
 	gchar* _tmp8_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (page != NULL, NULL);
 	_tmp0_ = valadoc_wiki_page_get_name (page);
@@ -465,15 +464,14 @@ valadoc_html_link_helper_translate_wiki_name (ValadocHtmlLinkHelper* self,
 	return result;
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_package_to_package (ValadocHtmlLinkHelper* self,
                                                        ValadocApiPackage* from,
                                                        ValadocApiPackage* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -505,7 +503,6 @@ valadoc_html_link_helper_real_from_package_to_package (ValadocHtmlLinkHelper* se
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_package_to_package (ValadocHtmlLinkHelper* self,
                                                   ValadocApiPackage* from,
@@ -515,15 +512,14 @@ valadoc_html_link_helper_from_package_to_package (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_package_to_package (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_package_to_wiki (ValadocHtmlLinkHelper* self,
                                                     ValadocApiPackage* from,
                                                     ValadocWikiPage* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp0_ = valadoc_api_package_get_is_package (from);
@@ -552,7 +548,6 @@ valadoc_html_link_helper_real_from_package_to_wiki (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_package_to_wiki (ValadocHtmlLinkHelper* self,
                                                ValadocApiPackage* from,
@@ -562,17 +557,16 @@ valadoc_html_link_helper_from_package_to_wiki (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_package_to_wiki (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_package_to_node (ValadocHtmlLinkHelper* self,
                                                     ValadocApiPackage* from,
                                                     ValadocApiNode* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	ValadocApiPackage* _tmp7_;
 	ValadocApiPackage* _tmp8_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -646,7 +640,6 @@ valadoc_html_link_helper_real_from_package_to_node (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_package_to_node (ValadocHtmlLinkHelper* self,
                                                ValadocApiPackage* from,
@@ -656,17 +649,16 @@ valadoc_html_link_helper_from_package_to_node (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_package_to_node (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_wiki_to_package (ValadocHtmlLinkHelper* self,
                                                     ValadocWikiPage* from,
                                                     ValadocApiPackage* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	gboolean _tmp3_;
 	gboolean _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -700,7 +692,6 @@ valadoc_html_link_helper_real_from_wiki_to_package (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_wiki_to_package (ValadocHtmlLinkHelper* self,
                                                ValadocWikiPage* from,
@@ -710,21 +701,19 @@ valadoc_html_link_helper_from_wiki_to_package (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_wiki_to_package (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_wiki_to_wiki (ValadocHtmlLinkHelper* self,
                                                  ValadocWikiPage* from,
                                                  ValadocWikiPage* to)
 {
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp0_ = valadoc_html_link_helper_translate_wiki_name (self, to);
 	result = _tmp0_;
 	return result;
 }
-
 
 gchar*
 valadoc_html_link_helper_from_wiki_to_wiki (ValadocHtmlLinkHelper* self,
@@ -735,19 +724,18 @@ valadoc_html_link_helper_from_wiki_to_wiki (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_wiki_to_wiki (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_wiki_to_node (ValadocHtmlLinkHelper* self,
                                                  ValadocWikiPage* from,
                                                  ValadocApiNode* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	ValadocApiPackage* _tmp7_;
 	ValadocApiPackage* _tmp8_;
 	gboolean _tmp9_;
 	gboolean _tmp10_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -818,7 +806,6 @@ valadoc_html_link_helper_real_from_wiki_to_node (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_wiki_to_node (ValadocHtmlLinkHelper* self,
                                             ValadocWikiPage* from,
@@ -828,17 +815,16 @@ valadoc_html_link_helper_from_wiki_to_node (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_wiki_to_node (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_node_to_package (ValadocHtmlLinkHelper* self,
                                                     ValadocApiNode* from,
                                                     ValadocApiPackage* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	ValadocApiPackage* _tmp3_;
 	ValadocApiPackage* _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -872,7 +858,6 @@ valadoc_html_link_helper_real_from_node_to_package (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_node_to_package (ValadocHtmlLinkHelper* self,
                                                ValadocApiNode* from,
@@ -882,17 +867,16 @@ valadoc_html_link_helper_from_node_to_package (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_node_to_package (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_node_to_wiki (ValadocHtmlLinkHelper* self,
                                                  ValadocApiNode* from,
                                                  ValadocWikiPage* to)
 {
-	gchar* result = NULL;
 	ValadocApiPackage* _tmp0_;
 	ValadocApiPackage* _tmp1_;
 	gboolean _tmp2_;
 	gboolean _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp0_ = valadoc_documentation_get_package ((ValadocDocumentation*) from);
@@ -923,7 +907,6 @@ valadoc_html_link_helper_real_from_node_to_wiki (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_node_to_wiki (ValadocHtmlLinkHelper* self,
                                             ValadocApiNode* from,
@@ -933,19 +916,18 @@ valadoc_html_link_helper_from_node_to_wiki (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_node_to_wiki (self, from, to);
 }
 
-
 static gchar*
 valadoc_html_link_helper_real_from_node_to_node (ValadocHtmlLinkHelper* self,
                                                  ValadocApiNode* from,
                                                  ValadocApiNode* to)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_;
 	ValadocApiPackage* _tmp7_;
 	ValadocApiPackage* _tmp8_;
 	ValadocApiPackage* _tmp9_;
 	ValadocApiPackage* _tmp10_;
+	gchar* result = NULL;
 	g_return_val_if_fail (from != NULL, NULL);
 	g_return_val_if_fail (to != NULL, NULL);
 	_tmp1_ = self->priv->_enable_browsable_check;
@@ -1021,7 +1003,6 @@ valadoc_html_link_helper_real_from_node_to_node (ValadocHtmlLinkHelper* self,
 	}
 }
 
-
 gchar*
 valadoc_html_link_helper_from_node_to_node (ValadocHtmlLinkHelper* self,
                                             ValadocApiNode* from,
@@ -1031,7 +1012,6 @@ valadoc_html_link_helper_from_node_to_node (ValadocHtmlLinkHelper* self,
 	return VALADOC_HTML_LINK_HELPER_GET_CLASS (self)->from_node_to_node (self, from, to);
 }
 
-
 ValadocHtmlLinkHelper*
 valadoc_html_link_helper_construct (GType object_type)
 {
@@ -1040,40 +1020,15 @@ valadoc_html_link_helper_construct (GType object_type)
 	return self;
 }
 
-
 ValadocHtmlLinkHelper*
 valadoc_html_link_helper_new (void)
 {
 	return valadoc_html_link_helper_construct (VALADOC_HTML_TYPE_LINK_HELPER);
 }
 
-
-gboolean
-valadoc_html_link_helper_get_enable_browsable_check (ValadocHtmlLinkHelper* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_enable_browsable_check;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_html_link_helper_set_enable_browsable_check (ValadocHtmlLinkHelper* self,
-                                                     gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_html_link_helper_get_enable_browsable_check (self) != value) {
-		self->priv->_enable_browsable_check = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_html_link_helper_properties[VALADOC_HTML_LINK_HELPER_ENABLE_BROWSABLE_CHECK_PROPERTY]);
-	}
-}
-
-
 static void
-valadoc_html_link_helper_class_init (ValadocHtmlLinkHelperClass * klass)
+valadoc_html_link_helper_class_init (ValadocHtmlLinkHelperClass * klass,
+                                     gpointer klass_data)
 {
 	valadoc_html_link_helper_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocHtmlLinkHelper_private_offset);
@@ -1093,15 +1048,14 @@ valadoc_html_link_helper_class_init (ValadocHtmlLinkHelperClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_HTML_LINK_HELPER_ENABLE_BROWSABLE_CHECK_PROPERTY, valadoc_html_link_helper_properties[VALADOC_HTML_LINK_HELPER_ENABLE_BROWSABLE_CHECK_PROPERTY] = g_param_spec_boolean ("enable-browsable-check", "enable-browsable-check", "enable-browsable-check", TRUE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_html_link_helper_instance_init (ValadocHtmlLinkHelper * self)
+valadoc_html_link_helper_instance_init (ValadocHtmlLinkHelper * self,
+                                        gpointer klass)
 {
 	self->priv = valadoc_html_link_helper_get_instance_private (self);
 	self->_settings = NULL;
 	self->priv->_enable_browsable_check = TRUE;
 }
-
 
 static void
 valadoc_html_link_helper_finalize (GObject * obj)
@@ -1112,21 +1066,27 @@ valadoc_html_link_helper_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_html_link_helper_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_html_link_helper_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlLinkHelperClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_link_helper_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlLinkHelper), 0, (GInstanceInitFunc) valadoc_html_link_helper_instance_init, NULL };
+	GType valadoc_html_link_helper_type_id;
+	valadoc_html_link_helper_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHtmlLinkHelper", &g_define_type_info, 0);
+	ValadocHtmlLinkHelper_private_offset = g_type_add_instance_private (valadoc_html_link_helper_type_id, sizeof (ValadocHtmlLinkHelperPrivate));
+	return valadoc_html_link_helper_type_id;
+}
 
 GType
 valadoc_html_link_helper_get_type (void)
 {
 	static volatile gsize valadoc_html_link_helper_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_html_link_helper_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlLinkHelperClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_link_helper_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlLinkHelper), 0, (GInstanceInitFunc) valadoc_html_link_helper_instance_init, NULL };
 		GType valadoc_html_link_helper_type_id;
-		valadoc_html_link_helper_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHtmlLinkHelper", &g_define_type_info, 0);
-		ValadocHtmlLinkHelper_private_offset = g_type_add_instance_private (valadoc_html_link_helper_type_id, sizeof (ValadocHtmlLinkHelperPrivate));
+		valadoc_html_link_helper_type_id = valadoc_html_link_helper_get_type_once ();
 		g_once_init_leave (&valadoc_html_link_helper_type_id__volatile, valadoc_html_link_helper_type_id);
 	}
 	return valadoc_html_link_helper_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_html_link_helper_get_property (GObject * object,
@@ -1146,7 +1106,6 @@ _vala_valadoc_html_link_helper_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_html_link_helper_set_property (GObject * object,
                                              guint property_id,
@@ -1164,6 +1123,4 @@ _vala_valadoc_html_link_helper_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

@@ -4,7 +4,7 @@
 /* node.vala
  *
  * Copyright (C) 2008-2009 Florian Brosch, Didier Villevalois
- * Copyright (C) 20011 Florian Brosch
+ * Copyright (C) 2011 Florian Brosch
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <vala.h>
 
 enum  {
@@ -61,12 +60,16 @@ struct _ValadocApiNodePrivate {
 	ValadocContentComment* _documentation;
 };
 
-
 static gint ValadocApiNode_private_offset;
 static gpointer valadoc_api_node_parent_class = NULL;
-static ValadocApiBrowsableIface * valadoc_api_node_valadoc_api_browsable_parent_iface = NULL;
 static ValadocDocumentationIface * valadoc_api_node_valadoc_documentation_parent_iface = NULL;
 
+G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
+G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
 static void valadoc_api_node_set_name (ValadocApiNode* self,
                                 const gchar* value);
 static void valadoc_api_node_real_accept (ValadocApiNode* self,
@@ -77,18 +80,13 @@ static gchar* valadoc_api_node_real_get_filename (ValadocDocumentation* base);
 static void valadoc_api_node_real_parse_comments (ValadocApiItem* base,
                                            ValadocSettings* settings,
                                            ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
 static void valadoc_api_node_real_check_comments (ValadocApiItem* base,
                                            ValadocSettings* settings,
                                            ValadocDocumentationParser* parser);
-G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
-                                      ValadocSettings* settings,
-                                      ValadocDocumentationParser* parser);
 G_GNUC_INTERNAL void valadoc_api_node_set_documentation (ValadocApiNode* self,
                                          ValadocContentComment* value);
 static void valadoc_api_node_finalize (GObject * obj);
+static GType valadoc_api_node_get_type_once (void);
 static void _vala_valadoc_api_node_get_property (GObject * object,
                                           guint property_id,
                                           GValue * value,
@@ -98,13 +96,38 @@ static void _vala_valadoc_api_node_set_property (GObject * object,
                                           const GValue * value,
                                           GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_node_get_instance_private (ValadocApiNode* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiNode_private_offset);
 }
 
+const gchar*
+valadoc_api_node_get_name (ValadocApiNode* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_api_node_set_name (ValadocApiNode* self,
+                           const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_node_get_name (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_name);
+		self->priv->_name = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_node_properties[VALADOC_API_NODE_NAME_PROPERTY]);
+	}
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -112,13 +135,12 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocApiSourceFile*
 valadoc_api_node_get_source_file (ValadocApiNode* self)
 {
-	ValadocApiSourceFile* result = NULL;
 	ValadocApiSourceFile* _tmp0_;
 	ValadocApiSourceFile* _tmp1_;
+	ValadocApiSourceFile* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->file;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
@@ -126,19 +148,24 @@ valadoc_api_node_get_source_file (ValadocApiNode* self)
 	return result;
 }
 
+ValadocApiNodeType
+valadoc_api_node_get_node_type (ValadocApiNode* self)
+{
+	g_return_val_if_fail (self != NULL, 0);
+	return VALADOC_API_NODE_GET_CLASS (self)->get_node_type (self);
+}
 
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 ValadocApiNode*
 valadoc_api_node_construct (GType object_type,
@@ -203,7 +230,6 @@ valadoc_api_node_construct (GType object_type,
 	return self;
 }
 
-
 /**
  * Visits this node with the specified Visitor.
  *
@@ -217,7 +243,6 @@ valadoc_api_node_real_accept (ValadocApiNode* self,
 	return;
 }
 
-
 void
 valadoc_api_node_accept (ValadocApiNode* self,
                          ValadocApiVisitor* visitor)
@@ -225,7 +250,6 @@ valadoc_api_node_accept (ValadocApiNode* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_API_NODE_GET_CLASS (self)->accept (self, visitor);
 }
-
 
 /**
  * {@inheritDoc}
@@ -239,7 +263,6 @@ valadoc_api_node_real_is_browsable (ValadocApiNode* self,
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_api_node_is_browsable (ValadocApiNode* self,
                                ValadocSettings* settings)
@@ -248,7 +271,6 @@ valadoc_api_node_is_browsable (ValadocApiNode* self,
 	return VALADOC_API_NODE_GET_CLASS (self)->is_browsable (self, settings);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -256,12 +278,12 @@ static gchar*
 valadoc_api_node_real_get_filename (ValadocDocumentation* base)
 {
 	ValadocApiNode * self;
-	gchar* result = NULL;
 	ValadocApiSourceFile* _tmp0_;
 	ValadocApiSourceFile* _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
 	gchar* _tmp4_;
+	gchar* result = NULL;
 	self = (ValadocApiNode*) base;
 	_tmp0_ = self->priv->file;
 	if (_tmp0_ == NULL) {
@@ -275,7 +297,6 @@ valadoc_api_node_real_get_filename (ValadocDocumentation* base)
 	result = _tmp4_;
 	return result;
 }
-
 
 void
 valadoc_api_node_add_child (ValadocApiNode* self,
@@ -343,7 +364,6 @@ valadoc_api_node_add_child (ValadocApiNode* self,
 	_vala_iterable_unref0 (children);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -376,7 +396,10 @@ valadoc_api_node_real_parse_comments (ValadocApiItem* base,
 			ValadocApiNode* node = NULL;
 			ValaIterator* _tmp6_;
 			gpointer _tmp7_;
-			ValadocApiNode* _tmp8_;
+			ValadocApiItem* _tmp8_;
+			ValadocApiItem* _tmp9_;
+			ValadocApiNode* _tmp10_;
+			ValadocApiNode* _tmp11_;
 			_tmp5_ = _node_it;
 			if (!vala_iterator_next (_tmp5_)) {
 				break;
@@ -384,18 +407,24 @@ valadoc_api_node_real_parse_comments (ValadocApiItem* base,
 			_tmp6_ = _node_it;
 			_tmp7_ = vala_iterator_get (_tmp6_);
 			node = (ValadocApiNode*) _tmp7_;
-			_tmp8_ = node;
-			if (valadoc_api_node_is_browsable (_tmp8_, settings)) {
-				ValadocApiNode* _tmp9_;
-				_tmp9_ = node;
-				valadoc_api_item_parse_comments ((ValadocApiItem*) _tmp9_, settings, parser);
+			_tmp8_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
+			_tmp9_ = _tmp8_;
+			_tmp10_ = node;
+			if (_tmp9_ == G_TYPE_CHECK_INSTANCE_CAST (_tmp10_, VALADOC_API_TYPE_ITEM, ValadocApiItem)) {
+				_g_object_unref0 (node);
+				continue;
+			}
+			_tmp11_ = node;
+			if (valadoc_api_node_is_browsable (_tmp11_, settings)) {
+				ValadocApiNode* _tmp12_;
+				_tmp12_ = node;
+				valadoc_api_item_parse_comments ((ValadocApiItem*) _tmp12_, settings, parser);
 			}
 			_g_object_unref0 (node);
 		}
 		_vala_iterator_unref0 (_node_it);
 	}
 }
-
 
 /**
  * {@inheritDoc}
@@ -428,7 +457,10 @@ valadoc_api_node_real_check_comments (ValadocApiItem* base,
 			ValadocApiNode* node = NULL;
 			ValaIterator* _tmp6_;
 			gpointer _tmp7_;
-			ValadocApiNode* _tmp8_;
+			ValadocApiItem* _tmp8_;
+			ValadocApiItem* _tmp9_;
+			ValadocApiNode* _tmp10_;
+			ValadocApiNode* _tmp11_;
 			_tmp5_ = _node_it;
 			if (!vala_iterator_next (_tmp5_)) {
 				break;
@@ -436,18 +468,24 @@ valadoc_api_node_real_check_comments (ValadocApiItem* base,
 			_tmp6_ = _node_it;
 			_tmp7_ = vala_iterator_get (_tmp6_);
 			node = (ValadocApiNode*) _tmp7_;
-			_tmp8_ = node;
-			if (valadoc_api_node_is_browsable (_tmp8_, settings)) {
-				ValadocApiNode* _tmp9_;
-				_tmp9_ = node;
-				valadoc_api_item_check_comments ((ValadocApiItem*) _tmp9_, settings, parser);
+			_tmp8_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
+			_tmp9_ = _tmp8_;
+			_tmp10_ = node;
+			if (_tmp9_ == G_TYPE_CHECK_INSTANCE_CAST (_tmp10_, VALADOC_API_TYPE_ITEM, ValadocApiItem)) {
+				_g_object_unref0 (node);
+				continue;
+			}
+			_tmp11_ = node;
+			if (valadoc_api_node_is_browsable (_tmp11_, settings)) {
+				ValadocApiNode* _tmp12_;
+				_tmp12_ = node;
+				valadoc_api_item_check_comments ((ValadocApiItem*) _tmp12_, settings, parser);
 			}
 			_g_object_unref0 (node);
 		}
 		_vala_iterator_unref0 (_node_it);
 	}
 }
-
 
 /**
  * Specifies whether this node has at least one visible child with the given type
@@ -460,17 +498,16 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 gboolean
 valadoc_api_node_has_visible_children_by_type (ValadocApiNode* self,
                                                ValadocApiNodeType type,
                                                ValadocSettings* settings)
 {
-	gboolean result = FALSE;
 	ValaList* all_children = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	ValaList* _tmp2_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (settings != NULL, FALSE);
 	_tmp0_ = self->priv->per_type_children;
@@ -498,25 +535,21 @@ valadoc_api_node_has_visible_children_by_type (ValadocApiNode* self,
 			while (TRUE) {
 				gint _tmp8_;
 				gint _tmp9_;
-				gint _tmp10_;
 				ValadocApiNode* node = NULL;
-				ValaList* _tmp11_;
-				gint _tmp12_;
-				gpointer _tmp13_;
-				ValadocApiNode* _tmp14_;
+				ValaList* _tmp10_;
+				gpointer _tmp11_;
+				ValadocApiNode* _tmp12_;
+				_node_index = _node_index + 1;
 				_tmp8_ = _node_index;
-				_node_index = _tmp8_ + 1;
-				_tmp9_ = _node_index;
-				_tmp10_ = _node_size;
-				if (!(_tmp9_ < _tmp10_)) {
+				_tmp9_ = _node_size;
+				if (!(_tmp8_ < _tmp9_)) {
 					break;
 				}
-				_tmp11_ = _node_list;
-				_tmp12_ = _node_index;
-				_tmp13_ = vala_list_get (_tmp11_, _tmp12_);
-				node = (ValadocApiNode*) _tmp13_;
-				_tmp14_ = node;
-				if (valadoc_api_node_is_browsable (_tmp14_, settings)) {
+				_tmp10_ = _node_list;
+				_tmp11_ = vala_list_get (_tmp10_, _node_index);
+				node = (ValadocApiNode*) _tmp11_;
+				_tmp12_ = node;
+				if (valadoc_api_node_is_browsable (_tmp12_, settings)) {
 					result = TRUE;
 					_g_object_unref0 (node);
 					_vala_iterable_unref0 (_node_list);
@@ -533,7 +566,6 @@ valadoc_api_node_has_visible_children_by_type (ValadocApiNode* self,
 	return result;
 }
 
-
 /**
  * Specifies whether this node has at least one visible child with the given types
  *
@@ -542,7 +574,7 @@ valadoc_api_node_has_visible_children_by_type (ValadocApiNode* self,
 gboolean
 valadoc_api_node_has_visible_children_by_types (ValadocApiNode* self,
                                                 ValadocApiNodeType* types,
-                                                int types_length1,
+                                                gint types_length1,
                                                 ValadocSettings* settings)
 {
 	gboolean result = FALSE;
@@ -555,7 +587,7 @@ valadoc_api_node_has_visible_children_by_types (ValadocApiNode* self,
 		gint type_it = 0;
 		type_collection = types;
 		type_collection_length1 = types_length1;
-		for (type_it = 0; type_it < types_length1; type_it = type_it + 1) {
+		for (type_it = 0; type_it < type_collection_length1; type_it = type_it + 1) {
 			ValadocApiNodeType type = 0;
 			type = type_collection[type_it];
 			{
@@ -572,7 +604,6 @@ valadoc_api_node_has_visible_children_by_types (ValadocApiNode* self,
 	return result;
 }
 
-
 /**
  * Specifies whether this node has at least one visible child
  */
@@ -580,7 +611,6 @@ gboolean
 valadoc_api_node_has_visible_children (ValadocApiNode* self,
                                        ValadocSettings* settings)
 {
-	gboolean result = FALSE;
 	ValaMap* _tmp0_;
 	ValaSet* _tmp1_;
 	ValaSet* _tmp2_;
@@ -589,6 +619,7 @@ valadoc_api_node_has_visible_children (ValadocApiNode* self,
 	ValadocApiNodeType* _tmp5_;
 	gint _tmp5__length1;
 	gboolean _tmp6_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (settings != NULL, FALSE);
 	_tmp0_ = self->priv->per_type_children;
@@ -597,13 +628,12 @@ valadoc_api_node_has_visible_children (ValadocApiNode* self,
 	_tmp4_ = vala_collection_to_array ((ValaCollection*) _tmp2_, &_tmp3_);
 	_tmp5_ = _tmp4_;
 	_tmp5__length1 = _tmp3_;
-	_tmp6_ = valadoc_api_node_has_visible_children_by_types (self, _tmp5_, _tmp3_, settings);
+	_tmp6_ = valadoc_api_node_has_visible_children_by_types (self, _tmp5_, (gint) _tmp3_, settings);
 	_tmp5_ = (g_free (_tmp5_), NULL);
 	_vala_iterable_unref0 (_tmp2_);
 	result = _tmp6_;
 	return result;
 }
-
 
 /**
  * Specifies whether this node has at least one child with the given type
@@ -614,12 +644,12 @@ gboolean
 valadoc_api_node_has_children_by_type (ValadocApiNode* self,
                                        ValadocApiNodeType type)
 {
-	gboolean result = FALSE;
 	ValaList* all_children = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	gboolean _tmp2_ = FALSE;
 	ValaList* _tmp3_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->per_type_children;
 	_tmp1_ = vala_map_get (_tmp0_, (gpointer) ((gintptr) type));
@@ -641,7 +671,6 @@ valadoc_api_node_has_children_by_type (ValadocApiNode* self,
 	return result;
 }
 
-
 /**
  * Specifies whether this node has at least one child with the given types
  *
@@ -650,7 +679,7 @@ valadoc_api_node_has_children_by_type (ValadocApiNode* self,
 gboolean
 valadoc_api_node_has_children (ValadocApiNode* self,
                                ValadocApiNodeType* types,
-                               int types_length1)
+                               gint types_length1)
 {
 	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
@@ -661,7 +690,7 @@ valadoc_api_node_has_children (ValadocApiNode* self,
 		gint type_it = 0;
 		type_collection = types;
 		type_collection_length1 = types_length1;
-		for (type_it = 0; type_it < types_length1; type_it = type_it + 1) {
+		for (type_it = 0; type_it < type_collection_length1; type_it = type_it + 1) {
 			ValadocApiNodeType type = 0;
 			type = type_collection[type_it];
 			{
@@ -678,7 +707,6 @@ valadoc_api_node_has_children (ValadocApiNode* self,
 	return result;
 }
 
-
 /**
  * Returns a list of all children with the given type.
  *
@@ -690,7 +718,6 @@ valadoc_api_node_get_children_by_type (ValadocApiNode* self,
                                        ValadocApiNodeType type,
                                        gboolean filtered)
 {
-	ValaList* result = NULL;
 	ValaArrayList* children = NULL;
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -698,6 +725,7 @@ valadoc_api_node_get_children_by_type (ValadocApiNode* self,
 	ValaMap* _tmp2_;
 	gpointer _tmp3_;
 	ValaList* _tmp4_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_direct_equal;
 	_tmp1_ = vala_array_list_new (VALADOC_API_TYPE_NODE, (GBoxedCopyFunc) g_object_ref, (GDestroyNotify) g_object_unref, _tmp0_);
@@ -727,38 +755,32 @@ valadoc_api_node_get_children_by_type (ValadocApiNode* self,
 			while (TRUE) {
 				gint _tmp10_;
 				gint _tmp11_;
-				gint _tmp12_;
 				ValadocApiNode* node = NULL;
-				ValaList* _tmp13_;
-				gint _tmp14_;
-				gpointer _tmp15_;
-				gboolean _tmp16_ = FALSE;
-				ValadocApiNode* _tmp17_;
-				gboolean _tmp18_;
+				ValaList* _tmp12_;
+				gpointer _tmp13_;
+				gboolean _tmp14_ = FALSE;
+				ValadocApiNode* _tmp15_;
+				_node_index = _node_index + 1;
 				_tmp10_ = _node_index;
-				_node_index = _tmp10_ + 1;
-				_tmp11_ = _node_index;
-				_tmp12_ = _node_size;
-				if (!(_tmp11_ < _tmp12_)) {
+				_tmp11_ = _node_size;
+				if (!(_tmp10_ < _tmp11_)) {
 					break;
 				}
-				_tmp13_ = _node_list;
-				_tmp14_ = _node_index;
-				_tmp15_ = vala_list_get (_tmp13_, _tmp14_);
-				node = (ValadocApiNode*) _tmp15_;
-				_tmp17_ = node;
-				_tmp18_ = _tmp17_->do_document;
-				if (_tmp18_) {
-					_tmp16_ = TRUE;
+				_tmp12_ = _node_list;
+				_tmp13_ = vala_list_get (_tmp12_, _node_index);
+				node = (ValadocApiNode*) _tmp13_;
+				_tmp15_ = node;
+				if (_tmp15_->do_document) {
+					_tmp14_ = TRUE;
 				} else {
-					_tmp16_ = !filtered;
+					_tmp14_ = !filtered;
 				}
-				if (_tmp16_) {
-					ValaArrayList* _tmp19_;
-					ValadocApiNode* _tmp20_;
-					_tmp19_ = children;
-					_tmp20_ = node;
-					vala_collection_add ((ValaCollection*) _tmp19_, _tmp20_);
+				if (_tmp14_) {
+					ValaArrayList* _tmp16_;
+					ValadocApiNode* _tmp17_;
+					_tmp16_ = children;
+					_tmp17_ = node;
+					vala_collection_add ((ValaCollection*) _tmp16_, _tmp17_);
 				}
 				_g_object_unref0 (node);
 			}
@@ -770,7 +792,6 @@ valadoc_api_node_get_children_by_type (ValadocApiNode* self,
 	return result;
 }
 
-
 /**
  * Returns a list of all children with the given types.
  *
@@ -780,13 +801,13 @@ valadoc_api_node_get_children_by_type (ValadocApiNode* self,
 ValaList*
 valadoc_api_node_get_children_by_types (ValadocApiNode* self,
                                         ValadocApiNodeType* types,
-                                        int types_length1,
+                                        gint types_length1,
                                         gboolean filtered)
 {
-	ValaList* result = NULL;
 	ValaArrayList* children = NULL;
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_direct_equal;
 	_tmp1_ = vala_array_list_new (VALADOC_API_TYPE_NODE, (GBoxedCopyFunc) g_object_ref, (GDestroyNotify) g_object_unref, _tmp0_);
@@ -798,7 +819,7 @@ valadoc_api_node_get_children_by_types (ValadocApiNode* self,
 		gint type_it = 0;
 		type_collection = types;
 		type_collection_length1 = types_length1;
-		for (type_it = 0; type_it < types_length1; type_it = type_it + 1) {
+		for (type_it = 0; type_it < type_collection_length1; type_it = type_it + 1) {
 			ValadocApiNodeType type = 0;
 			type = type_collection[type_it];
 			{
@@ -818,7 +839,6 @@ valadoc_api_node_get_children_by_types (ValadocApiNode* self,
 	result = (ValaList*) children;
 	return result;
 }
-
 
 /**
  * Visits all children of this node with the given type with the specified Visitor.
@@ -864,36 +884,30 @@ valadoc_api_node_accept_children_by_type (ValadocApiNode* self,
 			while (TRUE) {
 				gint _tmp8_;
 				gint _tmp9_;
-				gint _tmp10_;
 				ValadocApiNode* node = NULL;
-				ValaList* _tmp11_;
-				gint _tmp12_;
-				gpointer _tmp13_;
-				gboolean _tmp14_ = FALSE;
-				ValadocApiNode* _tmp15_;
-				gboolean _tmp16_;
+				ValaList* _tmp10_;
+				gpointer _tmp11_;
+				gboolean _tmp12_ = FALSE;
+				ValadocApiNode* _tmp13_;
+				_node_index = _node_index + 1;
 				_tmp8_ = _node_index;
-				_node_index = _tmp8_ + 1;
-				_tmp9_ = _node_index;
-				_tmp10_ = _node_size;
-				if (!(_tmp9_ < _tmp10_)) {
+				_tmp9_ = _node_size;
+				if (!(_tmp8_ < _tmp9_)) {
 					break;
 				}
-				_tmp11_ = _node_list;
-				_tmp12_ = _node_index;
-				_tmp13_ = vala_list_get (_tmp11_, _tmp12_);
-				node = (ValadocApiNode*) _tmp13_;
-				_tmp15_ = node;
-				_tmp16_ = _tmp15_->do_document;
-				if (_tmp16_) {
-					_tmp14_ = TRUE;
+				_tmp10_ = _node_list;
+				_tmp11_ = vala_list_get (_tmp10_, _node_index);
+				node = (ValadocApiNode*) _tmp11_;
+				_tmp13_ = node;
+				if (_tmp13_->do_document) {
+					_tmp12_ = TRUE;
 				} else {
-					_tmp14_ = !filtered;
+					_tmp12_ = !filtered;
 				}
-				if (_tmp14_) {
-					ValadocApiNode* _tmp17_;
-					_tmp17_ = node;
-					valadoc_api_node_accept (_tmp17_, visitor);
+				if (_tmp12_) {
+					ValadocApiNode* _tmp14_;
+					_tmp14_ = node;
+					valadoc_api_node_accept (_tmp14_, visitor);
 				}
 				_g_object_unref0 (node);
 			}
@@ -902,7 +916,6 @@ valadoc_api_node_accept_children_by_type (ValadocApiNode* self,
 	}
 	_vala_iterable_unref0 (all_children);
 }
-
 
 /**
  * Visits all children of this node with the given types with the specified Visitor.
@@ -914,7 +927,7 @@ valadoc_api_node_accept_children_by_type (ValadocApiNode* self,
 void
 valadoc_api_node_accept_children (ValadocApiNode* self,
                                   ValadocApiNodeType* types,
-                                  int types_length1,
+                                  gint types_length1,
                                   ValadocApiVisitor* visitor,
                                   gboolean filtered)
 {
@@ -927,7 +940,7 @@ valadoc_api_node_accept_children (ValadocApiNode* self,
 		gint type_it = 0;
 		type_collection = types;
 		type_collection_length1 = types_length1;
-		for (type_it = 0; type_it < types_length1; type_it = type_it + 1) {
+		for (type_it = 0; type_it < type_collection_length1; type_it = type_it + 1) {
 			ValadocApiNodeType type = 0;
 			type = type_collection[type_it];
 			{
@@ -938,7 +951,6 @@ valadoc_api_node_accept_children (ValadocApiNode* self,
 		}
 	}
 }
-
 
 /**
  * Visits all children of this node with the specified Visitor.
@@ -972,6 +984,12 @@ valadoc_api_node_accept_all_children (ValadocApiNode* self,
 			ValaList* children = NULL;
 			ValaIterator* _tmp6_;
 			gpointer _tmp7_;
+			ValadocApiItem* _tmp8_;
+			ValadocApiItem* _tmp9_;
+			ValaList* _tmp10_;
+			gpointer _tmp11_;
+			ValadocApiNode* _tmp12_;
+			gboolean _tmp13_;
 			_tmp5_ = _children_it;
 			if (!vala_iterator_next (_tmp5_)) {
 				break;
@@ -979,56 +997,61 @@ valadoc_api_node_accept_all_children (ValadocApiNode* self,
 			_tmp6_ = _children_it;
 			_tmp7_ = vala_iterator_get (_tmp6_);
 			children = (ValaList*) _tmp7_;
+			_tmp8_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
+			_tmp9_ = _tmp8_;
+			_tmp10_ = children;
+			_tmp11_ = vala_list_get (_tmp10_, 0);
+			_tmp12_ = (ValadocApiNode*) _tmp11_;
+			_tmp13_ = _tmp9_ == G_TYPE_CHECK_INSTANCE_CAST (_tmp12_, VALADOC_API_TYPE_ITEM, ValadocApiItem);
+			_g_object_unref0 (_tmp12_);
+			if (_tmp13_) {
+				_vala_iterable_unref0 (children);
+				continue;
+			}
 			{
 				ValaList* _node_list = NULL;
-				ValaList* _tmp8_;
-				ValaList* _tmp9_;
+				ValaList* _tmp14_;
+				ValaList* _tmp15_;
 				gint _node_size = 0;
-				ValaList* _tmp10_;
-				gint _tmp11_;
-				gint _tmp12_;
+				ValaList* _tmp16_;
+				gint _tmp17_;
+				gint _tmp18_;
 				gint _node_index = 0;
-				_tmp8_ = children;
-				_tmp9_ = _vala_iterable_ref0 (_tmp8_);
-				_node_list = _tmp9_;
-				_tmp10_ = _node_list;
-				_tmp11_ = vala_collection_get_size ((ValaCollection*) _tmp10_);
-				_tmp12_ = _tmp11_;
-				_node_size = _tmp12_;
+				_tmp14_ = children;
+				_tmp15_ = _vala_iterable_ref0 (_tmp14_);
+				_node_list = _tmp15_;
+				_tmp16_ = _node_list;
+				_tmp17_ = vala_collection_get_size ((ValaCollection*) _tmp16_);
+				_tmp18_ = _tmp17_;
+				_node_size = _tmp18_;
 				_node_index = -1;
 				while (TRUE) {
-					gint _tmp13_;
-					gint _tmp14_;
-					gint _tmp15_;
+					gint _tmp19_;
+					gint _tmp20_;
 					ValadocApiNode* node = NULL;
-					ValaList* _tmp16_;
-					gint _tmp17_;
-					gpointer _tmp18_;
-					gboolean _tmp19_ = FALSE;
-					ValadocApiNode* _tmp20_;
-					gboolean _tmp21_;
-					_tmp13_ = _node_index;
-					_node_index = _tmp13_ + 1;
-					_tmp14_ = _node_index;
-					_tmp15_ = _node_size;
-					if (!(_tmp14_ < _tmp15_)) {
+					ValaList* _tmp21_;
+					gpointer _tmp22_;
+					gboolean _tmp23_ = FALSE;
+					ValadocApiNode* _tmp24_;
+					_node_index = _node_index + 1;
+					_tmp19_ = _node_index;
+					_tmp20_ = _node_size;
+					if (!(_tmp19_ < _tmp20_)) {
 						break;
 					}
-					_tmp16_ = _node_list;
-					_tmp17_ = _node_index;
-					_tmp18_ = vala_list_get (_tmp16_, _tmp17_);
-					node = (ValadocApiNode*) _tmp18_;
-					_tmp20_ = node;
-					_tmp21_ = _tmp20_->do_document;
-					if (_tmp21_) {
-						_tmp19_ = TRUE;
+					_tmp21_ = _node_list;
+					_tmp22_ = vala_list_get (_tmp21_, _node_index);
+					node = (ValadocApiNode*) _tmp22_;
+					_tmp24_ = node;
+					if (_tmp24_->do_document) {
+						_tmp23_ = TRUE;
 					} else {
-						_tmp19_ = !filtered;
+						_tmp23_ = !filtered;
 					}
-					if (_tmp19_) {
-						ValadocApiNode* _tmp22_;
-						_tmp22_ = node;
-						valadoc_api_node_accept (_tmp22_, visitor);
+					if (_tmp23_) {
+						ValadocApiNode* _tmp25_;
+						_tmp25_ = node;
+						valadoc_api_node_accept (_tmp25_, visitor);
 					}
 					_g_object_unref0 (node);
 				}
@@ -1039,7 +1062,6 @@ valadoc_api_node_accept_all_children (ValadocApiNode* self,
 		_vala_iterator_unref0 (_children_it);
 	}
 }
-
 
 ValadocApiNode*
 valadoc_api_node_find_by_name (ValadocApiNode* self,
@@ -1067,6 +1089,133 @@ valadoc_api_node_find_by_name (ValadocApiNode* self,
 	}
 }
 
+ValadocApiNamespace*
+valadoc_api_node_get_nspace (ValadocApiNode* self)
+{
+	ValadocApiNamespace* result;
+	ValadocApiNamespace* _tmp0_;
+	ValadocApiNamespace* _tmp10_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_nspace;
+	if (_tmp0_ == NULL) {
+		ValadocApiItem* ast = NULL;
+		ValadocApiItem* _tmp1_;
+		ValadocApiItem* _tmp8_;
+		ValadocApiNamespace* _tmp9_;
+		_tmp1_ = _g_object_ref0 ((ValadocApiItem*) self);
+		ast = _tmp1_;
+		while (TRUE) {
+			ValadocApiItem* _tmp2_;
+			ValadocApiItem* _tmp3_;
+			ValadocApiItem* _tmp4_;
+			ValadocApiItem* _tmp5_;
+			ValadocApiItem* _tmp6_;
+			ValadocApiItem* _tmp7_;
+			_tmp2_ = ast;
+			if (!(VALADOC_API_IS_NAMESPACE (_tmp2_) == FALSE)) {
+				break;
+			}
+			_tmp3_ = ast;
+			_tmp4_ = valadoc_api_item_get_parent (_tmp3_);
+			_tmp5_ = _tmp4_;
+			_tmp6_ = _g_object_ref0 (_tmp5_);
+			_g_object_unref0 (ast);
+			ast = _tmp6_;
+			_tmp7_ = ast;
+			if (_tmp7_ == NULL) {
+				result = NULL;
+				_g_object_unref0 (ast);
+				return result;
+			}
+		}
+		_tmp8_ = ast;
+		_tmp9_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_NAMESPACE, ValadocApiNamespace));
+		_g_object_unref0 (self->priv->_nspace);
+		self->priv->_nspace = _tmp9_;
+		_g_object_unref0 (ast);
+	}
+	_tmp10_ = self->priv->_nspace;
+	result = _tmp10_;
+	return result;
+}
+
+static ValadocApiPackage*
+valadoc_api_node_real_get_package (ValadocDocumentation* base)
+{
+	ValadocApiPackage* result;
+	ValadocApiNode* self;
+	ValadocApiPackage* _tmp0_;
+	ValadocApiPackage* _tmp10_;
+	self = (ValadocApiNode*) base;
+	_tmp0_ = self->priv->_package;
+	if (_tmp0_ == NULL) {
+		ValadocApiItem* ast = NULL;
+		ValadocApiItem* _tmp1_;
+		ValadocApiItem* _tmp8_;
+		ValadocApiPackage* _tmp9_;
+		_tmp1_ = _g_object_ref0 ((ValadocApiItem*) self);
+		ast = _tmp1_;
+		while (TRUE) {
+			ValadocApiItem* _tmp2_;
+			ValadocApiItem* _tmp3_;
+			ValadocApiItem* _tmp4_;
+			ValadocApiItem* _tmp5_;
+			ValadocApiItem* _tmp6_;
+			ValadocApiItem* _tmp7_;
+			_tmp2_ = ast;
+			if (!(VALADOC_API_IS_PACKAGE (_tmp2_) == FALSE)) {
+				break;
+			}
+			_tmp3_ = ast;
+			_tmp4_ = valadoc_api_item_get_parent (_tmp3_);
+			_tmp5_ = _tmp4_;
+			_tmp6_ = _g_object_ref0 (_tmp5_);
+			_g_object_unref0 (ast);
+			ast = _tmp6_;
+			_tmp7_ = ast;
+			if (_tmp7_ == NULL) {
+				result = NULL;
+				_g_object_unref0 (ast);
+				return result;
+			}
+		}
+		_tmp8_ = ast;
+		_tmp9_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage));
+		_g_object_unref0 (self->priv->_package);
+		self->priv->_package = _tmp9_;
+		_g_object_unref0 (ast);
+	}
+	_tmp10_ = self->priv->_package;
+	result = _tmp10_;
+	return result;
+}
+
+ValadocContentComment*
+valadoc_api_node_get_documentation (ValadocApiNode* self)
+{
+	ValadocContentComment* result;
+	ValadocContentComment* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_documentation;
+	result = _tmp0_;
+	return result;
+}
+
+G_GNUC_INTERNAL void
+valadoc_api_node_set_documentation (ValadocApiNode* self,
+                                    ValadocContentComment* value)
+{
+	ValadocContentComment* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_node_get_documentation (self);
+	if (old_value != value) {
+		ValadocContentComment* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_documentation);
+		self->priv->_documentation = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_node_properties[VALADOC_API_NODE_DOCUMENTATION_PROPERTY]);
+	}
+}
 
 /**
  * Returns canonicalized absolute name (GLib.FileStream for instance)
@@ -1074,10 +1223,10 @@ valadoc_api_node_find_by_name (ValadocApiNode* self,
 gchar*
 valadoc_api_node_get_full_name (ValadocApiNode* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp25_;
 	gchar* _tmp26_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_full_name;
 	if (_tmp0_ == NULL) {
@@ -1134,7 +1283,7 @@ valadoc_api_node_get_full_name (ValadocApiNode* self)
 						}
 						_tmp9_ = FALSE;
 						_tmp14_ = pos;
-						if (!(G_TYPE_CHECK_INSTANCE_TYPE (_tmp14_, VALADOC_API_TYPE_PACKAGE) == FALSE)) {
+						if (!(VALADOC_API_IS_PACKAGE (_tmp14_) == FALSE)) {
 							break;
 						}
 						_tmp15_ = pos;
@@ -1171,7 +1320,6 @@ valadoc_api_node_get_full_name (ValadocApiNode* self)
 	return result;
 }
 
-
 /**
  * A comparison function used to sort nodes in alphabetical order
  */
@@ -1179,10 +1327,10 @@ gint
 valadoc_api_node_compare_to (ValadocApiNode* self,
                              ValadocApiNode* node)
 {
-	gint result = 0;
 	GCompareFunc _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (node != NULL, 0);
 	_tmp0_ = ((GCompareFunc) g_strcmp0);
@@ -1192,174 +1340,9 @@ valadoc_api_node_compare_to (ValadocApiNode* self,
 	return result;
 }
 
-
-const gchar*
-valadoc_api_node_get_name (ValadocApiNode* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_api_node_set_name (ValadocApiNode* self,
-                           const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_api_node_get_name (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_name);
-		self->priv->_name = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_node_properties[VALADOC_API_NODE_NAME_PROPERTY]);
-	}
-}
-
-
-ValadocApiNodeType
-valadoc_api_node_get_node_type (ValadocApiNode* self)
-{
-	g_return_val_if_fail (self != NULL, 0);
-	return VALADOC_API_NODE_GET_CLASS (self)->get_node_type (self);
-}
-
-
-ValadocApiNamespace*
-valadoc_api_node_get_nspace (ValadocApiNode* self)
-{
-	ValadocApiNamespace* result;
-	ValadocApiNamespace* _tmp0_;
-	ValadocApiNamespace* _tmp10_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_nspace;
-	if (_tmp0_ == NULL) {
-		ValadocApiItem* ast = NULL;
-		ValadocApiItem* _tmp1_;
-		ValadocApiItem* _tmp8_;
-		ValadocApiNamespace* _tmp9_;
-		_tmp1_ = _g_object_ref0 ((ValadocApiItem*) self);
-		ast = _tmp1_;
-		while (TRUE) {
-			ValadocApiItem* _tmp2_;
-			ValadocApiItem* _tmp3_;
-			ValadocApiItem* _tmp4_;
-			ValadocApiItem* _tmp5_;
-			ValadocApiItem* _tmp6_;
-			ValadocApiItem* _tmp7_;
-			_tmp2_ = ast;
-			if (!(G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALADOC_API_TYPE_NAMESPACE) == FALSE)) {
-				break;
-			}
-			_tmp3_ = ast;
-			_tmp4_ = valadoc_api_item_get_parent (_tmp3_);
-			_tmp5_ = _tmp4_;
-			_tmp6_ = _g_object_ref0 (_tmp5_);
-			_g_object_unref0 (ast);
-			ast = _tmp6_;
-			_tmp7_ = ast;
-			if (_tmp7_ == NULL) {
-				result = NULL;
-				_g_object_unref0 (ast);
-				return result;
-			}
-		}
-		_tmp8_ = ast;
-		_tmp9_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_NAMESPACE, ValadocApiNamespace));
-		_g_object_unref0 (self->priv->_nspace);
-		self->priv->_nspace = _tmp9_;
-		_g_object_unref0 (ast);
-	}
-	_tmp10_ = self->priv->_nspace;
-	result = _tmp10_;
-	return result;
-}
-
-
-static ValadocApiPackage*
-valadoc_api_node_real_get_package (ValadocDocumentation* base)
-{
-	ValadocApiPackage* result;
-	ValadocApiNode* self;
-	ValadocApiPackage* _tmp0_;
-	ValadocApiPackage* _tmp10_;
-	self = (ValadocApiNode*) base;
-	_tmp0_ = self->priv->_package;
-	if (_tmp0_ == NULL) {
-		ValadocApiItem* ast = NULL;
-		ValadocApiItem* _tmp1_;
-		ValadocApiItem* _tmp8_;
-		ValadocApiPackage* _tmp9_;
-		_tmp1_ = _g_object_ref0 ((ValadocApiItem*) self);
-		ast = _tmp1_;
-		while (TRUE) {
-			ValadocApiItem* _tmp2_;
-			ValadocApiItem* _tmp3_;
-			ValadocApiItem* _tmp4_;
-			ValadocApiItem* _tmp5_;
-			ValadocApiItem* _tmp6_;
-			ValadocApiItem* _tmp7_;
-			_tmp2_ = ast;
-			if (!(G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALADOC_API_TYPE_PACKAGE) == FALSE)) {
-				break;
-			}
-			_tmp3_ = ast;
-			_tmp4_ = valadoc_api_item_get_parent (_tmp3_);
-			_tmp5_ = _tmp4_;
-			_tmp6_ = _g_object_ref0 (_tmp5_);
-			_g_object_unref0 (ast);
-			ast = _tmp6_;
-			_tmp7_ = ast;
-			if (_tmp7_ == NULL) {
-				result = NULL;
-				_g_object_unref0 (ast);
-				return result;
-			}
-		}
-		_tmp8_ = ast;
-		_tmp9_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALADOC_API_TYPE_PACKAGE, ValadocApiPackage));
-		_g_object_unref0 (self->priv->_package);
-		self->priv->_package = _tmp9_;
-		_g_object_unref0 (ast);
-	}
-	_tmp10_ = self->priv->_package;
-	result = _tmp10_;
-	return result;
-}
-
-
-ValadocContentComment*
-valadoc_api_node_get_documentation (ValadocApiNode* self)
-{
-	ValadocContentComment* result;
-	ValadocContentComment* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_documentation;
-	result = _tmp0_;
-	return result;
-}
-
-
-G_GNUC_INTERNAL void
-valadoc_api_node_set_documentation (ValadocApiNode* self,
-                                    ValadocContentComment* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_node_get_documentation (self) != value) {
-		ValadocContentComment* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_documentation);
-		self->priv->_documentation = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_node_properties[VALADOC_API_NODE_DOCUMENTATION_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_api_node_class_init (ValadocApiNodeClass * klass)
+valadoc_api_node_class_init (ValadocApiNodeClass * klass,
+                             gpointer klass_data)
 {
 	valadoc_api_node_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiNode_private_offset);
@@ -1389,26 +1372,18 @@ valadoc_api_node_class_init (ValadocApiNodeClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_NODE_DOCUMENTATION_PROPERTY, valadoc_api_node_properties[VALADOC_API_NODE_DOCUMENTATION_PROPERTY] = g_param_spec_object ("documentation", "documentation", "documentation", VALADOC_CONTENT_TYPE_COMMENT, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_api_node_valadoc_api_browsable_interface_init (ValadocApiBrowsableIface * iface)
-{
-	valadoc_api_node_valadoc_api_browsable_parent_iface = g_type_interface_peek_parent (iface);
-	iface->is_browsable = (gboolean (*) (ValadocApiBrowsable*, ValadocSettings*)) valadoc_api_node_is_browsable;
-}
-
-
-static void
-valadoc_api_node_valadoc_documentation_interface_init (ValadocDocumentationIface * iface)
+valadoc_api_node_valadoc_documentation_interface_init (ValadocDocumentationIface * iface,
+                                                       gpointer iface_data)
 {
 	valadoc_api_node_valadoc_documentation_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_filename = (gchar* (*) (ValadocDocumentation*)) valadoc_api_node_real_get_filename;
 	iface->get_package = valadoc_api_node_real_get_package;
 }
 
-
 static void
-valadoc_api_node_instance_init (ValadocApiNode * self)
+valadoc_api_node_instance_init (ValadocApiNode * self,
+                                gpointer klass)
 {
 	self->priv = valadoc_api_node_get_instance_private (self);
 	self->do_document = FALSE;
@@ -1416,7 +1391,6 @@ valadoc_api_node_instance_init (ValadocApiNode * self)
 	self->priv->_package = NULL;
 	self->priv->_full_name = NULL;
 }
-
 
 static void
 valadoc_api_node_finalize (GObject * obj)
@@ -1434,28 +1408,32 @@ valadoc_api_node_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_node_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a node in the api tree.
  */
+static GType
+valadoc_api_node_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiNodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_node_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiNode), 0, (GInstanceInitFunc) valadoc_api_node_instance_init, NULL };
+	static const GInterfaceInfo valadoc_documentation_info = { (GInterfaceInitFunc) valadoc_api_node_valadoc_documentation_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_api_node_type_id;
+	valadoc_api_node_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiNode", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	g_type_add_interface_static (valadoc_api_node_type_id, VALADOC_TYPE_DOCUMENTATION, &valadoc_documentation_info);
+	ValadocApiNode_private_offset = g_type_add_instance_private (valadoc_api_node_type_id, sizeof (ValadocApiNodePrivate));
+	return valadoc_api_node_type_id;
+}
+
 GType
 valadoc_api_node_get_type (void)
 {
 	static volatile gsize valadoc_api_node_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_node_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiNodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_node_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiNode), 0, (GInstanceInitFunc) valadoc_api_node_instance_init, NULL };
-		static const GInterfaceInfo valadoc_api_browsable_info = { (GInterfaceInitFunc) valadoc_api_node_valadoc_api_browsable_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
-		static const GInterfaceInfo valadoc_documentation_info = { (GInterfaceInitFunc) valadoc_api_node_valadoc_documentation_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_api_node_type_id;
-		valadoc_api_node_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiNode", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		g_type_add_interface_static (valadoc_api_node_type_id, VALADOC_API_TYPE_BROWSABLE, &valadoc_api_browsable_info);
-		g_type_add_interface_static (valadoc_api_node_type_id, VALADOC_TYPE_DOCUMENTATION, &valadoc_documentation_info);
-		ValadocApiNode_private_offset = g_type_add_instance_private (valadoc_api_node_type_id, sizeof (ValadocApiNodePrivate));
+		valadoc_api_node_type_id = valadoc_api_node_get_type_once ();
 		g_once_init_leave (&valadoc_api_node_type_id__volatile, valadoc_api_node_type_id);
 	}
 	return valadoc_api_node_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_node_get_property (GObject * object,
@@ -1484,7 +1462,6 @@ _vala_valadoc_api_node_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_node_set_property (GObject * object,
                                      guint property_id,
@@ -1505,6 +1482,4 @@ _vala_valadoc_api_node_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

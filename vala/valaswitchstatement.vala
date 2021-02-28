@@ -49,7 +49,7 @@ public class Vala.SwitchStatement : CodeNode, Statement {
 	 * @param source_reference reference to source code
 	 * @return                 newly created switch statement
 	 */
-	public SwitchStatement (Expression expression, SourceReference? source_reference) {
+	public SwitchStatement (Expression expression, SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 		this.expression = expression;
 	}
@@ -65,11 +65,11 @@ public class Vala.SwitchStatement : CodeNode, Statement {
 	}
 
 	/**
-	 * Returns a copy of the list of switch sections.
+	 * Returns the list of switch sections.
 	 *
 	 * @return section list
 	 */
-	public List<SwitchSection> get_sections () {
+	public unowned List<SwitchSection> get_sections () {
 		return sections;
 	}
 
@@ -90,6 +90,12 @@ public class Vala.SwitchStatement : CodeNode, Statement {
 	public override void replace_expression (Expression old_node, Expression new_node) {
 		if (expression == old_node) {
 			expression = new_node;
+		}
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		foreach (SwitchSection section in sections) {
+			section.get_error_types (collection, source_reference);
 		}
 	}
 
@@ -140,7 +146,6 @@ public class Vala.SwitchStatement : CodeNode, Statement {
 					}
 				}
 			}
-			add_error_types (section.get_error_types ());
 		}
 
 		return !error;
