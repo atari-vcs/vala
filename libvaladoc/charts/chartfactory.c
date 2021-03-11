@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <graphviz/gvc.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include "valadoc.h"
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CHARTS_FACTORY_0_PROPERTY,
@@ -37,7 +36,6 @@ enum  {
 };
 static GParamSpec* valadoc_charts_factory_properties[VALADOC_CHARTS_FACTORY_NUM_PROPERTIES];
 #define _g_free0(var) (var = (g_free (var), NULL))
-
 
 static gpointer valadoc_charts_factory_parent_class = NULL;
 
@@ -72,18 +70,18 @@ static Agedge_t* valadoc_charts_factory_real_add_children (ValadocChartsFactory*
                                                     Agraph_t* graph,
                                                     Agnode_t* parent,
                                                     Agnode_t* child);
-
+static GType valadoc_charts_factory_get_type_once (void);
 
 Agnode_t*
 valadoc_charts_factory_create_type (ValadocChartsFactory* self,
                                     Agraph_t* graph,
                                     ValadocApiNode* item)
 {
-	Agnode_t* result = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
 	Agnode_t* _tmp2_;
 	Agnode_t* _tmp3_;
+	Agnode_t* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -96,7 +94,6 @@ valadoc_charts_factory_create_type (ValadocChartsFactory* self,
 	return result;
 }
 
-
 static Agraph_t*
 valadoc_charts_factory_real_create_graph (ValadocChartsFactory* self,
                                           ValadocApiNode* item)
@@ -104,7 +101,6 @@ valadoc_charts_factory_real_create_graph (ValadocChartsFactory* self,
 	g_critical ("Type `%s' does not implement abstract method `valadoc_charts_factory_create_graph'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return NULL;
 }
-
 
 Agraph_t*
 valadoc_charts_factory_create_graph (ValadocChartsFactory* self,
@@ -114,7 +110,6 @@ valadoc_charts_factory_create_graph (ValadocChartsFactory* self,
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_graph (self, item);
 }
 
-
 static GVC_t*
 valadoc_charts_factory_real_create_context (ValadocChartsFactory* self,
                                             Agraph_t* graph)
@@ -123,7 +118,6 @@ valadoc_charts_factory_real_create_context (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 GVC_t*
 valadoc_charts_factory_create_context (ValadocChartsFactory* self,
                                        Agraph_t* graph)
@@ -131,7 +125,6 @@ valadoc_charts_factory_create_context (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_context (self, graph);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_class (ValadocChartsFactory* self,
@@ -142,7 +135,6 @@ valadoc_charts_factory_real_create_class (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_class (ValadocChartsFactory* self,
                                      Agraph_t* graph,
@@ -151,7 +143,6 @@ valadoc_charts_factory_create_class (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_class (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_struct (ValadocChartsFactory* self,
@@ -162,7 +153,6 @@ valadoc_charts_factory_real_create_struct (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_struct (ValadocChartsFactory* self,
                                       Agraph_t* graph,
@@ -171,7 +161,6 @@ valadoc_charts_factory_create_struct (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_struct (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_interface (ValadocChartsFactory* self,
@@ -182,7 +171,6 @@ valadoc_charts_factory_real_create_interface (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_interface (ValadocChartsFactory* self,
                                          Agraph_t* graph,
@@ -191,7 +179,6 @@ valadoc_charts_factory_create_interface (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_interface (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_enum (ValadocChartsFactory* self,
@@ -202,7 +189,6 @@ valadoc_charts_factory_real_create_enum (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_enum (ValadocChartsFactory* self,
                                     Agraph_t* graph,
@@ -211,7 +197,6 @@ valadoc_charts_factory_create_enum (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_enum (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_delegate (ValadocChartsFactory* self,
@@ -222,7 +207,6 @@ valadoc_charts_factory_real_create_delegate (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_delegate (ValadocChartsFactory* self,
                                         Agraph_t* graph,
@@ -231,7 +215,6 @@ valadoc_charts_factory_create_delegate (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_delegate (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_errordomain (ValadocChartsFactory* self,
@@ -242,7 +225,6 @@ valadoc_charts_factory_real_create_errordomain (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_errordomain (ValadocChartsFactory* self,
                                            Agraph_t* graph,
@@ -251,7 +233,6 @@ valadoc_charts_factory_create_errordomain (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_errordomain (self, graph, item);
 }
-
 
 static Agnode_t*
 valadoc_charts_factory_real_create_namespace (ValadocChartsFactory* self,
@@ -262,7 +243,6 @@ valadoc_charts_factory_real_create_namespace (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agnode_t*
 valadoc_charts_factory_create_namespace (ValadocChartsFactory* self,
                                          Agraph_t* graph,
@@ -271,7 +251,6 @@ valadoc_charts_factory_create_namespace (ValadocChartsFactory* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->create_namespace (self, graph, item);
 }
-
 
 static Agedge_t*
 valadoc_charts_factory_real_add_children (ValadocChartsFactory* self,
@@ -283,7 +262,6 @@ valadoc_charts_factory_real_add_children (ValadocChartsFactory* self,
 	return NULL;
 }
 
-
 Agedge_t*
 valadoc_charts_factory_add_children (ValadocChartsFactory* self,
                                      Agraph_t* graph,
@@ -294,7 +272,6 @@ valadoc_charts_factory_add_children (ValadocChartsFactory* self,
 	return VALADOC_CHARTS_FACTORY_GET_CLASS (self)->add_children (self, graph, parent, child);
 }
 
-
 ValadocChartsFactory*
 valadoc_charts_factory_construct (GType object_type)
 {
@@ -303,9 +280,9 @@ valadoc_charts_factory_construct (GType object_type)
 	return self;
 }
 
-
 static void
-valadoc_charts_factory_class_init (ValadocChartsFactoryClass * klass)
+valadoc_charts_factory_class_init (ValadocChartsFactoryClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_charts_factory_parent_class = g_type_class_peek_parent (klass);
 	((ValadocChartsFactoryClass *) klass)->create_graph = (Agraph_t* (*) (ValadocChartsFactory*, ValadocApiNode*)) valadoc_charts_factory_real_create_graph;
@@ -320,25 +297,30 @@ valadoc_charts_factory_class_init (ValadocChartsFactoryClass * klass)
 	((ValadocChartsFactoryClass *) klass)->add_children = (Agedge_t* (*) (ValadocChartsFactory*, Agraph_t*, Agnode_t*, Agnode_t*)) valadoc_charts_factory_real_add_children;
 }
 
-
 static void
-valadoc_charts_factory_instance_init (ValadocChartsFactory * self)
+valadoc_charts_factory_instance_init (ValadocChartsFactory * self,
+                                      gpointer klass)
 {
 }
 
+static GType
+valadoc_charts_factory_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsFactory), 0, (GInstanceInitFunc) valadoc_charts_factory_instance_init, NULL };
+	GType valadoc_charts_factory_type_id;
+	valadoc_charts_factory_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocChartsFactory", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return valadoc_charts_factory_type_id;
+}
 
 GType
 valadoc_charts_factory_get_type (void)
 {
 	static volatile gsize valadoc_charts_factory_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_charts_factory_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsFactory), 0, (GInstanceInitFunc) valadoc_charts_factory_instance_init, NULL };
 		GType valadoc_charts_factory_type_id;
-		valadoc_charts_factory_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocChartsFactory", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+		valadoc_charts_factory_type_id = valadoc_charts_factory_get_type_once ();
 		g_once_init_leave (&valadoc_charts_factory_type_id__volatile, valadoc_charts_factory_type_id);
 	}
 	return valadoc_charts_factory_type_id__volatile;
 }
-
-
 

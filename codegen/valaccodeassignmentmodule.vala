@@ -29,8 +29,6 @@ using GLib;
  */
 public class Vala.CCodeAssignmentModule : CCodeMemberAccessModule {
 	TargetValue emit_simple_assignment (Assignment assignment) {
-		Variable variable = (Variable) assignment.left.symbol_reference;
-
 		if (requires_destroy (assignment.left.value_type)) {
 			/* unref old value */
 			ccode.add_expression (destroy_value (assignment.left.target_value));
@@ -40,28 +38,40 @@ public class Vala.CCodeAssignmentModule : CCodeMemberAccessModule {
 			store_value (assignment.left.target_value, assignment.right.target_value, assignment.source_reference);
 		} else {
 			CCodeAssignmentOperator cop;
-			if (assignment.operator == AssignmentOperator.BITWISE_OR) {
-				cop = CCodeAssignmentOperator.BITWISE_OR;
-			} else if (assignment.operator == AssignmentOperator.BITWISE_AND) {
-				cop = CCodeAssignmentOperator.BITWISE_AND;
-			} else if (assignment.operator == AssignmentOperator.BITWISE_XOR) {
-				cop = CCodeAssignmentOperator.BITWISE_XOR;
-			} else if (assignment.operator == AssignmentOperator.ADD) {
-				cop = CCodeAssignmentOperator.ADD;
-			} else if (assignment.operator == AssignmentOperator.SUB) {
-				cop = CCodeAssignmentOperator.SUB;
-			} else if (assignment.operator == AssignmentOperator.MUL) {
-				cop = CCodeAssignmentOperator.MUL;
-			} else if (assignment.operator == AssignmentOperator.DIV) {
-				cop = CCodeAssignmentOperator.DIV;
-			} else if (assignment.operator == AssignmentOperator.PERCENT) {
-				cop = CCodeAssignmentOperator.PERCENT;
-			} else if (assignment.operator == AssignmentOperator.SHIFT_LEFT) {
-				cop = CCodeAssignmentOperator.SHIFT_LEFT;
-			} else if (assignment.operator == AssignmentOperator.SHIFT_RIGHT) {
-				cop = CCodeAssignmentOperator.SHIFT_RIGHT;
-			} else {
-				assert_not_reached ();
+
+			switch (assignment.operator) {
+			case AssignmentOperator.BITWISE_OR: cop = CCodeAssignmentOperator.BITWISE_OR; break;
+			case AssignmentOperator.BITWISE_AND: cop = CCodeAssignmentOperator.BITWISE_AND; break;
+			case AssignmentOperator.BITWISE_XOR: cop = CCodeAssignmentOperator.BITWISE_XOR; break;
+			case AssignmentOperator.ADD: cop = CCodeAssignmentOperator.ADD; break;
+			case AssignmentOperator.SUB: cop = CCodeAssignmentOperator.SUB; break;
+			case AssignmentOperator.MUL: cop = CCodeAssignmentOperator.MUL; break;
+			case AssignmentOperator.DIV: cop = CCodeAssignmentOperator.DIV; break;
+			case AssignmentOperator.PERCENT:
+				// FIXME Code duplication with CCodeBaseModule.visit_binary_expression()
+				var cleft = get_cvalue (assignment.left);
+				var cright = get_cvalue (assignment.right);
+				if (assignment.value_type.equals (double_type)) {
+					cfile.add_include ("math.h");
+					var ccall = new CCodeFunctionCall (new CCodeIdentifier ("fmod"));
+					ccall.add_argument (cleft);
+					ccall.add_argument (cright);
+					set_cvalue (assignment.right, ccall);
+					cop = CCodeAssignmentOperator.SIMPLE;
+				} else if (assignment.value_type.equals (float_type)) {
+					cfile.add_include ("math.h");
+					var ccall = new CCodeFunctionCall (new CCodeIdentifier ("fmodf"));
+					ccall.add_argument (cleft);
+					ccall.add_argument (cright);
+					set_cvalue (assignment.right, ccall);
+					cop = CCodeAssignmentOperator.SIMPLE;
+				} else {
+					cop = CCodeAssignmentOperator.PERCENT;
+				}
+				break;
+			case AssignmentOperator.SHIFT_LEFT: cop = CCodeAssignmentOperator.SHIFT_LEFT; break;
+			case AssignmentOperator.SHIFT_RIGHT: cop = CCodeAssignmentOperator.SHIFT_RIGHT; break;
+			default: assert_not_reached ();
 			}
 
 			CCodeExpression codenode = new CCodeAssignment (get_cvalue (assignment.left), get_cvalue (assignment.right), cop);
@@ -69,9 +79,10 @@ public class Vala.CCodeAssignmentModule : CCodeMemberAccessModule {
 		}
 
 		if (assignment.left.value_type is ArrayType && (((ArrayType) assignment.left.value_type).inline_allocated)) {
+			unowned Variable variable = (Variable) assignment.left.symbol_reference;
 			return load_variable (variable, assignment.left.target_value);
 		} else {
-			return assignment.right.target_value;
+			return assignment.left.target_value;
 		}
 	}
 
@@ -82,8 +93,8 @@ public class Vala.CCodeAssignmentModule : CCodeMemberAccessModule {
 		}
 
 		if (assignment.left.symbol_reference is Property) {
-			var ma = assignment.left as MemberAccess;
-			var prop = (Property) assignment.left.symbol_reference;
+			unowned MemberAccess ma = (MemberAccess) assignment.left;
+			unowned Property prop = (Property) assignment.left.symbol_reference;
 
 			store_property (prop, ma.inner, assignment.right.target_value);
 			assignment.target_value = assignment.right.target_value;
@@ -221,7 +232,7 @@ public class Vala.CCodeAssignmentModule : CCodeMemberAccessModule {
 		if (lvalue.actual_value_type != null) {
 			type = lvalue.actual_value_type;
 		}
-		if (get_ccode_delegate_target (field) && requires_destroy (type)) {
+		if ((!(field.variable_type is DelegateType) || get_ccode_delegate_target (field)) && requires_destroy (type)) {
 			/* unref old value */
 			ccode.add_expression (destroy_field (field, instance));
 		}

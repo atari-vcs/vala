@@ -40,9 +40,18 @@ public abstract class Vala.DataType : CodeNode {
 	public bool nullable { get; set; }
 
 	/**
-	 * The referred data type.
+	 * The referred symbol.
 	 */
-	public weak TypeSymbol data_type { get; set; }
+	public weak Symbol? symbol { get; private set; }
+
+	/**
+	 * The referred type symbol.
+	 */
+	public weak TypeSymbol? type_symbol {
+		get {
+			return symbol as TypeSymbol;
+		}
+	}
 
 	/**
 	 * Specifies that the expression transfers a floating reference.
@@ -56,6 +65,10 @@ public abstract class Vala.DataType : CodeNode {
 
 	private List<DataType> type_argument_list;
 	private static List<DataType> _empty_type_list;
+
+	protected DataType.with_symbol (Symbol? symbol) {
+		this.symbol = symbol;
+	}
 
 	/**
 	 * Appends the specified type as generic type argument.
@@ -71,11 +84,11 @@ public abstract class Vala.DataType : CodeNode {
 	}
 
 	/**
-	 * Returns a copy of the list of generic type arguments.
+	 * Returns the list of generic type arguments.
 	 *
 	 * @return type argument list
 	 */
-	public List<DataType> get_type_arguments () {
+	public unowned List<DataType> get_type_arguments () {
 		if (type_argument_list != null) {
 			return type_argument_list;
 		}
@@ -117,13 +130,11 @@ public abstract class Vala.DataType : CodeNode {
 	}
 
 	public virtual string to_qualified_string (Scope? scope = null) {
-		// logic temporarily duplicated in DelegateType class
-
 		string s;
 
-		if (data_type != null) {
-			Symbol global_symbol = data_type;
-			while (global_symbol.parent_symbol.name != null) {
+		if (type_symbol != null) {
+			Symbol global_symbol = type_symbol;
+			while (global_symbol.parent_symbol != null && global_symbol.parent_symbol.name != null) {
 				global_symbol = global_symbol.parent_symbol;
 			}
 
@@ -135,9 +146,9 @@ public abstract class Vala.DataType : CodeNode {
 			}
 
 			if (sym != null && global_symbol != sym) {
-				s = "global::" + data_type.get_full_name ();;
+				s = "global::" + type_symbol.get_full_name ();;
 			} else {
-				s = data_type.get_full_name ();
+				s = type_symbol.get_full_name ();
 			}
 		} else {
 			s = "null";
@@ -153,7 +164,7 @@ public abstract class Vala.DataType : CodeNode {
 				} else {
 					first = false;
 				}
-				if (!type_arg.value_owned) {
+				if (type_arg.is_weak ()) {
 					s += "weak ";
 				}
 				s += type_arg.to_qualified_string (scope);
@@ -189,7 +200,7 @@ public abstract class Vala.DataType : CodeNode {
 		if (type2.nullable != nullable) {
 			return false;
 		}
-		if (type2.data_type != data_type) {
+		if (type2.type_symbol != type_symbol) {
 			return false;
 		}
 		if (type2 is GenericType || this is GenericType) {
@@ -239,7 +250,7 @@ public abstract class Vala.DataType : CodeNode {
 			return true;
 		}
 
-		if (type2.data_type != data_type) {
+		if (type2.type_symbol != type_symbol) {
 			// FIXME: allow this type reference to refer to a
 			//        subtype of the type type2 is referring to
 			return false;
@@ -264,17 +275,21 @@ public abstract class Vala.DataType : CodeNode {
 	}
 
 	public virtual bool compatible (DataType target_type) {
-		if (CodeContext.get ().experimental_non_null && nullable && !target_type.nullable) {
+		var context = CodeContext.get ();
+
+		if (context.experimental_non_null && nullable && !target_type.nullable) {
 			return false;
 		}
 
-		if (CodeContext.get ().profile == Profile.GOBJECT && target_type.data_type != null) {
-			if (target_type.data_type.is_subtype_of (CodeContext.get ().analyzer.gvalue_type.data_type)) {
+		if (context.profile == Profile.GOBJECT && target_type.type_symbol != null) {
+			unowned DataType? gvalue_type = context.analyzer.gvalue_type;
+			if (gvalue_type != null && target_type.type_symbol.is_subtype_of (gvalue_type.type_symbol)) {
 				// allow implicit conversion to GValue
 				return true;
 			}
 
-			if (target_type.data_type.is_subtype_of (CodeContext.get ().analyzer.gvariant_type.data_type)) {
+			unowned DataType? gvariant_type = context.analyzer.gvariant_type;
+			if (gvariant_type != null && target_type.type_symbol.is_subtype_of (gvariant_type.type_symbol)) {
 				// allow implicit conversion to GVariant
 				return true;
 			}
@@ -283,8 +298,8 @@ public abstract class Vala.DataType : CodeNode {
 		if (target_type is PointerType) {
 			/* any reference or array type or pointer type can be cast to a generic pointer */
 			if (this is GenericType ||
-				(data_type != null && (
-					data_type.is_reference_type () ||
+				(type_symbol != null && (
+					type_symbol.is_reference_type () ||
 					this is DelegateType))) {
 				return true;
 			}
@@ -301,15 +316,29 @@ public abstract class Vala.DataType : CodeNode {
 			return false;
 		}
 
-		if (data_type is Enum && target_type.data_type is Struct && ((Struct) target_type.data_type).is_integer_type ()) {
+		if (type_symbol is Enum && target_type.type_symbol is Struct && ((Struct) target_type.type_symbol).is_integer_type ()) {
 			return true;
 		}
 
-		if (data_type != null && target_type.data_type != null && data_type.is_subtype_of (target_type.data_type)) {
-			var base_type = SemanticAnalyzer.get_instance_base_type_for_member(this, target_type.data_type, this);
+		// check for matching ownership of type-arguments
+		var type_args = get_type_arguments ();
+		var target_type_args = target_type.get_type_arguments ();
+		if (type_args.size == target_type_args.size) {
+			for (int i = 0; i < type_args.size; i++) {
+				var type_arg = type_args[i];
+				var target_type_arg = target_type_args[i];
+				// Ignore non-boxed simple-type structs
+				if (!type_arg.is_non_null_simple_type ()
+				    && type_arg.is_weak () != target_type_arg.is_weak ()) {
+					return false;
+				}
+			}
+		}
+
+		if (type_symbol != null && target_type.type_symbol != null && type_symbol.is_subtype_of (target_type.type_symbol)) {
+			var base_type = SemanticAnalyzer.get_instance_base_type_for_member(this, target_type.type_symbol, this);
 			// check compatibility of generic type arguments
 			var base_type_args = base_type.get_type_arguments();
-			var target_type_args = target_type.get_type_arguments();
 			if (base_type_args.size == target_type_args.size) {
 				for (int i = 0; i < base_type_args.size; i++) {
 					// mutable generic types require type argument equality,
@@ -325,9 +354,9 @@ public abstract class Vala.DataType : CodeNode {
 			return true;
 		}
 
-		if (data_type is Struct && target_type.data_type is Struct) {
-			var expr_struct = (Struct) data_type;
-			var expect_struct = (Struct) target_type.data_type;
+		if (type_symbol is Struct && target_type.type_symbol is Struct) {
+			unowned Struct expr_struct = (Struct) type_symbol;
+			unowned Struct expect_struct = (Struct) target_type.type_symbol;
 
 			/* integer types may be implicitly cast to floating point types */
 			if (expr_struct.is_integer_type () && expect_struct.is_floating_type ()) {
@@ -339,6 +368,15 @@ public abstract class Vala.DataType : CodeNode {
 				if (expr_struct.rank <= expect_struct.rank) {
 					return true;
 				}
+			}
+
+			if (expr_struct.is_boolean_type () && expect_struct.is_boolean_type ()) {
+				return true;
+			}
+
+			// Allow compatibility of struct subtypes in both ways
+			if (expect_struct.is_subtype_of (expr_struct)) {
+				return true;
 			}
 		}
 
@@ -359,27 +397,23 @@ public abstract class Vala.DataType : CodeNode {
 	 *
 	 * @return return type
 	 */
-	public virtual DataType? get_return_type () {
+	public virtual unowned DataType? get_return_type () {
 		return null;
 	}
 
 	/**
-	 * Returns copy of the list of invocation parameters.
+	 * Returns the list of invocation parameters.
 	 *
 	 * @return parameter list
 	 */
-	public virtual List<Parameter>? get_parameters () {
+	public virtual unowned List<Parameter>? get_parameters () {
 		return null;
 	}
 
 	public virtual bool is_reference_type_or_type_parameter () {
-		return (data_type != null &&
-		        data_type.is_reference_type ()) ||
+		return (type_symbol != null &&
+		        type_symbol.is_reference_type ()) ||
 		       this is GenericType;
-	}
-
-	public virtual bool is_array () {
-		return false;
 	}
 
 	// check whether this type is at least as accessible as the specified symbol
@@ -389,15 +423,15 @@ public abstract class Vala.DataType : CodeNode {
 				return false;
 			}
 		}
-		if (data_type != null) {
-			return data_type.is_accessible (sym);
+		if (type_symbol != null) {
+			return type_symbol.is_accessible (sym);
 		}
 		return true;
 	}
 
 	public virtual Symbol? get_member (string member_name) {
-		if (data_type != null) {
-			return SemanticAnalyzer.symbol_lookup_inherited (data_type, member_name);
+		if (type_symbol != null) {
+			return SemanticAnalyzer.symbol_lookup_inherited (type_symbol, member_name);
 		}
 		return null;
 	}
@@ -411,7 +445,7 @@ public abstract class Vala.DataType : CodeNode {
 	 * is a struct which is not a simple (fundamental) type.
 	 */
 	public virtual bool is_real_struct_type () {
-		var s = data_type as Struct;
+		unowned Struct? s = type_symbol as Struct;
 		if (s != null && !s.is_simple_type ()) {
 			return true;
 		}
@@ -420,6 +454,14 @@ public abstract class Vala.DataType : CodeNode {
 
 	public bool is_real_non_null_struct_type () {
 		return is_real_struct_type () && !nullable;
+	}
+
+	public bool is_non_null_simple_type () {
+		unowned Struct? s = type_symbol as Struct;
+		if (s != null && s.is_simple_type ()) {
+			return !nullable;
+		}
+		return false;
 	}
 
 	/**
@@ -438,18 +480,14 @@ public abstract class Vala.DataType : CodeNode {
 		return false;
 	}
 
-	public virtual DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode node_reference) {
+	public virtual DataType get_actual_type (DataType? derived_instance_type, List<DataType>? method_type_arguments, CodeNode? node_reference) {
 		DataType result = this.copy ();
 
 		if (derived_instance_type == null && method_type_arguments == null) {
 			return result;
 		}
 
-		if (result is GenericType) {
-			result = SemanticAnalyzer.get_actual_type (derived_instance_type, method_type_arguments, (GenericType) result, node_reference);
-			// don't try to resolve type arguments of returned actual type
-			// they can never be resolved and are not related to the instance type
-		} else if (result.type_argument_list != null) {
+		if (result.type_argument_list != null) {
 			// recursely get actual types for type arguments
 			for (int i = 0; i < result.type_argument_list.size; i++) {
 				result.type_argument_list[i] = result.type_argument_list[i].get_actual_type (derived_instance_type, method_type_arguments, node_reference);
@@ -503,5 +541,75 @@ public abstract class Vala.DataType : CodeNode {
 		}
 
 		return true;
+	}
+
+	public string? get_type_signature (Symbol? symbol = null) {
+		if (symbol != null) {
+			string sig = symbol.get_attribute_string ("DBus", "signature");
+			if (sig != null) {
+				// allow overriding signature in attribute, used for raw GVariants
+				return sig;
+			}
+		}
+
+		unowned ArrayType? array_type = this as ArrayType;
+
+		if (array_type != null) {
+			string element_type_signature = array_type.element_type.get_type_signature ();
+
+			if (element_type_signature == null) {
+				return null;
+			}
+
+			return string.nfill (array_type.rank, 'a') + element_type_signature;
+		} else if (type_symbol is Enum && type_symbol.get_attribute_bool ("DBus", "use_string_marshalling")) {
+			return "s";
+		} else if (type_symbol != null) {
+			string sig = type_symbol.get_attribute_string ("CCode", "type_signature");
+
+			unowned Struct? st = type_symbol as Struct;
+			unowned Enum? en = type_symbol as Enum;
+			if (sig == null && st != null) {
+				var str = new StringBuilder ();
+				str.append_c ('(');
+				foreach (Field f in st.get_fields ()) {
+					if (f.binding == MemberBinding.INSTANCE) {
+						str.append (f.variable_type.get_type_signature (f));
+					}
+				}
+				str.append_c (')');
+				sig = str.str;
+			} else if (sig == null && en != null) {
+				if (en.is_flags) {
+					return "u";
+				} else {
+					return "i";
+				}
+			}
+
+			var type_args = get_type_arguments ();
+			if (sig != null && "%s" in sig && type_args.size > 0) {
+				string element_sig = "";
+				foreach (DataType type_arg in type_args) {
+					var s = type_arg.get_type_signature ();
+					if (s != null) {
+						element_sig += s;
+					}
+				}
+
+				sig = sig.replace ("%s", element_sig);
+			}
+
+			if (sig == null &&
+			    (type_symbol.get_full_name () == "GLib.UnixInputStream" ||
+			     type_symbol.get_full_name () == "GLib.UnixOutputStream" ||
+			     type_symbol.get_full_name () == "GLib.Socket")) {
+				return "h";
+			}
+
+			return sig;
+		} else {
+			return null;
+		}
 	}
 }

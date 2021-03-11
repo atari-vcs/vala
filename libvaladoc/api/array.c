@@ -23,10 +23,8 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <vala.h>
 
 enum  {
@@ -42,13 +40,13 @@ struct _ValadocApiArrayPrivate {
 	ValadocApiItem* _data_type;
 };
 
-
 static gint ValadocApiArray_private_offset;
 static gpointer valadoc_api_array_parent_class = NULL;
 
 static inline gboolean valadoc_api_array_element_is_owned (ValadocApiArray* self);
 static ValadocContentInline* valadoc_api_array_real_build_signature (ValadocApiItem* base);
 static void valadoc_api_array_finalize (GObject * obj);
+static GType valadoc_api_array_get_type_once (void);
 static void _vala_valadoc_api_array_get_property (GObject * object,
                                            guint property_id,
                                            GValue * value,
@@ -58,13 +56,44 @@ static void _vala_valadoc_api_array_set_property (GObject * object,
                                            const GValue * value,
                                            GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_array_get_instance_private (ValadocApiArray* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiArray_private_offset);
 }
 
+ValadocApiItem*
+valadoc_api_array_get_data_type (ValadocApiArray* self)
+{
+	ValadocApiItem* result;
+	ValadocApiItem* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_data_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_api_array_set_data_type (ValadocApiArray* self,
+                                 ValadocApiItem* value)
+{
+	ValadocApiItem* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_array_get_data_type (self);
+	if (old_value != value) {
+		ValadocApiItem* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_data_type);
+		self->priv->_data_type = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_array_properties[VALADOC_API_ARRAY_DATA_TYPE_PROPERTY]);
+	}
+}
 
 ValadocApiArray*
 valadoc_api_array_construct (GType object_type,
@@ -79,7 +108,6 @@ valadoc_api_array_construct (GType object_type,
 	return self;
 }
 
-
 ValadocApiArray*
 valadoc_api_array_new (ValadocApiItem* parent,
                        ValaArrayType* data)
@@ -87,18 +115,9 @@ valadoc_api_array_new (ValadocApiItem* parent,
 	return valadoc_api_array_construct (VALADOC_API_TYPE_ARRAY, parent, data);
 }
 
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
 static inline gboolean
 valadoc_api_array_element_is_owned (ValadocApiArray* self)
 {
-	gboolean result = FALSE;
 	ValadocApiTypeReference* reference = NULL;
 	ValadocApiItem* _tmp0_;
 	ValadocApiTypeReference* _tmp1_;
@@ -107,9 +126,10 @@ valadoc_api_array_element_is_owned (ValadocApiArray* self)
 	ValadocApiTypeReference* _tmp4_;
 	gboolean _tmp5_;
 	gboolean _tmp6_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->_data_type;
-	_tmp1_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp0_, VALADOC_API_TYPE_TYPEREFERENCE) ? ((ValadocApiTypeReference*) _tmp0_) : NULL);
+	_tmp1_ = _g_object_ref0 (VALADOC_API_IS_TYPEREFERENCE (_tmp0_) ? ((ValadocApiTypeReference*) _tmp0_) : NULL);
 	reference = _tmp1_;
 	_tmp2_ = reference;
 	if (_tmp2_ == NULL) {
@@ -136,7 +156,6 @@ valadoc_api_array_element_is_owned (ValadocApiArray* self)
 	return result;
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -144,12 +163,12 @@ static ValadocContentInline*
 valadoc_api_array_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiArray * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* builder = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp11_;
 	ValadocApiSignatureBuilder* _tmp12_;
 	ValadocContentRun* _tmp13_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiArray*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	builder = _tmp0_;
@@ -189,36 +208,9 @@ valadoc_api_array_real_build_signature (ValadocApiItem* base)
 	return result;
 }
 
-
-ValadocApiItem*
-valadoc_api_array_get_data_type (ValadocApiArray* self)
-{
-	ValadocApiItem* result;
-	ValadocApiItem* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_data_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_api_array_set_data_type (ValadocApiArray* self,
-                                 ValadocApiItem* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_array_get_data_type (self) != value) {
-		ValadocApiItem* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_data_type);
-		self->priv->_data_type = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_array_properties[VALADOC_API_ARRAY_DATA_TYPE_PROPERTY]);
-	}
-}
-
-
 static void
-valadoc_api_array_class_init (ValadocApiArrayClass * klass)
+valadoc_api_array_class_init (ValadocApiArrayClass * klass,
+                              gpointer klass_data)
 {
 	valadoc_api_array_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiArray_private_offset);
@@ -232,13 +224,12 @@ valadoc_api_array_class_init (ValadocApiArrayClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_ARRAY_DATA_TYPE_PROPERTY, valadoc_api_array_properties[VALADOC_API_ARRAY_DATA_TYPE_PROPERTY] = g_param_spec_object ("data-type", "data-type", "data-type", VALADOC_API_TYPE_ITEM, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_api_array_instance_init (ValadocApiArray * self)
+valadoc_api_array_instance_init (ValadocApiArray * self,
+                                 gpointer klass)
 {
 	self->priv = valadoc_api_array_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_array_finalize (GObject * obj)
@@ -249,24 +240,30 @@ valadoc_api_array_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_array_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an array declaration.
  */
+static GType
+valadoc_api_array_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiArrayClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_array_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiArray), 0, (GInstanceInitFunc) valadoc_api_array_instance_init, NULL };
+	GType valadoc_api_array_type_id;
+	valadoc_api_array_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiArray", &g_define_type_info, 0);
+	ValadocApiArray_private_offset = g_type_add_instance_private (valadoc_api_array_type_id, sizeof (ValadocApiArrayPrivate));
+	return valadoc_api_array_type_id;
+}
+
 GType
 valadoc_api_array_get_type (void)
 {
 	static volatile gsize valadoc_api_array_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_array_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiArrayClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_array_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiArray), 0, (GInstanceInitFunc) valadoc_api_array_instance_init, NULL };
 		GType valadoc_api_array_type_id;
-		valadoc_api_array_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiArray", &g_define_type_info, 0);
-		ValadocApiArray_private_offset = g_type_add_instance_private (valadoc_api_array_type_id, sizeof (ValadocApiArrayPrivate));
+		valadoc_api_array_type_id = valadoc_api_array_get_type_once ();
 		g_once_init_leave (&valadoc_api_array_type_id__volatile, valadoc_api_array_type_id);
 	}
 	return valadoc_api_array_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_array_get_property (GObject * object,
@@ -286,7 +283,6 @@ _vala_valadoc_api_array_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_array_set_property (GObject * object,
                                       guint property_id,
@@ -304,6 +300,4 @@ _vala_valadoc_api_array_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

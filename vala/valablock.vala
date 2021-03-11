@@ -43,7 +43,7 @@ public class Vala.Block : Symbol, Statement {
 	 *
 	 * @param source_reference  reference to source code
 	 */
-	public Block (SourceReference? source_reference) {
+	public Block (SourceReference? source_reference = null) {
 		base (null, source_reference);
 	}
 
@@ -70,7 +70,7 @@ public class Vala.Block : Symbol, Statement {
 	public List<Statement> get_statements () {
 		var list = new ArrayList<Statement> ();
 		foreach (Statement stmt in statement_list) {
-			var stmt_list = stmt as StatementList;
+			unowned StatementList? stmt_list = stmt as StatementList;
 			if (stmt_list != null) {
 				for (int i = 0; i < stmt_list.length; i++) {
 					list.add (stmt_list.get (i));
@@ -88,7 +88,7 @@ public class Vala.Block : Symbol, Statement {
 	 * @param local a variable declarator
 	 */
 	public void add_local_variable (LocalVariable local) {
-		var parent_block = parent_symbol;
+		unowned Symbol? parent_block = parent_symbol;
 		while (parent_block is Block || parent_block is Method || parent_block is PropertyAccessor) {
 			if (parent_block.scope.lookup (local.name) != null) {
 				Report.error (local.source_reference, "Local variable `%s' conflicts with a local variable or constant declared in a parent scope".printf (local.name));
@@ -104,16 +104,16 @@ public class Vala.Block : Symbol, Statement {
 	}
 
 	/**
-	 * Returns a copy of the list of local variables.
+	 * Returns the list of local variables.
 	 *
 	 * @return variable declarator list
 	 */
-	public List<LocalVariable> get_local_variables () {
+	public unowned List<LocalVariable> get_local_variables () {
 		return local_variables;
 	}
 
 	public void add_local_constant (Constant constant) {
-		var parent_block = parent_symbol;
+		unowned Symbol? parent_block = parent_symbol;
 		while (parent_block is Block || parent_block is Method || parent_block is PropertyAccessor) {
 			if (parent_block.scope.lookup (constant.name) != null) {
 				Report.error (constant.source_reference, "Local constant `%s' conflicts with a local variable or constant declared in a parent scope".printf (constant.name));
@@ -123,6 +123,15 @@ public class Vala.Block : Symbol, Statement {
 		}
 		local_constants.add (constant);
 		scope.add (constant.name, constant);
+	}
+
+	/**
+	 * Returns the list of local constants.
+	 *
+	 * @return constants list
+	 */
+	public unowned List<Constant> get_local_constants () {
+		return local_constants;
 	}
 
 	public override void accept (CodeVisitor visitor) {
@@ -150,7 +159,9 @@ public class Vala.Block : Symbol, Statement {
 		context.analyzer.insert_block = this;
 
 		for (int i = 0; i < statement_list.size; i++) {
-			statement_list[i].check (context);
+			if (!statement_list[i].check (context)) {
+				error = true;
+			}
 		}
 
 		foreach (LocalVariable local in get_local_variables ()) {
@@ -161,15 +172,17 @@ public class Vala.Block : Symbol, Statement {
 			constant.active = false;
 		}
 
-		// use get_statements () instead of statement_list to not miss errors within StatementList objects
-		foreach (Statement stmt in get_statements ()) {
-			add_error_types (stmt.get_error_types ());
-		}
-
 		context.analyzer.current_symbol = old_symbol;
 		context.analyzer.insert_block = old_insert_block;
 
 		return !error;
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		// use get_statements () instead of statement_list to not miss errors within StatementList objects
+		foreach (Statement stmt in get_statements ()) {
+			stmt.get_error_types (collection, source_reference);
+		}
 	}
 
 	public override void emit (CodeGenerator codegen) {

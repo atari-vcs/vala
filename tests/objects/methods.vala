@@ -84,6 +84,11 @@ class Maman.SubBar : Bar {
 		assert (array[1] == "world");
 		assert (array.length < 0);
 
+		// LeakSanitizer -fsanitize=address
+		if (array.length == -1) {
+			array.length = (int) strv_length (array);
+		}
+
 		ClassTest.run_test ();
 
 		return 0;
@@ -221,8 +226,3 @@ class Maman.ClassTest {
 		c.instance_method ();
 	}
 }
-
-void main () {
-	Maman.SubBar.main ();
-}
-

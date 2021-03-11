@@ -22,7 +22,7 @@ namespace GI {
 	[CCode (cheader_filename = "girepository.h", lower_case_cprefix = "g_base_info_", lower_case_csuffix = "base_info_gtype", ref_function = "g_base_info_ref", type_id = "g_base_info_gtype_get_type ()", unref_function = "g_base_info_unref")]
 	[Compact]
 	public class BaseInfo {
-		[CCode (cname = "g_info_new")]
+		[CCode (cname = "g_info_new", has_construct_function = false)]
 		public BaseInfo (GI.InfoType type, GI.BaseInfo container, GI.Typelib typelib, uint32 offset);
 		public bool equal (GI.BaseInfo info2);
 		public unowned string get_attribute (string name);
@@ -192,6 +192,8 @@ namespace GI {
 		[CCode (array_length = false, array_null_terminated = true)]
 		public string[] get_loaded_namespaces ();
 		public int get_n_infos (string namespace_);
+		[Version (since = "1.62")]
+		public void get_object_gtype_interfaces (GLib.Type gtype, [CCode (array_length_cname = "n_interfaces_out", array_length_pos = 1.5, array_length_type = "guint")] out unowned GI.InterfaceInfo[] interfaces_out);
 		public static GLib.OptionGroup get_option_group ();
 		public static unowned GLib.SList<string> get_search_path ();
 		public unowned string get_shared_library (string namespace_);
@@ -226,7 +228,7 @@ namespace GI {
 		public bool is_foreign ();
 		public bool is_gtype_struct ();
 	}
-	[CCode (cheader_filename = "girepository.h", type_id = "g_base_info_gtype_get_type ()")]
+	[CCode (cheader_filename = "girepository.h", lower_case_csuffix = "type_info", type_id = "g_base_info_gtype_get_type ()")]
 	[Compact]
 	public class TypeInfo : GI.BaseInfo {
 		public int get_array_fixed_size ();
@@ -402,6 +404,7 @@ namespace GI {
 		GHASH,
 		ERROR,
 		UNICHAR;
+		[CCode (cname = "g_type_tag_to_string")]
 		public unowned string to_string ();
 	}
 	[CCode (cheader_filename = "girepository.h", cprefix = "GI_VFUNC_", has_type_id = false)]
@@ -437,4 +440,24 @@ namespace GI {
 	public delegate void ObjectInfoSetValueFunction (GLib.Value value, void* object);
 	[CCode (cheader_filename = "girepository.h", has_target = false)]
 	public delegate void ObjectInfoUnrefFunction (void* object);
+	[CCode (cheader_filename = "girepository.h", cname = "GI_MAJOR_VERSION")]
+	[Version (since = "1.60")]
+	public const int MAJOR_VERSION;
+	[CCode (cheader_filename = "girepository.h", cname = "GI_MICRO_VERSION")]
+	[Version (since = "1.60")]
+	public const int MICRO_VERSION;
+	[CCode (cheader_filename = "girepository.h", cname = "GI_MINOR_VERSION")]
+	[Version (since = "1.60")]
+	public const int MINOR_VERSION;
+	[CCode (cheader_filename = "girepository.h", cname = "GI_TYPE_TAG_N_TYPES")]
+	public const int TYPE_TAG_N_TYPES;
+	[CCode (cheader_filename = "girepository.h", cname = "gi_get_major_version")]
+	[Version (since = "1.60")]
+	public static uint get_major_version ();
+	[CCode (cheader_filename = "girepository.h", cname = "gi_get_micro_version")]
+	[Version (since = "1.60")]
+	public static uint get_micro_version ();
+	[CCode (cheader_filename = "girepository.h", cname = "gi_get_minor_version")]
+	[Version (since = "1.60")]
+	public static uint get_minor_version ();
 }

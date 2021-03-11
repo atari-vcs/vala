@@ -23,16 +23,13 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
-#include <valagee.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
-#include <float.h>
-#include <math.h>
+#include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_API_ATTRIBUTE_0_PROPERTY,
@@ -40,17 +37,17 @@ enum  {
 	VALADOC_API_ATTRIBUTE_NUM_PROPERTIES
 };
 static GParamSpec* valadoc_api_attribute_properties[VALADOC_API_ATTRIBUTE_NUM_PROPERTIES];
-#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
+#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
+#define _vala_iterator_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterator_unref (var), NULL)))
+#define _g_sequence_free0(var) ((var == NULL) ? NULL : (var = (g_sequence_free (var), NULL)))
 #define _valadoc_api_signature_builder_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_signature_builder_unref (var), NULL)))
 
 struct _ValadocApiAttributePrivate {
-	ValaArrayList* args;
 	ValadocApiSourceFile* file;
 	gchar* _name;
 };
-
 
 static gint ValadocApiAttribute_private_offset;
 static gpointer valadoc_api_attribute_parent_class = NULL;
@@ -58,7 +55,9 @@ static gpointer valadoc_api_attribute_parent_class = NULL;
 static void valadoc_api_attribute_set_name (ValadocApiAttribute* self,
                                      const gchar* value);
 static ValadocContentInline* valadoc_api_attribute_real_build_signature (ValadocApiItem* base);
+static void _g_free0_ (gpointer var);
 static void valadoc_api_attribute_finalize (GObject * obj);
+static GType valadoc_api_attribute_get_type_once (void);
 static void _vala_valadoc_api_attribute_get_property (GObject * object,
                                                guint property_id,
                                                GValue * value,
@@ -68,20 +67,44 @@ static void _vala_valadoc_api_attribute_set_property (GObject * object,
                                                const GValue * value,
                                                GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_attribute_get_instance_private (ValadocApiAttribute* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiAttribute_private_offset);
 }
 
+const gchar*
+valadoc_api_attribute_get_name (ValadocApiAttribute* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_api_attribute_set_name (ValadocApiAttribute* self,
+                                const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_attribute_get_name (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_name);
+		self->priv->_name = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_attribute_properties[VALADOC_API_ATTRIBUTE_NAME_PROPERTY]);
+	}
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocApiAttribute*
 valadoc_api_attribute_construct (GType object_type,
@@ -105,7 +128,6 @@ valadoc_api_attribute_construct (GType object_type,
 	return self;
 }
 
-
 ValadocApiAttribute*
 valadoc_api_attribute_new (ValadocApiNode* parent,
                            ValadocApiSourceFile* file,
@@ -115,184 +137,12 @@ valadoc_api_attribute_new (ValadocApiNode* parent,
 	return valadoc_api_attribute_construct (VALADOC_API_TYPE_ATTRIBUTE, parent, file, name, data);
 }
 
-
-static gpointer
-_vala_iterable_ref0 (gpointer self)
-{
-	return self ? vala_iterable_ref (self) : NULL;
-}
-
-
-ValadocApiAttributeArgument*
-valadoc_api_attribute_get_argument (ValadocApiAttribute* self,
-                                    const gchar* name)
-{
-	ValadocApiAttributeArgument* result = NULL;
-	ValaArrayList* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-	_tmp0_ = self->priv->args;
-	if (_tmp0_ != NULL) {
-		{
-			ValaArrayList* _arg_list = NULL;
-			ValaArrayList* _tmp1_;
-			ValaArrayList* _tmp2_;
-			gint _arg_size = 0;
-			ValaArrayList* _tmp3_;
-			gint _tmp4_;
-			gint _tmp5_;
-			gint _arg_index = 0;
-			_tmp1_ = self->priv->args;
-			_tmp2_ = _vala_iterable_ref0 (_tmp1_);
-			_arg_list = _tmp2_;
-			_tmp3_ = _arg_list;
-			_tmp4_ = vala_collection_get_size ((ValaCollection*) _tmp3_);
-			_tmp5_ = _tmp4_;
-			_arg_size = _tmp5_;
-			_arg_index = -1;
-			while (TRUE) {
-				gint _tmp6_;
-				gint _tmp7_;
-				gint _tmp8_;
-				ValadocApiAttributeArgument* arg = NULL;
-				ValaArrayList* _tmp9_;
-				gint _tmp10_;
-				gpointer _tmp11_;
-				ValadocApiAttributeArgument* _tmp12_;
-				const gchar* _tmp13_;
-				const gchar* _tmp14_;
-				_tmp6_ = _arg_index;
-				_arg_index = _tmp6_ + 1;
-				_tmp7_ = _arg_index;
-				_tmp8_ = _arg_size;
-				if (!(_tmp7_ < _tmp8_)) {
-					break;
-				}
-				_tmp9_ = _arg_list;
-				_tmp10_ = _arg_index;
-				_tmp11_ = vala_list_get ((ValaList*) _tmp9_, _tmp10_);
-				arg = (ValadocApiAttributeArgument*) _tmp11_;
-				_tmp12_ = arg;
-				_tmp13_ = valadoc_api_attribute_argument_get_name (_tmp12_);
-				_tmp14_ = _tmp13_;
-				if (g_strcmp0 (_tmp14_, name) == 0) {
-					result = arg;
-					_vala_iterable_unref0 (_arg_list);
-					return result;
-				}
-				_g_object_unref0 (arg);
-			}
-			_vala_iterable_unref0 (_arg_list);
-		}
-	}
-	result = NULL;
-	return result;
-}
-
-
-ValadocApiAttributeArgument*
-valadoc_api_attribute_add_boolean (ValadocApiAttribute* self,
-                                   const gchar* name,
-                                   gboolean value,
-                                   ValaAttribute* data)
-{
-	ValadocApiAttributeArgument* result = NULL;
-	ValadocApiAttributeArgument* arg = NULL;
-	ValadocApiSourceFile* _tmp0_;
-	ValadocApiAttributeArgument* _tmp1_;
-	ValaArrayList* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-	g_return_val_if_fail (data != NULL, NULL);
-	_tmp0_ = self->priv->file;
-	_tmp1_ = valadoc_api_attribute_argument_new_boolean (self, _tmp0_, name, value, data);
-	arg = _tmp1_;
-	_tmp2_ = self->priv->args;
-	vala_collection_add ((ValaCollection*) _tmp2_, arg);
-	result = arg;
-	return result;
-}
-
-
-ValadocApiAttributeArgument*
-valadoc_api_attribute_add_integer (ValadocApiAttribute* self,
-                                   const gchar* name,
-                                   gint value,
-                                   ValaAttribute* data)
-{
-	ValadocApiAttributeArgument* result = NULL;
-	ValadocApiAttributeArgument* arg = NULL;
-	ValadocApiSourceFile* _tmp0_;
-	ValadocApiAttributeArgument* _tmp1_;
-	ValaArrayList* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-	g_return_val_if_fail (data != NULL, NULL);
-	_tmp0_ = self->priv->file;
-	_tmp1_ = valadoc_api_attribute_argument_new_integer (self, _tmp0_, name, value, data);
-	arg = _tmp1_;
-	_tmp2_ = self->priv->args;
-	vala_collection_add ((ValaCollection*) _tmp2_, arg);
-	result = arg;
-	return result;
-}
-
-
-ValadocApiAttributeArgument*
-valadoc_api_attribute_add_double (ValadocApiAttribute* self,
-                                  const gchar* name,
-                                  gdouble value,
-                                  ValaAttribute* data)
-{
-	ValadocApiAttributeArgument* result = NULL;
-	ValadocApiAttributeArgument* arg = NULL;
-	ValadocApiSourceFile* _tmp0_;
-	ValadocApiAttributeArgument* _tmp1_;
-	ValaArrayList* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-	g_return_val_if_fail (data != NULL, NULL);
-	_tmp0_ = self->priv->file;
-	_tmp1_ = valadoc_api_attribute_argument_new_double (self, _tmp0_, name, value, data);
-	arg = _tmp1_;
-	_tmp2_ = self->priv->args;
-	vala_collection_add ((ValaCollection*) _tmp2_, arg);
-	result = arg;
-	return result;
-}
-
-
-ValadocApiAttributeArgument*
-valadoc_api_attribute_add_string (ValadocApiAttribute* self,
-                                  const gchar* name,
-                                  const gchar* value,
-                                  ValaAttribute* data)
-{
-	ValadocApiAttributeArgument* result = NULL;
-	ValadocApiAttributeArgument* arg = NULL;
-	ValadocApiSourceFile* _tmp0_;
-	ValadocApiAttributeArgument* _tmp1_;
-	ValaArrayList* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (name != NULL, NULL);
-	g_return_val_if_fail (value != NULL, NULL);
-	g_return_val_if_fail (data != NULL, NULL);
-	_tmp0_ = self->priv->file;
-	_tmp1_ = valadoc_api_attribute_argument_new_string (self, _tmp0_, name, value, data);
-	arg = _tmp1_;
-	_tmp2_ = self->priv->args;
-	vala_collection_add ((ValaCollection*) _tmp2_, arg);
-	result = arg;
-	return result;
-}
-
-
 ValadocApiSourceFile*
 valadoc_api_attribute_get_source_file (ValadocApiAttribute* self)
 {
-	ValadocApiSourceFile* result = NULL;
 	ValadocApiSourceFile* _tmp0_;
 	ValadocApiSourceFile* _tmp1_;
+	ValadocApiSourceFile* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->file;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
@@ -300,140 +150,206 @@ valadoc_api_attribute_get_source_file (ValadocApiAttribute* self)
 	return result;
 }
 
+static void
+_g_free0_ (gpointer var)
+{
+	var = (g_free (var), NULL);
+}
 
 static ValadocContentInline*
 valadoc_api_attribute_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiAttribute * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* builder = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
-	ValadocApiSignatureBuilder* _tmp1_;
-	ValadocApiSignatureBuilder* _tmp2_;
-	const gchar* _tmp3_;
-	ValaArrayList* _tmp4_;
-	gint _tmp5_;
-	gint _tmp6_;
-	ValadocApiSignatureBuilder* _tmp26_;
+	ValaAttribute* attr = NULL;
+	ValaCodeNode* _tmp1_;
+	ValaCodeNode* _tmp2_;
+	GSequence* keys = NULL;
+	GSequence* _tmp3_;
+	gboolean _tmp20_ = FALSE;
+	ValaAttribute* _tmp21_;
+	const gchar* _tmp22_;
+	const gchar* _tmp23_;
 	ValadocApiSignatureBuilder* _tmp27_;
-	ValadocContentRun* _tmp28_;
+	ValadocApiSignatureBuilder* _tmp28_;
+	ValaAttribute* _tmp29_;
+	const gchar* _tmp30_;
+	const gchar* _tmp31_;
+	GSequence* _tmp32_;
+	ValadocApiSignatureBuilder* _tmp55_;
+	ValadocApiSignatureBuilder* _tmp56_;
+	ValadocContentRun* _tmp57_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiAttribute*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	builder = _tmp0_;
-	_tmp1_ = builder;
-	valadoc_api_signature_builder_append_attribute (_tmp1_, "[", TRUE);
-	_tmp2_ = builder;
-	_tmp3_ = self->priv->_name;
-	valadoc_api_signature_builder_append_type_name (_tmp2_, _tmp3_, TRUE);
-	_tmp4_ = self->priv->args;
-	_tmp5_ = vala_collection_get_size ((ValaCollection*) _tmp4_);
-	_tmp6_ = _tmp5_;
-	if (_tmp6_ > 0) {
-		ValadocApiSignatureBuilder* _tmp7_;
-		gboolean first = FALSE;
-		ValadocApiSignatureBuilder* _tmp25_;
-		_tmp7_ = builder;
-		valadoc_api_signature_builder_append_attribute (_tmp7_, "(", TRUE);
-		first = TRUE;
-		{
-			ValaArrayList* _arg_list = NULL;
-			ValaArrayList* _tmp8_;
-			ValaArrayList* _tmp9_;
-			gint _arg_size = 0;
-			ValaArrayList* _tmp10_;
-			gint _tmp11_;
-			gint _tmp12_;
-			gint _arg_index = 0;
-			_tmp8_ = self->priv->args;
-			_tmp9_ = _vala_iterable_ref0 (_tmp8_);
-			_arg_list = _tmp9_;
-			_tmp10_ = _arg_list;
-			_tmp11_ = vala_collection_get_size ((ValaCollection*) _tmp10_);
-			_tmp12_ = _tmp11_;
-			_arg_size = _tmp12_;
-			_arg_index = -1;
-			while (TRUE) {
-				gint _tmp13_;
-				gint _tmp14_;
-				gint _tmp15_;
-				ValadocApiAttributeArgument* arg = NULL;
-				ValaArrayList* _tmp16_;
-				gint _tmp17_;
-				gpointer _tmp18_;
-				gboolean _tmp19_;
-				ValadocApiSignatureBuilder* _tmp21_;
-				ValadocApiAttributeArgument* _tmp22_;
-				ValadocContentInline* _tmp23_;
-				ValadocContentInline* _tmp24_;
-				_tmp13_ = _arg_index;
-				_arg_index = _tmp13_ + 1;
-				_tmp14_ = _arg_index;
-				_tmp15_ = _arg_size;
-				if (!(_tmp14_ < _tmp15_)) {
-					break;
-				}
-				_tmp16_ = _arg_list;
-				_tmp17_ = _arg_index;
-				_tmp18_ = vala_list_get ((ValaList*) _tmp16_, _tmp17_);
-				arg = (ValadocApiAttributeArgument*) _tmp18_;
-				_tmp19_ = first;
-				if (_tmp19_ == FALSE) {
-					ValadocApiSignatureBuilder* _tmp20_;
-					_tmp20_ = builder;
-					valadoc_api_signature_builder_append_attribute (_tmp20_, ", ", TRUE);
-				}
-				_tmp21_ = builder;
-				_tmp22_ = arg;
-				_tmp23_ = valadoc_api_item_get_signature ((ValadocApiItem*) _tmp22_);
-				_tmp24_ = _tmp23_;
-				valadoc_api_signature_builder_append_content (_tmp21_, _tmp24_, TRUE);
-				first = FALSE;
-				_g_object_unref0 (arg);
+	_tmp1_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp2_ = _tmp1_;
+	attr = G_TYPE_CHECK_INSTANCE_CAST (_tmp2_, VALA_TYPE_ATTRIBUTE, ValaAttribute);
+	_tmp3_ = g_sequence_new (_g_free0_);
+	keys = _tmp3_;
+	{
+		ValaIterator* _key_it = NULL;
+		ValaAttribute* _tmp4_;
+		ValaMap* _tmp5_;
+		ValaMap* _tmp6_;
+		ValaSet* _tmp7_;
+		ValaSet* _tmp8_;
+		ValaIterator* _tmp9_;
+		ValaIterator* _tmp10_;
+		_tmp4_ = attr;
+		_tmp5_ = vala_attribute_get_args (_tmp4_);
+		_tmp6_ = _tmp5_;
+		_tmp7_ = vala_map_get_keys (_tmp6_);
+		_tmp8_ = _tmp7_;
+		_tmp9_ = vala_iterable_iterator ((ValaIterable*) _tmp8_);
+		_tmp10_ = _tmp9_;
+		_vala_iterable_unref0 (_tmp8_);
+		_key_it = _tmp10_;
+		while (TRUE) {
+			ValaIterator* _tmp11_;
+			gchar* key = NULL;
+			ValaIterator* _tmp12_;
+			gpointer _tmp13_;
+			const gchar* _tmp14_;
+			GSequence* _tmp15_;
+			const gchar* _tmp16_;
+			gchar* _tmp17_;
+			GCompareFunc _tmp18_;
+			GSequenceIter* _tmp19_;
+			_tmp11_ = _key_it;
+			if (!vala_iterator_next (_tmp11_)) {
+				break;
 			}
-			_vala_iterable_unref0 (_arg_list);
+			_tmp12_ = _key_it;
+			_tmp13_ = vala_iterator_get (_tmp12_);
+			key = (gchar*) _tmp13_;
+			_tmp14_ = key;
+			if (g_strcmp0 (_tmp14_, "cheader_filename") == 0) {
+				_g_free0 (key);
+				continue;
+			}
+			_tmp15_ = keys;
+			_tmp16_ = key;
+			_tmp17_ = g_strdup (_tmp16_);
+			_tmp18_ = ((GCompareFunc) g_strcmp0);
+			_tmp19_ = g_sequence_insert_sorted (_tmp15_, _tmp17_, (GCompareDataFunc) _tmp18_, NULL);
+			_g_free0 (key);
 		}
-		_tmp25_ = builder;
-		valadoc_api_signature_builder_append_attribute (_tmp25_, ")", TRUE);
+		_vala_iterator_unref0 (_key_it);
 	}
-	_tmp26_ = builder;
-	valadoc_api_signature_builder_append_attribute (_tmp26_, "]", TRUE);
+	_tmp21_ = attr;
+	_tmp22_ = vala_attribute_get_name (_tmp21_);
+	_tmp23_ = _tmp22_;
+	if (g_strcmp0 (_tmp23_, "CCode") == 0) {
+		GSequence* _tmp24_;
+		_tmp24_ = keys;
+		_tmp20_ = g_sequence_get_length (_tmp24_) == 0;
+	} else {
+		_tmp20_ = FALSE;
+	}
+	if (_tmp20_) {
+		ValadocApiSignatureBuilder* _tmp25_;
+		ValadocContentRun* _tmp26_;
+		_tmp25_ = builder;
+		_tmp26_ = valadoc_api_signature_builder_get (_tmp25_);
+		result = (ValadocContentInline*) _tmp26_;
+		_g_sequence_free0 (keys);
+		_valadoc_api_signature_builder_unref0 (builder);
+		return result;
+	}
 	_tmp27_ = builder;
-	_tmp28_ = valadoc_api_signature_builder_get (_tmp27_);
-	result = (ValadocContentInline*) _tmp28_;
+	valadoc_api_signature_builder_append_attribute (_tmp27_, "[", TRUE);
+	_tmp28_ = builder;
+	_tmp29_ = attr;
+	_tmp30_ = vala_attribute_get_name (_tmp29_);
+	_tmp31_ = _tmp30_;
+	valadoc_api_signature_builder_append_type_name (_tmp28_, _tmp31_, TRUE);
+	_tmp32_ = keys;
+	if (g_sequence_get_length (_tmp32_) > 0) {
+		ValadocApiSignatureBuilder* _tmp33_;
+		const gchar* separator = NULL;
+		GSequenceIter* arg_iter = NULL;
+		GSequence* _tmp34_;
+		GSequenceIter* _tmp35_;
+		ValadocApiSignatureBuilder* _tmp54_;
+		_tmp33_ = builder;
+		valadoc_api_signature_builder_append_attribute (_tmp33_, "(", TRUE);
+		separator = "";
+		_tmp34_ = keys;
+		_tmp35_ = g_sequence_get_begin_iter (_tmp34_);
+		arg_iter = _tmp35_;
+		while (TRUE) {
+			GSequenceIter* _tmp36_;
+			const gchar* arg_name = NULL;
+			GSequenceIter* _tmp37_;
+			gconstpointer _tmp38_;
+			GSequenceIter* _tmp39_;
+			GSequenceIter* _tmp40_;
+			const gchar* _tmp41_;
+			const gchar* _tmp43_;
+			_tmp36_ = arg_iter;
+			if (!(!g_sequence_iter_is_end (_tmp36_))) {
+				break;
+			}
+			_tmp37_ = arg_iter;
+			_tmp38_ = g_sequence_get (_tmp37_);
+			arg_name = (const gchar*) _tmp38_;
+			_tmp39_ = arg_iter;
+			_tmp40_ = g_sequence_iter_next (_tmp39_);
+			arg_iter = _tmp40_;
+			_tmp41_ = separator;
+			if (g_strcmp0 (_tmp41_, "") != 0) {
+				ValadocApiSignatureBuilder* _tmp42_;
+				_tmp42_ = builder;
+				valadoc_api_signature_builder_append_attribute (_tmp42_, ", ", TRUE);
+			}
+			_tmp43_ = arg_name;
+			if (g_strcmp0 (_tmp43_, "cheader_filename") != 0) {
+				ValadocApiSignatureBuilder* _tmp44_;
+				const gchar* _tmp45_;
+				ValadocApiSignatureBuilder* _tmp46_;
+				ValadocApiSignatureBuilder* _tmp47_;
+				ValaAttribute* _tmp48_;
+				ValaMap* _tmp49_;
+				ValaMap* _tmp50_;
+				const gchar* _tmp51_;
+				gpointer _tmp52_;
+				gchar* _tmp53_;
+				_tmp44_ = builder;
+				_tmp45_ = arg_name;
+				valadoc_api_signature_builder_append_attribute (_tmp44_, _tmp45_, TRUE);
+				_tmp46_ = builder;
+				valadoc_api_signature_builder_append_attribute (_tmp46_, "=", TRUE);
+				_tmp47_ = builder;
+				_tmp48_ = attr;
+				_tmp49_ = vala_attribute_get_args (_tmp48_);
+				_tmp50_ = _tmp49_;
+				_tmp51_ = arg_name;
+				_tmp52_ = vala_map_get (_tmp50_, _tmp51_);
+				_tmp53_ = (gchar*) _tmp52_;
+				valadoc_api_signature_builder_append_literal (_tmp47_, _tmp53_, TRUE);
+				_g_free0 (_tmp53_);
+			}
+			separator = ", ";
+		}
+		_tmp54_ = builder;
+		valadoc_api_signature_builder_append_attribute (_tmp54_, ")", TRUE);
+	}
+	_tmp55_ = builder;
+	valadoc_api_signature_builder_append_attribute (_tmp55_, "]", TRUE);
+	_tmp56_ = builder;
+	_tmp57_ = valadoc_api_signature_builder_get (_tmp56_);
+	result = (ValadocContentInline*) _tmp57_;
+	_g_sequence_free0 (keys);
 	_valadoc_api_signature_builder_unref0 (builder);
 	return result;
 }
 
-
-const gchar*
-valadoc_api_attribute_get_name (ValadocApiAttribute* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_api_attribute_set_name (ValadocApiAttribute* self,
-                                const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_api_attribute_get_name (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_name);
-		self->priv->_name = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_attribute_properties[VALADOC_API_ATTRIBUTE_NAME_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_api_attribute_class_init (ValadocApiAttributeClass * klass)
+valadoc_api_attribute_class_init (ValadocApiAttributeClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_api_attribute_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiAttribute_private_offset);
@@ -444,45 +360,44 @@ valadoc_api_attribute_class_init (ValadocApiAttributeClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_ATTRIBUTE_NAME_PROPERTY, valadoc_api_attribute_properties[VALADOC_API_ATTRIBUTE_NAME_PROPERTY] = g_param_spec_string ("name", "name", "name", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_attribute_instance_init (ValadocApiAttribute * self)
+valadoc_api_attribute_instance_init (ValadocApiAttribute * self,
+                                     gpointer klass)
 {
-	GEqualFunc _tmp0_;
-	ValaArrayList* _tmp1_;
 	self->priv = valadoc_api_attribute_get_instance_private (self);
-	_tmp0_ = g_direct_equal;
-	_tmp1_ = vala_array_list_new (VALADOC_API_TYPE_ATTRIBUTE_ARGUMENT, (GBoxedCopyFunc) g_object_ref, (GDestroyNotify) g_object_unref, _tmp0_);
-	self->priv->args = _tmp1_;
 }
-
 
 static void
 valadoc_api_attribute_finalize (GObject * obj)
 {
 	ValadocApiAttribute * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_API_TYPE_ATTRIBUTE, ValadocApiAttribute);
-	_vala_iterable_unref0 (self->priv->args);
 	_g_object_unref0 (self->priv->file);
 	_g_free0 (self->priv->_name);
 	G_OBJECT_CLASS (valadoc_api_attribute_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_api_attribute_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiAttribute), 0, (GInstanceInitFunc) valadoc_api_attribute_instance_init, NULL };
+	GType valadoc_api_attribute_type_id;
+	valadoc_api_attribute_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiAttribute", &g_define_type_info, 0);
+	ValadocApiAttribute_private_offset = g_type_add_instance_private (valadoc_api_attribute_type_id, sizeof (ValadocApiAttributePrivate));
+	return valadoc_api_attribute_type_id;
+}
 
 GType
 valadoc_api_attribute_get_type (void)
 {
 	static volatile gsize valadoc_api_attribute_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_attribute_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiAttribute), 0, (GInstanceInitFunc) valadoc_api_attribute_instance_init, NULL };
 		GType valadoc_api_attribute_type_id;
-		valadoc_api_attribute_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiAttribute", &g_define_type_info, 0);
-		ValadocApiAttribute_private_offset = g_type_add_instance_private (valadoc_api_attribute_type_id, sizeof (ValadocApiAttributePrivate));
+		valadoc_api_attribute_type_id = valadoc_api_attribute_get_type_once ();
 		g_once_init_leave (&valadoc_api_attribute_type_id__volatile, valadoc_api_attribute_type_id);
 	}
 	return valadoc_api_attribute_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_attribute_get_property (GObject * object,
@@ -502,7 +417,6 @@ _vala_valadoc_api_attribute_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_attribute_set_property (GObject * object,
                                           guint property_id,
@@ -520,6 +434,4 @@ _vala_valadoc_api_attribute_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

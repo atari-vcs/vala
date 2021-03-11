@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 typedef struct _ValadocHighlighterParamSpecCodeToken ValadocHighlighterParamSpecCodeToken;
@@ -44,7 +43,6 @@ struct _ValadocHighlighterParamSpecCodeToken {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValadocHighlighterCodeToken_private_offset;
 static gpointer valadoc_highlighter_code_token_parent_class = NULL;
 
@@ -53,7 +51,7 @@ static void valadoc_highlighter_code_token_set_token_type (ValadocHighlighterCod
 static void valadoc_highlighter_code_token_set_content (ValadocHighlighterCodeToken* self,
                                                  const gchar* value);
 static void valadoc_highlighter_code_token_finalize (ValadocHighlighterCodeToken * obj);
-
+static GType valadoc_highlighter_code_token_get_type_once (void);
 
 static inline gpointer
 valadoc_highlighter_code_token_get_instance_private (ValadocHighlighterCodeToken* self)
@@ -61,6 +59,46 @@ valadoc_highlighter_code_token_get_instance_private (ValadocHighlighterCodeToken
 	return G_STRUCT_MEMBER_P (self, ValadocHighlighterCodeToken_private_offset);
 }
 
+ValadocHighlighterCodeTokenType
+valadoc_highlighter_code_token_get_token_type (ValadocHighlighterCodeToken* self)
+{
+	ValadocHighlighterCodeTokenType result;
+	ValadocHighlighterCodeTokenType _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_token_type;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_highlighter_code_token_set_token_type (ValadocHighlighterCodeToken* self,
+                                               ValadocHighlighterCodeTokenType value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_token_type = value;
+}
+
+const gchar*
+valadoc_highlighter_code_token_get_content (ValadocHighlighterCodeToken* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_content;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_highlighter_code_token_set_content (ValadocHighlighterCodeToken* self,
+                                            const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_content);
+	self->priv->_content = _tmp0_;
+}
 
 ValadocHighlighterCodeToken*
 valadoc_highlighter_code_token_construct (GType object_type,
@@ -75,7 +113,6 @@ valadoc_highlighter_code_token_construct (GType object_type,
 	return self;
 }
 
-
 ValadocHighlighterCodeToken*
 valadoc_highlighter_code_token_new (ValadocHighlighterCodeTokenType type,
                                     const gchar* content)
@@ -83,58 +120,11 @@ valadoc_highlighter_code_token_new (ValadocHighlighterCodeTokenType type,
 	return valadoc_highlighter_code_token_construct (VALADOC_HIGHLIGHTER_TYPE_CODE_TOKEN, type, content);
 }
 
-
-ValadocHighlighterCodeTokenType
-valadoc_highlighter_code_token_get_token_type (ValadocHighlighterCodeToken* self)
-{
-	ValadocHighlighterCodeTokenType result;
-	ValadocHighlighterCodeTokenType _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_token_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_highlighter_code_token_set_token_type (ValadocHighlighterCodeToken* self,
-                                               ValadocHighlighterCodeTokenType value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_token_type = value;
-}
-
-
-const gchar*
-valadoc_highlighter_code_token_get_content (ValadocHighlighterCodeToken* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_content;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_highlighter_code_token_set_content (ValadocHighlighterCodeToken* self,
-                                            const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_content);
-	self->priv->_content = _tmp0_;
-}
-
-
 static void
 valadoc_highlighter_value_code_token_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_highlighter_value_code_token_free_value (GValue* value)
@@ -143,7 +133,6 @@ valadoc_highlighter_value_code_token_free_value (GValue* value)
 		valadoc_highlighter_code_token_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_highlighter_value_code_token_copy_value (const GValue* src_value,
@@ -156,13 +145,11 @@ valadoc_highlighter_value_code_token_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_highlighter_value_code_token_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_highlighter_value_code_token_collect_value (GValue* value,
@@ -185,7 +172,6 @@ valadoc_highlighter_value_code_token_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_highlighter_value_code_token_lcopy_value (const GValue* value,
                                                   guint n_collect_values,
@@ -207,7 +193,6 @@ valadoc_highlighter_value_code_token_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_highlighter_param_spec_code_token (const gchar* name,
                                            const gchar* nick,
@@ -222,14 +207,12 @@ valadoc_highlighter_param_spec_code_token (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_highlighter_value_get_code_token (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_HIGHLIGHTER_TYPE_CODE_TOKEN), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_highlighter_value_set_code_token (GValue* value,
@@ -251,7 +234,6 @@ valadoc_highlighter_value_set_code_token (GValue* value,
 	}
 }
 
-
 void
 valadoc_highlighter_value_take_code_token (GValue* value,
                                            gpointer v_object)
@@ -271,23 +253,22 @@ valadoc_highlighter_value_take_code_token (GValue* value,
 	}
 }
 
-
 static void
-valadoc_highlighter_code_token_class_init (ValadocHighlighterCodeTokenClass * klass)
+valadoc_highlighter_code_token_class_init (ValadocHighlighterCodeTokenClass * klass,
+                                           gpointer klass_data)
 {
 	valadoc_highlighter_code_token_parent_class = g_type_class_peek_parent (klass);
 	((ValadocHighlighterCodeTokenClass *) klass)->finalize = valadoc_highlighter_code_token_finalize;
 	g_type_class_adjust_private_offset (klass, &ValadocHighlighterCodeToken_private_offset);
 }
 
-
 static void
-valadoc_highlighter_code_token_instance_init (ValadocHighlighterCodeToken * self)
+valadoc_highlighter_code_token_instance_init (ValadocHighlighterCodeToken * self,
+                                              gpointer klass)
 {
 	self->priv = valadoc_highlighter_code_token_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_highlighter_code_token_finalize (ValadocHighlighterCodeToken * obj)
@@ -298,23 +279,29 @@ valadoc_highlighter_code_token_finalize (ValadocHighlighterCodeToken * obj)
 	_g_free0 (self->priv->_content);
 }
 
+static GType
+valadoc_highlighter_code_token_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_highlighter_value_code_token_init, valadoc_highlighter_value_code_token_free_value, valadoc_highlighter_value_code_token_copy_value, valadoc_highlighter_value_code_token_peek_pointer, "p", valadoc_highlighter_value_code_token_collect_value, "p", valadoc_highlighter_value_code_token_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterCodeTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_code_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterCodeToken), 0, (GInstanceInitFunc) valadoc_highlighter_code_token_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_highlighter_code_token_type_id;
+	valadoc_highlighter_code_token_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocHighlighterCodeToken", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocHighlighterCodeToken_private_offset = g_type_add_instance_private (valadoc_highlighter_code_token_type_id, sizeof (ValadocHighlighterCodeTokenPrivate));
+	return valadoc_highlighter_code_token_type_id;
+}
 
 GType
 valadoc_highlighter_code_token_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_code_token_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_code_token_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_highlighter_value_code_token_init, valadoc_highlighter_value_code_token_free_value, valadoc_highlighter_value_code_token_copy_value, valadoc_highlighter_value_code_token_peek_pointer, "p", valadoc_highlighter_value_code_token_collect_value, "p", valadoc_highlighter_value_code_token_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterCodeTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_code_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterCodeToken), 0, (GInstanceInitFunc) valadoc_highlighter_code_token_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_highlighter_code_token_type_id;
-		valadoc_highlighter_code_token_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocHighlighterCodeToken", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocHighlighterCodeToken_private_offset = g_type_add_instance_private (valadoc_highlighter_code_token_type_id, sizeof (ValadocHighlighterCodeTokenPrivate));
+		valadoc_highlighter_code_token_type_id = valadoc_highlighter_code_token_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_code_token_type_id__volatile, valadoc_highlighter_code_token_type_id);
 	}
 	return valadoc_highlighter_code_token_type_id__volatile;
 }
-
 
 gpointer
 valadoc_highlighter_code_token_ref (gpointer instance)
@@ -324,7 +311,6 @@ valadoc_highlighter_code_token_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_highlighter_code_token_unref (gpointer instance)
@@ -337,15 +323,14 @@ valadoc_highlighter_code_token_unref (gpointer instance)
 	}
 }
 
-
 const gchar*
 valadoc_highlighter_code_token_type_to_string (ValadocHighlighterCodeTokenType self)
 {
-	const gchar* result = NULL;
 	GEnumClass* enumc = NULL;
 	GTypeClass* _tmp0_;
 	GEnumValue* eval = NULL;
 	const gchar* _tmp1_;
+	const gchar* result = NULL;
 	_tmp0_ = g_type_class_ref (VALADOC_HIGHLIGHTER_TYPE_CODE_TOKEN_TYPE);
 	enumc = (GEnumClass*) _tmp0_;
 	eval = g_enum_get_value (enumc, (gint) self);
@@ -356,19 +341,24 @@ valadoc_highlighter_code_token_type_to_string (ValadocHighlighterCodeTokenType s
 	return result;
 }
 
+static GType
+valadoc_highlighter_code_token_type_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ESCAPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ESCAPE", "xml-escape"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ELEMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ELEMENT", "xml-element"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE", "xml-attribute"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE_VALUE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE_VALUE", "xml-attribute-value"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_COMMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_COMMENT", "xml-comment"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_CDATA, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_CDATA", "xml-cdata"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PREPROCESSOR, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PREPROCESSOR", "preprocessor"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT", "comment"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_KEYWORD, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_KEYWORD", "keyword"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL", "literal"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE", "escape"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN", "plain"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_TYPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_TYPE", "type"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF", "eof"}, {0, NULL, NULL}};
+	GType valadoc_highlighter_code_token_type_type_id;
+	valadoc_highlighter_code_token_type_type_id = g_enum_register_static ("ValadocHighlighterCodeTokenType", values);
+	return valadoc_highlighter_code_token_type_type_id;
+}
 
 GType
 valadoc_highlighter_code_token_type_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_code_token_type_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_code_token_type_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ESCAPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ESCAPE", "xml-escape"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ELEMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ELEMENT", "xml-element"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE", "xml-attribute"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE_VALUE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_ATTRIBUTE_VALUE", "xml-attribute-value"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_COMMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_COMMENT", "xml-comment"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_CDATA, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_XML_CDATA", "xml-cdata"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PREPROCESSOR, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PREPROCESSOR", "preprocessor"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT", "comment"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_KEYWORD, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_KEYWORD", "keyword"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL", "literal"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE", "escape"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN", "plain"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_TYPE, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_TYPE", "type"}, {VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF, "VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF", "eof"}, {0, NULL, NULL}};
 		GType valadoc_highlighter_code_token_type_type_id;
-		valadoc_highlighter_code_token_type_type_id = g_enum_register_static ("ValadocHighlighterCodeTokenType", values);
+		valadoc_highlighter_code_token_type_type_id = valadoc_highlighter_code_token_type_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_code_token_type_type_id__volatile, valadoc_highlighter_code_token_type_type_id);
 	}
 	return valadoc_highlighter_code_token_type_type_id__volatile;
 }
-
-
 

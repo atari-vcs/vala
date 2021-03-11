@@ -23,10 +23,8 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 
 enum  {
 	VALADOC_COMMENT_SCANNER_0_PROPERTY,
@@ -40,7 +38,6 @@ struct _ValadocCommentScannerPrivate {
 	gint start_column;
 };
 
-
 static gint ValadocCommentScanner_private_offset;
 static gpointer valadoc_comment_scanner_parent_class = NULL;
 
@@ -50,14 +47,13 @@ static void valadoc_comment_scanner_real_accept (ValadocWikiScanner* base,
                                           gunichar c,
                                           GError** error);
 static void valadoc_comment_scanner_finalize (GObject * obj);
-
+static GType valadoc_comment_scanner_get_type_once (void);
 
 static inline gpointer
 valadoc_comment_scanner_get_instance_private (ValadocCommentScanner* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocCommentScanner_private_offset);
 }
-
 
 ValadocCommentScanner*
 valadoc_comment_scanner_construct (GType object_type,
@@ -69,13 +65,11 @@ valadoc_comment_scanner_construct (GType object_type,
 	return self;
 }
 
-
 ValadocCommentScanner*
 valadoc_comment_scanner_new (ValadocSettings* settings)
 {
 	return valadoc_comment_scanner_construct (VALADOC_TYPE_COMMENT_SCANNER, settings);
 }
-
 
 static void
 valadoc_comment_scanner_real_reset (ValadocWikiScanner* base)
@@ -88,19 +82,15 @@ valadoc_comment_scanner_real_reset (ValadocWikiScanner* base)
 	self->priv->start_column = 0;
 }
 
-
 static gint
 valadoc_comment_scanner_real_get_line_start_column (ValadocWikiScanner* base)
 {
 	ValadocCommentScanner * self;
 	gint result = 0;
-	gint _tmp0_;
 	self = (ValadocCommentScanner*) base;
-	_tmp0_ = self->priv->start_column;
-	result = _tmp0_;
+	result = self->priv->start_column;
 	return result;
 }
-
 
 static void
 valadoc_comment_scanner_real_accept (ValadocWikiScanner* base,
@@ -108,30 +98,26 @@ valadoc_comment_scanner_real_accept (ValadocWikiScanner* base,
                                      GError** error)
 {
 	ValadocCommentScanner * self;
-	gboolean _tmp0_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = (ValadocCommentScanner*) base;
-	_tmp0_ = self->priv->in_line_start;
-	if (_tmp0_) {
-		gint _tmp1_;
-		_tmp1_ = self->priv->start_column;
-		self->priv->start_column = _tmp1_ + 1;
+	if (self->priv->in_line_start) {
+		gint _tmp0_;
+		_tmp0_ = self->priv->start_column;
+		self->priv->start_column = _tmp0_ + 1;
 		if (c == ((gunichar) '*')) {
 			self->priv->past_star = TRUE;
 		} else {
-			gboolean _tmp2_;
-			_tmp2_ = self->priv->past_star;
-			if (_tmp2_) {
+			if (self->priv->past_star) {
 				self->priv->past_star = FALSE;
 				if (c == ((gunichar) '\n')) {
-					VALADOC_WIKI_SCANNER_CLASS (valadoc_comment_scanner_parent_class)->accept (G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_TYPE_WIKI_SCANNER, ValadocWikiScanner), c, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					VALADOC_WIKI_SCANNER_CLASS (valadoc_comment_scanner_parent_class)->accept (G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_TYPE_WIKI_SCANNER, ValadocWikiScanner), c, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -143,14 +129,14 @@ valadoc_comment_scanner_real_accept (ValadocWikiScanner* base,
 			}
 		}
 	} else {
-		VALADOC_WIKI_SCANNER_CLASS (valadoc_comment_scanner_parent_class)->accept (G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_TYPE_WIKI_SCANNER, ValadocWikiScanner), c, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		VALADOC_WIKI_SCANNER_CLASS (valadoc_comment_scanner_parent_class)->accept (G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_TYPE_WIKI_SCANNER, ValadocWikiScanner), c, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
@@ -161,9 +147,9 @@ valadoc_comment_scanner_real_accept (ValadocWikiScanner* base,
 	}
 }
 
-
 static void
-valadoc_comment_scanner_class_init (ValadocCommentScannerClass * klass)
+valadoc_comment_scanner_class_init (ValadocCommentScannerClass * klass,
+                                    gpointer klass_data)
 {
 	valadoc_comment_scanner_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocCommentScanner_private_offset);
@@ -173,13 +159,12 @@ valadoc_comment_scanner_class_init (ValadocCommentScannerClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_comment_scanner_finalize;
 }
 
-
 static void
-valadoc_comment_scanner_instance_init (ValadocCommentScanner * self)
+valadoc_comment_scanner_instance_init (ValadocCommentScanner * self,
+                                       gpointer klass)
 {
 	self->priv = valadoc_comment_scanner_get_instance_private (self);
 }
-
 
 static void
 valadoc_comment_scanner_finalize (GObject * obj)
@@ -189,20 +174,25 @@ valadoc_comment_scanner_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_comment_scanner_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_comment_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocCommentScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_comment_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocCommentScanner), 0, (GInstanceInitFunc) valadoc_comment_scanner_instance_init, NULL };
+	GType valadoc_comment_scanner_type_id;
+	valadoc_comment_scanner_type_id = g_type_register_static (VALADOC_TYPE_WIKI_SCANNER, "ValadocCommentScanner", &g_define_type_info, 0);
+	ValadocCommentScanner_private_offset = g_type_add_instance_private (valadoc_comment_scanner_type_id, sizeof (ValadocCommentScannerPrivate));
+	return valadoc_comment_scanner_type_id;
+}
 
 GType
 valadoc_comment_scanner_get_type (void)
 {
 	static volatile gsize valadoc_comment_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_comment_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocCommentScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_comment_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocCommentScanner), 0, (GInstanceInitFunc) valadoc_comment_scanner_instance_init, NULL };
 		GType valadoc_comment_scanner_type_id;
-		valadoc_comment_scanner_type_id = g_type_register_static (VALADOC_TYPE_WIKI_SCANNER, "ValadocCommentScanner", &g_define_type_info, 0);
-		ValadocCommentScanner_private_offset = g_type_add_instance_private (valadoc_comment_scanner_type_id, sizeof (ValadocCommentScannerPrivate));
+		valadoc_comment_scanner_type_id = valadoc_comment_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_comment_scanner_type_id__volatile, valadoc_comment_scanner_type_id);
 	}
 	return valadoc_comment_scanner_type_id__volatile;
 }
-
-
 

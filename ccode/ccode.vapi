@@ -91,14 +91,24 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public abstract class CCodeDeclarator : Vala.CCodeNode {
-		public CCodeDeclarator ();
+		protected CCodeDeclarator ();
 		public virtual void write_initialization (Vala.CCodeWriter writer);
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeDeclaratorSuffix {
 		public CCodeDeclaratorSuffix ();
 		public CCodeDeclaratorSuffix.with_array (Vala.CCodeExpression? array_length = null);
+		public CCodeDeclaratorSuffix.with_multi_array (Vala.List<Vala.CCodeExpression>? array_length = null);
 		public void write (Vala.CCodeWriter writer);
+	}
+	[CCode (cheader_filename = "valaccode.h")]
+	public class CCodeDefine : Vala.CCodeNode {
+		public CCodeDefine (string name, string? value = null);
+		public CCodeDefine.with_expression (string name, Vala.CCodeExpression expression);
+		public override void write (Vala.CCodeWriter writer);
+		public string name { get; set; }
+		public string? value { get; set; }
+		public Vala.CCodeExpression? value_expression { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeDoStatement : Vala.CCodeStatement {
@@ -110,9 +120,10 @@ namespace Vala {
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeElementAccess : Vala.CCodeExpression {
 		public CCodeElementAccess (Vala.CCodeExpression cont, Vala.CCodeExpression i);
+		public CCodeElementAccess.with_indices (Vala.CCodeExpression cont, Vala.List<Vala.CCodeExpression> i);
 		public override void write (Vala.CCodeWriter writer);
 		public Vala.CCodeExpression container { get; set; }
-		public Vala.CCodeExpression index { get; set; }
+		public Vala.List<Vala.CCodeExpression> indices { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeEmptyStatement : Vala.CCodeStatement {
@@ -135,7 +146,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public abstract class CCodeExpression : Vala.CCodeNode {
-		public CCodeExpression ();
+		protected CCodeExpression ();
 		public virtual void write_inner (Vala.CCodeWriter writer);
 	}
 	[CCode (cheader_filename = "valaccode.h")]
@@ -145,14 +156,8 @@ namespace Vala {
 		public Vala.CCodeExpression expression { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
-	public class CCodeFeatureTestMacro : Vala.CCodeNode {
-		public CCodeFeatureTestMacro (string name);
-		public override void write (Vala.CCodeWriter writer);
-		public string name { get; set; }
-	}
-	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeFile {
-		public CCodeFile ();
+		public CCodeFile (Vala.SourceFile? source_file = null);
 		public void add_comment (Vala.CCodeComment comment);
 		public void add_constant_declaration (Vala.CCodeNode node);
 		public bool add_declaration (string name);
@@ -166,6 +171,7 @@ namespace Vala {
 		public void add_type_member_definition (Vala.CCodeNode node);
 		public Vala.List<string> get_symbols ();
 		public bool store (string filename, string? source_filename, bool write_version, bool line_directives, string? begin_decls = null, string? end_decls = null);
+		public weak Vala.SourceFile? file { get; private set; }
 		public bool is_header { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
@@ -305,13 +311,9 @@ namespace Vala {
 		public int line_number { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
-	public class CCodeMacroReplacement : Vala.CCodeNode {
+	public class CCodeMacroReplacement : Vala.CCodeDefine {
 		public CCodeMacroReplacement (string name, string replacement);
 		public CCodeMacroReplacement.with_expression (string name, Vala.CCodeExpression replacement_expression);
-		public override void write (Vala.CCodeWriter writer);
-		public string name { get; set; }
-		public string replacement { get; set; }
-		public Vala.CCodeExpression replacement_expression { get; set; }
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeMemberAccess : Vala.CCodeExpression {
@@ -329,7 +331,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public abstract class CCodeNode {
-		public CCodeNode ();
+		protected CCodeNode ();
 		public abstract void write (Vala.CCodeWriter writer);
 		public virtual void write_combined (Vala.CCodeWriter writer);
 		public virtual void write_declaration (Vala.CCodeWriter writer);
@@ -366,7 +368,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public abstract class CCodeStatement : Vala.CCodeNode {
-		public CCodeStatement ();
+		protected CCodeStatement ();
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public class CCodeStruct : Vala.CCodeNode {
@@ -487,7 +489,8 @@ namespace Vala {
 		DESTRUCTOR,
 		FORMAT_ARG,
 		PRINTF,
-		SCANF
+		SCANF,
+		NO_INLINE
 	}
 	[CCode (cheader_filename = "valaccode.h")]
 	public enum CCodeUnaryOperator {

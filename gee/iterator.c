@@ -23,10 +23,9 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valagee.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 typedef struct _ValaParamSpecIterator ValaParamSpecIterator;
@@ -41,7 +40,6 @@ struct _ValaParamSpecIterator {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaIterator_private_offset;
 static gpointer vala_iterator_parent_class = NULL;
 
@@ -50,14 +48,13 @@ static gboolean vala_iterator_real_has_next (ValaIterator* self);
 static gpointer vala_iterator_real_get (ValaIterator* self);
 static void vala_iterator_real_remove (ValaIterator* self);
 static void vala_iterator_finalize (ValaIterator * obj);
-
+static GType vala_iterator_get_type_once (void);
 
 static inline gpointer
 vala_iterator_get_instance_private (ValaIterator* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaIterator_private_offset);
 }
-
 
 /**
  * Advances to the next element in the iteration.
@@ -72,14 +69,12 @@ vala_iterator_real_next (ValaIterator* self)
 	return _tmp0_;
 }
 
-
 gboolean
 vala_iterator_next (ValaIterator* self)
 {
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_ITERATOR_GET_CLASS (self)->next (self);
 }
-
 
 /**
  * Checks whether there is a next element in the iteration.
@@ -94,14 +89,12 @@ vala_iterator_real_has_next (ValaIterator* self)
 	return _tmp0_;
 }
 
-
 gboolean
 vala_iterator_has_next (ValaIterator* self)
 {
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_ITERATOR_GET_CLASS (self)->has_next (self);
 }
-
 
 /**
  * Returns the current element in the iteration.
@@ -115,14 +108,12 @@ vala_iterator_real_get (ValaIterator* self)
 	return NULL;
 }
 
-
 gpointer
 vala_iterator_get (ValaIterator* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_ITERATOR_GET_CLASS (self)->get (self);
 }
-
 
 /**
  * Removes the current element in the iteration. The cursor is set in an
@@ -136,7 +127,6 @@ vala_iterator_real_remove (ValaIterator* self)
 	return;
 }
 
-
 void
 vala_iterator_remove (ValaIterator* self)
 {
@@ -144,6 +134,12 @@ vala_iterator_remove (ValaIterator* self)
 	VALA_ITERATOR_GET_CLASS (self)->remove (self);
 }
 
+gboolean
+vala_iterator_get_valid (ValaIterator* self)
+{
+	g_return_val_if_fail (self != NULL, FALSE);
+	return VALA_ITERATOR_GET_CLASS (self)->get_valid (self);
+}
 
 ValaIterator*
 vala_iterator_construct (GType object_type,
@@ -159,21 +155,11 @@ vala_iterator_construct (GType object_type,
 	return self;
 }
 
-
-gboolean
-vala_iterator_get_valid (ValaIterator* self)
-{
-	g_return_val_if_fail (self != NULL, FALSE);
-	return VALA_ITERATOR_GET_CLASS (self)->get_valid (self);
-}
-
-
 static void
 vala_value_iterator_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_iterator_free_value (GValue* value)
@@ -182,7 +168,6 @@ vala_value_iterator_free_value (GValue* value)
 		vala_iterator_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_iterator_copy_value (const GValue* src_value,
@@ -195,13 +180,11 @@ vala_value_iterator_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_iterator_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_iterator_collect_value (GValue* value,
@@ -224,7 +207,6 @@ vala_value_iterator_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_iterator_lcopy_value (const GValue* value,
                                  guint n_collect_values,
@@ -246,7 +228,6 @@ vala_value_iterator_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_iterator (const gchar* name,
                           const gchar* nick,
@@ -261,14 +242,12 @@ vala_param_spec_iterator (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_iterator (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_ITERATOR), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_iterator (GValue* value,
@@ -290,7 +269,6 @@ vala_value_set_iterator (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_iterator (GValue* value,
                           gpointer v_object)
@@ -310,9 +288,9 @@ vala_value_take_iterator (GValue* value,
 	}
 }
 
-
 static void
-vala_iterator_class_init (ValaIteratorClass * klass)
+vala_iterator_class_init (ValaIteratorClass * klass,
+                          gpointer klass_data)
 {
 	vala_iterator_parent_class = g_type_class_peek_parent (klass);
 	((ValaIteratorClass *) klass)->finalize = vala_iterator_finalize;
@@ -323,14 +301,13 @@ vala_iterator_class_init (ValaIteratorClass * klass)
 	((ValaIteratorClass *) klass)->remove = (void (*) (ValaIterator*)) vala_iterator_real_remove;
 }
 
-
 static void
-vala_iterator_instance_init (ValaIterator * self)
+vala_iterator_instance_init (ValaIterator * self,
+                             gpointer klass)
 {
 	self->priv = vala_iterator_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_iterator_finalize (ValaIterator * obj)
@@ -340,27 +317,33 @@ vala_iterator_finalize (ValaIterator * obj)
 	g_signal_handlers_destroy (self);
 }
 
-
 /**
  * Implemented by classes that support a simple iteration over instances of the
  * collection.
  */
+static GType
+vala_iterator_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_iterator_init, vala_value_iterator_free_value, vala_value_iterator_copy_value, vala_value_iterator_peek_pointer, "p", vala_value_iterator_collect_value, "p", vala_value_iterator_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaIteratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_iterator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIterator), 0, (GInstanceInitFunc) vala_iterator_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_iterator_type_id;
+	vala_iterator_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaIterator", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
+	ValaIterator_private_offset = g_type_add_instance_private (vala_iterator_type_id, sizeof (ValaIteratorPrivate));
+	return vala_iterator_type_id;
+}
+
 GType
 vala_iterator_get_type (void)
 {
 	static volatile gsize vala_iterator_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_iterator_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_iterator_init, vala_value_iterator_free_value, vala_value_iterator_copy_value, vala_value_iterator_peek_pointer, "p", vala_value_iterator_collect_value, "p", vala_value_iterator_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaIteratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_iterator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIterator), 0, (GInstanceInitFunc) vala_iterator_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_iterator_type_id;
-		vala_iterator_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaIterator", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
-		ValaIterator_private_offset = g_type_add_instance_private (vala_iterator_type_id, sizeof (ValaIteratorPrivate));
+		vala_iterator_type_id = vala_iterator_get_type_once ();
 		g_once_init_leave (&vala_iterator_type_id__volatile, vala_iterator_type_id);
 	}
 	return vala_iterator_type_id__volatile;
 }
-
 
 gpointer
 vala_iterator_ref (gpointer instance)
@@ -370,7 +353,6 @@ vala_iterator_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_iterator_unref (gpointer instance)
@@ -382,6 +364,4 @@ vala_iterator_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

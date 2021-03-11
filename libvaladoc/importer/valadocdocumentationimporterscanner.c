@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <vala.h>
 
 enum  {
@@ -55,7 +54,6 @@ struct _ValadocImporterValadocDocumentationScannerPrivate {
 	gint _skip;
 	GString* _current_string;
 };
-
 
 static gint ValadocImporterValadocDocumentationScanner_private_offset;
 static gpointer valadoc_importer_valadoc_documentation_scanner_parent_class = NULL;
@@ -85,7 +83,7 @@ static void valadoc_importer_valadoc_documentation_scanner_get_end (ValadocImpor
 static void valadoc_importer_valadoc_documentation_scanner_emit_current_word (ValadocImporterValadocDocumentationScanner* self,
                                                                        GError** error);
 static void valadoc_importer_valadoc_documentation_scanner_finalize (GObject * obj);
-
+static GType valadoc_importer_valadoc_documentation_scanner_get_type_once (void);
 
 static inline gpointer
 valadoc_importer_valadoc_documentation_scanner_get_instance_private (ValadocImporterValadocDocumentationScanner* self)
@@ -93,13 +91,11 @@ valadoc_importer_valadoc_documentation_scanner_get_instance_private (ValadocImpo
 	return G_STRUCT_MEMBER_P (self, ValadocImporterValadocDocumentationScanner_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocImporterValadocDocumentationScanner*
 valadoc_importer_valadoc_documentation_scanner_construct (GType object_type,
@@ -115,20 +111,17 @@ valadoc_importer_valadoc_documentation_scanner_construct (GType object_type,
 	return self;
 }
 
-
 ValadocImporterValadocDocumentationScanner*
 valadoc_importer_valadoc_documentation_scanner_new (ValadocSettings* settings)
 {
 	return valadoc_importer_valadoc_documentation_scanner_construct (VALADOC_IMPORTER_TYPE_VALADOC_DOCUMENTATION_SCANNER, settings);
 }
 
-
 static gpointer
 _valadoc_parser_ref0 (gpointer self)
 {
 	return self ? valadoc_parser_ref (self) : NULL;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_real_set_parser (ValadocScanner* base,
@@ -142,7 +135,6 @@ valadoc_importer_valadoc_documentation_scanner_real_set_parser (ValadocScanner* 
 	_valadoc_parser_unref0 (self->priv->_parser);
 	self->priv->_parser = _tmp0_;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_real_reset (ValadocImporterValadocDocumentationScanner* self)
@@ -159,14 +151,12 @@ valadoc_importer_valadoc_documentation_scanner_real_reset (ValadocImporterValado
 	g_string_erase (_tmp0_, (gssize) 0, (gssize) -1);
 }
 
-
 void
 valadoc_importer_valadoc_documentation_scanner_reset (ValadocImporterValadocDocumentationScanner* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_IMPORTER_VALADOC_DOCUMENTATION_SCANNER_GET_CLASS (self)->reset (self);
 }
-
 
 static gunichar
 string_get_char (const gchar* self,
@@ -178,7 +168,6 @@ string_get_char (const gchar* self,
 	return result;
 }
 
-
 static void
 valadoc_importer_valadoc_documentation_scanner_real_scan (ValadocScanner* base,
                                                           const gchar* content,
@@ -186,7 +175,7 @@ valadoc_importer_valadoc_documentation_scanner_real_scan (ValadocScanner* base,
 {
 	ValadocImporterValadocDocumentationScanner * self;
 	gchar* _tmp0_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = (ValadocImporterValadocDocumentationScanner*) base;
 	g_return_if_fail (content != NULL);
 	_tmp0_ = g_strdup (content);
@@ -200,10 +189,8 @@ valadoc_importer_valadoc_documentation_scanner_real_scan (ValadocScanner* base,
 		_tmp2_ = TRUE;
 		while (TRUE) {
 			gboolean _tmp5_ = FALSE;
-			gboolean _tmp6_;
 			gunichar c = 0U;
-			const gchar* _tmp8_;
-			gunichar _tmp9_;
+			const gchar* _tmp7_;
 			if (!_tmp2_) {
 				const gchar* _tmp3_;
 				const gchar* _tmp4_;
@@ -212,28 +199,26 @@ valadoc_importer_valadoc_documentation_scanner_real_scan (ValadocScanner* base,
 				self->priv->_index = _tmp4_;
 			}
 			_tmp2_ = FALSE;
-			_tmp6_ = self->priv->_stop;
-			if (!_tmp6_) {
-				const gchar* _tmp7_;
-				_tmp7_ = self->priv->_index;
-				_tmp5_ = string_get_char (_tmp7_, (glong) 0) != ((gunichar) 0);
+			if (!self->priv->_stop) {
+				const gchar* _tmp6_;
+				_tmp6_ = self->priv->_index;
+				_tmp5_ = string_get_char (_tmp6_, (glong) 0) != ((gunichar) 0);
 			} else {
 				_tmp5_ = FALSE;
 			}
 			if (!_tmp5_) {
 				break;
 			}
-			_tmp8_ = self->priv->_index;
-			c = string_get_char (_tmp8_, (glong) 0);
-			_tmp9_ = c;
-			valadoc_importer_valadoc_documentation_scanner_accept (self, _tmp9_, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					g_propagate_error (error, _inner_error_);
+			_tmp7_ = self->priv->_index;
+			c = string_get_char (_tmp7_, (glong) 0);
+			valadoc_importer_valadoc_documentation_scanner_accept (self, c, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					g_propagate_error (error, _inner_error0_);
 					return;
 				} else {
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
 					return;
 				}
 			}
@@ -241,36 +226,33 @@ valadoc_importer_valadoc_documentation_scanner_real_scan (ValadocScanner* base,
 	}
 }
 
-
 static void
 valadoc_importer_valadoc_documentation_scanner_real_end (ValadocScanner* base,
                                                          GError** error)
 {
 	ValadocImporterValadocDocumentationScanner * self;
 	ValadocTokenType* _tmp0_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = (ValadocImporterValadocDocumentationScanner*) base;
 	_tmp0_ = valadoc_token_type_EOF;
-	valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp0_, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp0_, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_real_stop (ValadocImporterValadocDocumentationScanner* self)
 {
 	self->priv->_stop = TRUE;
 }
-
 
 void
 valadoc_importer_valadoc_documentation_scanner_stop (ValadocImporterValadocDocumentationScanner* self)
@@ -279,31 +261,27 @@ valadoc_importer_valadoc_documentation_scanner_stop (ValadocImporterValadocDocum
 	VALADOC_IMPORTER_VALADOC_DOCUMENTATION_SCANNER_GET_CLASS (self)->stop (self);
 }
 
-
 gint
 valadoc_importer_valadoc_documentation_scanner_get_line (ValadocImporterValadocDocumentationScanner* self)
 {
 	gint result = 0;
-	gint _tmp0_;
 	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_line;
-	result = _tmp0_;
+	result = self->priv->_line;
 	return result;
 }
-
 
 static gchar*
 valadoc_importer_valadoc_documentation_scanner_real_get_line_content (ValadocImporterValadocDocumentationScanner* self)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	const gchar* line_start = NULL;
 	const gchar* _tmp1_;
 	gunichar c = 0U;
-	GString* _tmp19_;
-	const gchar* _tmp20_;
-	gchar* _tmp21_;
+	GString* _tmp15_;
+	const gchar* _tmp16_;
+	gchar* _tmp17_;
+	gchar* result = NULL;
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
 	_tmp1_ = self->priv->_index;
@@ -335,47 +313,38 @@ valadoc_importer_valadoc_documentation_scanner_real_get_line_content (ValadocImp
 	while (TRUE) {
 		gboolean _tmp9_ = FALSE;
 		const gchar* _tmp10_;
-		gunichar _tmp11_;
-		gunichar _tmp13_;
-		const gchar* _tmp17_;
-		const gchar* _tmp18_;
+		const gchar* _tmp13_;
+		const gchar* _tmp14_;
 		_tmp10_ = line_start;
 		c = string_get_char (_tmp10_, (glong) 0);
-		_tmp11_ = c;
-		if (_tmp11_ != ((gunichar) '\n')) {
-			gunichar _tmp12_;
-			_tmp12_ = c;
-			_tmp9_ = _tmp12_ != ((gunichar) '\0');
+		if (c != ((gunichar) '\n')) {
+			_tmp9_ = c != ((gunichar) '\0');
 		} else {
 			_tmp9_ = FALSE;
 		}
 		if (!_tmp9_) {
 			break;
 		}
-		_tmp13_ = c;
-		if (_tmp13_ == ((gunichar) '\t')) {
-			GString* _tmp14_;
-			_tmp14_ = builder;
-			g_string_append_c (_tmp14_, ' ');
+		if (c == ((gunichar) '\t')) {
+			GString* _tmp11_;
+			_tmp11_ = builder;
+			g_string_append_c (_tmp11_, ' ');
 		} else {
-			GString* _tmp15_;
-			gunichar _tmp16_;
-			_tmp15_ = builder;
-			_tmp16_ = c;
-			g_string_append_unichar (_tmp15_, _tmp16_);
+			GString* _tmp12_;
+			_tmp12_ = builder;
+			g_string_append_unichar (_tmp12_, c);
 		}
-		_tmp17_ = line_start;
-		_tmp18_ = g_utf8_next_char (_tmp17_);
-		line_start = _tmp18_;
+		_tmp13_ = line_start;
+		_tmp14_ = g_utf8_next_char (_tmp13_);
+		line_start = _tmp14_;
 	}
-	_tmp19_ = builder;
-	_tmp20_ = _tmp19_->str;
-	_tmp21_ = g_strdup (_tmp20_);
-	result = _tmp21_;
+	_tmp15_ = builder;
+	_tmp16_ = _tmp15_->str;
+	_tmp17_ = g_strdup (_tmp16_);
+	result = _tmp17_;
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 gchar*
 valadoc_importer_valadoc_documentation_scanner_get_line_content (ValadocImporterValadocDocumentationScanner* self)
@@ -384,27 +353,25 @@ valadoc_importer_valadoc_documentation_scanner_get_line_content (ValadocImporter
 	return VALADOC_IMPORTER_VALADOC_DOCUMENTATION_SCANNER_GET_CLASS (self)->get_line_content (self);
 }
 
-
 static gint
 string_index_of_nth_char (const gchar* self,
                           glong c)
 {
-	gint result = 0;
 	gchar* _tmp0_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_offset_to_pointer (self, c);
 	result = (gint) (_tmp0_ - ((gchar*) self));
 	return result;
 }
 
-
 gunichar
 valadoc_importer_valadoc_documentation_scanner_get_next_char (ValadocImporterValadocDocumentationScanner* self,
                                                               gint offset)
 {
-	gunichar result = 0U;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
+	gunichar result = 0U;
 	g_return_val_if_fail (self != NULL, 0U);
 	_tmp0_ = self->priv->_index;
 	_tmp1_ = self->priv->_index;
@@ -412,34 +379,31 @@ valadoc_importer_valadoc_documentation_scanner_get_next_char (ValadocImporterVal
 	return result;
 }
 
-
 void
 valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDocumentationScanner* self,
                                                        gunichar c,
                                                        GError** error)
 {
 	gint _tmp0_;
-	gint _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_column;
 	self->priv->_column = _tmp0_ + 1;
-	_tmp1_ = self->priv->_skip;
-	if (_tmp1_ == 0) {
+	if (self->priv->_skip == 0) {
 		switch (c) {
 			case '/':
 			{
 				if (valadoc_importer_valadoc_documentation_scanner_get_next_char (self, 1) == ((gunichar) '*')) {
-					ValadocTokenType* _tmp2_;
-					_tmp2_ = valadoc_token_type_VALADOC_COMMENT_START;
-					valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp2_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					ValadocTokenType* _tmp1_;
+					_tmp1_ = valadoc_token_type_VALADOC_COMMENT_START;
+					valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp1_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -452,16 +416,16 @@ valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDoc
 			case '*':
 			{
 				if (valadoc_importer_valadoc_documentation_scanner_get_next_char (self, 1) == ((gunichar) '/')) {
-					ValadocTokenType* _tmp3_;
-					_tmp3_ = valadoc_token_type_VALADOC_COMMENT_END;
-					valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp3_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					ValadocTokenType* _tmp2_;
+					_tmp2_ = valadoc_token_type_VALADOC_COMMENT_END;
+					valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp2_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -473,16 +437,16 @@ valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDoc
 			}
 			case '\t':
 			{
-				ValadocTokenType* _tmp4_;
-				_tmp4_ = valadoc_token_type_VALADOC_TAB;
-				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp4_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp3_;
+				_tmp3_ = valadoc_token_type_VALADOC_TAB;
+				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp3_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -490,16 +454,16 @@ valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDoc
 			}
 			case ' ':
 			{
-				ValadocTokenType* _tmp5_;
-				_tmp5_ = valadoc_token_type_VALADOC_SPACE;
-				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp5_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp4_;
+				_tmp4_ = valadoc_token_type_VALADOC_SPACE;
+				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp4_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -507,22 +471,22 @@ valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDoc
 			}
 			case '\n':
 			{
-				ValadocTokenType* _tmp6_;
-				gint _tmp7_;
-				_tmp6_ = valadoc_token_type_VALADOC_EOL;
-				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp6_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp5_;
+				gint _tmp6_;
+				_tmp5_ = valadoc_token_type_VALADOC_EOL;
+				valadoc_importer_valadoc_documentation_scanner_emit_token (self, _tmp5_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
-				_tmp7_ = self->priv->_line;
-				self->priv->_line = _tmp7_ + 1;
+				_tmp6_ = self->priv->_line;
+				self->priv->_line = _tmp6_ + 1;
 				self->priv->_column = 0;
 				self->priv->_last_column = 0;
 				break;
@@ -534,13 +498,12 @@ valadoc_importer_valadoc_documentation_scanner_accept (ValadocImporterValadocDoc
 			}
 		}
 	} else {
-		gint _tmp8_;
-		_tmp8_ = self->priv->_skip;
-		self->priv->_skip = _tmp8_ - 1;
+		gint _tmp7_;
+		_tmp7_ = self->priv->_skip;
+		self->priv->_skip = _tmp7_ - 1;
 	}
 	self->priv->_last_char = c;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_append_char (ValadocImporterValadocDocumentationScanner* self,
@@ -552,7 +515,6 @@ valadoc_importer_valadoc_documentation_scanner_append_char (ValadocImporterValad
 	g_string_append_unichar (_tmp0_, c);
 }
 
-
 static gint
 valadoc_importer_valadoc_documentation_scanner_real_get_line_start_column (ValadocImporterValadocDocumentationScanner* self)
 {
@@ -561,7 +523,6 @@ valadoc_importer_valadoc_documentation_scanner_real_get_line_start_column (Valad
 	return result;
 }
 
-
 gint
 valadoc_importer_valadoc_documentation_scanner_get_line_start_column (ValadocImporterValadocDocumentationScanner* self)
 {
@@ -569,24 +530,18 @@ valadoc_importer_valadoc_documentation_scanner_get_line_start_column (ValadocImp
 	return VALADOC_IMPORTER_VALADOC_DOCUMENTATION_SCANNER_GET_CLASS (self)->get_line_start_column (self);
 }
 
-
 static void
 valadoc_importer_valadoc_documentation_scanner_get_begin (ValadocImporterValadocDocumentationScanner* self,
                                                           ValaSourceLocation* result)
 {
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp1_ = {0};
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_index;
-	_tmp1_ = self->priv->_last_line;
-	_tmp2_ = self->priv->_last_column;
-	vala_source_location_init (&_tmp3_, _tmp0_, _tmp1_, valadoc_importer_valadoc_documentation_scanner_get_line_start_column (self) + _tmp2_);
-	*result = _tmp3_;
+	vala_source_location_init (&_tmp1_, _tmp0_, self->priv->_last_line, valadoc_importer_valadoc_documentation_scanner_get_line_start_column (self) + self->priv->_last_column);
+	*result = _tmp1_;
 	return;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_get_end (ValadocImporterValadocDocumentationScanner* self,
@@ -594,68 +549,56 @@ valadoc_importer_valadoc_documentation_scanner_get_end (ValadocImporterValadocDo
                                                         ValaSourceLocation* result)
 {
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp1_ = {0};
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_index;
-	_tmp1_ = self->priv->_line;
-	_tmp2_ = self->priv->_column;
-	vala_source_location_init (&_tmp3_, _tmp0_, _tmp1_, (valadoc_importer_valadoc_documentation_scanner_get_line_start_column (self) + _tmp2_) + offset);
-	*result = _tmp3_;
+	vala_source_location_init (&_tmp1_, _tmp0_, self->priv->_line, (valadoc_importer_valadoc_documentation_scanner_get_line_start_column (self) + self->priv->_column) + offset);
+	*result = _tmp1_;
 	return;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_emit_current_word (ValadocImporterValadocDocumentationScanner* self,
                                                                   GError** error)
 {
 	GString* _tmp0_;
-	gssize _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_current_string;
-	_tmp1_ = _tmp0_->len;
-	if (_tmp1_ > ((gssize) 0)) {
-		ValadocParser* _tmp2_;
-		GString* _tmp3_;
-		const gchar* _tmp4_;
+	if (_tmp0_->len > ((gssize) 0)) {
+		ValadocParser* _tmp1_;
+		GString* _tmp2_;
+		const gchar* _tmp3_;
+		ValaSourceLocation _tmp4_ = {0};
 		ValaSourceLocation _tmp5_ = {0};
-		ValaSourceLocation _tmp6_ = {0};
+		ValadocToken* _tmp6_;
 		ValadocToken* _tmp7_;
-		ValadocToken* _tmp8_;
-		GString* _tmp9_;
-		gint _tmp10_;
-		gint _tmp11_;
-		_tmp2_ = self->priv->_parser;
-		_tmp3_ = self->priv->_current_string;
-		_tmp4_ = _tmp3_->str;
-		valadoc_importer_valadoc_documentation_scanner_get_begin (self, &_tmp5_);
-		valadoc_importer_valadoc_documentation_scanner_get_end (self, -1, &_tmp6_);
-		_tmp7_ = valadoc_token_new_from_word (_tmp4_, &_tmp5_, &_tmp6_);
-		_tmp8_ = _tmp7_;
-		valadoc_parser_accept_token (_tmp2_, _tmp8_, &_inner_error_);
-		_g_object_unref0 (_tmp8_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		GString* _tmp8_;
+		_tmp1_ = self->priv->_parser;
+		_tmp2_ = self->priv->_current_string;
+		_tmp3_ = _tmp2_->str;
+		valadoc_importer_valadoc_documentation_scanner_get_begin (self, &_tmp4_);
+		valadoc_importer_valadoc_documentation_scanner_get_end (self, -1, &_tmp5_);
+		_tmp6_ = valadoc_token_new_from_word (_tmp3_, &_tmp4_, &_tmp5_);
+		_tmp7_ = _tmp6_;
+		valadoc_parser_accept_token (_tmp1_, _tmp7_, &_inner_error0_);
+		_g_object_unref0 (_tmp7_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
-		_tmp9_ = self->priv->_current_string;
-		g_string_erase (_tmp9_, (gssize) 0, (gssize) -1);
-		_tmp10_ = self->priv->_line;
-		self->priv->_last_line = _tmp10_;
-		_tmp11_ = self->priv->_column;
-		self->priv->_last_column = _tmp11_ - 1;
+		_tmp8_ = self->priv->_current_string;
+		g_string_erase (_tmp8_, (gssize) 0, (gssize) -1);
+		self->priv->_last_line = self->priv->_line;
+		self->priv->_last_column = self->priv->_column - 1;
 	}
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_emit_token (ValadocImporterValadocDocumentationScanner* self,
@@ -664,53 +607,47 @@ valadoc_importer_valadoc_documentation_scanner_emit_token (ValadocImporterValado
 {
 	ValadocParser* _tmp0_;
 	ValaSourceLocation _tmp1_ = {0};
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp2_ = {0};
+	ValadocToken* _tmp3_;
 	ValadocToken* _tmp4_;
-	ValadocToken* _tmp5_;
-	gint _tmp6_;
-	gint _tmp7_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (type != NULL);
-	valadoc_importer_valadoc_documentation_scanner_emit_current_word (self, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_importer_valadoc_documentation_scanner_emit_current_word (self, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 	_tmp0_ = self->priv->_parser;
 	valadoc_importer_valadoc_documentation_scanner_get_begin (self, &_tmp1_);
-	_tmp2_ = self->priv->_skip;
-	valadoc_importer_valadoc_documentation_scanner_get_end (self, _tmp2_, &_tmp3_);
-	_tmp4_ = valadoc_token_new_from_type (type, &_tmp1_, &_tmp3_, NULL);
-	_tmp5_ = _tmp4_;
-	valadoc_parser_accept_token (_tmp0_, _tmp5_, &_inner_error_);
-	_g_object_unref0 (_tmp5_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_importer_valadoc_documentation_scanner_get_end (self, self->priv->_skip, &_tmp2_);
+	_tmp3_ = valadoc_token_new_from_type (type, &_tmp1_, &_tmp2_, NULL);
+	_tmp4_ = _tmp3_;
+	valadoc_parser_accept_token (_tmp0_, _tmp4_, &_inner_error0_);
+	_g_object_unref0 (_tmp4_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
-	_tmp6_ = self->priv->_line;
-	self->priv->_last_line = _tmp6_;
-	_tmp7_ = self->priv->_column;
-	self->priv->_last_column = _tmp7_;
+	self->priv->_last_line = self->priv->_line;
+	self->priv->_last_column = self->priv->_column;
 }
 
-
 static void
-valadoc_importer_valadoc_documentation_scanner_class_init (ValadocImporterValadocDocumentationScannerClass * klass)
+valadoc_importer_valadoc_documentation_scanner_class_init (ValadocImporterValadocDocumentationScannerClass * klass,
+                                                           gpointer klass_data)
 {
 	valadoc_importer_valadoc_documentation_scanner_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocImporterValadocDocumentationScanner_private_offset);
@@ -721,9 +658,9 @@ valadoc_importer_valadoc_documentation_scanner_class_init (ValadocImporterValado
 	G_OBJECT_CLASS (klass)->finalize = valadoc_importer_valadoc_documentation_scanner_finalize;
 }
 
-
 static void
-valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_interface_init (ValadocScannerIface * iface)
+valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_interface_init (ValadocScannerIface * iface,
+                                                                               gpointer iface_data)
 {
 	valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_parent_iface = g_type_interface_peek_parent (iface);
 	iface->set_parser = (void (*) (ValadocScanner*, ValadocParser*)) valadoc_importer_valadoc_documentation_scanner_real_set_parser;
@@ -734,16 +671,15 @@ valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_interface_init (V
 	iface->get_line_content = (gchar* (*) (ValadocScanner*)) valadoc_importer_valadoc_documentation_scanner_get_line_content;
 }
 
-
 static void
-valadoc_importer_valadoc_documentation_scanner_instance_init (ValadocImporterValadocDocumentationScanner * self)
+valadoc_importer_valadoc_documentation_scanner_instance_init (ValadocImporterValadocDocumentationScanner * self,
+                                                              gpointer klass)
 {
 	GString* _tmp0_;
 	self->priv = valadoc_importer_valadoc_documentation_scanner_get_instance_private (self);
 	_tmp0_ = g_string_new ("");
 	self->priv->_current_string = _tmp0_;
 }
-
 
 static void
 valadoc_importer_valadoc_documentation_scanner_finalize (GObject * obj)
@@ -757,22 +693,27 @@ valadoc_importer_valadoc_documentation_scanner_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_importer_valadoc_documentation_scanner_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_importer_valadoc_documentation_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterValadocDocumentationScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_valadoc_documentation_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterValadocDocumentationScanner), 0, (GInstanceInitFunc) valadoc_importer_valadoc_documentation_scanner_instance_init, NULL };
+	static const GInterfaceInfo valadoc_scanner_info = { (GInterfaceInitFunc) valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_importer_valadoc_documentation_scanner_type_id;
+	valadoc_importer_valadoc_documentation_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocImporterValadocDocumentationScanner", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_importer_valadoc_documentation_scanner_type_id, VALADOC_TYPE_SCANNER, &valadoc_scanner_info);
+	ValadocImporterValadocDocumentationScanner_private_offset = g_type_add_instance_private (valadoc_importer_valadoc_documentation_scanner_type_id, sizeof (ValadocImporterValadocDocumentationScannerPrivate));
+	return valadoc_importer_valadoc_documentation_scanner_type_id;
+}
 
 GType
 valadoc_importer_valadoc_documentation_scanner_get_type (void)
 {
 	static volatile gsize valadoc_importer_valadoc_documentation_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_importer_valadoc_documentation_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterValadocDocumentationScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_valadoc_documentation_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterValadocDocumentationScanner), 0, (GInstanceInitFunc) valadoc_importer_valadoc_documentation_scanner_instance_init, NULL };
-		static const GInterfaceInfo valadoc_scanner_info = { (GInterfaceInitFunc) valadoc_importer_valadoc_documentation_scanner_valadoc_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_importer_valadoc_documentation_scanner_type_id;
-		valadoc_importer_valadoc_documentation_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocImporterValadocDocumentationScanner", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_importer_valadoc_documentation_scanner_type_id, VALADOC_TYPE_SCANNER, &valadoc_scanner_info);
-		ValadocImporterValadocDocumentationScanner_private_offset = g_type_add_instance_private (valadoc_importer_valadoc_documentation_scanner_type_id, sizeof (ValadocImporterValadocDocumentationScannerPrivate));
+		valadoc_importer_valadoc_documentation_scanner_type_id = valadoc_importer_valadoc_documentation_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_importer_valadoc_documentation_scanner_type_id__volatile, valadoc_importer_valadoc_documentation_scanner_type_id);
 	}
 	return valadoc_importer_valadoc_documentation_scanner_type_id__volatile;
 }
-
-
 

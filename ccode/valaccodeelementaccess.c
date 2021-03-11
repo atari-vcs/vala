@@ -25,18 +25,18 @@
  *	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
+#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
 struct _ValaCCodeElementAccessPrivate {
 	ValaCCodeExpression* _container;
-	ValaCCodeExpression* _index;
+	ValaList* _indices;
 };
-
 
 static gint ValaCCodeElementAccess_private_offset;
 static gpointer vala_ccode_element_access_parent_class = NULL;
@@ -44,55 +44,13 @@ static gpointer vala_ccode_element_access_parent_class = NULL;
 static void vala_ccode_element_access_real_write (ValaCCodeNode* base,
                                            ValaCCodeWriter* writer);
 static void vala_ccode_element_access_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_element_access_get_type_once (void);
 
 static inline gpointer
 vala_ccode_element_access_get_instance_private (ValaCCodeElementAccess* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaCCodeElementAccess_private_offset);
 }
-
-
-ValaCCodeElementAccess*
-vala_ccode_element_access_construct (GType object_type,
-                                     ValaCCodeExpression* cont,
-                                     ValaCCodeExpression* i)
-{
-	ValaCCodeElementAccess* self = NULL;
-	g_return_val_if_fail (cont != NULL, NULL);
-	g_return_val_if_fail (i != NULL, NULL);
-	self = (ValaCCodeElementAccess*) vala_ccode_expression_construct (object_type);
-	vala_ccode_element_access_set_container (self, cont);
-	vala_ccode_element_access_set_index (self, i);
-	return self;
-}
-
-
-ValaCCodeElementAccess*
-vala_ccode_element_access_new (ValaCCodeExpression* cont,
-                               ValaCCodeExpression* i)
-{
-	return vala_ccode_element_access_construct (VALA_TYPE_CCODE_ELEMENT_ACCESS, cont, i);
-}
-
-
-static void
-vala_ccode_element_access_real_write (ValaCCodeNode* base,
-                                      ValaCCodeWriter* writer)
-{
-	ValaCCodeElementAccess * self;
-	ValaCCodeExpression* _tmp0_;
-	ValaCCodeExpression* _tmp1_;
-	self = (ValaCCodeElementAccess*) base;
-	g_return_if_fail (writer != NULL);
-	_tmp0_ = self->priv->_container;
-	vala_ccode_expression_write_inner (_tmp0_, writer);
-	vala_ccode_writer_write_string (writer, "[");
-	_tmp1_ = self->priv->_index;
-	vala_ccode_node_write ((ValaCCodeNode*) _tmp1_, writer);
-	vala_ccode_writer_write_string (writer, "]");
-}
-
 
 ValaCCodeExpression*
 vala_ccode_element_access_get_container (ValaCCodeElementAccess* self)
@@ -105,13 +63,11 @@ vala_ccode_element_access_get_container (ValaCCodeElementAccess* self)
 	return result;
 }
 
-
 static gpointer
 _vala_ccode_node_ref0 (gpointer self)
 {
 	return self ? vala_ccode_node_ref (self) : NULL;
 }
-
 
 void
 vala_ccode_element_access_set_container (ValaCCodeElementAccess* self,
@@ -124,33 +80,148 @@ vala_ccode_element_access_set_container (ValaCCodeElementAccess* self,
 	self->priv->_container = _tmp0_;
 }
 
-
-ValaCCodeExpression*
-vala_ccode_element_access_get_index (ValaCCodeElementAccess* self)
+ValaList*
+vala_ccode_element_access_get_indices (ValaCCodeElementAccess* self)
 {
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
+	ValaList* result;
+	ValaList* _tmp0_;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_index;
+	_tmp0_ = self->priv->_indices;
 	result = _tmp0_;
 	return result;
 }
 
-
-void
-vala_ccode_element_access_set_index (ValaCCodeElementAccess* self,
-                                     ValaCCodeExpression* value)
+static gpointer
+_vala_iterable_ref0 (gpointer self)
 {
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_index);
-	self->priv->_index = _tmp0_;
+	return self ? vala_iterable_ref (self) : NULL;
 }
 
+void
+vala_ccode_element_access_set_indices (ValaCCodeElementAccess* self,
+                                       ValaList* value)
+{
+	ValaList* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_iterable_ref0 (value);
+	_vala_iterable_unref0 (self->priv->_indices);
+	self->priv->_indices = _tmp0_;
+}
+
+ValaCCodeElementAccess*
+vala_ccode_element_access_construct (GType object_type,
+                                     ValaCCodeExpression* cont,
+                                     ValaCCodeExpression* i)
+{
+	ValaCCodeElementAccess* self = NULL;
+	GEqualFunc _tmp0_;
+	ValaArrayList* _tmp1_;
+	ValaArrayList* _tmp2_;
+	ValaList* _tmp3_;
+	g_return_val_if_fail (cont != NULL, NULL);
+	g_return_val_if_fail (i != NULL, NULL);
+	self = (ValaCCodeElementAccess*) vala_ccode_expression_construct (object_type);
+	vala_ccode_element_access_set_container (self, cont);
+	_tmp0_ = g_direct_equal;
+	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_EXPRESSION, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
+	_tmp2_ = _tmp1_;
+	vala_ccode_element_access_set_indices (self, (ValaList*) _tmp2_);
+	_vala_iterable_unref0 (_tmp2_);
+	_tmp3_ = self->priv->_indices;
+	vala_collection_add ((ValaCollection*) _tmp3_, i);
+	return self;
+}
+
+ValaCCodeElementAccess*
+vala_ccode_element_access_new (ValaCCodeExpression* cont,
+                               ValaCCodeExpression* i)
+{
+	return vala_ccode_element_access_construct (VALA_TYPE_CCODE_ELEMENT_ACCESS, cont, i);
+}
+
+ValaCCodeElementAccess*
+vala_ccode_element_access_construct_with_indices (GType object_type,
+                                                  ValaCCodeExpression* cont,
+                                                  ValaList* i)
+{
+	ValaCCodeElementAccess* self = NULL;
+	g_return_val_if_fail (cont != NULL, NULL);
+	g_return_val_if_fail (i != NULL, NULL);
+	self = (ValaCCodeElementAccess*) vala_ccode_expression_construct (object_type);
+	vala_ccode_element_access_set_container (self, cont);
+	vala_ccode_element_access_set_indices (self, i);
+	return self;
+}
+
+ValaCCodeElementAccess*
+vala_ccode_element_access_new_with_indices (ValaCCodeExpression* cont,
+                                            ValaList* i)
+{
+	return vala_ccode_element_access_construct_with_indices (VALA_TYPE_CCODE_ELEMENT_ACCESS, cont, i);
+}
 
 static void
-vala_ccode_element_access_class_init (ValaCCodeElementAccessClass * klass)
+vala_ccode_element_access_real_write (ValaCCodeNode* base,
+                                      ValaCCodeWriter* writer)
+{
+	ValaCCodeElementAccess * self;
+	ValaCCodeExpression* _tmp0_;
+	gboolean first = FALSE;
+	self = (ValaCCodeElementAccess*) base;
+	g_return_if_fail (writer != NULL);
+	_tmp0_ = self->priv->_container;
+	vala_ccode_expression_write_inner (_tmp0_, writer);
+	vala_ccode_writer_write_string (writer, "[");
+	first = TRUE;
+	{
+		ValaList* _index_list = NULL;
+		ValaList* _tmp1_;
+		ValaList* _tmp2_;
+		gint _index_size = 0;
+		ValaList* _tmp3_;
+		gint _tmp4_;
+		gint _tmp5_;
+		gint _index_index = 0;
+		_tmp1_ = self->priv->_indices;
+		_tmp2_ = _vala_iterable_ref0 (_tmp1_);
+		_index_list = _tmp2_;
+		_tmp3_ = _index_list;
+		_tmp4_ = vala_collection_get_size ((ValaCollection*) _tmp3_);
+		_tmp5_ = _tmp4_;
+		_index_size = _tmp5_;
+		_index_index = -1;
+		while (TRUE) {
+			gint _tmp6_;
+			gint _tmp7_;
+			ValaCCodeExpression* index = NULL;
+			ValaList* _tmp8_;
+			gpointer _tmp9_;
+			ValaCCodeExpression* _tmp10_;
+			_index_index = _index_index + 1;
+			_tmp6_ = _index_index;
+			_tmp7_ = _index_size;
+			if (!(_tmp6_ < _tmp7_)) {
+				break;
+			}
+			_tmp8_ = _index_list;
+			_tmp9_ = vala_list_get (_tmp8_, _index_index);
+			index = (ValaCCodeExpression*) _tmp9_;
+			if (!first) {
+				vala_ccode_writer_write_string (writer, "][");
+			}
+			_tmp10_ = index;
+			vala_ccode_node_write ((ValaCCodeNode*) _tmp10_, writer);
+			first = FALSE;
+			_vala_ccode_node_unref0 (index);
+		}
+		_vala_iterable_unref0 (_index_list);
+	}
+	vala_ccode_writer_write_string (writer, "]");
+}
+
+static void
+vala_ccode_element_access_class_init (ValaCCodeElementAccessClass * klass,
+                                      gpointer klass_data)
 {
 	vala_ccode_element_access_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_element_access_finalize;
@@ -158,13 +229,12 @@ vala_ccode_element_access_class_init (ValaCCodeElementAccessClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_element_access_real_write;
 }
 
-
 static void
-vala_ccode_element_access_instance_init (ValaCCodeElementAccess * self)
+vala_ccode_element_access_instance_init (ValaCCodeElementAccess * self,
+                                         gpointer klass)
 {
 	self->priv = vala_ccode_element_access_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_element_access_finalize (ValaCCodeNode * obj)
@@ -172,27 +242,32 @@ vala_ccode_element_access_finalize (ValaCCodeNode * obj)
 	ValaCCodeElementAccess * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_CCODE_ELEMENT_ACCESS, ValaCCodeElementAccess);
 	_vala_ccode_node_unref0 (self->priv->_container);
-	_vala_ccode_node_unref0 (self->priv->_index);
+	_vala_iterable_unref0 (self->priv->_indices);
 	VALA_CCODE_NODE_CLASS (vala_ccode_element_access_parent_class)->finalize (obj);
 }
-
 
 /**
  * Represents an access to an array member in the C code.
  */
+static GType
+vala_ccode_element_access_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeElementAccessClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_element_access_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeElementAccess), 0, (GInstanceInitFunc) vala_ccode_element_access_instance_init, NULL };
+	GType vala_ccode_element_access_type_id;
+	vala_ccode_element_access_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeElementAccess", &g_define_type_info, 0);
+	ValaCCodeElementAccess_private_offset = g_type_add_instance_private (vala_ccode_element_access_type_id, sizeof (ValaCCodeElementAccessPrivate));
+	return vala_ccode_element_access_type_id;
+}
+
 GType
 vala_ccode_element_access_get_type (void)
 {
 	static volatile gsize vala_ccode_element_access_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_element_access_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeElementAccessClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_element_access_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeElementAccess), 0, (GInstanceInitFunc) vala_ccode_element_access_instance_init, NULL };
 		GType vala_ccode_element_access_type_id;
-		vala_ccode_element_access_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeElementAccess", &g_define_type_info, 0);
-		ValaCCodeElementAccess_private_offset = g_type_add_instance_private (vala_ccode_element_access_type_id, sizeof (ValaCCodeElementAccessPrivate));
+		vala_ccode_element_access_type_id = vala_ccode_element_access_get_type_once ();
 		g_once_init_leave (&vala_ccode_element_access_type_id__volatile, vala_ccode_element_access_type_id);
 	}
 	return vala_ccode_element_access_type_id__volatile;
 }
-
-
 

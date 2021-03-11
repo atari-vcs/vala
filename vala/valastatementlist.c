@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
@@ -36,11 +35,13 @@ struct _ValaStatementListPrivate {
 	ValaList* list;
 };
 
-
 static gint ValaStatementList_private_offset;
 static gpointer vala_statement_list_parent_class = NULL;
 static ValaStatementIface * vala_statement_list_vala_statement_parent_iface = NULL;
 
+static void vala_statement_list_real_get_error_types (ValaCodeNode* base,
+                                               ValaCollection* collection,
+                                               ValaSourceReference* source_reference);
 static void vala_statement_list_real_accept (ValaCodeNode* base,
                                       ValaCodeVisitor* visitor);
 static gboolean vala_statement_list_real_check (ValaCodeNode* base,
@@ -48,7 +49,7 @@ static gboolean vala_statement_list_real_check (ValaCodeNode* base,
 static void vala_statement_list_real_emit (ValaCodeNode* base,
                                     ValaCodeGenerator* codegen);
 static void vala_statement_list_finalize (ValaCodeNode * obj);
-
+static GType vala_statement_list_get_type_once (void);
 
 static inline gpointer
 vala_statement_list_get_instance_private (ValaStatementList* self)
@@ -56,18 +57,30 @@ vala_statement_list_get_instance_private (ValaStatementList* self)
 	return G_STRUCT_MEMBER_P (self, ValaStatementList_private_offset);
 }
 
+gint
+vala_statement_list_get_length (ValaStatementList* self)
+{
+	gint result;
+	ValaList* _tmp0_;
+	gint _tmp1_;
+	gint _tmp2_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->list;
+	_tmp1_ = vala_collection_get_size ((ValaCollection*) _tmp0_);
+	_tmp2_ = _tmp1_;
+	result = _tmp2_;
+	return result;
+}
 
 ValaStatementList*
 vala_statement_list_construct (GType object_type,
                                ValaSourceReference* source_reference)
 {
 	ValaStatementList* self = NULL;
-	g_return_val_if_fail (source_reference != NULL, NULL);
 	self = (ValaStatementList*) vala_code_node_construct (object_type);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source_reference);
 	return self;
 }
-
 
 ValaStatementList*
 vala_statement_list_new (ValaSourceReference* source_reference)
@@ -75,21 +88,19 @@ vala_statement_list_new (ValaSourceReference* source_reference)
 	return vala_statement_list_construct (VALA_TYPE_STATEMENT_LIST, source_reference);
 }
 
-
 ValaStatement*
 vala_statement_list_get (ValaStatementList* self,
                          gint index)
 {
-	ValaStatement* result = NULL;
 	ValaList* _tmp0_;
 	gpointer _tmp1_;
+	ValaStatement* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->list;
 	_tmp1_ = vala_list_get (_tmp0_, index);
 	result = (ValaStatement*) _tmp1_;
 	return result;
 }
-
 
 void
 vala_statement_list_set (ValaStatementList* self,
@@ -103,7 +114,6 @@ vala_statement_list_set (ValaStatementList* self,
 	vala_list_set (_tmp0_, index, stmt);
 }
 
-
 void
 vala_statement_list_add (ValaStatementList* self,
                          ValaStatement* stmt)
@@ -114,7 +124,6 @@ vala_statement_list_add (ValaStatementList* self,
 	_tmp0_ = self->priv->list;
 	vala_collection_add ((ValaCollection*) _tmp0_, stmt);
 }
-
 
 void
 vala_statement_list_insert (ValaStatementList* self,
@@ -128,13 +137,60 @@ vala_statement_list_insert (ValaStatementList* self,
 	vala_list_insert (_tmp0_, index, stmt);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
+static void
+vala_statement_list_real_get_error_types (ValaCodeNode* base,
+                                          ValaCollection* collection,
+                                          ValaSourceReference* source_reference)
+{
+	ValaStatementList * self;
+	self = (ValaStatementList*) base;
+	g_return_if_fail (collection != NULL);
+	{
+		ValaList* _stmt_list = NULL;
+		ValaList* _tmp0_;
+		ValaList* _tmp1_;
+		gint _stmt_size = 0;
+		ValaList* _tmp2_;
+		gint _tmp3_;
+		gint _tmp4_;
+		gint _stmt_index = 0;
+		_tmp0_ = self->priv->list;
+		_tmp1_ = _vala_iterable_ref0 (_tmp0_);
+		_stmt_list = _tmp1_;
+		_tmp2_ = _stmt_list;
+		_tmp3_ = vala_collection_get_size ((ValaCollection*) _tmp2_);
+		_tmp4_ = _tmp3_;
+		_stmt_size = _tmp4_;
+		_stmt_index = -1;
+		while (TRUE) {
+			gint _tmp5_;
+			gint _tmp6_;
+			ValaStatement* stmt = NULL;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaStatement* _tmp9_;
+			_stmt_index = _stmt_index + 1;
+			_tmp5_ = _stmt_index;
+			_tmp6_ = _stmt_size;
+			if (!(_tmp5_ < _tmp6_)) {
+				break;
+			}
+			_tmp7_ = _stmt_list;
+			_tmp8_ = vala_list_get (_tmp7_, _stmt_index);
+			stmt = (ValaStatement*) _tmp8_;
+			_tmp9_ = stmt;
+			vala_code_node_get_error_types ((ValaCodeNode*) _tmp9_, collection, source_reference);
+			_vala_code_node_unref0 (stmt);
+		}
+		_vala_iterable_unref0 (_stmt_list);
+	}
+}
 
 static void
 vala_statement_list_real_accept (ValaCodeNode* base,
@@ -163,31 +219,26 @@ vala_statement_list_real_accept (ValaCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaStatement* stmt = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaStatement* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaStatement* _tmp9_;
+			_stmt_index = _stmt_index + 1;
 			_tmp5_ = _stmt_index;
-			_stmt_index = _tmp5_ + 1;
-			_tmp6_ = _stmt_index;
-			_tmp7_ = _stmt_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _stmt_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _stmt_list;
-			_tmp9_ = _stmt_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			stmt = (ValaStatement*) _tmp10_;
-			_tmp11_ = stmt;
-			vala_code_node_accept ((ValaCodeNode*) _tmp11_, visitor);
+			_tmp7_ = _stmt_list;
+			_tmp8_ = vala_list_get (_tmp7_, _stmt_index);
+			stmt = (ValaStatement*) _tmp8_;
+			_tmp9_ = stmt;
+			vala_code_node_accept ((ValaCodeNode*) _tmp9_, visitor);
 			_vala_code_node_unref0 (stmt);
 		}
 		_vala_iterable_unref0 (_stmt_list);
 	}
 }
-
 
 static gboolean
 vala_statement_list_real_check (ValaCodeNode* base,
@@ -217,25 +268,21 @@ vala_statement_list_real_check (ValaCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaStatement* stmt = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaStatement* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaStatement* _tmp9_;
+			_stmt_index = _stmt_index + 1;
 			_tmp5_ = _stmt_index;
-			_stmt_index = _tmp5_ + 1;
-			_tmp6_ = _stmt_index;
-			_tmp7_ = _stmt_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _stmt_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _stmt_list;
-			_tmp9_ = _stmt_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			stmt = (ValaStatement*) _tmp10_;
-			_tmp11_ = stmt;
-			if (!vala_code_node_check ((ValaCodeNode*) _tmp11_, context)) {
+			_tmp7_ = _stmt_list;
+			_tmp8_ = vala_list_get (_tmp7_, _stmt_index);
+			stmt = (ValaStatement*) _tmp8_;
+			_tmp9_ = stmt;
+			if (!vala_code_node_check ((ValaCodeNode*) _tmp9_, context)) {
 				result = FALSE;
 				_vala_code_node_unref0 (stmt);
 				_vala_iterable_unref0 (_stmt_list);
@@ -248,7 +295,6 @@ vala_statement_list_real_check (ValaCodeNode* base,
 	result = TRUE;
 	return result;
 }
-
 
 static void
 vala_statement_list_real_emit (ValaCodeNode* base,
@@ -277,69 +323,50 @@ vala_statement_list_real_emit (ValaCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaStatement* stmt = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaStatement* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaStatement* _tmp9_;
+			_stmt_index = _stmt_index + 1;
 			_tmp5_ = _stmt_index;
-			_stmt_index = _tmp5_ + 1;
-			_tmp6_ = _stmt_index;
-			_tmp7_ = _stmt_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _stmt_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _stmt_list;
-			_tmp9_ = _stmt_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			stmt = (ValaStatement*) _tmp10_;
-			_tmp11_ = stmt;
-			vala_code_node_emit ((ValaCodeNode*) _tmp11_, codegen);
+			_tmp7_ = _stmt_list;
+			_tmp8_ = vala_list_get (_tmp7_, _stmt_index);
+			stmt = (ValaStatement*) _tmp8_;
+			_tmp9_ = stmt;
+			vala_code_node_emit ((ValaCodeNode*) _tmp9_, codegen);
 			_vala_code_node_unref0 (stmt);
 		}
 		_vala_iterable_unref0 (_stmt_list);
 	}
 }
 
-
-gint
-vala_statement_list_get_length (ValaStatementList* self)
-{
-	gint result;
-	ValaList* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->list;
-	_tmp1_ = vala_collection_get_size ((ValaCollection*) _tmp0_);
-	_tmp2_ = _tmp1_;
-	result = _tmp2_;
-	return result;
-}
-
-
 static void
-vala_statement_list_class_init (ValaStatementListClass * klass)
+vala_statement_list_class_init (ValaStatementListClass * klass,
+                                gpointer klass_data)
 {
 	vala_statement_list_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_statement_list_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaStatementList_private_offset);
+	((ValaCodeNodeClass *) klass)->get_error_types = (void (*) (ValaCodeNode*, ValaCollection*, ValaSourceReference*)) vala_statement_list_real_get_error_types;
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_statement_list_real_accept;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_statement_list_real_check;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_statement_list_real_emit;
 }
 
-
 static void
-vala_statement_list_vala_statement_interface_init (ValaStatementIface * iface)
+vala_statement_list_vala_statement_interface_init (ValaStatementIface * iface,
+                                                   gpointer iface_data)
 {
 	vala_statement_list_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_statement_list_instance_init (ValaStatementList * self)
+vala_statement_list_instance_init (ValaStatementList * self,
+                                   gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -348,7 +375,6 @@ vala_statement_list_instance_init (ValaStatementList * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_STATEMENT, (GBoxedCopyFunc) vala_code_node_ref, (GDestroyNotify) vala_code_node_unref, _tmp0_);
 	self->priv->list = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_statement_list_finalize (ValaCodeNode * obj)
@@ -359,22 +385,27 @@ vala_statement_list_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_statement_list_parent_class)->finalize (obj);
 }
 
+static GType
+vala_statement_list_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaStatementListClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_statement_list_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaStatementList), 0, (GInstanceInitFunc) vala_statement_list_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_statement_list_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_statement_list_type_id;
+	vala_statement_list_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaStatementList", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_statement_list_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	ValaStatementList_private_offset = g_type_add_instance_private (vala_statement_list_type_id, sizeof (ValaStatementListPrivate));
+	return vala_statement_list_type_id;
+}
 
 GType
 vala_statement_list_get_type (void)
 {
 	static volatile gsize vala_statement_list_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_statement_list_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaStatementListClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_statement_list_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaStatementList), 0, (GInstanceInitFunc) vala_statement_list_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_statement_list_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_statement_list_type_id;
-		vala_statement_list_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaStatementList", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_statement_list_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaStatementList_private_offset = g_type_add_instance_private (vala_statement_list_type_id, sizeof (ValaStatementListPrivate));
+		vala_statement_list_type_id = vala_statement_list_get_type_once ();
 		g_once_init_leave (&vala_statement_list_type_id__volatile, vala_statement_list_type_id);
 	}
 	return vala_statement_list_type_id__volatile;
 }
-
-
 

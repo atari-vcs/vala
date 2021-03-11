@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <glib.h>
 
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
 
@@ -36,7 +34,6 @@ struct _ValaCCodeAssignmentPrivate {
 	ValaCCodeExpression* _right;
 };
 
-
 static gint ValaCCodeAssignment_private_offset;
 static gpointer vala_ccode_assignment_parent_class = NULL;
 
@@ -45,7 +42,7 @@ static void vala_ccode_assignment_real_write (ValaCCodeNode* base,
 static void vala_ccode_assignment_real_write_inner (ValaCCodeExpression* base,
                                              ValaCCodeWriter* writer);
 static void vala_ccode_assignment_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_assignment_get_type_once (void);
 
 static inline gpointer
 vala_ccode_assignment_get_instance_private (ValaCCodeAssignment* self)
@@ -53,6 +50,74 @@ vala_ccode_assignment_get_instance_private (ValaCCodeAssignment* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeAssignment_private_offset);
 }
 
+ValaCCodeExpression*
+vala_ccode_assignment_get_left (ValaCCodeAssignment* self)
+{
+	ValaCCodeExpression* result;
+	ValaCCodeExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_left;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_ccode_node_ref0 (gpointer self)
+{
+	return self ? vala_ccode_node_ref (self) : NULL;
+}
+
+void
+vala_ccode_assignment_set_left (ValaCCodeAssignment* self,
+                                ValaCCodeExpression* value)
+{
+	ValaCCodeExpression* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_left);
+	self->priv->_left = _tmp0_;
+}
+
+ValaCCodeAssignmentOperator
+vala_ccode_assignment_get_operator (ValaCCodeAssignment* self)
+{
+	ValaCCodeAssignmentOperator result;
+	ValaCCodeAssignmentOperator _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_operator;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_assignment_set_operator (ValaCCodeAssignment* self,
+                                    ValaCCodeAssignmentOperator value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_operator = value;
+}
+
+ValaCCodeExpression*
+vala_ccode_assignment_get_right (ValaCCodeAssignment* self)
+{
+	ValaCCodeExpression* result;
+	ValaCCodeExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_right;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_assignment_set_right (ValaCCodeAssignment* self,
+                                 ValaCCodeExpression* value)
+{
+	ValaCCodeExpression* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_right);
+	self->priv->_right = _tmp0_;
+}
 
 ValaCCodeAssignment*
 vala_ccode_assignment_construct (GType object_type,
@@ -70,7 +135,6 @@ vala_ccode_assignment_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeAssignment*
 vala_ccode_assignment_new (ValaCCodeExpression* l,
                            ValaCCodeExpression* r,
@@ -78,7 +142,6 @@ vala_ccode_assignment_new (ValaCCodeExpression* l,
 {
 	return vala_ccode_assignment_construct (VALA_TYPE_CCODE_ASSIGNMENT, l, r, op);
 }
-
 
 static void
 vala_ccode_assignment_real_write (ValaCCodeNode* base,
@@ -158,7 +221,6 @@ vala_ccode_assignment_real_write (ValaCCodeNode* base,
 	vala_ccode_node_write ((ValaCCodeNode*) _tmp2_, writer);
 }
 
-
 static void
 vala_ccode_assignment_real_write_inner (ValaCCodeExpression* base,
                                         ValaCCodeWriter* writer)
@@ -171,85 +233,9 @@ vala_ccode_assignment_real_write_inner (ValaCCodeExpression* base,
 	vala_ccode_writer_write_string (writer, ")");
 }
 
-
-ValaCCodeExpression*
-vala_ccode_assignment_get_left (ValaCCodeAssignment* self)
-{
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_left;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_ccode_node_ref0 (gpointer self)
-{
-	return self ? vala_ccode_node_ref (self) : NULL;
-}
-
-
-void
-vala_ccode_assignment_set_left (ValaCCodeAssignment* self,
-                                ValaCCodeExpression* value)
-{
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_left);
-	self->priv->_left = _tmp0_;
-}
-
-
-ValaCCodeAssignmentOperator
-vala_ccode_assignment_get_operator (ValaCCodeAssignment* self)
-{
-	ValaCCodeAssignmentOperator result;
-	ValaCCodeAssignmentOperator _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_operator;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_assignment_set_operator (ValaCCodeAssignment* self,
-                                    ValaCCodeAssignmentOperator value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_operator = value;
-}
-
-
-ValaCCodeExpression*
-vala_ccode_assignment_get_right (ValaCCodeAssignment* self)
-{
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_right;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_assignment_set_right (ValaCCodeAssignment* self,
-                                 ValaCCodeExpression* value)
-{
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_right);
-	self->priv->_right = _tmp0_;
-}
-
-
 static void
-vala_ccode_assignment_class_init (ValaCCodeAssignmentClass * klass)
+vala_ccode_assignment_class_init (ValaCCodeAssignmentClass * klass,
+                                  gpointer klass_data)
 {
 	vala_ccode_assignment_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_assignment_finalize;
@@ -258,13 +244,12 @@ vala_ccode_assignment_class_init (ValaCCodeAssignmentClass * klass)
 	((ValaCCodeExpressionClass *) klass)->write_inner = (void (*) (ValaCCodeExpression*, ValaCCodeWriter*)) vala_ccode_assignment_real_write_inner;
 }
 
-
 static void
-vala_ccode_assignment_instance_init (ValaCCodeAssignment * self)
+vala_ccode_assignment_instance_init (ValaCCodeAssignment * self,
+                                     gpointer klass)
 {
 	self->priv = vala_ccode_assignment_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_assignment_finalize (ValaCCodeNode * obj)
@@ -276,37 +261,49 @@ vala_ccode_assignment_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_assignment_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an assignment expression in the C code.
  */
+static GType
+vala_ccode_assignment_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeAssignmentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_assignment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeAssignment), 0, (GInstanceInitFunc) vala_ccode_assignment_instance_init, NULL };
+	GType vala_ccode_assignment_type_id;
+	vala_ccode_assignment_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeAssignment", &g_define_type_info, 0);
+	ValaCCodeAssignment_private_offset = g_type_add_instance_private (vala_ccode_assignment_type_id, sizeof (ValaCCodeAssignmentPrivate));
+	return vala_ccode_assignment_type_id;
+}
+
 GType
 vala_ccode_assignment_get_type (void)
 {
 	static volatile gsize vala_ccode_assignment_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_assignment_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeAssignmentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_assignment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeAssignment), 0, (GInstanceInitFunc) vala_ccode_assignment_instance_init, NULL };
 		GType vala_ccode_assignment_type_id;
-		vala_ccode_assignment_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeAssignment", &g_define_type_info, 0);
-		ValaCCodeAssignment_private_offset = g_type_add_instance_private (vala_ccode_assignment_type_id, sizeof (ValaCCodeAssignmentPrivate));
+		vala_ccode_assignment_type_id = vala_ccode_assignment_get_type_once ();
 		g_once_init_leave (&vala_ccode_assignment_type_id__volatile, vala_ccode_assignment_type_id);
 	}
 	return vala_ccode_assignment_type_id__volatile;
 }
 
+static GType
+vala_ccode_assignment_operator_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_CCODE_ASSIGNMENT_OPERATOR_SIMPLE, "VALA_CCODE_ASSIGNMENT_OPERATOR_SIMPLE", "simple"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_OR, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_OR", "bitwise-or"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_AND, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_AND", "bitwise-and"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_XOR, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_XOR", "bitwise-xor"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_ADD, "VALA_CCODE_ASSIGNMENT_OPERATOR_ADD", "add"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SUB, "VALA_CCODE_ASSIGNMENT_OPERATOR_SUB", "sub"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_MUL, "VALA_CCODE_ASSIGNMENT_OPERATOR_MUL", "mul"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_DIV, "VALA_CCODE_ASSIGNMENT_OPERATOR_DIV", "div"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_PERCENT, "VALA_CCODE_ASSIGNMENT_OPERATOR_PERCENT", "percent"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_LEFT, "VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_LEFT", "shift-left"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_RIGHT, "VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_RIGHT", "shift-right"}, {0, NULL, NULL}};
+	GType vala_ccode_assignment_operator_type_id;
+	vala_ccode_assignment_operator_type_id = g_enum_register_static ("ValaCCodeAssignmentOperator", values);
+	return vala_ccode_assignment_operator_type_id;
+}
 
 GType
 vala_ccode_assignment_operator_get_type (void)
 {
 	static volatile gsize vala_ccode_assignment_operator_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_assignment_operator_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_CCODE_ASSIGNMENT_OPERATOR_SIMPLE, "VALA_CCODE_ASSIGNMENT_OPERATOR_SIMPLE", "simple"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_OR, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_OR", "bitwise-or"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_AND, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_AND", "bitwise-and"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_XOR, "VALA_CCODE_ASSIGNMENT_OPERATOR_BITWISE_XOR", "bitwise-xor"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_ADD, "VALA_CCODE_ASSIGNMENT_OPERATOR_ADD", "add"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SUB, "VALA_CCODE_ASSIGNMENT_OPERATOR_SUB", "sub"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_MUL, "VALA_CCODE_ASSIGNMENT_OPERATOR_MUL", "mul"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_DIV, "VALA_CCODE_ASSIGNMENT_OPERATOR_DIV", "div"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_PERCENT, "VALA_CCODE_ASSIGNMENT_OPERATOR_PERCENT", "percent"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_LEFT, "VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_LEFT", "shift-left"}, {VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_RIGHT, "VALA_CCODE_ASSIGNMENT_OPERATOR_SHIFT_RIGHT", "shift-right"}, {0, NULL, NULL}};
 		GType vala_ccode_assignment_operator_type_id;
-		vala_ccode_assignment_operator_type_id = g_enum_register_static ("ValaCCodeAssignmentOperator", values);
+		vala_ccode_assignment_operator_type_id = vala_ccode_assignment_operator_get_type_once ();
 		g_once_init_leave (&vala_ccode_assignment_operator_type_id__volatile, vala_ccode_assignment_operator_type_id);
 	}
 	return vala_ccode_assignment_operator_type_id__volatile;
 }
-
-
 

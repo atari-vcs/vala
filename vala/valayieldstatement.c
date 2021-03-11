@@ -23,285 +23,158 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
-#define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-
-struct _ValaYieldStatementPrivate {
-	ValaExpression* _yield_expression;
-};
-
-
-static gint ValaYieldStatement_private_offset;
 static gpointer vala_yield_statement_parent_class = NULL;
 static ValaStatementIface * vala_yield_statement_vala_statement_parent_iface = NULL;
 
-static void vala_yield_statement_real_accept (ValaCodeNode* base,
-                                       ValaCodeVisitor* visitor);
-static void vala_yield_statement_real_accept_children (ValaCodeNode* base,
-                                                ValaCodeVisitor* visitor);
-static void vala_yield_statement_real_replace_expression (ValaCodeNode* base,
-                                                   ValaExpression* old_node,
-                                                   ValaExpression* new_node);
 static gboolean vala_yield_statement_real_check (ValaCodeNode* base,
                                           ValaCodeContext* context);
 static void vala_yield_statement_real_emit (ValaCodeNode* base,
                                      ValaCodeGenerator* codegen);
-static void vala_yield_statement_finalize (ValaCodeNode * obj);
-
-
-static inline gpointer
-vala_yield_statement_get_instance_private (ValaYieldStatement* self)
-{
-	return G_STRUCT_MEMBER_P (self, ValaYieldStatement_private_offset);
-}
-
+static GType vala_yield_statement_get_type_once (void);
 
 /**
  * Creates a new yield statement.
  *
- * @param yield_expression the yield expression
  * @param source_reference reference to source code
  * @return                 newly created yield statement
  */
 ValaYieldStatement*
 vala_yield_statement_construct (GType object_type,
-                                ValaExpression* yield_expression,
                                 ValaSourceReference* source_reference)
 {
 	ValaYieldStatement* self = NULL;
 	self = (ValaYieldStatement*) vala_code_node_construct (object_type);
-	vala_yield_statement_set_yield_expression (self, yield_expression);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source_reference);
 	return self;
 }
 
-
 ValaYieldStatement*
-vala_yield_statement_new (ValaExpression* yield_expression,
-                          ValaSourceReference* source_reference)
+vala_yield_statement_new (ValaSourceReference* source_reference)
 {
-	return vala_yield_statement_construct (VALA_TYPE_YIELD_STATEMENT, yield_expression, source_reference);
+	return vala_yield_statement_construct (VALA_TYPE_YIELD_STATEMENT, source_reference);
 }
-
-
-static void
-vala_yield_statement_real_accept (ValaCodeNode* base,
-                                  ValaCodeVisitor* visitor)
-{
-	ValaYieldStatement * self;
-	self = (ValaYieldStatement*) base;
-	g_return_if_fail (visitor != NULL);
-	vala_code_visitor_visit_yield_statement (visitor, self);
-}
-
-
-static void
-vala_yield_statement_real_accept_children (ValaCodeNode* base,
-                                           ValaCodeVisitor* visitor)
-{
-	ValaYieldStatement * self;
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	self = (ValaYieldStatement*) base;
-	g_return_if_fail (visitor != NULL);
-	_tmp0_ = vala_yield_statement_get_yield_expression (self);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ != NULL) {
-		ValaExpression* _tmp2_;
-		ValaExpression* _tmp3_;
-		ValaExpression* _tmp4_;
-		ValaExpression* _tmp5_;
-		_tmp2_ = vala_yield_statement_get_yield_expression (self);
-		_tmp3_ = _tmp2_;
-		vala_code_node_accept ((ValaCodeNode*) _tmp3_, visitor);
-		_tmp4_ = vala_yield_statement_get_yield_expression (self);
-		_tmp5_ = _tmp4_;
-		vala_code_visitor_visit_end_full_expression (visitor, _tmp5_);
-	}
-}
-
-
-static void
-vala_yield_statement_real_replace_expression (ValaCodeNode* base,
-                                              ValaExpression* old_node,
-                                              ValaExpression* new_node)
-{
-	ValaYieldStatement * self;
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	self = (ValaYieldStatement*) base;
-	g_return_if_fail (old_node != NULL);
-	g_return_if_fail (new_node != NULL);
-	_tmp0_ = vala_yield_statement_get_yield_expression (self);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ == old_node) {
-		vala_yield_statement_set_yield_expression (self, new_node);
-	}
-}
-
 
 static gboolean
 vala_yield_statement_real_check (ValaCodeNode* base,
                                  ValaCodeContext* context)
 {
 	ValaYieldStatement * self;
+	gboolean _tmp0_;
+	gboolean _tmp1_;
+	gboolean _tmp4_ = FALSE;
+	ValaSemanticAnalyzer* _tmp5_;
+	ValaSemanticAnalyzer* _tmp6_;
+	ValaMethod* _tmp7_;
+	ValaMethod* _tmp8_;
+	gboolean _tmp17_;
+	gboolean _tmp18_;
 	gboolean result = FALSE;
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	gboolean _tmp8_;
-	gboolean _tmp9_;
 	self = (ValaYieldStatement*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
-	_tmp0_ = vala_yield_statement_get_yield_expression (self);
+	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
 	_tmp1_ = _tmp0_;
-	if (_tmp1_ != NULL) {
-		ValaExpression* _tmp2_;
-		ValaExpression* _tmp3_;
-		ValaExpression* _tmp4_;
-		ValaExpression* _tmp5_;
-		gboolean _tmp6_;
-		gboolean _tmp7_;
-		_tmp2_ = vala_yield_statement_get_yield_expression (self);
+	if (_tmp1_) {
+		gboolean _tmp2_;
+		gboolean _tmp3_;
+		_tmp2_ = vala_code_node_get_error ((ValaCodeNode*) self);
 		_tmp3_ = _tmp2_;
-		vala_code_node_check ((ValaCodeNode*) _tmp3_, context);
-		_tmp4_ = vala_yield_statement_get_yield_expression (self);
-		_tmp5_ = _tmp4_;
-		_tmp6_ = vala_code_node_get_error ((ValaCodeNode*) _tmp5_);
-		_tmp7_ = _tmp6_;
-		vala_code_node_set_error ((ValaCodeNode*) self, _tmp7_);
+		result = !_tmp3_;
+		return result;
 	}
-	_tmp8_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp9_ = _tmp8_;
-	result = !_tmp9_;
+	vala_code_node_set_checked ((ValaCodeNode*) self, TRUE);
+	_tmp5_ = vala_code_context_get_analyzer (context);
+	_tmp6_ = _tmp5_;
+	_tmp7_ = vala_semantic_analyzer_get_current_method (_tmp6_);
+	_tmp8_ = _tmp7_;
+	if (_tmp8_ == NULL) {
+		_tmp4_ = TRUE;
+	} else {
+		ValaSemanticAnalyzer* _tmp9_;
+		ValaSemanticAnalyzer* _tmp10_;
+		ValaMethod* _tmp11_;
+		ValaMethod* _tmp12_;
+		gboolean _tmp13_;
+		gboolean _tmp14_;
+		_tmp9_ = vala_code_context_get_analyzer (context);
+		_tmp10_ = _tmp9_;
+		_tmp11_ = vala_semantic_analyzer_get_current_method (_tmp10_);
+		_tmp12_ = _tmp11_;
+		_tmp13_ = vala_method_get_coroutine (_tmp12_);
+		_tmp14_ = _tmp13_;
+		_tmp4_ = !_tmp14_;
+	}
+	if (_tmp4_) {
+		ValaSourceReference* _tmp15_;
+		ValaSourceReference* _tmp16_;
+		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
+		_tmp15_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+		_tmp16_ = _tmp15_;
+		vala_report_error (_tmp16_, "yield statement not available outside async method");
+	}
+	_tmp17_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp18_ = _tmp17_;
+	result = !_tmp18_;
 	return result;
 }
-
 
 static void
 vala_yield_statement_real_emit (ValaCodeNode* base,
                                 ValaCodeGenerator* codegen)
 {
 	ValaYieldStatement * self;
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
 	self = (ValaYieldStatement*) base;
 	g_return_if_fail (codegen != NULL);
-	_tmp0_ = vala_yield_statement_get_yield_expression (self);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ != NULL) {
-		ValaExpression* _tmp2_;
-		ValaExpression* _tmp3_;
-		ValaExpression* _tmp4_;
-		ValaExpression* _tmp5_;
-		_tmp2_ = vala_yield_statement_get_yield_expression (self);
-		_tmp3_ = _tmp2_;
-		vala_code_node_emit ((ValaCodeNode*) _tmp3_, codegen);
-		_tmp4_ = vala_yield_statement_get_yield_expression (self);
-		_tmp5_ = _tmp4_;
-		vala_code_visitor_visit_end_full_expression ((ValaCodeVisitor*) codegen, _tmp5_);
-	}
 	vala_code_visitor_visit_yield_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
-ValaExpression*
-vala_yield_statement_get_yield_expression (ValaYieldStatement* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_yield_expression;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_yield_statement_set_yield_expression (ValaYieldStatement* self,
-                                           ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_yield_expression);
-	self->priv->_yield_expression = _tmp0_;
-	_tmp1_ = self->priv->_yield_expression;
-	if (_tmp1_ != NULL) {
-		ValaExpression* _tmp2_;
-		_tmp2_ = self->priv->_yield_expression;
-		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
-	}
-}
-
-
 static void
-vala_yield_statement_class_init (ValaYieldStatementClass * klass)
+vala_yield_statement_class_init (ValaYieldStatementClass * klass,
+                                 gpointer klass_data)
 {
 	vala_yield_statement_parent_class = g_type_class_peek_parent (klass);
-	((ValaCodeNodeClass *) klass)->finalize = vala_yield_statement_finalize;
-	g_type_class_adjust_private_offset (klass, &ValaYieldStatement_private_offset);
-	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_yield_statement_real_accept;
-	((ValaCodeNodeClass *) klass)->accept_children = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_yield_statement_real_accept_children;
-	((ValaCodeNodeClass *) klass)->replace_expression = (void (*) (ValaCodeNode*, ValaExpression*, ValaExpression*)) vala_yield_statement_real_replace_expression;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_yield_statement_real_check;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_yield_statement_real_emit;
 }
 
-
 static void
-vala_yield_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_yield_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                    gpointer iface_data)
 {
 	vala_yield_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_yield_statement_instance_init (ValaYieldStatement * self)
+vala_yield_statement_instance_init (ValaYieldStatement * self,
+                                    gpointer klass)
 {
-	self->priv = vala_yield_statement_get_instance_private (self);
 }
-
-
-static void
-vala_yield_statement_finalize (ValaCodeNode * obj)
-{
-	ValaYieldStatement * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_YIELD_STATEMENT, ValaYieldStatement);
-	_vala_code_node_unref0 (self->priv->_yield_expression);
-	VALA_CODE_NODE_CLASS (vala_yield_statement_parent_class)->finalize (obj);
-}
-
 
 /**
  * Represents a yield statement in the source code.
  */
+static GType
+vala_yield_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaYieldStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_yield_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaYieldStatement), 0, (GInstanceInitFunc) vala_yield_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_yield_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_yield_statement_type_id;
+	vala_yield_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaYieldStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_yield_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	return vala_yield_statement_type_id;
+}
+
 GType
 vala_yield_statement_get_type (void)
 {
 	static volatile gsize vala_yield_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_yield_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaYieldStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_yield_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaYieldStatement), 0, (GInstanceInitFunc) vala_yield_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_yield_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_yield_statement_type_id;
-		vala_yield_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaYieldStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_yield_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaYieldStatement_private_offset = g_type_add_instance_private (vala_yield_statement_type_id, sizeof (ValaYieldStatementPrivate));
+		vala_yield_statement_type_id = vala_yield_statement_get_type_once ();
 		g_once_init_leave (&vala_yield_statement_type_id__volatile, vala_yield_statement_type_id);
 	}
 	return vala_yield_statement_type_id__volatile;
 }
-
-
 

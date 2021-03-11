@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <graphviz/gvc.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CHARTS_HIERARCHY_0_PROPERTY,
@@ -38,7 +37,6 @@ static GParamSpec* valadoc_charts_hierarchy_properties[VALADOC_CHARTS_HIERARCHY_
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _vala_iterator_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterator_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
-
 
 static gpointer valadoc_charts_hierarchy_parent_class = NULL;
 
@@ -57,7 +55,7 @@ static void valadoc_charts_hierarchy_real_visit_class (ValadocApiVisitor* base,
                                                 ValadocApiClass* item);
 static void valadoc_charts_hierarchy_real_visit_struct (ValadocApiVisitor* base,
                                                  ValadocApiStruct* item);
-
+static GType valadoc_charts_hierarchy_get_type_once (void);
 
 ValadocChartsHierarchy*
 valadoc_charts_hierarchy_construct (GType object_type,
@@ -71,14 +69,12 @@ valadoc_charts_hierarchy_construct (GType object_type,
 	return self;
 }
 
-
 ValadocChartsHierarchy*
 valadoc_charts_hierarchy_new (ValadocChartsFactory* factory,
                               ValadocApiNode* node)
 {
 	return valadoc_charts_hierarchy_construct (VALADOC_CHARTS_TYPE_HIERARCHY, factory, node);
 }
-
 
 static void
 valadoc_charts_hierarchy_draw_implemented_interfaces (ValadocChartsHierarchy* self,
@@ -133,7 +129,6 @@ valadoc_charts_hierarchy_draw_implemented_interfaces (ValadocChartsHierarchy* se
 	}
 }
 
-
 static void
 valadoc_charts_hierarchy_draw_parent_classes (ValadocChartsHierarchy* self,
                                               ValadocApiClass* item,
@@ -186,7 +181,6 @@ valadoc_charts_hierarchy_draw_parent_classes (ValadocChartsHierarchy* self,
 	_vala_iterable_unref0 (_tmp16_);
 }
 
-
 static void
 valadoc_charts_hierarchy_draw_parent_structs (ValadocChartsHierarchy* self,
                                               ValadocApiStruct* item,
@@ -231,7 +225,6 @@ valadoc_charts_hierarchy_draw_parent_structs (ValadocChartsHierarchy* self,
 	}
 }
 
-
 static void
 valadoc_charts_hierarchy_real_visit_interface (ValadocApiVisitor* base,
                                                ValadocApiInterface* item)
@@ -274,7 +267,6 @@ valadoc_charts_hierarchy_real_visit_interface (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (_tmp12_);
 }
 
-
 static void
 valadoc_charts_hierarchy_real_visit_class (ValadocApiVisitor* base,
                                            ValadocApiClass* item)
@@ -284,7 +276,6 @@ valadoc_charts_hierarchy_real_visit_class (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_charts_hierarchy_draw_parent_classes (self, item, NULL);
 }
-
 
 static void
 valadoc_charts_hierarchy_real_visit_struct (ValadocApiVisitor* base,
@@ -296,9 +287,9 @@ valadoc_charts_hierarchy_real_visit_struct (ValadocApiVisitor* base,
 	valadoc_charts_hierarchy_draw_parent_structs (self, item, NULL);
 }
 
-
 static void
-valadoc_charts_hierarchy_class_init (ValadocChartsHierarchyClass * klass)
+valadoc_charts_hierarchy_class_init (ValadocChartsHierarchyClass * klass,
+                                     gpointer klass_data)
 {
 	valadoc_charts_hierarchy_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiVisitorClass *) klass)->visit_interface = (void (*) (ValadocApiVisitor*, ValadocApiInterface*)) valadoc_charts_hierarchy_real_visit_interface;
@@ -306,25 +297,30 @@ valadoc_charts_hierarchy_class_init (ValadocChartsHierarchyClass * klass)
 	((ValadocApiVisitorClass *) klass)->visit_struct = (void (*) (ValadocApiVisitor*, ValadocApiStruct*)) valadoc_charts_hierarchy_real_visit_struct;
 }
 
-
 static void
-valadoc_charts_hierarchy_instance_init (ValadocChartsHierarchy * self)
+valadoc_charts_hierarchy_instance_init (ValadocChartsHierarchy * self,
+                                        gpointer klass)
 {
 }
 
+static GType
+valadoc_charts_hierarchy_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsHierarchyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_hierarchy_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsHierarchy), 0, (GInstanceInitFunc) valadoc_charts_hierarchy_instance_init, NULL };
+	GType valadoc_charts_hierarchy_type_id;
+	valadoc_charts_hierarchy_type_id = g_type_register_static (VALADOC_CHARTS_TYPE_CHART, "ValadocChartsHierarchy", &g_define_type_info, 0);
+	return valadoc_charts_hierarchy_type_id;
+}
 
 GType
 valadoc_charts_hierarchy_get_type (void)
 {
 	static volatile gsize valadoc_charts_hierarchy_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_charts_hierarchy_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsHierarchyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_hierarchy_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsHierarchy), 0, (GInstanceInitFunc) valadoc_charts_hierarchy_instance_init, NULL };
 		GType valadoc_charts_hierarchy_type_id;
-		valadoc_charts_hierarchy_type_id = g_type_register_static (VALADOC_CHARTS_TYPE_CHART, "ValadocChartsHierarchy", &g_define_type_info, 0);
+		valadoc_charts_hierarchy_type_id = valadoc_charts_hierarchy_get_type_once ();
 		g_once_init_leave (&valadoc_charts_hierarchy_type_id__volatile, valadoc_charts_hierarchy_type_id);
 	}
 	return valadoc_charts_hierarchy_type_id__volatile;
 }
-
-
 

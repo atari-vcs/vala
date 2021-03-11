@@ -23,13 +23,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_TOKEN_0_PROPERTY,
@@ -58,16 +57,15 @@ struct _ValadocTokenPrivate {
 	gchar* _value;
 };
 
-
 static gint ValadocToken_private_offset;
 static gpointer valadoc_token_parent_class = NULL;
 
 static void valadoc_token_finalize (GObject * obj);
+static GType valadoc_token_get_type_once (void);
 static void _vala_valadoc_token_get_property (GObject * object,
                                        guint property_id,
                                        GValue * value,
                                        GParamSpec * pspec);
-
 
 static inline gpointer
 valadoc_token_get_instance_private (ValadocToken* self)
@@ -75,13 +73,11 @@ valadoc_token_get_instance_private (ValadocToken* self)
 	return G_STRUCT_MEMBER_P (self, ValadocToken_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocToken*
 valadoc_token_construct_from_type (GType object_type,
@@ -112,7 +108,6 @@ valadoc_token_construct_from_type (GType object_type,
 	return self;
 }
 
-
 ValadocToken*
 valadoc_token_new_from_type (ValadocTokenType* type,
                              ValaSourceLocation* begin,
@@ -121,7 +116,6 @@ valadoc_token_new_from_type (ValadocTokenType* type,
 {
 	return valadoc_token_construct_from_type (VALADOC_TYPE_TOKEN, type, begin, end, val);
 }
-
 
 ValadocToken*
 valadoc_token_construct_from_word (GType object_type,
@@ -147,7 +141,6 @@ valadoc_token_construct_from_word (GType object_type,
 	return self;
 }
 
-
 ValadocToken*
 valadoc_token_new_from_word (const gchar* word,
                              ValaSourceLocation* begin,
@@ -155,88 +148,6 @@ valadoc_token_new_from_word (const gchar* word,
 {
 	return valadoc_token_construct_from_word (VALADOC_TYPE_TOKEN, word, begin, end);
 }
-
-
-const gchar*
-valadoc_token_to_string (ValadocToken* self)
-{
-	const gchar* result = NULL;
-	const gchar* _tmp0_ = NULL;
-	const gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp1_ = self->priv->_word;
-	if (_tmp1_ == NULL) {
-		ValadocTokenType* _tmp2_;
-		const gchar* _tmp3_;
-		_tmp2_ = self->priv->_type;
-		_tmp3_ = valadoc_token_type_to_string (_tmp2_);
-		_tmp0_ = _tmp3_;
-	} else {
-		const gchar* _tmp4_;
-		_tmp4_ = self->priv->_word;
-		_tmp0_ = _tmp4_;
-	}
-	result = _tmp0_;
-	return result;
-}
-
-
-const gchar*
-valadoc_token_to_pretty_string (ValadocToken* self)
-{
-	const gchar* result = NULL;
-	const gchar* _tmp0_ = NULL;
-	const gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp1_ = self->priv->_word;
-	if (_tmp1_ == NULL) {
-		ValadocTokenType* _tmp2_;
-		const gchar* _tmp3_;
-		_tmp2_ = self->priv->_type;
-		_tmp3_ = valadoc_token_type_to_pretty_string (_tmp2_);
-		_tmp0_ = _tmp3_;
-	} else {
-		const gchar* _tmp4_;
-		_tmp4_ = self->priv->_word;
-		_tmp0_ = _tmp4_;
-	}
-	result = _tmp0_;
-	return result;
-}
-
-
-gint
-valadoc_token_to_int (ValadocToken* self)
-{
-	gint result = 0;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	const gchar* _tmp2_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = valadoc_token_get_is_number (self);
-	_tmp1_ = _tmp0_;
-	_vala_assert (_tmp1_, "is_number");
-	_tmp2_ = self->priv->_word;
-	result = atoi (_tmp2_);
-	return result;
-}
-
-
-ValadocToken*
-valadoc_token_construct (GType object_type)
-{
-	ValadocToken * self = NULL;
-	self = (ValadocToken*) g_object_new (object_type, NULL);
-	return self;
-}
-
-
-ValadocToken*
-valadoc_token_new (void)
-{
-	return valadoc_token_construct (VALADOC_TYPE_TOKEN);
-}
-
 
 gboolean
 valadoc_token_get_is_word (ValadocToken* self)
@@ -249,19 +160,17 @@ valadoc_token_get_is_word (ValadocToken* self)
 	return result;
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 gboolean
 valadoc_token_get_is_number (ValadocToken* self)
@@ -312,38 +221,32 @@ valadoc_token_get_is_number (ValadocToken* self)
 			gboolean _tmp10_ = FALSE;
 			_tmp10_ = TRUE;
 			while (TRUE) {
-				gint _tmp12_;
-				const gchar* _tmp13_;
+				const gchar* _tmp12_;
+				gint _tmp13_;
 				gint _tmp14_;
-				gint _tmp15_;
-				gboolean _tmp16_ = FALSE;
-				const gchar* _tmp17_;
-				gint _tmp18_;
+				gboolean _tmp15_ = FALSE;
+				const gchar* _tmp16_;
 				if (!_tmp10_) {
 					gint _tmp11_;
 					_tmp11_ = i;
 					i = _tmp11_ + 1;
 				}
 				_tmp10_ = FALSE;
-				_tmp12_ = i;
-				_tmp13_ = self->priv->_word;
-				_tmp14_ = strlen (_tmp13_);
-				_tmp15_ = _tmp14_;
-				if (!(_tmp12_ < _tmp15_)) {
+				_tmp12_ = self->priv->_word;
+				_tmp13_ = strlen (_tmp12_);
+				_tmp14_ = _tmp13_;
+				if (!(i < _tmp14_)) {
 					break;
 				}
-				_tmp17_ = self->priv->_word;
-				_tmp18_ = i;
-				if (string_get (_tmp17_, (glong) _tmp18_) < '0') {
-					_tmp16_ = TRUE;
+				_tmp16_ = self->priv->_word;
+				if (string_get (_tmp16_, (glong) i) < '0') {
+					_tmp15_ = TRUE;
 				} else {
-					const gchar* _tmp19_;
-					gint _tmp20_;
-					_tmp19_ = self->priv->_word;
-					_tmp20_ = i;
-					_tmp16_ = string_get (_tmp19_, (glong) _tmp20_) > '9';
+					const gchar* _tmp17_;
+					_tmp17_ = self->priv->_word;
+					_tmp15_ = string_get (_tmp17_, (glong) i) > '9';
 				}
-				if (_tmp16_) {
+				if (_tmp15_) {
 					result = FALSE;
 					return result;
 				}
@@ -353,7 +256,6 @@ valadoc_token_get_is_number (ValadocToken* self)
 	result = TRUE;
 	return result;
 }
-
 
 const gchar*
 valadoc_token_get_word (ValadocToken* self)
@@ -366,7 +268,6 @@ valadoc_token_get_word (ValadocToken* self)
 	return result;
 }
 
-
 const gchar*
 valadoc_token_get_value (ValadocToken* self)
 {
@@ -377,7 +278,6 @@ valadoc_token_get_value (ValadocToken* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 ValadocTokenType*
 valadoc_token_get_token_type (ValadocToken* self)
@@ -390,7 +290,6 @@ valadoc_token_get_token_type (ValadocToken* self)
 	return result;
 }
 
-
 void
 valadoc_token_get_begin (ValadocToken* self,
                          ValaSourceLocation * result)
@@ -401,7 +300,6 @@ valadoc_token_get_begin (ValadocToken* self,
 	*result = _tmp0_;
 	return;
 }
-
 
 void
 valadoc_token_get_end (ValadocToken* self,
@@ -414,9 +312,85 @@ valadoc_token_get_end (ValadocToken* self,
 	return;
 }
 
+const gchar*
+valadoc_token_to_string (ValadocToken* self)
+{
+	const gchar* _tmp0_ = NULL;
+	const gchar* _tmp1_;
+	const gchar* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp1_ = self->priv->_word;
+	if (_tmp1_ == NULL) {
+		ValadocTokenType* _tmp2_;
+		const gchar* _tmp3_;
+		_tmp2_ = self->priv->_type;
+		_tmp3_ = valadoc_token_type_to_string (_tmp2_);
+		_tmp0_ = _tmp3_;
+	} else {
+		const gchar* _tmp4_;
+		_tmp4_ = self->priv->_word;
+		_tmp0_ = _tmp4_;
+	}
+	result = _tmp0_;
+	return result;
+}
+
+const gchar*
+valadoc_token_to_pretty_string (ValadocToken* self)
+{
+	const gchar* _tmp0_ = NULL;
+	const gchar* _tmp1_;
+	const gchar* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp1_ = self->priv->_word;
+	if (_tmp1_ == NULL) {
+		ValadocTokenType* _tmp2_;
+		const gchar* _tmp3_;
+		_tmp2_ = self->priv->_type;
+		_tmp3_ = valadoc_token_type_to_pretty_string (_tmp2_);
+		_tmp0_ = _tmp3_;
+	} else {
+		const gchar* _tmp4_;
+		_tmp4_ = self->priv->_word;
+		_tmp0_ = _tmp4_;
+	}
+	result = _tmp0_;
+	return result;
+}
+
+gint
+valadoc_token_to_int (ValadocToken* self)
+{
+	gboolean _tmp0_;
+	gboolean _tmp1_;
+	const gchar* _tmp2_;
+	gint result = 0;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = valadoc_token_get_is_number (self);
+	_tmp1_ = _tmp0_;
+	_vala_assert (_tmp1_, "is_number");
+	_tmp2_ = self->priv->_word;
+	result = atoi (_tmp2_);
+	return result;
+}
+
+ValadocToken*
+valadoc_token_construct (GType object_type)
+{
+	ValadocToken * self = NULL;
+	self = (ValadocToken*) g_object_new (object_type, NULL);
+	return self;
+}
+
+ValadocToken*
+valadoc_token_new (void)
+{
+	return valadoc_token_construct (VALADOC_TYPE_TOKEN);
+}
 
 static void
-valadoc_token_class_init (ValadocTokenClass * klass)
+valadoc_token_class_init (ValadocTokenClass * klass,
+                          gpointer klass_data)
 {
 	valadoc_token_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocToken_private_offset);
@@ -431,15 +405,14 @@ valadoc_token_class_init (ValadocTokenClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_TOKEN_END_PROPERTY, valadoc_token_properties[VALADOC_TOKEN_END_PROPERTY] = g_param_spec_boxed ("end", "end", "end", VALA_TYPE_SOURCE_LOCATION, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_token_instance_init (ValadocToken * self)
+valadoc_token_instance_init (ValadocToken * self,
+                             gpointer klass)
 {
 	self->priv = valadoc_token_get_instance_private (self);
 	self->priv->_type = NULL;
 	self->priv->_word = NULL;
 }
-
 
 static void
 valadoc_token_finalize (GObject * obj)
@@ -452,21 +425,27 @@ valadoc_token_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_token_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_token_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocToken), 0, (GInstanceInitFunc) valadoc_token_instance_init, NULL };
+	GType valadoc_token_type_id;
+	valadoc_token_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocToken", &g_define_type_info, 0);
+	ValadocToken_private_offset = g_type_add_instance_private (valadoc_token_type_id, sizeof (ValadocTokenPrivate));
+	return valadoc_token_type_id;
+}
 
 GType
 valadoc_token_get_type (void)
 {
 	static volatile gsize valadoc_token_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_token_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocTokenClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_token_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocToken), 0, (GInstanceInitFunc) valadoc_token_instance_init, NULL };
 		GType valadoc_token_type_id;
-		valadoc_token_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocToken", &g_define_type_info, 0);
-		ValadocToken_private_offset = g_type_add_instance_private (valadoc_token_type_id, sizeof (ValadocTokenPrivate));
+		valadoc_token_type_id = valadoc_token_get_type_once ();
 		g_once_init_leave (&valadoc_token_type_id__volatile, valadoc_token_type_id);
 	}
 	return valadoc_token_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_token_get_property (GObject * object,
@@ -511,6 +490,4 @@ _vala_valadoc_token_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <glib/gstdio.h>
 #include <gobject/gvaluecollector.h>
 
@@ -51,7 +50,6 @@ struct _ValaSourceFilePrivate {
 	gchar* _gir_version;
 	ValaCodeContext* _context;
 	gboolean _used;
-	gboolean _explicit;
 	ValaArrayList* comments;
 	ValaList* _current_using_directives;
 	ValaList* nodes;
@@ -67,10 +65,11 @@ struct _ValaParamSpecSourceFile {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaSourceFile_private_offset;
 static gpointer vala_source_file_parent_class = NULL;
 
+static void vala_source_file_set_filename (ValaSourceFile* self,
+                                    const gchar* value);
 static gchar* vala_source_file_get_subdir (ValaSourceFile* self);
 static gchar* vala_source_file_get_destination_directory (ValaSourceFile* self);
 static gchar* vala_source_file_get_basename (ValaSourceFile* self);
@@ -78,6 +77,7 @@ static void vala_source_file_read_source_lines (ValaSourceFile* self,
                                          const gchar* cont);
 static void vala_source_file_read_source_file (ValaSourceFile* self);
 static void vala_source_file_finalize (ValaSourceFile * obj);
+static GType vala_source_file_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -86,13 +86,367 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 vala_source_file_get_instance_private (ValaSourceFile* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaSourceFile_private_offset);
 }
 
+const gchar*
+vala_source_file_get_filename (ValaSourceFile* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_filename;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+vala_source_file_set_filename (ValaSourceFile* self,
+                               const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_filename);
+	self->priv->_filename = _tmp0_;
+}
+
+void
+vala_source_file_set_relative_filename (ValaSourceFile* self,
+                                        const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_relative_filename);
+	self->priv->_relative_filename = _tmp0_;
+}
+
+static gchar*
+string_slice (const gchar* self,
+              glong start,
+              glong end)
+{
+	glong string_length = 0L;
+	gint _tmp0_;
+	gint _tmp1_;
+	gboolean _tmp2_ = FALSE;
+	gboolean _tmp3_ = FALSE;
+	gchar* _tmp4_;
+	gchar* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = strlen (self);
+	_tmp1_ = _tmp0_;
+	string_length = (glong) _tmp1_;
+	if (start < ((glong) 0)) {
+		start = string_length + start;
+	}
+	if (end < ((glong) 0)) {
+		end = string_length + end;
+	}
+	if (start >= ((glong) 0)) {
+		_tmp2_ = start <= string_length;
+	} else {
+		_tmp2_ = FALSE;
+	}
+	g_return_val_if_fail (_tmp2_, NULL);
+	if (end >= ((glong) 0)) {
+		_tmp3_ = end <= string_length;
+	} else {
+		_tmp3_ = FALSE;
+	}
+	g_return_val_if_fail (_tmp3_, NULL);
+	g_return_val_if_fail (start <= end, NULL);
+	_tmp4_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
+	result = _tmp4_;
+	return result;
+}
+
+static gint
+string_last_index_of_char (const gchar* self,
+                           gunichar c,
+                           gint start_index)
+{
+	gchar* _result_ = NULL;
+	gchar* _tmp0_;
+	gchar* _tmp1_;
+	gint result = 0;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
+	_result_ = _tmp0_;
+	_tmp1_ = _result_;
+	if (_tmp1_ != NULL) {
+		gchar* _tmp2_;
+		_tmp2_ = _result_;
+		result = (gint) (_tmp2_ - ((gchar*) self));
+		return result;
+	} else {
+		result = -1;
+		return result;
+	}
+}
+
+const gchar*
+vala_source_file_get_package_name (ValaSourceFile* self)
+{
+	const gchar* result;
+	ValaSourceFileType _tmp0_;
+	const gchar* _tmp1_;
+	const gchar* _tmp7_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_file_type;
+	if (_tmp0_ != VALA_SOURCE_FILE_TYPE_PACKAGE) {
+		result = NULL;
+		return result;
+	}
+	_tmp1_ = self->priv->_package_name;
+	if (_tmp1_ == NULL) {
+		const gchar* _tmp2_;
+		const gchar* _tmp3_;
+		gchar* _tmp4_;
+		gchar* _tmp5_;
+		gchar* _tmp6_;
+		_tmp2_ = self->priv->_filename;
+		_tmp3_ = self->priv->_filename;
+		_tmp4_ = string_slice (_tmp2_, (glong) 0, (glong) string_last_index_of_char (_tmp3_, (gunichar) '.', 0));
+		_tmp5_ = _tmp4_;
+		_tmp6_ = g_path_get_basename (_tmp5_);
+		_g_free0 (self->priv->_package_name);
+		self->priv->_package_name = _tmp6_;
+		_g_free0 (_tmp5_);
+	}
+	_tmp7_ = self->priv->_package_name;
+	result = _tmp7_;
+	return result;
+}
+
+void
+vala_source_file_set_package_name (ValaSourceFile* self,
+                                   const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_package_name);
+	self->priv->_package_name = _tmp0_;
+}
+
+const gchar*
+vala_source_file_get_installed_version (ValaSourceFile* self)
+{
+	const gchar* result;
+	const gchar* _tmp1_;
+	const gchar* _tmp2_;
+	const gchar* _tmp7_;
+	g_return_val_if_fail (self != NULL, NULL);
+	if (self->priv->_version_requested) {
+		const gchar* _tmp0_;
+		_tmp0_ = self->priv->_installed_version;
+		result = _tmp0_;
+		return result;
+	}
+	self->priv->_version_requested = TRUE;
+	_tmp1_ = vala_source_file_get_package_name (self);
+	_tmp2_ = _tmp1_;
+	if (_tmp2_ != NULL) {
+		ValaCodeContext* _tmp3_;
+		const gchar* _tmp4_;
+		const gchar* _tmp5_;
+		gchar* _tmp6_;
+		_tmp3_ = self->priv->_context;
+		_tmp4_ = vala_source_file_get_package_name (self);
+		_tmp5_ = _tmp4_;
+		_tmp6_ = vala_code_context_pkg_config_modversion (_tmp3_, _tmp5_);
+		_g_free0 (self->priv->_installed_version);
+		self->priv->_installed_version = _tmp6_;
+	}
+	_tmp7_ = self->priv->_installed_version;
+	result = _tmp7_;
+	return result;
+}
+
+void
+vala_source_file_set_installed_version (ValaSourceFile* self,
+                                        const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	self->priv->_version_requested = value != NULL;
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_installed_version);
+	self->priv->_installed_version = _tmp0_;
+}
+
+ValaSourceFileType
+vala_source_file_get_file_type (ValaSourceFile* self)
+{
+	ValaSourceFileType result;
+	ValaSourceFileType _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_file_type;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_source_file_set_file_type (ValaSourceFile* self,
+                                ValaSourceFileType value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_file_type = value;
+}
+
+gboolean
+vala_source_file_get_from_commandline (ValaSourceFile* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_from_commandline;
+	return result;
+}
+
+void
+vala_source_file_set_from_commandline (ValaSourceFile* self,
+                                       gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_from_commandline = value;
+}
+
+const gchar*
+vala_source_file_get_gir_namespace (ValaSourceFile* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_gir_namespace;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_source_file_set_gir_namespace (ValaSourceFile* self,
+                                    const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_gir_namespace);
+	self->priv->_gir_namespace = _tmp0_;
+}
+
+const gchar*
+vala_source_file_get_gir_version (ValaSourceFile* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_gir_version;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_source_file_set_gir_version (ValaSourceFile* self,
+                                  const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_gir_version);
+	self->priv->_gir_version = _tmp0_;
+}
+
+ValaCodeContext*
+vala_source_file_get_context (ValaSourceFile* self)
+{
+	ValaCodeContext* result;
+	ValaCodeContext* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_context;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_source_file_set_context (ValaSourceFile* self,
+                              ValaCodeContext* value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_context = value;
+}
+
+const gchar*
+vala_source_file_get_content (ValaSourceFile* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_content;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_source_file_set_content (ValaSourceFile* self,
+                              const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_content);
+	self->priv->_content = _tmp0_;
+	_vala_iterable_unref0 (self->priv->source_array);
+	self->priv->source_array = NULL;
+}
+
+gboolean
+vala_source_file_get_used (ValaSourceFile* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_used;
+	return result;
+}
+
+void
+vala_source_file_set_used (ValaSourceFile* self,
+                           gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_used = value;
+}
+
+ValaList*
+vala_source_file_get_current_using_directives (ValaSourceFile* self)
+{
+	ValaList* result;
+	ValaList* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_current_using_directives;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_iterable_ref0 (gpointer self)
+{
+	return self ? vala_iterable_ref (self) : NULL;
+}
+
+void
+vala_source_file_set_current_using_directives (ValaSourceFile* self,
+                                               ValaList* value)
+{
+	ValaList* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_iterable_ref0 (value);
+	_vala_iterable_unref0 (self->priv->_current_using_directives);
+	self->priv->_current_using_directives = _tmp0_;
+}
 
 /**
  * Creates a new source file.
@@ -120,7 +474,6 @@ vala_source_file_construct (GType object_type,
 	return self;
 }
 
-
 ValaSourceFile*
 vala_source_file_new (ValaCodeContext* context,
                       ValaSourceFileType type,
@@ -130,7 +483,6 @@ vala_source_file_new (ValaCodeContext* context,
 {
 	return vala_source_file_construct (VALA_TYPE_SOURCE_FILE, context, type, filename, content, cmdline);
 }
-
 
 /**
  * Adds a header comment to this source file.
@@ -146,32 +498,21 @@ vala_source_file_add_comment (ValaSourceFile* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, comment);
 }
 
-
 /**
- * Returns a copy of the list of header comments.
+ * Returns the list of header comments.
  *
  * @return list of comments
  */
-static gpointer
-_vala_iterable_ref0 (gpointer self)
-{
-	return self ? vala_iterable_ref (self) : NULL;
-}
-
-
 ValaList*
 vala_source_file_get_comments (ValaSourceFile* self)
 {
-	ValaList* result = NULL;
 	ValaArrayList* _tmp0_;
-	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->comments;
-	_tmp1_ = _vala_iterable_ref0 ((ValaList*) _tmp0_);
-	result = _tmp1_;
+	result = (ValaList*) _tmp0_;
 	return result;
 }
-
 
 /**
  * Adds a new using directive with the specified namespace.
@@ -188,7 +529,7 @@ vala_source_file_add_using_directive (ValaSourceFile* self,
 	GEqualFunc _tmp2_;
 	ValaArrayList* _tmp3_;
 	ValaArrayList* _tmp4_;
-	ValaList* _tmp18_;
+	ValaList* _tmp16_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (ns != NULL);
 	_tmp0_ = self->priv->_current_using_directives;
@@ -219,36 +560,31 @@ vala_source_file_add_using_directive (ValaSourceFile* self,
 		while (TRUE) {
 			gint _tmp10_;
 			gint _tmp11_;
-			gint _tmp12_;
 			ValaUsingDirective* using_directive = NULL;
-			ValaList* _tmp13_;
-			gint _tmp14_;
-			gpointer _tmp15_;
-			ValaList* _tmp16_;
-			ValaUsingDirective* _tmp17_;
+			ValaList* _tmp12_;
+			gpointer _tmp13_;
+			ValaList* _tmp14_;
+			ValaUsingDirective* _tmp15_;
+			_using_directive_index = _using_directive_index + 1;
 			_tmp10_ = _using_directive_index;
-			_using_directive_index = _tmp10_ + 1;
-			_tmp11_ = _using_directive_index;
-			_tmp12_ = _using_directive_size;
-			if (!(_tmp11_ < _tmp12_)) {
+			_tmp11_ = _using_directive_size;
+			if (!(_tmp10_ < _tmp11_)) {
 				break;
 			}
-			_tmp13_ = _using_directive_list;
-			_tmp14_ = _using_directive_index;
-			_tmp15_ = vala_list_get (_tmp13_, _tmp14_);
-			using_directive = (ValaUsingDirective*) _tmp15_;
-			_tmp16_ = self->priv->_current_using_directives;
-			_tmp17_ = using_directive;
-			vala_collection_add ((ValaCollection*) _tmp16_, _tmp17_);
+			_tmp12_ = _using_directive_list;
+			_tmp13_ = vala_list_get (_tmp12_, _using_directive_index);
+			using_directive = (ValaUsingDirective*) _tmp13_;
+			_tmp14_ = self->priv->_current_using_directives;
+			_tmp15_ = using_directive;
+			vala_collection_add ((ValaCollection*) _tmp14_, _tmp15_);
 			_vala_code_node_unref0 (using_directive);
 		}
 		_vala_iterable_unref0 (_using_directive_list);
 	}
-	_tmp18_ = self->priv->_current_using_directives;
-	vala_collection_add ((ValaCollection*) _tmp18_, ns);
+	_tmp16_ = self->priv->_current_using_directives;
+	vala_collection_add ((ValaCollection*) _tmp16_, ns);
 	_vala_iterable_unref0 (old_using_directives);
 }
-
 
 /**
  * Adds the specified code node to this source file.
@@ -266,7 +602,6 @@ vala_source_file_add_node (ValaSourceFile* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, node);
 }
 
-
 void
 vala_source_file_remove_node (ValaSourceFile* self,
                               ValaCodeNode* node)
@@ -278,25 +613,21 @@ vala_source_file_remove_node (ValaSourceFile* self,
 	vala_collection_remove ((ValaCollection*) _tmp0_, node);
 }
 
-
 /**
- * Returns a copy of the list of code nodes.
+ * Returns the list of code nodes.
  *
  * @return code node list
  */
 ValaList*
 vala_source_file_get_nodes (ValaSourceFile* self)
 {
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
-	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->nodes;
-	_tmp1_ = _vala_iterable_ref0 (_tmp0_);
-	result = _tmp1_;
+	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_source_file_accept (ValaSourceFile* self,
@@ -306,7 +637,6 @@ vala_source_file_accept (ValaSourceFile* self,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_source_file (visitor, self);
 }
-
 
 void
 vala_source_file_accept_children (ValaSourceFile* self,
@@ -334,40 +664,35 @@ vala_source_file_accept_children (ValaSourceFile* self,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCodeNode* node = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaCodeNode* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCodeNode* _tmp9_;
+			_node_index = _node_index + 1;
 			_tmp5_ = _node_index;
-			_node_index = _tmp5_ + 1;
-			_tmp6_ = _node_index;
-			_tmp7_ = _node_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _node_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _node_list;
-			_tmp9_ = _node_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			node = (ValaCodeNode*) _tmp10_;
-			_tmp11_ = node;
-			vala_code_node_accept (_tmp11_, visitor);
+			_tmp7_ = _node_list;
+			_tmp8_ = vala_list_get (_tmp7_, _node_index);
+			node = (ValaCodeNode*) _tmp8_;
+			_tmp9_ = node;
+			vala_code_node_accept (_tmp9_, visitor);
 			_vala_code_node_unref0 (node);
 		}
 		_vala_iterable_unref0 (_node_list);
 	}
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -382,17 +707,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -409,45 +732,35 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
 
-
 static gchar*
 vala_source_file_get_subdir (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	ValaCodeContext* _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
@@ -459,6 +772,7 @@ vala_source_file_get_subdir (ValaSourceFile* self)
 	gchar* _tmp9_;
 	gboolean _tmp10_;
 	gchar* _tmp34_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_context;
 	_tmp1_ = vala_code_context_get_basedir (_tmp0_);
@@ -544,11 +858,9 @@ vala_source_file_get_subdir (ValaSourceFile* self)
 	return result;
 }
 
-
 static gchar*
 vala_source_file_get_destination_directory (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	ValaCodeContext* _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
@@ -559,6 +871,7 @@ vala_source_file_get_destination_directory (ValaSourceFile* self)
 	gchar* _tmp8_;
 	gchar* _tmp9_;
 	gchar* _tmp10_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_context;
 	_tmp1_ = vala_code_context_get_directory (_tmp0_);
@@ -581,36 +894,9 @@ vala_source_file_get_destination_directory (ValaSourceFile* self)
 	return result;
 }
 
-
-static gint
-string_last_index_of_char (const gchar* self,
-                           gunichar c,
-                           gint start_index)
-{
-	gint result = 0;
-	gchar* _result_ = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
-	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	if (_tmp1_ != NULL) {
-		gchar* _tmp2_;
-		_tmp2_ = _result_;
-		result = (gint) (_tmp2_ - ((gchar*) self));
-		return result;
-	} else {
-		result = -1;
-		return result;
-	}
-}
-
-
 static gchar*
 vala_source_file_get_basename (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	gint dot = 0;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -618,6 +904,7 @@ vala_source_file_get_basename (ValaSourceFile* self)
 	gchar* _tmp3_;
 	gchar* _tmp4_;
 	gchar* _tmp5_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_filename;
 	dot = string_last_index_of_char (_tmp0_, (gunichar) '.', 0);
@@ -631,12 +918,11 @@ vala_source_file_get_basename (ValaSourceFile* self)
 	return result;
 }
 
-
 gchar*
 vala_source_file_get_relative_filename (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_relative_filename;
 	if (_tmp0_ != NULL) {
@@ -656,7 +942,6 @@ vala_source_file_get_relative_filename (ValaSourceFile* self)
 	}
 }
 
-
 /**
  * Returns the filename to use when generating C source files.
  *
@@ -665,10 +950,10 @@ vala_source_file_get_relative_filename (ValaSourceFile* self)
 gchar*
 vala_source_file_get_csource_filename (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp29_;
 	gchar* _tmp30_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->csource_filename;
 	if (_tmp0_ == NULL) {
@@ -757,7 +1042,6 @@ vala_source_file_get_csource_filename (ValaSourceFile* self)
 	return result;
 }
 
-
 /**
  * Returns the filename to use when including the generated C header
  * file.
@@ -767,10 +1051,10 @@ vala_source_file_get_csource_filename (ValaSourceFile* self)
 gchar*
 vala_source_file_get_cinclude_filename (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp23_;
 	gchar* _tmp24_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->cinclude_filename;
 	if (_tmp0_ == NULL) {
@@ -839,7 +1123,6 @@ vala_source_file_get_cinclude_filename (ValaSourceFile* self)
 	return result;
 }
 
-
 /**
  * Returns the requested line from this file, loading it if needed.
  *
@@ -850,11 +1133,11 @@ gchar*
 vala_source_file_get_source_line (ValaSourceFile* self,
                                   gint lineno)
 {
-	gchar* result = NULL;
 	ValaArrayList* _tmp0_;
 	gboolean _tmp5_ = FALSE;
 	ValaArrayList* _tmp9_;
 	gpointer _tmp10_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->source_array;
 	if (_tmp0_ == NULL) {
@@ -893,7 +1176,6 @@ vala_source_file_get_source_line (ValaSourceFile* self,
 	return result;
 }
 
-
 /**
  * Parses the input file into ::source_array.
  */
@@ -902,47 +1184,43 @@ vala_source_file_read_source_file (ValaSourceFile* self)
 {
 	gchar* cont = NULL;
 	const gchar* _tmp2_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	{
 		const gchar* _tmp0_;
 		gchar* _tmp1_ = NULL;
 		_tmp0_ = self->priv->_filename;
-		g_file_get_contents (_tmp0_, &_tmp1_, NULL, &_inner_error_);
+		g_file_get_contents (_tmp0_, &_tmp1_, NULL, &_inner_error0_);
 		_g_free0 (cont);
 		cont = _tmp1_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch23_g_file_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
 			_g_free0 (cont);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
-	goto __finally23;
-	__catch23_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
-		GError* fe = NULL;
-		fe = _inner_error_;
-		_inner_error_ = NULL;
-		_g_error_free0 (fe);
+		g_clear_error (&_inner_error0_);
 		_g_free0 (cont);
 		return;
 	}
-	__finally23:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		_g_free0 (cont);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
 	_tmp2_ = cont;
 	vala_source_file_read_source_lines (self, _tmp2_);
 	_g_free0 (cont);
 }
-
 
 static void
 vala_source_file_read_source_lines (ValaSourceFile* self,
@@ -973,48 +1251,43 @@ vala_source_file_read_source_lines (ValaSourceFile* self,
 		while (TRUE) {
 			gchar** _tmp6_;
 			gint _tmp6__length1;
-			gint _tmp7_;
-			const gchar* _tmp8_;
-			ValaArrayList* _tmp9_;
-			gchar** _tmp10_;
-			gint _tmp10__length1;
-			gint _tmp11_;
-			const gchar* _tmp12_;
+			const gchar* _tmp7_;
+			ValaArrayList* _tmp8_;
+			gchar** _tmp9_;
+			gint _tmp9__length1;
+			const gchar* _tmp10_;
 			if (!_tmp4_) {
 				gint _tmp5_;
+				idx = idx + 1;
 				_tmp5_ = idx;
-				idx = _tmp5_ + 1;
 			}
 			_tmp4_ = FALSE;
 			_tmp6_ = lines;
 			_tmp6__length1 = lines_length1;
-			_tmp7_ = idx;
-			_tmp8_ = _tmp6_[_tmp7_];
-			if (!(_tmp8_ != NULL)) {
+			_tmp7_ = _tmp6_[idx];
+			if (!(_tmp7_ != NULL)) {
 				break;
 			}
-			_tmp9_ = self->priv->source_array;
-			_tmp10_ = lines;
-			_tmp10__length1 = lines_length1;
-			_tmp11_ = idx;
-			_tmp12_ = _tmp10_[_tmp11_];
-			vala_collection_add ((ValaCollection*) _tmp9_, _tmp12_);
+			_tmp8_ = self->priv->source_array;
+			_tmp9_ = lines;
+			_tmp9__length1 = lines_length1;
+			_tmp10_ = _tmp9_[idx];
+			vala_collection_add ((ValaCollection*) _tmp8_, _tmp10_);
 		}
 	}
 	lines = (_vala_array_free (lines, lines_length1, (GDestroyNotify) g_free), NULL);
 }
 
-
 gchar*
 vala_source_file_get_mapped_contents (ValaSourceFile* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
 	GMappedFile* _tmp4_;
 	GMappedFile* _tmp14_;
 	gchar* _tmp15_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = vala_source_file_get_content (self);
 	_tmp1_ = _tmp0_;
@@ -1034,14 +1307,14 @@ vala_source_file_get_mapped_contents (ValaSourceFile* self)
 			GMappedFile* _tmp7_;
 			GMappedFile* _tmp8_;
 			_tmp6_ = self->priv->_filename;
-			_tmp7_ = g_mapped_file_new (_tmp6_, FALSE, &_inner_error_);
+			_tmp7_ = g_mapped_file_new (_tmp6_, FALSE, &_inner_error0_);
 			_tmp5_ = _tmp7_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == G_FILE_ERROR) {
-					goto __catch24_g_file_error;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == G_FILE_ERROR) {
+					goto __catch0_g_file_error;
 				}
-				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return NULL;
 			}
 			_tmp8_ = _tmp5_;
@@ -1050,8 +1323,8 @@ vala_source_file_get_mapped_contents (ValaSourceFile* self)
 			self->priv->mapped_file = _tmp8_;
 			_g_mapped_file_unref0 (_tmp5_);
 		}
-		goto __finally24;
-		__catch24_g_file_error:
+		goto __finally0;
+		__catch0_g_file_error:
 		{
 			GError* e = NULL;
 			const gchar* _tmp9_;
@@ -1059,8 +1332,8 @@ vala_source_file_get_mapped_contents (ValaSourceFile* self)
 			const gchar* _tmp11_;
 			gchar* _tmp12_;
 			gchar* _tmp13_;
-			e = _inner_error_;
-			_inner_error_ = NULL;
+			e = _inner_error0_;
+			_inner_error0_ = NULL;
 			_tmp9_ = self->priv->_filename;
 			_tmp10_ = e;
 			_tmp11_ = _tmp10_->message;
@@ -1072,10 +1345,10 @@ vala_source_file_get_mapped_contents (ValaSourceFile* self)
 			_g_error_free0 (e);
 			return result;
 		}
-		__finally24:
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+		__finally0:
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 	}
@@ -1085,14 +1358,13 @@ vala_source_file_get_mapped_contents (ValaSourceFile* self)
 	return result;
 }
 
-
 gsize
 vala_source_file_get_mapped_length (ValaSourceFile* self)
 {
-	gsize result = 0UL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
 	GMappedFile* _tmp6_;
+	gsize result = 0UL;
 	g_return_val_if_fail (self != NULL, 0UL);
 	_tmp0_ = vala_source_file_get_content (self);
 	_tmp1_ = _tmp0_;
@@ -1112,7 +1384,6 @@ vala_source_file_get_mapped_length (ValaSourceFile* self)
 	result = g_mapped_file_get_length (_tmp6_);
 	return result;
 }
-
 
 gboolean
 vala_source_file_check (ValaSourceFile* self,
@@ -1141,25 +1412,21 @@ vala_source_file_check (ValaSourceFile* self,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCodeNode* node = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaCodeNode* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCodeNode* _tmp9_;
+			_node_index = _node_index + 1;
 			_tmp5_ = _node_index;
-			_node_index = _tmp5_ + 1;
-			_tmp6_ = _node_index;
-			_tmp7_ = _node_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _node_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _node_list;
-			_tmp9_ = _node_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			node = (ValaCodeNode*) _tmp10_;
-			_tmp11_ = node;
-			vala_code_node_check (_tmp11_, context);
+			_tmp7_ = _node_list;
+			_tmp8_ = vala_list_get (_tmp7_, _node_index);
+			node = (ValaCodeNode*) _tmp8_;
+			_tmp9_ = node;
+			vala_code_node_check (_tmp9_, context);
 			_vala_code_node_unref0 (node);
 		}
 		_vala_iterable_unref0 (_node_list);
@@ -1168,396 +1435,11 @@ vala_source_file_check (ValaSourceFile* self,
 	return result;
 }
 
-
-const gchar*
-vala_source_file_get_filename (ValaSourceFile* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_filename;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_filename (ValaSourceFile* self,
-                               const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_filename);
-	self->priv->_filename = _tmp0_;
-}
-
-
-void
-vala_source_file_set_relative_filename (ValaSourceFile* self,
-                                        const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_relative_filename);
-	self->priv->_relative_filename = _tmp0_;
-}
-
-
-static gchar*
-string_slice (const gchar* self,
-              glong start,
-              glong end)
-{
-	gchar* result = NULL;
-	glong string_length = 0L;
-	gint _tmp0_;
-	gint _tmp1_;
-	gboolean _tmp4_ = FALSE;
-	gboolean _tmp6_ = FALSE;
-	gchar* _tmp8_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = strlen (self);
-	_tmp1_ = _tmp0_;
-	string_length = (glong) _tmp1_;
-	if (start < ((glong) 0)) {
-		glong _tmp2_;
-		_tmp2_ = string_length;
-		start = _tmp2_ + start;
-	}
-	if (end < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		end = _tmp3_ + end;
-	}
-	if (start >= ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		_tmp4_ = start <= _tmp5_;
-	} else {
-		_tmp4_ = FALSE;
-	}
-	g_return_val_if_fail (_tmp4_, NULL);
-	if (end >= ((glong) 0)) {
-		glong _tmp7_;
-		_tmp7_ = string_length;
-		_tmp6_ = end <= _tmp7_;
-	} else {
-		_tmp6_ = FALSE;
-	}
-	g_return_val_if_fail (_tmp6_, NULL);
-	g_return_val_if_fail (start <= end, NULL);
-	_tmp8_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
-	result = _tmp8_;
-	return result;
-}
-
-
-const gchar*
-vala_source_file_get_package_name (ValaSourceFile* self)
-{
-	const gchar* result;
-	ValaSourceFileType _tmp0_;
-	const gchar* _tmp1_;
-	const gchar* _tmp7_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_file_type;
-	if (_tmp0_ != VALA_SOURCE_FILE_TYPE_PACKAGE) {
-		result = NULL;
-		return result;
-	}
-	_tmp1_ = self->priv->_package_name;
-	if (_tmp1_ == NULL) {
-		const gchar* _tmp2_;
-		const gchar* _tmp3_;
-		gchar* _tmp4_;
-		gchar* _tmp5_;
-		gchar* _tmp6_;
-		_tmp2_ = self->priv->_filename;
-		_tmp3_ = self->priv->_filename;
-		_tmp4_ = string_slice (_tmp2_, (glong) 0, (glong) string_last_index_of_char (_tmp3_, (gunichar) '.', 0));
-		_tmp5_ = _tmp4_;
-		_tmp6_ = g_path_get_basename (_tmp5_);
-		_g_free0 (self->priv->_package_name);
-		self->priv->_package_name = _tmp6_;
-		_g_free0 (_tmp5_);
-	}
-	_tmp7_ = self->priv->_package_name;
-	result = _tmp7_;
-	return result;
-}
-
-
-void
-vala_source_file_set_package_name (ValaSourceFile* self,
-                                   const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_package_name);
-	self->priv->_package_name = _tmp0_;
-}
-
-
-const gchar*
-vala_source_file_get_installed_version (ValaSourceFile* self)
-{
-	const gchar* result;
-	gboolean _tmp0_;
-	const gchar* _tmp2_;
-	const gchar* _tmp7_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_version_requested;
-	if (_tmp0_) {
-		const gchar* _tmp1_;
-		_tmp1_ = self->priv->_installed_version;
-		result = _tmp1_;
-		return result;
-	}
-	self->priv->_version_requested = TRUE;
-	_tmp2_ = self->priv->_package_name;
-	if (_tmp2_ != NULL) {
-		ValaCodeContext* _tmp3_;
-		const gchar* _tmp4_;
-		const gchar* _tmp5_;
-		gchar* _tmp6_;
-		_tmp3_ = self->priv->_context;
-		_tmp4_ = vala_source_file_get_package_name (self);
-		_tmp5_ = _tmp4_;
-		_tmp6_ = vala_code_context_pkg_config_modversion (_tmp3_, _tmp5_);
-		_g_free0 (self->priv->_installed_version);
-		self->priv->_installed_version = _tmp6_;
-	}
-	_tmp7_ = self->priv->_installed_version;
-	result = _tmp7_;
-	return result;
-}
-
-
-void
-vala_source_file_set_installed_version (ValaSourceFile* self,
-                                        const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	self->priv->_version_requested = value != NULL;
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_installed_version);
-	self->priv->_installed_version = _tmp0_;
-}
-
-
-ValaSourceFileType
-vala_source_file_get_file_type (ValaSourceFile* self)
-{
-	ValaSourceFileType result;
-	ValaSourceFileType _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_file_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_file_type (ValaSourceFile* self,
-                                ValaSourceFileType value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_file_type = value;
-}
-
-
-gboolean
-vala_source_file_get_from_commandline (ValaSourceFile* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_from_commandline;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_from_commandline (ValaSourceFile* self,
-                                       gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_from_commandline = value;
-}
-
-
-const gchar*
-vala_source_file_get_gir_namespace (ValaSourceFile* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_gir_namespace;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_gir_namespace (ValaSourceFile* self,
-                                    const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_gir_namespace);
-	self->priv->_gir_namespace = _tmp0_;
-}
-
-
-const gchar*
-vala_source_file_get_gir_version (ValaSourceFile* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_gir_version;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_gir_version (ValaSourceFile* self,
-                                  const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_gir_version);
-	self->priv->_gir_version = _tmp0_;
-}
-
-
-ValaCodeContext*
-vala_source_file_get_context (ValaSourceFile* self)
-{
-	ValaCodeContext* result;
-	ValaCodeContext* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_context;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_context (ValaSourceFile* self,
-                              ValaCodeContext* value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_context = value;
-}
-
-
-const gchar*
-vala_source_file_get_content (ValaSourceFile* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_content;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_content (ValaSourceFile* self,
-                              const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_content);
-	self->priv->_content = _tmp0_;
-	_vala_iterable_unref0 (self->priv->source_array);
-	self->priv->source_array = NULL;
-}
-
-
-gboolean
-vala_source_file_get_used (ValaSourceFile* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_used;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_used (ValaSourceFile* self,
-                           gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_used = value;
-}
-
-
-gboolean
-vala_source_file_get_explicit (ValaSourceFile* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_explicit;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_explicit (ValaSourceFile* self,
-                               gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_explicit = value;
-}
-
-
-ValaList*
-vala_source_file_get_current_using_directives (ValaSourceFile* self)
-{
-	ValaList* result;
-	ValaList* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_current_using_directives;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_source_file_set_current_using_directives (ValaSourceFile* self,
-                                               ValaList* value)
-{
-	ValaList* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_iterable_ref0 (value);
-	_vala_iterable_unref0 (self->priv->_current_using_directives);
-	self->priv->_current_using_directives = _tmp0_;
-}
-
-
 static void
 vala_value_source_file_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_source_file_free_value (GValue* value)
@@ -1566,7 +1448,6 @@ vala_value_source_file_free_value (GValue* value)
 		vala_source_file_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_source_file_copy_value (const GValue* src_value,
@@ -1579,13 +1460,11 @@ vala_value_source_file_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_source_file_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_source_file_collect_value (GValue* value,
@@ -1608,7 +1487,6 @@ vala_value_source_file_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_source_file_lcopy_value (const GValue* value,
                                     guint n_collect_values,
@@ -1630,7 +1508,6 @@ vala_value_source_file_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_source_file (const gchar* name,
                              const gchar* nick,
@@ -1645,14 +1522,12 @@ vala_param_spec_source_file (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_source_file (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_SOURCE_FILE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_source_file (GValue* value,
@@ -1674,7 +1549,6 @@ vala_value_set_source_file (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_source_file (GValue* value,
                              gpointer v_object)
@@ -1694,18 +1568,18 @@ vala_value_take_source_file (GValue* value,
 	}
 }
 
-
 static void
-vala_source_file_class_init (ValaSourceFileClass * klass)
+vala_source_file_class_init (ValaSourceFileClass * klass,
+                             gpointer klass_data)
 {
 	vala_source_file_parent_class = g_type_class_peek_parent (klass);
 	((ValaSourceFileClass *) klass)->finalize = vala_source_file_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaSourceFile_private_offset);
 }
 
-
 static void
-vala_source_file_instance_init (ValaSourceFile * self)
+vala_source_file_instance_init (ValaSourceFile * self,
+                                gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -1733,7 +1607,6 @@ vala_source_file_instance_init (ValaSourceFile * self)
 	self->ref_count = 1;
 }
 
-
 static void
 vala_source_file_finalize (ValaSourceFile * obj)
 {
@@ -1756,26 +1629,32 @@ vala_source_file_finalize (ValaSourceFile * obj)
 	_g_free0 (self->priv->_content);
 }
 
-
 /**
  * Represents a Vala source or VAPI package file.
  */
+static GType
+vala_source_file_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_source_file_init, vala_value_source_file_free_value, vala_value_source_file_copy_value, vala_value_source_file_peek_pointer, "p", vala_value_source_file_collect_value, "p", vala_value_source_file_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaSourceFileClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_source_file_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSourceFile), 0, (GInstanceInitFunc) vala_source_file_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_source_file_type_id;
+	vala_source_file_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaSourceFile", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaSourceFile_private_offset = g_type_add_instance_private (vala_source_file_type_id, sizeof (ValaSourceFilePrivate));
+	return vala_source_file_type_id;
+}
+
 GType
 vala_source_file_get_type (void)
 {
 	static volatile gsize vala_source_file_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_source_file_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_source_file_init, vala_value_source_file_free_value, vala_value_source_file_copy_value, vala_value_source_file_peek_pointer, "p", vala_value_source_file_collect_value, "p", vala_value_source_file_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaSourceFileClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_source_file_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSourceFile), 0, (GInstanceInitFunc) vala_source_file_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_source_file_type_id;
-		vala_source_file_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaSourceFile", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaSourceFile_private_offset = g_type_add_instance_private (vala_source_file_type_id, sizeof (ValaSourceFilePrivate));
+		vala_source_file_type_id = vala_source_file_get_type_once ();
 		g_once_init_leave (&vala_source_file_type_id__volatile, vala_source_file_type_id);
 	}
 	return vala_source_file_type_id__volatile;
 }
-
 
 gpointer
 vala_source_file_ref (gpointer instance)
@@ -1785,7 +1664,6 @@ vala_source_file_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_source_file_unref (gpointer instance)
@@ -1798,20 +1676,26 @@ vala_source_file_unref (gpointer instance)
 	}
 }
 
+static GType
+vala_source_file_type_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_SOURCE_FILE_TYPE_NONE, "VALA_SOURCE_FILE_TYPE_NONE", "none"}, {VALA_SOURCE_FILE_TYPE_SOURCE, "VALA_SOURCE_FILE_TYPE_SOURCE", "source"}, {VALA_SOURCE_FILE_TYPE_PACKAGE, "VALA_SOURCE_FILE_TYPE_PACKAGE", "package"}, {VALA_SOURCE_FILE_TYPE_FAST, "VALA_SOURCE_FILE_TYPE_FAST", "fast"}, {0, NULL, NULL}};
+	GType vala_source_file_type_type_id;
+	vala_source_file_type_type_id = g_enum_register_static ("ValaSourceFileType", values);
+	return vala_source_file_type_type_id;
+}
 
 GType
 vala_source_file_type_get_type (void)
 {
 	static volatile gsize vala_source_file_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_source_file_type_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_SOURCE_FILE_TYPE_NONE, "VALA_SOURCE_FILE_TYPE_NONE", "none"}, {VALA_SOURCE_FILE_TYPE_SOURCE, "VALA_SOURCE_FILE_TYPE_SOURCE", "source"}, {VALA_SOURCE_FILE_TYPE_PACKAGE, "VALA_SOURCE_FILE_TYPE_PACKAGE", "package"}, {VALA_SOURCE_FILE_TYPE_FAST, "VALA_SOURCE_FILE_TYPE_FAST", "fast"}, {0, NULL, NULL}};
 		GType vala_source_file_type_type_id;
-		vala_source_file_type_type_id = g_enum_register_static ("ValaSourceFileType", values);
+		vala_source_file_type_type_id = vala_source_file_type_get_type_once ();
 		g_once_init_leave (&vala_source_file_type_type_id__volatile, vala_source_file_type_type_id);
 	}
 	return vala_source_file_type_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -1819,7 +1703,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1827,7 +1711,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1838,11 +1721,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1851,6 +1733,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

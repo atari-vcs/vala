@@ -23,16 +23,15 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <valadoc.h>
+#include <glib-object.h>
 #include <valagee.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gstdio.h>
+#include <config.h>
 #include <stdio.h>
-
 
 #define VALADOC_DEVHELP_TYPE_DOCLET (valadoc_devhelp_doclet_get_type ())
 #define VALADOC_DEVHELP_DOCLET(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DEVHELP_TYPE_DOCLET, ValadocDevhelpDoclet))
@@ -70,11 +69,11 @@ struct _ValadocDevhelpDocletPrivate {
 	ValadocDevhelpMarkupWriter* _devhelpwriter;
 };
 
-
 static gint ValadocDevhelpDoclet_private_offset;
 static gpointer valadoc_devhelp_doclet_parent_class = NULL;
 
 GType valadoc_devhelp_doclet_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocDevhelpDoclet, g_object_unref)
 #define VALADOC_DEVHELP_DOCLET_css_path_wiki "devhelpstyle.css"
 #define VALADOC_DEVHELP_DOCLET_css_path "devhelpstyle.css"
 #define VALADOC_DEVHELP_DOCLET_js_path_wiki "scripts.js"
@@ -128,6 +127,7 @@ static void valadoc_devhelp_doclet_real_visit_method (ValadocApiVisitor* base,
 ValadocDevhelpDoclet* valadoc_devhelp_doclet_new (void);
 ValadocDevhelpDoclet* valadoc_devhelp_doclet_construct (GType object_type);
 static void valadoc_devhelp_doclet_finalize (GObject * obj);
+static GType valadoc_devhelp_doclet_get_type_once (void);
 GType register_plugin (ValadocModuleLoader* module_loader);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
@@ -136,23 +136,21 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_devhelp_doclet_get_instance_private (ValadocDevhelpDoclet* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocDevhelpDoclet_private_offset);
 }
 
-
 static gchar*
 valadoc_devhelp_doclet_get_path (ValadocDevhelpDoclet* self,
                                  ValadocApiNode* element)
 {
-	gchar* result = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
 	gchar* _tmp2_;
 	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	_tmp0_ = valadoc_api_node_get_full_name (element);
@@ -164,12 +162,10 @@ valadoc_devhelp_doclet_get_path (ValadocDevhelpDoclet* self,
 	return result;
 }
 
-
 static gchar*
 valadoc_devhelp_doclet_get_real_path (ValadocDevhelpDoclet* self,
                                       ValadocApiNode* element)
 {
-	gchar* result = NULL;
 	ValadocSettings* _tmp0_;
 	ValadocSettings* _tmp1_;
 	const gchar* _tmp2_;
@@ -180,6 +176,7 @@ valadoc_devhelp_doclet_get_real_path (ValadocDevhelpDoclet* self,
 	gchar* _tmp7_;
 	gchar* _tmp8_;
 	gchar* _tmp9_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	_tmp0_ = valadoc_html_basic_doclet_get_settings ((ValadocHtmlBasicDoclet*) self);
@@ -198,19 +195,17 @@ valadoc_devhelp_doclet_get_real_path (ValadocDevhelpDoclet* self,
 	return result;
 }
 
-
 static gchar*
 valadoc_devhelp_doclet_real_get_icon_directory (ValadocHtmlBasicDoclet* base)
 {
 	ValadocDevhelpDoclet * self;
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	self = (ValadocDevhelpDoclet*) base;
 	_tmp0_ = g_strdup ("");
 	result = _tmp0_;
 	return result;
 }
-
 
 static void
 valadoc_devhelp_doclet_real_process (ValadocHtmlBasicDoclet* base,
@@ -252,7 +247,6 @@ valadoc_devhelp_doclet_real_process (ValadocHtmlBasicDoclet* base,
 	valadoc_api_tree_accept (tree, (ValadocApiVisitor*) self);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_tree (ValadocApiVisitor* base,
                                         ValadocApiTree* tree)
@@ -263,13 +257,11 @@ valadoc_devhelp_doclet_real_visit_tree (ValadocApiVisitor* base,
 	valadoc_api_tree_accept_children (tree, (ValadocApiVisitor*) self);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_package (ValadocApiVisitor* base,
@@ -308,28 +300,28 @@ valadoc_devhelp_doclet_real_visit_package (ValadocApiVisitor* base,
 	const gchar* _tmp23_;
 	const gchar* _tmp24_;
 	FILE* devfile = NULL;
-	const gchar* _tmp25_;
-	FILE* _tmp26_;
-	FILE* _tmp27_;
-	ValadocDevhelpMarkupWriter* _tmp28_;
-	ValadocDevhelpMarkupWriter* _tmp29_;
-	const gchar* _tmp30_;
-	gchar* _tmp31_;
-	gchar* _tmp32_;
+	const gchar* _tmp28_;
+	FILE* _tmp29_;
+	FILE* _tmp30_;
+	ValadocDevhelpMarkupWriter* _tmp31_;
+	ValadocDevhelpMarkupWriter* _tmp32_;
 	const gchar* _tmp33_;
+	gchar* _tmp34_;
+	gchar* _tmp35_;
+	const gchar* _tmp36_;
 	FILE* file = NULL;
-	const gchar* _tmp34_;
-	FILE* _tmp35_;
-	FILE* _tmp36_;
-	ValadocHtmlMarkupWriter* _tmp37_;
-	ValadocHtmlHtmlRenderer* _tmp38_;
-	ValadocHtmlMarkupWriter* _tmp39_;
-	const gchar* _tmp40_;
-	ValadocDevhelpMarkupWriter* _tmp41_;
-	ValadocDevhelpMarkupWriter* _tmp42_;
-	ValadocDevhelpMarkupWriter* _tmp43_;
-	ValadocDevhelpMarkupWriter* _tmp85_;
+	const gchar* _tmp37_;
+	FILE* _tmp38_;
+	FILE* _tmp39_;
+	ValadocHtmlMarkupWriter* _tmp40_;
+	ValadocHtmlHtmlRenderer* _tmp41_;
+	ValadocHtmlMarkupWriter* _tmp42_;
+	const gchar* _tmp43_;
+	ValadocDevhelpMarkupWriter* _tmp44_;
+	ValadocDevhelpMarkupWriter* _tmp45_;
+	ValadocDevhelpMarkupWriter* _tmp46_;
 	ValadocDevhelpMarkupWriter* _tmp86_;
+	ValadocDevhelpMarkupWriter* _tmp87_;
 	self = (ValadocDevhelpDoclet*) base;
 	g_return_if_fail (package != NULL);
 	_tmp0_ = valadoc_html_basic_doclet_get_settings ((ValadocHtmlBasicDoclet*) self);
@@ -370,155 +362,160 @@ valadoc_devhelp_doclet_real_visit_package (ValadocApiVisitor* base,
 	_tmp23_ = imgpath;
 	rt = g_mkdir (_tmp23_, 0777);
 	_tmp24_ = path;
-	valadoc_copy_directory (PACKAGE_ICONDIR, _tmp24_);
-	_tmp25_ = devpath;
-	_tmp26_ = g_fopen (_tmp25_, "w");
-	devfile = _tmp26_;
-	_tmp27_ = devfile;
-	_tmp28_ = valadoc_devhelp_markup_writer_new (_tmp27_, TRUE);
+	if (!valadoc_copy_directory (PACKAGE_VALADOC_ICONDIR, _tmp24_)) {
+		ValadocErrorReporter* _tmp25_;
+		gchar* _tmp26_;
+		gchar* _tmp27_;
+		_tmp25_ = ((ValadocHtmlBasicDoclet*) self)->reporter;
+		_tmp26_ = g_strdup_printf ("Couldn't copy resources from `%s'", PACKAGE_VALADOC_ICONDIR);
+		_tmp27_ = _tmp26_;
+		valadoc_error_reporter_simple_warning (_tmp25_, "Devhelp", "%s", _tmp27_);
+		_g_free0 (_tmp27_);
+	}
+	_tmp28_ = devpath;
+	_tmp29_ = g_fopen (_tmp28_, "w");
+	devfile = _tmp29_;
+	_tmp30_ = devfile;
+	_tmp31_ = valadoc_devhelp_markup_writer_new (_tmp30_, TRUE);
 	_valadoc_markup_writer_unref0 (self->priv->_devhelpwriter);
-	self->priv->_devhelpwriter = _tmp28_;
-	_tmp29_ = self->priv->_devhelpwriter;
-	_tmp30_ = pkg_name;
-	_tmp31_ = g_strconcat (_tmp30_, " Reference Manual", NULL);
-	_tmp32_ = _tmp31_;
+	self->priv->_devhelpwriter = _tmp31_;
+	_tmp32_ = self->priv->_devhelpwriter;
 	_tmp33_ = pkg_name;
-	valadoc_devhelp_markup_writer_start_book (_tmp29_, _tmp32_, "vala", "index.htm", _tmp33_, "", "");
-	_g_free0 (_tmp32_);
-	_tmp34_ = filepath;
-	_tmp35_ = g_fopen (_tmp34_, "w");
-	file = _tmp35_;
-	_tmp36_ = file;
-	_tmp37_ = valadoc_html_markup_writer_new (_tmp36_, TRUE);
+	_tmp34_ = g_strconcat (_tmp33_, " Reference Manual", NULL);
+	_tmp35_ = _tmp34_;
+	_tmp36_ = pkg_name;
+	valadoc_devhelp_markup_writer_start_book (_tmp32_, _tmp35_, "vala", "index.htm", _tmp36_, "", "");
+	_g_free0 (_tmp35_);
+	_tmp37_ = filepath;
+	_tmp38_ = g_fopen (_tmp37_, "w");
+	file = _tmp38_;
+	_tmp39_ = file;
+	_tmp40_ = valadoc_html_markup_writer_new (_tmp39_, TRUE);
 	_valadoc_markup_writer_unref0 (((ValadocHtmlBasicDoclet*) self)->writer);
-	((ValadocHtmlBasicDoclet*) self)->writer = _tmp37_;
-	_tmp38_ = ((ValadocHtmlBasicDoclet*) self)->_renderer;
-	_tmp39_ = ((ValadocHtmlBasicDoclet*) self)->writer;
-	valadoc_html_html_renderer_set_writer (_tmp38_, _tmp39_);
-	_tmp40_ = pkg_name;
-	valadoc_html_basic_doclet_write_file_header ((ValadocHtmlBasicDoclet*) self, VALADOC_DEVHELP_DOCLET_css_path, VALADOC_DEVHELP_DOCLET_js_path, _tmp40_);
+	((ValadocHtmlBasicDoclet*) self)->writer = _tmp40_;
+	_tmp41_ = ((ValadocHtmlBasicDoclet*) self)->_renderer;
+	_tmp42_ = ((ValadocHtmlBasicDoclet*) self)->writer;
+	valadoc_html_html_renderer_set_writer (_tmp41_, _tmp42_);
+	_tmp43_ = pkg_name;
+	valadoc_html_basic_doclet_write_file_header ((ValadocHtmlBasicDoclet*) self, VALADOC_DEVHELP_DOCLET_css_path, VALADOC_DEVHELP_DOCLET_js_path, _tmp43_);
 	valadoc_html_basic_doclet_write_package_content ((ValadocHtmlBasicDoclet*) self, package, (ValadocApiNode*) package);
 	valadoc_html_basic_doclet_write_file_footer ((ValadocHtmlBasicDoclet*) self);
 	_fclose0 (file);
 	file = NULL;
-	_tmp41_ = self->priv->_devhelpwriter;
-	valadoc_devhelp_markup_writer_start_chapters (_tmp41_);
+	_tmp44_ = self->priv->_devhelpwriter;
+	valadoc_devhelp_markup_writer_start_chapters (_tmp44_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) package, (ValadocApiVisitor*) self, TRUE);
-	_tmp42_ = self->priv->_devhelpwriter;
-	valadoc_devhelp_markup_writer_end_chapters (_tmp42_);
-	_tmp43_ = self->priv->_devhelpwriter;
-	valadoc_devhelp_markup_writer_start_functions (_tmp43_);
+	_tmp45_ = self->priv->_devhelpwriter;
+	valadoc_devhelp_markup_writer_end_chapters (_tmp45_);
+	_tmp46_ = self->priv->_devhelpwriter;
+	valadoc_devhelp_markup_writer_start_functions (_tmp46_);
 	{
 		ValaArrayList* _node_list = NULL;
-		ValaArrayList* _tmp44_;
-		ValaArrayList* _tmp45_;
+		ValaArrayList* _tmp47_;
+		ValaArrayList* _tmp48_;
 		gint _node_size = 0;
-		ValaArrayList* _tmp46_;
-		gint _tmp47_;
-		gint _tmp48_;
+		ValaArrayList* _tmp49_;
+		gint _tmp50_;
+		gint _tmp51_;
 		gint _node_index = 0;
-		_tmp44_ = self->priv->nodes;
-		_tmp45_ = _vala_iterable_ref0 (_tmp44_);
-		_node_list = _tmp45_;
-		_tmp46_ = _node_list;
-		_tmp47_ = vala_collection_get_size ((ValaCollection*) _tmp46_);
-		_tmp48_ = _tmp47_;
-		_node_size = _tmp48_;
+		_tmp47_ = self->priv->nodes;
+		_tmp48_ = _vala_iterable_ref0 (_tmp47_);
+		_node_list = _tmp48_;
+		_tmp49_ = _node_list;
+		_tmp50_ = vala_collection_get_size ((ValaCollection*) _tmp49_);
+		_tmp51_ = _tmp50_;
+		_node_size = _tmp51_;
 		_node_index = -1;
 		while (TRUE) {
-			gint _tmp49_;
-			gint _tmp50_;
-			gint _tmp51_;
-			ValadocApiNode* node = NULL;
-			ValaArrayList* _tmp52_;
+			gint _tmp52_;
 			gint _tmp53_;
-			gpointer _tmp54_;
+			ValadocApiNode* node = NULL;
+			ValaArrayList* _tmp54_;
+			gpointer _tmp55_;
 			gchar* typekeyword = NULL;
-			gchar* _tmp55_;
-			ValadocApiNode* _tmp56_;
-			ValadocDevhelpMarkupWriter* _tmp70_;
-			gchar* _tmp71_;
-			const gchar* _tmp72_;
-			gchar* _tmp73_;
+			gchar* _tmp56_;
+			ValadocApiNode* _tmp57_;
+			ValadocDevhelpMarkupWriter* _tmp71_;
+			gchar* _tmp72_;
+			const gchar* _tmp73_;
 			gchar* _tmp74_;
-			ValadocApiNode* _tmp75_;
-			gchar* _tmp76_;
+			gchar* _tmp75_;
+			ValadocApiNode* _tmp76_;
 			gchar* _tmp77_;
-			ValadocApiNode* _tmp78_;
+			gchar* _tmp78_;
 			ValadocApiNode* _tmp79_;
-			ValadocApiPackage* _tmp80_;
+			ValadocApiNode* _tmp80_;
 			ValadocApiPackage* _tmp81_;
-			gchar* _tmp82_;
-			gchar** _tmp83_;
+			ValadocApiPackage* _tmp82_;
+			gchar* _tmp83_;
 			gchar** _tmp84_;
-			gint _tmp84__length1;
-			_tmp49_ = _node_index;
-			_node_index = _tmp49_ + 1;
-			_tmp50_ = _node_index;
-			_tmp51_ = _node_size;
-			if (!(_tmp50_ < _tmp51_)) {
+			gchar** _tmp85_;
+			gint _tmp85__length1;
+			_node_index = _node_index + 1;
+			_tmp52_ = _node_index;
+			_tmp53_ = _node_size;
+			if (!(_tmp52_ < _tmp53_)) {
 				break;
 			}
-			_tmp52_ = _node_list;
-			_tmp53_ = _node_index;
-			_tmp54_ = vala_list_get ((ValaList*) _tmp52_, _tmp53_);
-			node = (ValadocApiNode*) _tmp54_;
-			_tmp55_ = g_strdup ("");
-			typekeyword = _tmp55_;
-			_tmp56_ = node;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp56_, VALADOC_API_TYPE_ENUM)) {
-				gchar* _tmp57_;
-				_tmp57_ = g_strdup ("enum");
+			_tmp54_ = _node_list;
+			_tmp55_ = vala_list_get ((ValaList*) _tmp54_, _node_index);
+			node = (ValadocApiNode*) _tmp55_;
+			_tmp56_ = g_strdup ("");
+			typekeyword = _tmp56_;
+			_tmp57_ = node;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp57_, VALADOC_API_TYPE_ENUM)) {
+				gchar* _tmp58_;
+				_tmp58_ = g_strdup ("enum");
 				_g_free0 (typekeyword);
-				typekeyword = _tmp57_;
+				typekeyword = _tmp58_;
 			} else {
-				ValadocApiNode* _tmp58_;
-				_tmp58_ = node;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp58_, VALADOC_API_TYPE_CONSTANT)) {
-					gchar* _tmp59_;
-					_tmp59_ = g_strdup ("constant");
+				ValadocApiNode* _tmp59_;
+				_tmp59_ = node;
+				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp59_, VALADOC_API_TYPE_CONSTANT)) {
+					gchar* _tmp60_;
+					_tmp60_ = g_strdup ("constant");
 					_g_free0 (typekeyword);
-					typekeyword = _tmp59_;
+					typekeyword = _tmp60_;
 				} else {
-					ValadocApiNode* _tmp60_;
-					_tmp60_ = node;
-					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp60_, VALADOC_API_TYPE_METHOD)) {
-						gchar* _tmp61_;
-						_tmp61_ = g_strdup ("function");
+					ValadocApiNode* _tmp61_;
+					_tmp61_ = node;
+					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp61_, VALADOC_API_TYPE_METHOD)) {
+						gchar* _tmp62_;
+						_tmp62_ = g_strdup ("function");
 						_g_free0 (typekeyword);
-						typekeyword = _tmp61_;
+						typekeyword = _tmp62_;
 					} else {
-						ValadocApiNode* _tmp62_;
-						_tmp62_ = node;
-						if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp62_, VALADOC_API_TYPE_FIELD)) {
-							gchar* _tmp63_;
-							_tmp63_ = g_strdup ("variable");
+						ValadocApiNode* _tmp63_;
+						_tmp63_ = node;
+						if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp63_, VALADOC_API_TYPE_FIELD)) {
+							gchar* _tmp64_;
+							_tmp64_ = g_strdup ("variable");
 							_g_free0 (typekeyword);
-							typekeyword = _tmp63_;
+							typekeyword = _tmp64_;
 						} else {
-							ValadocApiNode* _tmp64_;
-							_tmp64_ = node;
-							if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp64_, VALADOC_API_TYPE_PROPERTY)) {
-								gchar* _tmp65_;
-								_tmp65_ = g_strdup ("property");
+							ValadocApiNode* _tmp65_;
+							_tmp65_ = node;
+							if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp65_, VALADOC_API_TYPE_PROPERTY)) {
+								gchar* _tmp66_;
+								_tmp66_ = g_strdup ("property");
 								_g_free0 (typekeyword);
-								typekeyword = _tmp65_;
+								typekeyword = _tmp66_;
 							} else {
-								ValadocApiNode* _tmp66_;
-								_tmp66_ = node;
-								if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp66_, VALADOC_API_TYPE_SIGNAL)) {
-									gchar* _tmp67_;
-									_tmp67_ = g_strdup ("signal");
+								ValadocApiNode* _tmp67_;
+								_tmp67_ = node;
+								if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp67_, VALADOC_API_TYPE_SIGNAL)) {
+									gchar* _tmp68_;
+									_tmp68_ = g_strdup ("signal");
 									_g_free0 (typekeyword);
-									typekeyword = _tmp67_;
+									typekeyword = _tmp68_;
 								} else {
-									ValadocApiNode* _tmp68_;
-									_tmp68_ = node;
-									if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp68_, VALADOC_API_TYPE_STRUCT)) {
-										gchar* _tmp69_;
-										_tmp69_ = g_strdup ("struct");
+									ValadocApiNode* _tmp69_;
+									_tmp69_ = node;
+									if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp69_, VALADOC_API_TYPE_STRUCT)) {
+										gchar* _tmp70_;
+										_tmp70_ = g_strdup ("struct");
 										_g_free0 (typekeyword);
-										typekeyword = _tmp69_;
+										typekeyword = _tmp70_;
 									}
 								}
 							}
@@ -526,39 +523,39 @@ valadoc_devhelp_doclet_real_visit_package (ValadocApiVisitor* base,
 					}
 				}
 			}
-			_tmp70_ = self->priv->_devhelpwriter;
-			_tmp71_ = g_strdup ("type");
-			_tmp72_ = typekeyword;
-			_tmp73_ = g_strdup (_tmp72_);
-			_tmp74_ = g_strdup ("name");
-			_tmp75_ = node;
-			_tmp76_ = valadoc_api_node_get_full_name (_tmp75_);
-			_tmp77_ = g_strdup ("link");
-			_tmp78_ = node;
+			_tmp71_ = self->priv->_devhelpwriter;
+			_tmp72_ = g_strdup ("type");
+			_tmp73_ = typekeyword;
+			_tmp74_ = g_strdup (_tmp73_);
+			_tmp75_ = g_strdup ("name");
+			_tmp76_ = node;
+			_tmp77_ = valadoc_api_node_get_full_name (_tmp76_);
+			_tmp78_ = g_strdup ("link");
 			_tmp79_ = node;
-			_tmp80_ = valadoc_documentation_get_package ((ValadocDocumentation*) _tmp79_);
-			_tmp81_ = _tmp80_;
-			_tmp82_ = valadoc_html_basic_doclet_get_link ((ValadocHtmlBasicDoclet*) self, _tmp78_, (ValadocApiNode*) _tmp81_);
-			_tmp83_ = g_new0 (gchar*, 6 + 1);
-			_tmp83_[0] = _tmp71_;
-			_tmp83_[1] = _tmp73_;
-			_tmp83_[2] = _tmp74_;
-			_tmp83_[3] = _tmp76_;
-			_tmp83_[4] = _tmp77_;
-			_tmp83_[5] = _tmp82_;
-			_tmp84_ = _tmp83_;
-			_tmp84__length1 = 6;
-			valadoc_markup_writer_simple_tag ((ValadocMarkupWriter*) _tmp70_, "keyword", _tmp84_, 6);
-			_tmp84_ = (_vala_array_free (_tmp84_, _tmp84__length1, (GDestroyNotify) g_free), NULL);
+			_tmp80_ = node;
+			_tmp81_ = valadoc_documentation_get_package ((ValadocDocumentation*) _tmp80_);
+			_tmp82_ = _tmp81_;
+			_tmp83_ = valadoc_html_basic_doclet_get_link ((ValadocHtmlBasicDoclet*) self, _tmp79_, (ValadocApiNode*) _tmp82_);
+			_tmp84_ = g_new0 (gchar*, 6 + 1);
+			_tmp84_[0] = _tmp72_;
+			_tmp84_[1] = _tmp74_;
+			_tmp84_[2] = _tmp75_;
+			_tmp84_[3] = _tmp77_;
+			_tmp84_[4] = _tmp78_;
+			_tmp84_[5] = _tmp83_;
+			_tmp85_ = _tmp84_;
+			_tmp85__length1 = 6;
+			valadoc_markup_writer_simple_tag ((ValadocMarkupWriter*) _tmp71_, "keyword", _tmp85_, (gint) 6);
+			_tmp85_ = (_vala_array_free (_tmp85_, _tmp85__length1, (GDestroyNotify) g_free), NULL);
 			_g_free0 (typekeyword);
 			_g_object_unref0 (node);
 		}
 		_vala_iterable_unref0 (_node_list);
 	}
-	_tmp85_ = self->priv->_devhelpwriter;
-	valadoc_devhelp_markup_writer_end_functions (_tmp85_);
 	_tmp86_ = self->priv->_devhelpwriter;
-	valadoc_devhelp_markup_writer_end_book (_tmp86_);
+	valadoc_devhelp_markup_writer_end_functions (_tmp86_);
+	_tmp87_ = self->priv->_devhelpwriter;
+	valadoc_devhelp_markup_writer_end_book (_tmp87_);
 	_fclose0 (file);
 	_fclose0 (devfile);
 	_g_free0 (devpath);
@@ -567,7 +564,6 @@ valadoc_devhelp_doclet_real_visit_package (ValadocApiVisitor* base,
 	_g_free0 (path);
 	_g_free0 (pkg_name);
 }
-
 
 static void
 valadoc_devhelp_doclet_process_compound_node (ValadocDevhelpDoclet* self,
@@ -663,7 +659,6 @@ valadoc_devhelp_doclet_process_compound_node (ValadocDevhelpDoclet* self,
 	_g_free0 (rpath);
 }
 
-
 static void
 valadoc_devhelp_doclet_process_node (ValadocDevhelpDoclet* self,
                                      ValadocApiNode* node,
@@ -747,7 +742,6 @@ valadoc_devhelp_doclet_process_node (ValadocDevhelpDoclet* self,
 	_g_free0 (rpath);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_namespace (ValadocApiVisitor* base,
                                              ValadocApiNamespace* item)
@@ -757,7 +751,6 @@ valadoc_devhelp_doclet_real_visit_namespace (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_compound_node (self, (ValadocApiNode*) item);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_interface (ValadocApiVisitor* base,
@@ -769,7 +762,6 @@ valadoc_devhelp_doclet_real_visit_interface (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_compound_node (self, (ValadocApiNode*) item);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_class (ValadocApiVisitor* base,
                                          ValadocApiClass* item)
@@ -779,7 +771,6 @@ valadoc_devhelp_doclet_real_visit_class (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_compound_node (self, (ValadocApiNode*) item);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_struct (ValadocApiVisitor* base,
@@ -791,7 +782,6 @@ valadoc_devhelp_doclet_real_visit_struct (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_compound_node (self, (ValadocApiNode*) item);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_error_domain (ValadocApiVisitor* base,
                                                 ValadocApiErrorDomain* item)
@@ -801,7 +791,6 @@ valadoc_devhelp_doclet_real_visit_error_domain (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, TRUE);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_enum (ValadocApiVisitor* base,
@@ -813,7 +802,6 @@ valadoc_devhelp_doclet_real_visit_enum (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, TRUE);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_property (ValadocApiVisitor* base,
                                             ValadocApiProperty* item)
@@ -823,7 +811,6 @@ valadoc_devhelp_doclet_real_visit_property (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_constant (ValadocApiVisitor* base,
@@ -835,7 +822,6 @@ valadoc_devhelp_doclet_real_visit_constant (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_field (ValadocApiVisitor* base,
                                          ValadocApiField* item)
@@ -845,7 +831,6 @@ valadoc_devhelp_doclet_real_visit_field (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_error_code (ValadocApiVisitor* base,
@@ -857,7 +842,6 @@ valadoc_devhelp_doclet_real_visit_error_code (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_enum_value (ValadocApiVisitor* base,
                                               ValadocApiEnumValue* item)
@@ -867,7 +851,6 @@ valadoc_devhelp_doclet_real_visit_enum_value (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_delegate (ValadocApiVisitor* base,
@@ -879,7 +862,6 @@ valadoc_devhelp_doclet_real_visit_delegate (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
 
-
 static void
 valadoc_devhelp_doclet_real_visit_signal (ValadocApiVisitor* base,
                                           ValadocApiSignal* item)
@@ -889,7 +871,6 @@ valadoc_devhelp_doclet_real_visit_signal (ValadocApiVisitor* base,
 	g_return_if_fail (item != NULL);
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
-
 
 static void
 valadoc_devhelp_doclet_real_visit_method (ValadocApiVisitor* base,
@@ -901,7 +882,6 @@ valadoc_devhelp_doclet_real_visit_method (ValadocApiVisitor* base,
 	valadoc_devhelp_doclet_process_node (self, (ValadocApiNode*) item, FALSE);
 }
 
-
 ValadocDevhelpDoclet*
 valadoc_devhelp_doclet_construct (GType object_type)
 {
@@ -910,16 +890,15 @@ valadoc_devhelp_doclet_construct (GType object_type)
 	return self;
 }
 
-
 ValadocDevhelpDoclet*
 valadoc_devhelp_doclet_new (void)
 {
 	return valadoc_devhelp_doclet_construct (VALADOC_DEVHELP_TYPE_DOCLET);
 }
 
-
 static void
-valadoc_devhelp_doclet_class_init (ValadocDevhelpDocletClass * klass)
+valadoc_devhelp_doclet_class_init (ValadocDevhelpDocletClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_devhelp_doclet_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocDevhelpDoclet_private_offset);
@@ -944,9 +923,9 @@ valadoc_devhelp_doclet_class_init (ValadocDevhelpDocletClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_devhelp_doclet_finalize;
 }
 
-
 static void
-valadoc_devhelp_doclet_instance_init (ValadocDevhelpDoclet * self)
+valadoc_devhelp_doclet_instance_init (ValadocDevhelpDoclet * self,
+                                      gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -959,7 +938,6 @@ valadoc_devhelp_doclet_instance_init (ValadocDevhelpDoclet * self)
 	self->priv->package_dir_name = _tmp2_;
 }
 
-
 static void
 valadoc_devhelp_doclet_finalize (GObject * obj)
 {
@@ -971,21 +949,27 @@ valadoc_devhelp_doclet_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_devhelp_doclet_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_devhelp_doclet_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocDevhelpDocletClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_devhelp_doclet_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocDevhelpDoclet), 0, (GInstanceInitFunc) valadoc_devhelp_doclet_instance_init, NULL };
+	GType valadoc_devhelp_doclet_type_id;
+	valadoc_devhelp_doclet_type_id = g_type_register_static (VALADOC_HTML_TYPE_BASIC_DOCLET, "ValadocDevhelpDoclet", &g_define_type_info, 0);
+	ValadocDevhelpDoclet_private_offset = g_type_add_instance_private (valadoc_devhelp_doclet_type_id, sizeof (ValadocDevhelpDocletPrivate));
+	return valadoc_devhelp_doclet_type_id;
+}
 
 GType
 valadoc_devhelp_doclet_get_type (void)
 {
 	static volatile gsize valadoc_devhelp_doclet_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_devhelp_doclet_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocDevhelpDocletClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_devhelp_doclet_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocDevhelpDoclet), 0, (GInstanceInitFunc) valadoc_devhelp_doclet_instance_init, NULL };
 		GType valadoc_devhelp_doclet_type_id;
-		valadoc_devhelp_doclet_type_id = g_type_register_static (VALADOC_HTML_TYPE_BASIC_DOCLET, "ValadocDevhelpDoclet", &g_define_type_info, 0);
-		ValadocDevhelpDoclet_private_offset = g_type_add_instance_private (valadoc_devhelp_doclet_type_id, sizeof (ValadocDevhelpDocletPrivate));
+		valadoc_devhelp_doclet_type_id = valadoc_devhelp_doclet_get_type_once ();
 		g_once_init_leave (&valadoc_devhelp_doclet_type_id__volatile, valadoc_devhelp_doclet_type_id);
 	}
 	return valadoc_devhelp_doclet_type_id__volatile;
 }
-
 
 GType
 register_plugin (ValadocModuleLoader* module_loader)
@@ -996,14 +980,13 @@ register_plugin (ValadocModuleLoader* module_loader)
 	return result;
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1011,7 +994,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1021,6 +1003,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

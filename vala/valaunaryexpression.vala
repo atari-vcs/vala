@@ -55,7 +55,7 @@ public class Vala.UnaryExpression : Expression {
 	 * @param source reference to source code
 	 * @return       newly created binary expression
 	 */
-	public UnaryExpression (UnaryOperator op, Expression _inner, SourceReference source) {
+	public UnaryExpression (UnaryOperator op, Expression _inner, SourceReference? source = null) {
 		operator = op;
 		inner = _inner;
 		source_reference = source;
@@ -77,22 +77,8 @@ public class Vala.UnaryExpression : Expression {
 		}
 	}
 
-	private unowned string get_operator_string () {
-		switch (_operator) {
-		case UnaryOperator.PLUS: return "+";
-		case UnaryOperator.MINUS: return "-";
-		case UnaryOperator.LOGICAL_NEGATION: return "!";
-		case UnaryOperator.BITWISE_COMPLEMENT: return "~";
-		case UnaryOperator.INCREMENT: return "++";
-		case UnaryOperator.DECREMENT: return "--";
-		case UnaryOperator.REF: return "ref ";
-		case UnaryOperator.OUT: return "out ";
-		default: assert_not_reached ();
-		}
-	}
-
 	public override string to_string () {
-		return get_operator_string () + _inner.to_string ();
+		return operator.to_string () + _inner.to_string ();
 	}
 
 	public override bool is_constant () {
@@ -101,7 +87,7 @@ public class Vala.UnaryExpression : Expression {
 		}
 
 		if (operator == UnaryOperator.REF || operator == UnaryOperator.OUT) {
-			var field = inner.symbol_reference as Field;
+			unowned Field? field = inner.symbol_reference as Field;
 			if (field != null && field.binding == MemberBinding.STATIC) {
 				return true;
 			} else {
@@ -125,20 +111,20 @@ public class Vala.UnaryExpression : Expression {
 	}
 
 	bool is_numeric_type (DataType type) {
-		if (!(type.data_type is Struct)) {
+		unowned Struct? st = type.type_symbol as Struct;
+		if (type.nullable || st == null) {
 			return false;
 		}
 
-		var st = (Struct) type.data_type;
 		return st.is_integer_type () || st.is_floating_type ();
 	}
 
 	bool is_integer_type (DataType type) {
-		if (!(type.data_type is Struct)) {
+		unowned Struct? st = type.type_symbol as Struct;
+		if (type.nullable || st == null) {
 			return false;
 		}
 
-		var st = (Struct) type.data_type;
 		return st.is_integer_type ();
 	}
 
@@ -148,6 +134,10 @@ public class Vala.UnaryExpression : Expression {
 		}
 
 		return null;
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		inner.get_error_types (collection, source_reference);
 	}
 
 	public override bool check (CodeContext context) {
@@ -168,6 +158,10 @@ public class Vala.UnaryExpression : Expression {
 			/* if there was an error in the inner expression, skip type check */
 			error = true;
 			return false;
+		} else if (inner.value_type == null) {
+			error = true;
+			Report.error (inner.source_reference, "Invalid inner operand");
+			return false;
 		}
 
 		if (inner.value_type is FieldPrototype || inner.value_type is PropertyPrototype) {
@@ -176,7 +170,9 @@ public class Vala.UnaryExpression : Expression {
 			return false;
 		}
 
-		if (operator == UnaryOperator.PLUS || operator == UnaryOperator.MINUS) {
+		switch (operator) {
+		case UnaryOperator.PLUS:
+		case UnaryOperator.MINUS:
 			// integer or floating point type
 			if (!is_numeric_type (inner.value_type)) {
 				error = true;
@@ -185,16 +181,18 @@ public class Vala.UnaryExpression : Expression {
 			}
 
 			value_type = inner.value_type;
-		} else if (operator == UnaryOperator.LOGICAL_NEGATION) {
+			break;
+		case UnaryOperator.LOGICAL_NEGATION:
 			// boolean type
-			if (!inner.value_type.compatible (context.analyzer.bool_type)) {
+			if (inner.value_type.nullable || !inner.value_type.compatible (context.analyzer.bool_type)) {
 				error = true;
 				Report.error (source_reference, "Operator not supported for `%s'".printf (inner.value_type.to_string ()));
 				return false;
 			}
 
 			value_type = inner.value_type;
-		} else if (operator == UnaryOperator.BITWISE_COMPLEMENT) {
+			break;
+		case UnaryOperator.BITWISE_COMPLEMENT:
 			// integer type
 			if (!is_integer_type (inner.value_type) && !(inner.value_type is EnumValueType)) {
 				error = true;
@@ -203,8 +201,9 @@ public class Vala.UnaryExpression : Expression {
 			}
 
 			value_type = inner.value_type;
-		} else if (operator == UnaryOperator.INCREMENT ||
-		           operator == UnaryOperator.DECREMENT) {
+			break;
+		case UnaryOperator.INCREMENT:
+		case UnaryOperator.DECREMENT:
 			// integer type
 			if (!is_integer_type (inner.value_type)) {
 				error = true;
@@ -219,17 +218,11 @@ public class Vala.UnaryExpression : Expression {
 				return false;
 			}
 
-			var old_value = new MemberAccess (ma.inner, ma.member_name, inner.source_reference);
-			var bin = new BinaryExpression (operator == UnaryOperator.INCREMENT ? BinaryOperator.PLUS : BinaryOperator.MINUS, old_value, new IntegerLiteral ("1"), source_reference);
-
-			var assignment = new Assignment (ma, bin, AssignmentOperator.SIMPLE, source_reference);
-			assignment.target_type = target_type;
-			context.analyzer.replaced_nodes.add (this);
-			parent_node.replace_expression (this, assignment);
-			assignment.check (context);
-			return true;
-		} else if (operator == UnaryOperator.REF || operator == UnaryOperator.OUT) {
-			var ea = inner as ElementAccess;
+			value_type = inner.value_type;
+			break;
+		case UnaryOperator.REF:
+		case UnaryOperator.OUT:
+			unowned ElementAccess? ea = inner as ElementAccess;
 			if (inner.symbol_reference is Field || inner.symbol_reference is Parameter || inner.symbol_reference is LocalVariable ||
 			    (ea != null && ea.container.value_type is ArrayType)) {
 				// ref and out can only be used with fields, parameters, local variables, and array element access
@@ -240,11 +233,14 @@ public class Vala.UnaryExpression : Expression {
 				Report.error (source_reference, "ref and out method arguments can only be used with fields, parameters, local variables, and array element access");
 				return false;
 			}
-		} else {
+			break;
+		default:
 			error = true;
 			Report.error (source_reference, "internal error: unsupported unary operator");
 			return false;
 		}
+
+		value_type.check (context);
 
 		return !error;
 	}
@@ -260,8 +256,8 @@ public class Vala.UnaryExpression : Expression {
 	public override void get_defined_variables (Collection<Variable> collection) {
 		inner.get_defined_variables (collection);
 		if (operator == UnaryOperator.OUT || operator == UnaryOperator.REF) {
-			var local = inner.symbol_reference as LocalVariable;
-			var param = inner.symbol_reference as Parameter;
+			unowned LocalVariable? local = inner.symbol_reference as LocalVariable;
+			unowned Parameter? param = inner.symbol_reference as Parameter;
 			if (local != null) {
 				collection.add (local);
 			}
@@ -287,5 +283,20 @@ public enum Vala.UnaryOperator {
 	INCREMENT,
 	DECREMENT,
 	REF,
-	OUT
+	OUT;
+
+	public unowned string to_string () {
+		switch (this) {
+		case PLUS: return "+";
+		case MINUS: return "-";
+		case LOGICAL_NEGATION: return "!";
+		case BITWISE_COMPLEMENT: return "~";
+		case INCREMENT: return "++";
+		case DECREMENT: return "--";
+		case REF: return "ref ";
+		case OUT: return "out ";
+		default: assert_not_reached ();
+		}
+	}
+
 }

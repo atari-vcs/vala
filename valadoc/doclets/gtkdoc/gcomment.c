@@ -23,17 +23,15 @@
  * 	Luca Bruno <lethalman88@gmail.com>
  */
 
-
-#include <glib.h>
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <float.h>
 #include <math.h>
+#include <gobject/gvaluecollector.h>
 #include <valagee.h>
 #include <valadoc.h>
-#include <gobject/gvaluecollector.h>
-
 
 #define GTKDOC_TYPE_HEADER (gtkdoc_header_get_type ())
 #define GTKDOC_HEADER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTKDOC_TYPE_HEADER, GtkdocHeader))
@@ -113,7 +111,6 @@ struct _GtkdocParamSpecGComment {
 	GParamSpec parent_instance;
 };
 
-
 static gpointer gtkdoc_header_parent_class = NULL;
 static gpointer gtkdoc_gcomment_parent_class = NULL;
 
@@ -130,6 +127,7 @@ void gtkdoc_value_take_header (GValue* value,
                                gpointer v_object);
 gpointer gtkdoc_value_get_header (const GValue* value);
 GType gtkdoc_header_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocHeader, gtkdoc_header_unref)
 GtkdocHeader* gtkdoc_header_new (const gchar* name,
                                  const gchar* value,
                                  gdouble pos,
@@ -142,6 +140,7 @@ GtkdocHeader* gtkdoc_header_construct (GType object_type,
 gint gtkdoc_header_cmp (GtkdocHeader* self,
                         GtkdocHeader* header);
 static void gtkdoc_header_finalize (GtkdocHeader * obj);
+static GType gtkdoc_header_get_type_once (void);
 gpointer gtkdoc_gcomment_ref (gpointer instance);
 void gtkdoc_gcomment_unref (gpointer instance);
 GParamSpec* gtkdoc_param_spec_gcomment (const gchar* name,
@@ -155,6 +154,7 @@ void gtkdoc_value_take_gcomment (GValue* value,
                                  gpointer v_object);
 gpointer gtkdoc_value_get_gcomment (const GValue* value);
 GType gtkdoc_gcomment_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGComment, gtkdoc_gcomment_unref)
 gchar* gtkdoc_gcomment_to_string (GtkdocGComment* self);
 gchar* gtkdoc_commentize (const gchar* comment);
 gchar* gtkdoc_gcomment_to_docbook (GtkdocGComment* self,
@@ -162,13 +162,13 @@ gchar* gtkdoc_gcomment_to_docbook (GtkdocGComment* self,
 GtkdocGComment* gtkdoc_gcomment_new (void);
 GtkdocGComment* gtkdoc_gcomment_construct (GType object_type);
 static void gtkdoc_gcomment_finalize (GtkdocGComment * obj);
+static GType gtkdoc_gcomment_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
 static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
-
 
 GtkdocHeader*
 gtkdoc_header_construct (GType object_type,
@@ -193,7 +193,6 @@ gtkdoc_header_construct (GType object_type,
 	return self;
 }
 
-
 GtkdocHeader*
 gtkdoc_header_new (const gchar* name,
                    const gchar* value,
@@ -203,27 +202,18 @@ gtkdoc_header_new (const gchar* name,
 	return gtkdoc_header_construct (GTKDOC_TYPE_HEADER, name, value, pos, block);
 }
 
-
 gint
 gtkdoc_header_cmp (GtkdocHeader* self,
                    GtkdocHeader* header)
 {
 	gint result = 0;
-	gdouble _tmp0_;
-	gdouble _tmp1_;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (header != NULL, 0);
-	_tmp0_ = self->pos;
-	_tmp1_ = header->pos;
-	if (_tmp0_ > _tmp1_) {
+	if (self->pos > header->pos) {
 		result = 1;
 		return result;
 	} else {
-		gdouble _tmp2_;
-		gdouble _tmp3_;
-		_tmp2_ = self->pos;
-		_tmp3_ = header->pos;
-		if (_tmp2_ < _tmp3_) {
+		if (self->pos < header->pos) {
 			result = -1;
 			return result;
 		}
@@ -232,13 +222,11 @@ gtkdoc_header_cmp (GtkdocHeader* self,
 	return result;
 }
 
-
 static void
 gtkdoc_value_header_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_value_header_free_value (GValue* value)
@@ -247,7 +235,6 @@ gtkdoc_value_header_free_value (GValue* value)
 		gtkdoc_header_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_value_header_copy_value (const GValue* src_value,
@@ -260,13 +247,11 @@ gtkdoc_value_header_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_value_header_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_value_header_collect_value (GValue* value,
@@ -289,7 +274,6 @@ gtkdoc_value_header_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_value_header_lcopy_value (const GValue* value,
                                  guint n_collect_values,
@@ -311,7 +295,6 @@ gtkdoc_value_header_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 gtkdoc_param_spec_header (const gchar* name,
                           const gchar* nick,
@@ -326,14 +309,12 @@ gtkdoc_param_spec_header (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 gtkdoc_value_get_header (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_TYPE_HEADER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 gtkdoc_value_set_header (GValue* value,
@@ -355,7 +336,6 @@ gtkdoc_value_set_header (GValue* value,
 	}
 }
 
-
 void
 gtkdoc_value_take_header (GValue* value,
                           gpointer v_object)
@@ -375,21 +355,20 @@ gtkdoc_value_take_header (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_header_class_init (GtkdocHeaderClass * klass)
+gtkdoc_header_class_init (GtkdocHeaderClass * klass,
+                          gpointer klass_data)
 {
 	gtkdoc_header_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocHeaderClass *) klass)->finalize = gtkdoc_header_finalize;
 }
 
-
 static void
-gtkdoc_header_instance_init (GtkdocHeader * self)
+gtkdoc_header_instance_init (GtkdocHeader * self,
+                             gpointer klass)
 {
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_header_finalize (GtkdocHeader * obj)
@@ -402,22 +381,28 @@ gtkdoc_header_finalize (GtkdocHeader * obj)
 	_g_free0 (self->value);
 }
 
+static GType
+gtkdoc_header_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_value_header_init, gtkdoc_value_header_free_value, gtkdoc_value_header_copy_value, gtkdoc_value_header_peek_pointer, "p", gtkdoc_value_header_collect_value, "p", gtkdoc_value_header_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocHeaderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_header_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocHeader), 0, (GInstanceInitFunc) gtkdoc_header_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_header_type_id;
+	gtkdoc_header_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocHeader", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_header_type_id;
+}
 
 GType
 gtkdoc_header_get_type (void)
 {
 	static volatile gsize gtkdoc_header_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_header_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_value_header_init, gtkdoc_value_header_free_value, gtkdoc_value_header_copy_value, gtkdoc_value_header_peek_pointer, "p", gtkdoc_value_header_collect_value, "p", gtkdoc_value_header_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocHeaderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_header_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocHeader), 0, (GInstanceInitFunc) gtkdoc_header_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_header_type_id;
-		gtkdoc_header_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocHeader", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_header_type_id = gtkdoc_header_get_type_once ();
 		g_once_init_leave (&gtkdoc_header_type_id__volatile, gtkdoc_header_type_id);
 	}
 	return gtkdoc_header_type_id__volatile;
 }
-
 
 gpointer
 gtkdoc_header_ref (gpointer instance)
@@ -427,7 +412,6 @@ gtkdoc_header_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 gtkdoc_header_unref (gpointer instance)
@@ -440,21 +424,19 @@ gtkdoc_header_unref (gpointer instance)
 	}
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static gchar*
 _vala_g_strjoinv (const gchar* separator,
                   gchar** str_array,
-                  int str_array_length1)
+                  gint str_array_length1)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
+	gchar* result = NULL;
 	if (separator == NULL) {
 		separator = "";
 	}
@@ -480,20 +462,15 @@ _vala_g_strjoinv (const gchar* separator,
 	if (_tmp0_) {
 		gint i = 0;
 		gsize len = 0UL;
-		gint _tmp20_;
-		gint _tmp22_;
-		gsize _tmp23_;
-		gint _tmp24_;
-		gint _tmp25_;
-		gint _tmp26_;
+		gint _tmp16_;
+		gint _tmp17_;
 		const gchar* res = NULL;
-		gsize _tmp27_;
-		void* _tmp28_;
+		void* _tmp18_;
 		void* ptr = NULL;
-		const gchar* _tmp29_;
-		const gchar* _tmp30_;
-		void* _tmp31_;
-		const gchar* _tmp44_;
+		const gchar* _tmp19_;
+		const gchar* _tmp20_;
+		void* _tmp21_;
+		const gchar* _tmp31_;
 		len = (gsize) 1;
 		{
 			gboolean _tmp4_ = FALSE;
@@ -502,10 +479,8 @@ _vala_g_strjoinv (const gchar* separator,
 			while (TRUE) {
 				gboolean _tmp6_ = FALSE;
 				gboolean _tmp7_ = FALSE;
-				gint _tmp12_ = 0;
-				gint _tmp13_;
-				const gchar* _tmp14_;
-				gsize _tmp19_;
+				gint _tmp10_ = 0;
+				const gchar* _tmp11_;
 				if (!_tmp4_) {
 					gint _tmp5_;
 					_tmp5_ = i;
@@ -513,579 +488,544 @@ _vala_g_strjoinv (const gchar* separator,
 				}
 				_tmp4_ = FALSE;
 				if (str_array_length1 != -1) {
-					gint _tmp8_;
-					_tmp8_ = i;
-					_tmp7_ = _tmp8_ < str_array_length1;
+					_tmp7_ = i < str_array_length1;
 				} else {
 					_tmp7_ = FALSE;
 				}
 				if (_tmp7_) {
 					_tmp6_ = TRUE;
 				} else {
-					gboolean _tmp9_ = FALSE;
+					gboolean _tmp8_ = FALSE;
 					if (str_array_length1 == -1) {
-						gint _tmp10_;
-						const gchar* _tmp11_;
-						_tmp10_ = i;
-						_tmp11_ = str_array[_tmp10_];
-						_tmp9_ = _tmp11_ != NULL;
+						const gchar* _tmp9_;
+						_tmp9_ = str_array[i];
+						_tmp8_ = _tmp9_ != NULL;
 					} else {
-						_tmp9_ = FALSE;
+						_tmp8_ = FALSE;
 					}
-					_tmp6_ = _tmp9_;
+					_tmp6_ = _tmp8_;
 				}
 				if (!_tmp6_) {
 					break;
 				}
-				_tmp13_ = i;
-				_tmp14_ = str_array[_tmp13_];
-				if (_tmp14_ != NULL) {
-					gint _tmp15_;
-					const gchar* _tmp16_;
-					gint _tmp17_;
-					gint _tmp18_;
-					_tmp15_ = i;
-					_tmp16_ = str_array[_tmp15_];
-					_tmp17_ = strlen ((const gchar*) _tmp16_);
-					_tmp18_ = _tmp17_;
-					_tmp12_ = _tmp18_;
+				_tmp11_ = str_array[i];
+				if (_tmp11_ != NULL) {
+					const gchar* _tmp12_;
+					gint _tmp13_;
+					gint _tmp14_;
+					_tmp12_ = str_array[i];
+					_tmp13_ = strlen ((const gchar*) _tmp12_);
+					_tmp14_ = _tmp13_;
+					_tmp10_ = _tmp14_;
 				} else {
-					_tmp12_ = 0;
+					_tmp10_ = 0;
 				}
-				_tmp19_ = len;
-				len = _tmp19_ + _tmp12_;
+				len += (gsize) _tmp10_;
 			}
 		}
-		_tmp20_ = i;
-		if (_tmp20_ == 0) {
-			gchar* _tmp21_;
-			_tmp21_ = g_strdup ("");
-			result = _tmp21_;
+		if (i == 0) {
+			gchar* _tmp15_;
+			_tmp15_ = g_strdup ("");
+			result = _tmp15_;
 			return result;
 		}
-		_tmp22_ = i;
-		str_array_length1 = _tmp22_;
-		_tmp23_ = len;
-		_tmp24_ = strlen ((const gchar*) separator);
-		_tmp25_ = _tmp24_;
-		_tmp26_ = i;
-		len = _tmp23_ + (_tmp25_ * (_tmp26_ - 1));
-		_tmp27_ = len;
-		_tmp28_ = g_malloc (_tmp27_);
-		res = _tmp28_;
-		_tmp29_ = res;
-		_tmp30_ = str_array[0];
-		_tmp31_ = g_stpcpy ((void*) _tmp29_, (const gchar*) _tmp30_);
-		ptr = _tmp31_;
+		str_array_length1 = i;
+		_tmp16_ = strlen ((const gchar*) separator);
+		_tmp17_ = _tmp16_;
+		len += (gsize) (_tmp17_ * (i - 1));
+		_tmp18_ = g_malloc (len);
+		res = _tmp18_;
+		_tmp19_ = res;
+		_tmp20_ = str_array[0];
+		_tmp21_ = g_stpcpy ((void*) _tmp19_, (const gchar*) _tmp20_);
+		ptr = _tmp21_;
 		{
-			gboolean _tmp32_ = FALSE;
+			gboolean _tmp22_ = FALSE;
 			i = 1;
-			_tmp32_ = TRUE;
+			_tmp22_ = TRUE;
 			while (TRUE) {
-				gint _tmp34_;
-				void* _tmp35_;
-				void* _tmp36_;
-				const gchar* _tmp37_ = NULL;
-				gint _tmp38_;
-				const gchar* _tmp39_;
-				void* _tmp42_;
-				void* _tmp43_;
-				if (!_tmp32_) {
-					gint _tmp33_;
-					_tmp33_ = i;
-					i = _tmp33_ + 1;
+				void* _tmp24_;
+				void* _tmp25_;
+				const gchar* _tmp26_ = NULL;
+				const gchar* _tmp27_;
+				void* _tmp29_;
+				void* _tmp30_;
+				if (!_tmp22_) {
+					gint _tmp23_;
+					_tmp23_ = i;
+					i = _tmp23_ + 1;
 				}
-				_tmp32_ = FALSE;
-				_tmp34_ = i;
-				if (!(_tmp34_ < str_array_length1)) {
+				_tmp22_ = FALSE;
+				if (!(i < str_array_length1)) {
 					break;
 				}
-				_tmp35_ = ptr;
-				_tmp36_ = g_stpcpy (_tmp35_, (const gchar*) separator);
-				ptr = _tmp36_;
-				_tmp38_ = i;
-				_tmp39_ = str_array[_tmp38_];
-				if (_tmp39_ != NULL) {
-					gint _tmp40_;
-					const gchar* _tmp41_;
-					_tmp40_ = i;
-					_tmp41_ = str_array[_tmp40_];
-					_tmp37_ = (const gchar*) _tmp41_;
+				_tmp24_ = ptr;
+				_tmp25_ = g_stpcpy (_tmp24_, (const gchar*) separator);
+				ptr = _tmp25_;
+				_tmp27_ = str_array[i];
+				if (_tmp27_ != NULL) {
+					const gchar* _tmp28_;
+					_tmp28_ = str_array[i];
+					_tmp26_ = (const gchar*) _tmp28_;
 				} else {
-					_tmp37_ = "";
+					_tmp26_ = "";
 				}
-				_tmp42_ = ptr;
-				_tmp43_ = g_stpcpy (_tmp42_, _tmp37_);
-				ptr = _tmp43_;
+				_tmp29_ = ptr;
+				_tmp30_ = g_stpcpy (_tmp29_, _tmp26_);
+				ptr = _tmp30_;
 			}
 		}
-		_tmp44_ = res;
+		_tmp31_ = res;
 		res = NULL;
-		result = (gchar*) _tmp44_;
+		result = (gchar*) _tmp31_;
 		return result;
 	} else {
-		gchar* _tmp45_;
-		_tmp45_ = g_strdup ("");
-		result = _tmp45_;
+		gchar* _tmp32_;
+		_tmp32_ = g_strdup ("");
+		result = _tmp32_;
 		return result;
 	}
 }
 
-
 gchar*
 gtkdoc_gcomment_to_string (GtkdocGComment* self)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	const gchar* _tmp1_ = NULL;
-	gboolean _tmp2_;
-	GString* _tmp3_;
-	const gchar* _tmp4_;
+	GString* _tmp2_;
+	const gchar* _tmp3_;
+	gchar* _tmp4_;
 	gchar* _tmp5_;
-	gchar* _tmp6_;
-	gboolean _tmp7_ = FALSE;
-	gchar** _tmp8_;
-	gint _tmp8__length1;
-	gboolean _tmp14_ = FALSE;
-	gboolean _tmp15_;
-	ValaList* _tmp21_;
-	gboolean _tmp55_ = FALSE;
-	gboolean _tmp56_;
-	const gchar* _tmp62_;
-	gchar** _tmp67_;
-	gint _tmp67__length1;
-	gboolean _tmp72_ = FALSE;
-	const gchar* _tmp73_;
-	ValaList* _tmp89_;
-	gint _tmp90_;
-	gint _tmp91_;
-	GString* _tmp114_;
-	GString* _tmp115_;
-	const gchar* _tmp116_;
-	gchar* _tmp117_;
+	gboolean _tmp6_ = FALSE;
+	gchar** _tmp7_;
+	gint _tmp7__length1;
+	gboolean _tmp13_ = FALSE;
+	ValaList* _tmp19_;
+	gboolean _tmp51_ = FALSE;
+	const gchar* _tmp57_;
+	gchar** _tmp62_;
+	gint _tmp62__length1;
+	gboolean _tmp67_ = FALSE;
+	const gchar* _tmp68_;
+	ValaList* _tmp84_;
+	gint _tmp85_;
+	gint _tmp86_;
+	GString* _tmp107_;
+	GString* _tmp108_;
+	const gchar* _tmp109_;
+	gchar* _tmp110_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
-	_tmp2_ = self->is_section;
-	if (_tmp2_) {
+	if (self->is_section) {
 		_tmp1_ = "SECTION:%s";
 	} else {
 		_tmp1_ = "%s:";
 	}
-	_tmp3_ = builder;
-	_tmp4_ = self->symbol;
-	_tmp5_ = g_strdup_printf (_tmp1_, _tmp4_);
-	_tmp6_ = _tmp5_;
-	g_string_append_printf (_tmp3_, "/**\n * %s", _tmp6_);
-	_g_free0 (_tmp6_);
-	_tmp8_ = self->symbol_annotations;
-	_tmp8__length1 = self->symbol_annotations_length1;
-	if (_tmp8_ != NULL) {
+	_tmp2_ = builder;
+	_tmp3_ = self->symbol;
+	_tmp4_ = g_strdup_printf (_tmp1_, _tmp3_);
+	_tmp5_ = _tmp4_;
+	g_string_append_printf (_tmp2_, "/**\n * %s", _tmp5_);
+	_g_free0 (_tmp5_);
+	_tmp7_ = self->symbol_annotations;
+	_tmp7__length1 = self->symbol_annotations_length1;
+	if (_tmp7_ != NULL) {
+		gchar** _tmp8_;
+		gint _tmp8__length1;
+		_tmp8_ = self->symbol_annotations;
+		_tmp8__length1 = self->symbol_annotations_length1;
+		_tmp6_ = _tmp8__length1 > 0;
+	} else {
+		_tmp6_ = FALSE;
+	}
+	if (_tmp6_) {
 		gchar** _tmp9_;
 		gint _tmp9__length1;
 		_tmp9_ = self->symbol_annotations;
 		_tmp9__length1 = self->symbol_annotations_length1;
-		_tmp7_ = _tmp9__length1 > 0;
-	} else {
-		_tmp7_ = FALSE;
-	}
-	if (_tmp7_) {
-		gchar** _tmp10_;
-		gint _tmp10__length1;
-		_tmp10_ = self->symbol_annotations;
-		_tmp10__length1 = self->symbol_annotations_length1;
 		{
 			gchar** annotation_collection = NULL;
 			gint annotation_collection_length1 = 0;
 			gint _annotation_collection_size_ = 0;
 			gint annotation_it = 0;
-			annotation_collection = _tmp10_;
-			annotation_collection_length1 = _tmp10__length1;
-			for (annotation_it = 0; annotation_it < _tmp10__length1; annotation_it = annotation_it + 1) {
-				gchar* _tmp11_;
+			annotation_collection = _tmp9_;
+			annotation_collection_length1 = _tmp9__length1;
+			for (annotation_it = 0; annotation_it < annotation_collection_length1; annotation_it = annotation_it + 1) {
+				gchar* _tmp10_;
 				gchar* annotation = NULL;
-				_tmp11_ = g_strdup (annotation_collection[annotation_it]);
-				annotation = _tmp11_;
+				_tmp10_ = g_strdup (annotation_collection[annotation_it]);
+				annotation = _tmp10_;
 				{
-					GString* _tmp12_;
-					const gchar* _tmp13_;
-					_tmp12_ = builder;
-					_tmp13_ = annotation;
-					g_string_append_printf (_tmp12_, " (%s)", _tmp13_);
+					GString* _tmp11_;
+					const gchar* _tmp12_;
+					_tmp11_ = builder;
+					_tmp12_ = annotation;
+					g_string_append_printf (_tmp11_, " (%s)", _tmp12_);
 					_g_free0 (annotation);
 				}
 			}
 		}
 	}
-	_tmp15_ = self->short_description;
-	if (_tmp15_) {
-		const gchar* _tmp16_;
-		_tmp16_ = self->brief_comment;
-		_tmp14_ = _tmp16_ != NULL;
+	if (self->short_description) {
+		const gchar* _tmp14_;
+		_tmp14_ = self->brief_comment;
+		_tmp13_ = _tmp14_ != NULL;
 	} else {
-		_tmp14_ = FALSE;
+		_tmp13_ = FALSE;
 	}
-	if (_tmp14_) {
-		GString* _tmp17_;
-		const gchar* _tmp18_;
-		gchar* _tmp19_;
-		gchar* _tmp20_;
-		_tmp17_ = builder;
-		_tmp18_ = self->brief_comment;
-		_tmp19_ = gtkdoc_commentize (_tmp18_);
-		_tmp20_ = _tmp19_;
-		g_string_append_printf (_tmp17_, "\n * @short_description: %s", _tmp20_);
-		_g_free0 (_tmp20_);
+	if (_tmp13_) {
+		GString* _tmp15_;
+		const gchar* _tmp16_;
+		gchar* _tmp17_;
+		gchar* _tmp18_;
+		_tmp15_ = builder;
+		_tmp16_ = self->brief_comment;
+		_tmp17_ = gtkdoc_commentize (_tmp16_);
+		_tmp18_ = _tmp17_;
+		g_string_append_printf (_tmp15_, "\n * @short_description: %s", _tmp18_);
+		_g_free0 (_tmp18_);
 	}
-	_tmp21_ = self->headers;
-	vala_list_sort (_tmp21_, (GCompareDataFunc) gtkdoc_header_cmp, NULL, NULL);
+	_tmp19_ = self->headers;
+	vala_list_sort (_tmp19_, (GCompareDataFunc) gtkdoc_header_cmp, NULL, NULL);
 	{
 		ValaList* _header_list = NULL;
-		ValaList* _tmp22_;
-		ValaList* _tmp23_;
+		ValaList* _tmp20_;
+		ValaList* _tmp21_;
 		gint _header_size = 0;
-		ValaList* _tmp24_;
-		gint _tmp25_;
-		gint _tmp26_;
+		ValaList* _tmp22_;
+		gint _tmp23_;
+		gint _tmp24_;
 		gint _header_index = 0;
-		_tmp22_ = self->headers;
-		_tmp23_ = _vala_iterable_ref0 (_tmp22_);
-		_header_list = _tmp23_;
-		_tmp24_ = _header_list;
-		_tmp25_ = vala_collection_get_size ((ValaCollection*) _tmp24_);
-		_tmp26_ = _tmp25_;
-		_header_size = _tmp26_;
+		_tmp20_ = self->headers;
+		_tmp21_ = _vala_iterable_ref0 (_tmp20_);
+		_header_list = _tmp21_;
+		_tmp22_ = _header_list;
+		_tmp23_ = vala_collection_get_size ((ValaCollection*) _tmp22_);
+		_tmp24_ = _tmp23_;
+		_header_size = _tmp24_;
 		_header_index = -1;
 		while (TRUE) {
-			gint _tmp27_;
-			gint _tmp28_;
-			gint _tmp29_;
+			gint _tmp25_;
+			gint _tmp26_;
 			GtkdocHeader* header = NULL;
-			ValaList* _tmp30_;
-			gint _tmp31_;
-			gpointer _tmp32_;
-			GString* _tmp33_;
-			GtkdocHeader* _tmp34_;
-			const gchar* _tmp35_;
-			gboolean _tmp36_ = FALSE;
-			GtkdocHeader* _tmp37_;
-			gchar** _tmp38_;
-			gint _tmp38__length1;
-			GtkdocHeader* _tmp47_;
-			const gchar* _tmp48_;
-			_tmp27_ = _header_index;
-			_header_index = _tmp27_ + 1;
-			_tmp28_ = _header_index;
-			_tmp29_ = _header_size;
-			if (!(_tmp28_ < _tmp29_)) {
+			ValaList* _tmp27_;
+			gpointer _tmp28_;
+			GString* _tmp29_;
+			GtkdocHeader* _tmp30_;
+			const gchar* _tmp31_;
+			gboolean _tmp32_ = FALSE;
+			GtkdocHeader* _tmp33_;
+			gchar** _tmp34_;
+			gint _tmp34__length1;
+			GtkdocHeader* _tmp43_;
+			const gchar* _tmp44_;
+			_header_index = _header_index + 1;
+			_tmp25_ = _header_index;
+			_tmp26_ = _header_size;
+			if (!(_tmp25_ < _tmp26_)) {
 				break;
 			}
-			_tmp30_ = _header_list;
-			_tmp31_ = _header_index;
-			_tmp32_ = vala_list_get (_tmp30_, _tmp31_);
-			header = (GtkdocHeader*) _tmp32_;
-			_tmp33_ = builder;
-			_tmp34_ = header;
-			_tmp35_ = _tmp34_->name;
-			g_string_append_printf (_tmp33_, "\n * @%s:", _tmp35_);
-			_tmp37_ = header;
-			_tmp38_ = _tmp37_->annotations;
-			_tmp38__length1 = _tmp37_->annotations_length1;
-			if (_tmp38_ != NULL) {
-				GtkdocHeader* _tmp39_;
-				gchar** _tmp40_;
-				gint _tmp40__length1;
-				_tmp39_ = header;
-				_tmp40_ = _tmp39_->annotations;
-				_tmp40__length1 = _tmp39_->annotations_length1;
-				_tmp36_ = _tmp40__length1 > 0;
+			_tmp27_ = _header_list;
+			_tmp28_ = vala_list_get (_tmp27_, _header_index);
+			header = (GtkdocHeader*) _tmp28_;
+			_tmp29_ = builder;
+			_tmp30_ = header;
+			_tmp31_ = _tmp30_->name;
+			g_string_append_printf (_tmp29_, "\n * @%s:", _tmp31_);
+			_tmp33_ = header;
+			_tmp34_ = _tmp33_->annotations;
+			_tmp34__length1 = _tmp33_->annotations_length1;
+			if (_tmp34_ != NULL) {
+				GtkdocHeader* _tmp35_;
+				gchar** _tmp36_;
+				gint _tmp36__length1;
+				_tmp35_ = header;
+				_tmp36_ = _tmp35_->annotations;
+				_tmp36__length1 = _tmp35_->annotations_length1;
+				_tmp32_ = _tmp36__length1 > 0;
 			} else {
-				_tmp36_ = FALSE;
+				_tmp32_ = FALSE;
 			}
-			if (_tmp36_) {
-				GtkdocHeader* _tmp41_;
-				gchar** _tmp42_;
-				gint _tmp42__length1;
-				GString* _tmp46_;
-				_tmp41_ = header;
-				_tmp42_ = _tmp41_->annotations;
-				_tmp42__length1 = _tmp41_->annotations_length1;
+			if (_tmp32_) {
+				GtkdocHeader* _tmp37_;
+				gchar** _tmp38_;
+				gint _tmp38__length1;
+				GString* _tmp42_;
+				_tmp37_ = header;
+				_tmp38_ = _tmp37_->annotations;
+				_tmp38__length1 = _tmp37_->annotations_length1;
 				{
 					gchar** annotation_collection = NULL;
 					gint annotation_collection_length1 = 0;
 					gint _annotation_collection_size_ = 0;
 					gint annotation_it = 0;
-					annotation_collection = _tmp42_;
-					annotation_collection_length1 = _tmp42__length1;
-					for (annotation_it = 0; annotation_it < _tmp42__length1; annotation_it = annotation_it + 1) {
-						gchar* _tmp43_;
+					annotation_collection = _tmp38_;
+					annotation_collection_length1 = _tmp38__length1;
+					for (annotation_it = 0; annotation_it < annotation_collection_length1; annotation_it = annotation_it + 1) {
+						gchar* _tmp39_;
 						gchar* annotation = NULL;
-						_tmp43_ = g_strdup (annotation_collection[annotation_it]);
-						annotation = _tmp43_;
+						_tmp39_ = g_strdup (annotation_collection[annotation_it]);
+						annotation = _tmp39_;
 						{
-							GString* _tmp44_;
-							const gchar* _tmp45_;
-							_tmp44_ = builder;
-							_tmp45_ = annotation;
-							g_string_append_printf (_tmp44_, " (%s)", _tmp45_);
+							GString* _tmp40_;
+							const gchar* _tmp41_;
+							_tmp40_ = builder;
+							_tmp41_ = annotation;
+							g_string_append_printf (_tmp40_, " (%s)", _tmp41_);
 							_g_free0 (annotation);
 						}
 					}
 				}
-				_tmp46_ = builder;
-				g_string_append_c (_tmp46_, ':');
+				_tmp42_ = builder;
+				g_string_append_c (_tmp42_, ':');
 			}
-			_tmp47_ = header;
-			_tmp48_ = _tmp47_->value;
-			if (_tmp48_ != NULL) {
-				GString* _tmp49_;
-				GString* _tmp50_;
-				GtkdocHeader* _tmp51_;
-				const gchar* _tmp52_;
-				gchar* _tmp53_;
-				gchar* _tmp54_;
-				_tmp49_ = builder;
-				g_string_append_c (_tmp49_, ' ');
-				_tmp50_ = builder;
-				_tmp51_ = header;
-				_tmp52_ = _tmp51_->value;
-				_tmp53_ = gtkdoc_commentize (_tmp52_);
-				_tmp54_ = _tmp53_;
-				g_string_append (_tmp50_, _tmp54_);
-				_g_free0 (_tmp54_);
+			_tmp43_ = header;
+			_tmp44_ = _tmp43_->value;
+			if (_tmp44_ != NULL) {
+				GString* _tmp45_;
+				GString* _tmp46_;
+				GtkdocHeader* _tmp47_;
+				const gchar* _tmp48_;
+				gchar* _tmp49_;
+				gchar* _tmp50_;
+				_tmp45_ = builder;
+				g_string_append_c (_tmp45_, ' ');
+				_tmp46_ = builder;
+				_tmp47_ = header;
+				_tmp48_ = _tmp47_->value;
+				_tmp49_ = gtkdoc_commentize (_tmp48_);
+				_tmp50_ = _tmp49_;
+				g_string_append (_tmp46_, _tmp50_);
+				_g_free0 (_tmp50_);
 			}
 			_gtkdoc_header_unref0 (header);
 		}
 		_vala_iterable_unref0 (_header_list);
 	}
-	_tmp56_ = self->short_description;
-	if (!_tmp56_) {
-		const gchar* _tmp57_;
-		_tmp57_ = self->brief_comment;
-		_tmp55_ = _tmp57_ != NULL;
+	if (!self->short_description) {
+		const gchar* _tmp52_;
+		_tmp52_ = self->brief_comment;
+		_tmp51_ = _tmp52_ != NULL;
 	} else {
-		_tmp55_ = FALSE;
+		_tmp51_ = FALSE;
 	}
-	if (_tmp55_) {
+	if (_tmp51_) {
+		GString* _tmp53_;
+		const gchar* _tmp54_;
+		gchar* _tmp55_;
+		gchar* _tmp56_;
+		_tmp53_ = builder;
+		_tmp54_ = self->brief_comment;
+		_tmp55_ = gtkdoc_commentize (_tmp54_);
+		_tmp56_ = _tmp55_;
+		g_string_append_printf (_tmp53_, "\n * \n * %s", _tmp56_);
+		_g_free0 (_tmp56_);
+	}
+	_tmp57_ = self->long_comment;
+	if (_tmp57_ != NULL) {
 		GString* _tmp58_;
 		const gchar* _tmp59_;
 		gchar* _tmp60_;
 		gchar* _tmp61_;
 		_tmp58_ = builder;
-		_tmp59_ = self->brief_comment;
+		_tmp59_ = self->long_comment;
 		_tmp60_ = gtkdoc_commentize (_tmp59_);
 		_tmp61_ = _tmp60_;
 		g_string_append_printf (_tmp58_, "\n * \n * %s", _tmp61_);
 		_g_free0 (_tmp61_);
 	}
-	_tmp62_ = self->long_comment;
-	if (_tmp62_ != NULL) {
+	_tmp62_ = self->see_also;
+	_tmp62__length1 = self->see_also_length1;
+	if (_tmp62__length1 > 0) {
 		GString* _tmp63_;
-		const gchar* _tmp64_;
+		gchar** _tmp64_;
+		gint _tmp64__length1;
 		gchar* _tmp65_;
 		gchar* _tmp66_;
 		_tmp63_ = builder;
-		_tmp64_ = self->long_comment;
-		_tmp65_ = gtkdoc_commentize (_tmp64_);
+		_tmp64_ = self->see_also;
+		_tmp64__length1 = self->see_also_length1;
+		_tmp65_ = _vala_g_strjoinv (", ", _tmp64_, (gint) _tmp64__length1);
 		_tmp66_ = _tmp65_;
-		g_string_append_printf (_tmp63_, "\n * \n * %s", _tmp66_);
+		g_string_append_printf (_tmp63_, "\n * \n * <emphasis>See also</emphasis>: %s", _tmp66_);
 		_g_free0 (_tmp66_);
 	}
-	_tmp67_ = self->see_also;
-	_tmp67__length1 = self->see_also_length1;
-	if (_tmp67__length1 > 0) {
-		GString* _tmp68_;
+	_tmp68_ = self->returns;
+	if (_tmp68_ != NULL) {
+		_tmp67_ = TRUE;
+	} else {
 		gchar** _tmp69_;
 		gint _tmp69__length1;
-		gchar* _tmp70_;
-		gchar* _tmp71_;
-		_tmp68_ = builder;
-		_tmp69_ = self->see_also;
-		_tmp69__length1 = self->see_also_length1;
-		_tmp70_ = _vala_g_strjoinv (", ", _tmp69_, _tmp69__length1);
-		_tmp71_ = _tmp70_;
-		g_string_append_printf (_tmp68_, "\n * \n * <emphasis>See also</emphasis>: %s", _tmp71_);
-		_g_free0 (_tmp71_);
+		_tmp69_ = self->returns_annotations;
+		_tmp69__length1 = self->returns_annotations_length1;
+		_tmp67_ = _tmp69__length1 > 0;
 	}
-	_tmp73_ = self->returns;
-	if (_tmp73_ != NULL) {
-		_tmp72_ = TRUE;
-	} else {
-		gchar** _tmp74_;
-		gint _tmp74__length1;
-		_tmp74_ = self->returns_annotations;
-		_tmp74__length1 = self->returns_annotations_length1;
-		_tmp72_ = _tmp74__length1 > 0;
-	}
-	if (_tmp72_) {
-		GString* _tmp75_;
-		gchar** _tmp76_;
-		gint _tmp76__length1;
-		GString* _tmp83_;
-		const gchar* _tmp84_;
-		_tmp75_ = builder;
-		g_string_append (_tmp75_, "\n * \n * Returns:");
-		_tmp76_ = self->returns_annotations;
-		_tmp76__length1 = self->returns_annotations_length1;
-		if (_tmp76_ != NULL) {
-			gchar** _tmp77_;
-			gint _tmp77__length1;
-			gchar** _tmp81_;
-			gint _tmp81__length1;
-			_tmp77_ = self->returns_annotations;
-			_tmp77__length1 = self->returns_annotations_length1;
+	if (_tmp67_) {
+		GString* _tmp70_;
+		gchar** _tmp71_;
+		gint _tmp71__length1;
+		GString* _tmp78_;
+		const gchar* _tmp79_;
+		_tmp70_ = builder;
+		g_string_append (_tmp70_, "\n * \n * Returns:");
+		_tmp71_ = self->returns_annotations;
+		_tmp71__length1 = self->returns_annotations_length1;
+		if (_tmp71_ != NULL) {
+			gchar** _tmp72_;
+			gint _tmp72__length1;
+			gchar** _tmp76_;
+			gint _tmp76__length1;
+			_tmp72_ = self->returns_annotations;
+			_tmp72__length1 = self->returns_annotations_length1;
 			{
 				gchar** annotation_collection = NULL;
 				gint annotation_collection_length1 = 0;
 				gint _annotation_collection_size_ = 0;
 				gint annotation_it = 0;
-				annotation_collection = _tmp77_;
-				annotation_collection_length1 = _tmp77__length1;
-				for (annotation_it = 0; annotation_it < _tmp77__length1; annotation_it = annotation_it + 1) {
-					gchar* _tmp78_;
+				annotation_collection = _tmp72_;
+				annotation_collection_length1 = _tmp72__length1;
+				for (annotation_it = 0; annotation_it < annotation_collection_length1; annotation_it = annotation_it + 1) {
+					gchar* _tmp73_;
 					gchar* annotation = NULL;
-					_tmp78_ = g_strdup (annotation_collection[annotation_it]);
-					annotation = _tmp78_;
+					_tmp73_ = g_strdup (annotation_collection[annotation_it]);
+					annotation = _tmp73_;
 					{
-						GString* _tmp79_;
-						const gchar* _tmp80_;
-						_tmp79_ = builder;
-						_tmp80_ = annotation;
-						g_string_append_printf (_tmp79_, " (%s)", _tmp80_);
+						GString* _tmp74_;
+						const gchar* _tmp75_;
+						_tmp74_ = builder;
+						_tmp75_ = annotation;
+						g_string_append_printf (_tmp74_, " (%s)", _tmp75_);
 						_g_free0 (annotation);
 					}
 				}
 			}
-			_tmp81_ = self->returns_annotations;
-			_tmp81__length1 = self->returns_annotations_length1;
-			if (_tmp81__length1 > 0) {
-				GString* _tmp82_;
-				_tmp82_ = builder;
-				g_string_append_c (_tmp82_, ':');
+			_tmp76_ = self->returns_annotations;
+			_tmp76__length1 = self->returns_annotations_length1;
+			if (_tmp76__length1 > 0) {
+				GString* _tmp77_;
+				_tmp77_ = builder;
+				g_string_append_c (_tmp77_, ':');
 			}
 		}
-		_tmp83_ = builder;
-		g_string_append_c (_tmp83_, ' ');
-		_tmp84_ = self->returns;
-		if (_tmp84_ != NULL) {
-			GString* _tmp85_;
-			const gchar* _tmp86_;
-			gchar* _tmp87_;
-			gchar* _tmp88_;
-			_tmp85_ = builder;
-			_tmp86_ = self->returns;
-			_tmp87_ = gtkdoc_commentize (_tmp86_);
-			_tmp88_ = _tmp87_;
-			g_string_append (_tmp85_, _tmp88_);
-			_g_free0 (_tmp88_);
+		_tmp78_ = builder;
+		g_string_append_c (_tmp78_, ' ');
+		_tmp79_ = self->returns;
+		if (_tmp79_ != NULL) {
+			GString* _tmp80_;
+			const gchar* _tmp81_;
+			gchar* _tmp82_;
+			gchar* _tmp83_;
+			_tmp80_ = builder;
+			_tmp81_ = self->returns;
+			_tmp82_ = gtkdoc_commentize (_tmp81_);
+			_tmp83_ = _tmp82_;
+			g_string_append (_tmp80_, _tmp83_);
+			_g_free0 (_tmp83_);
 		}
 	}
-	_tmp89_ = self->versioning;
-	_tmp90_ = vala_collection_get_size ((ValaCollection*) _tmp89_);
-	_tmp91_ = _tmp90_;
-	if (_tmp91_ > 0) {
-		GString* _tmp92_;
-		_tmp92_ = builder;
-		g_string_append (_tmp92_, "\n *");
+	_tmp84_ = self->versioning;
+	_tmp85_ = vala_collection_get_size ((ValaCollection*) _tmp84_);
+	_tmp86_ = _tmp85_;
+	if (_tmp86_ > 0) {
+		GString* _tmp87_;
+		_tmp87_ = builder;
+		g_string_append (_tmp87_, "\n *");
 		{
 			ValaList* _version_list = NULL;
-			ValaList* _tmp93_;
-			ValaList* _tmp94_;
+			ValaList* _tmp88_;
+			ValaList* _tmp89_;
 			gint _version_size = 0;
-			ValaList* _tmp95_;
-			gint _tmp96_;
-			gint _tmp97_;
+			ValaList* _tmp90_;
+			gint _tmp91_;
+			gint _tmp92_;
 			gint _version_index = 0;
-			_tmp93_ = self->versioning;
-			_tmp94_ = _vala_iterable_ref0 (_tmp93_);
-			_version_list = _tmp94_;
-			_tmp95_ = _version_list;
-			_tmp96_ = vala_collection_get_size ((ValaCollection*) _tmp95_);
-			_tmp97_ = _tmp96_;
-			_version_size = _tmp97_;
+			_tmp88_ = self->versioning;
+			_tmp89_ = _vala_iterable_ref0 (_tmp88_);
+			_version_list = _tmp89_;
+			_tmp90_ = _version_list;
+			_tmp91_ = vala_collection_get_size ((ValaCollection*) _tmp90_);
+			_tmp92_ = _tmp91_;
+			_version_size = _tmp92_;
 			_version_index = -1;
 			while (TRUE) {
-				gint _tmp98_;
-				gint _tmp99_;
-				gint _tmp100_;
+				gint _tmp93_;
+				gint _tmp94_;
 				GtkdocHeader* version = NULL;
-				ValaList* _tmp101_;
-				gint _tmp102_;
-				gpointer _tmp103_;
-				GString* _tmp104_;
-				GtkdocHeader* _tmp105_;
-				const gchar* _tmp106_;
-				GtkdocHeader* _tmp107_;
-				const gchar* _tmp108_;
-				_tmp98_ = _version_index;
-				_version_index = _tmp98_ + 1;
-				_tmp99_ = _version_index;
-				_tmp100_ = _version_size;
-				if (!(_tmp99_ < _tmp100_)) {
+				ValaList* _tmp95_;
+				gpointer _tmp96_;
+				GString* _tmp97_;
+				GtkdocHeader* _tmp98_;
+				const gchar* _tmp99_;
+				GtkdocHeader* _tmp100_;
+				const gchar* _tmp101_;
+				_version_index = _version_index + 1;
+				_tmp93_ = _version_index;
+				_tmp94_ = _version_size;
+				if (!(_tmp93_ < _tmp94_)) {
 					break;
 				}
-				_tmp101_ = _version_list;
-				_tmp102_ = _version_index;
-				_tmp103_ = vala_list_get (_tmp101_, _tmp102_);
-				version = (GtkdocHeader*) _tmp103_;
-				_tmp104_ = builder;
-				_tmp105_ = version;
-				_tmp106_ = _tmp105_->name;
-				g_string_append_printf (_tmp104_, "\n * %s:", _tmp106_);
-				_tmp107_ = version;
-				_tmp108_ = _tmp107_->value;
-				if (_tmp108_ != NULL) {
-					GString* _tmp109_;
-					GtkdocHeader* _tmp110_;
-					const gchar* _tmp111_;
-					gchar* _tmp112_;
-					gchar* _tmp113_;
-					_tmp109_ = builder;
-					_tmp110_ = version;
-					_tmp111_ = _tmp110_->value;
-					_tmp112_ = gtkdoc_commentize (_tmp111_);
-					_tmp113_ = _tmp112_;
-					g_string_append_printf (_tmp109_, " %s", _tmp113_);
-					_g_free0 (_tmp113_);
+				_tmp95_ = _version_list;
+				_tmp96_ = vala_list_get (_tmp95_, _version_index);
+				version = (GtkdocHeader*) _tmp96_;
+				_tmp97_ = builder;
+				_tmp98_ = version;
+				_tmp99_ = _tmp98_->name;
+				g_string_append_printf (_tmp97_, "\n * %s:", _tmp99_);
+				_tmp100_ = version;
+				_tmp101_ = _tmp100_->value;
+				if (_tmp101_ != NULL) {
+					GString* _tmp102_;
+					GtkdocHeader* _tmp103_;
+					const gchar* _tmp104_;
+					gchar* _tmp105_;
+					gchar* _tmp106_;
+					_tmp102_ = builder;
+					_tmp103_ = version;
+					_tmp104_ = _tmp103_->value;
+					_tmp105_ = gtkdoc_commentize (_tmp104_);
+					_tmp106_ = _tmp105_;
+					g_string_append_printf (_tmp102_, " %s", _tmp106_);
+					_g_free0 (_tmp106_);
 				}
 				_gtkdoc_header_unref0 (version);
 			}
 			_vala_iterable_unref0 (_version_list);
 		}
 	}
-	_tmp114_ = builder;
-	g_string_append (_tmp114_, "\n */");
-	_tmp115_ = builder;
-	_tmp116_ = _tmp115_->str;
-	_tmp117_ = g_strdup (_tmp116_);
-	result = _tmp117_;
+	_tmp107_ = builder;
+	g_string_append (_tmp107_, "\n */");
+	_tmp108_ = builder;
+	_tmp109_ = _tmp108_->str;
+	_tmp110_ = g_strdup (_tmp109_);
+	result = _tmp110_;
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 gchar*
 gtkdoc_gcomment_to_docbook (GtkdocGComment* self,
                             ValadocErrorReporter* reporter)
 {
-	gchar* result = NULL;
 	gchar* deprecated = NULL;
 	gchar* since = NULL;
 	GString* builder = NULL;
-	GString* _tmp23_;
-	const gchar* _tmp24_;
-	const gchar* _tmp28_;
-	const gchar* _tmp31_;
+	GString* _tmp21_;
+	const gchar* _tmp22_;
+	const gchar* _tmp26_;
+	const gchar* _tmp29_;
+	ValaList* _tmp32_;
+	gboolean _tmp33_ = FALSE;
 	ValaList* _tmp34_;
-	gboolean _tmp35_ = FALSE;
-	ValaList* _tmp36_;
-	gint _tmp37_;
-	gint _tmp38_;
+	gint _tmp35_;
+	gint _tmp36_;
+	const gchar* _tmp57_;
+	GString* _tmp60_;
 	const gchar* _tmp61_;
-	GString* _tmp64_;
-	const gchar* _tmp65_;
-	gchar* _tmp66_;
+	gchar* _tmp62_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
 	deprecated = NULL;
@@ -1110,190 +1050,181 @@ gtkdoc_gcomment_to_docbook (GtkdocGComment* self,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			GtkdocHeader* header = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			GtkdocHeader* _tmp11_;
-			const gchar* _tmp12_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			GtkdocHeader* _tmp9_;
+			const gchar* _tmp10_;
+			_header_index = _header_index + 1;
 			_tmp5_ = _header_index;
-			_header_index = _tmp5_ + 1;
-			_tmp6_ = _header_index;
-			_tmp7_ = _header_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _header_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _header_list;
-			_tmp9_ = _header_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			header = (GtkdocHeader*) _tmp10_;
-			_tmp11_ = header;
-			_tmp12_ = _tmp11_->name;
-			if (g_strcmp0 (_tmp12_, "Deprecated") == 0) {
-				GtkdocHeader* _tmp13_;
-				const gchar* _tmp14_;
-				gchar* _tmp15_;
-				_tmp13_ = header;
-				_tmp14_ = _tmp13_->value;
-				_tmp15_ = g_strdup (_tmp14_);
+			_tmp7_ = _header_list;
+			_tmp8_ = vala_list_get (_tmp7_, _header_index);
+			header = (GtkdocHeader*) _tmp8_;
+			_tmp9_ = header;
+			_tmp10_ = _tmp9_->name;
+			if (g_strcmp0 (_tmp10_, "Deprecated") == 0) {
+				GtkdocHeader* _tmp11_;
+				const gchar* _tmp12_;
+				gchar* _tmp13_;
+				_tmp11_ = header;
+				_tmp12_ = _tmp11_->value;
+				_tmp13_ = g_strdup (_tmp12_);
 				_g_free0 (deprecated);
-				deprecated = _tmp15_;
+				deprecated = _tmp13_;
 			} else {
-				GtkdocHeader* _tmp16_;
-				const gchar* _tmp17_;
-				_tmp16_ = header;
-				_tmp17_ = _tmp16_->name;
-				if (g_strcmp0 (_tmp17_, "Since") == 0) {
-					GtkdocHeader* _tmp18_;
-					const gchar* _tmp19_;
-					gchar* _tmp20_;
-					_tmp18_ = header;
-					_tmp19_ = _tmp18_->value;
-					_tmp20_ = g_strdup (_tmp19_);
+				GtkdocHeader* _tmp14_;
+				const gchar* _tmp15_;
+				_tmp14_ = header;
+				_tmp15_ = _tmp14_->name;
+				if (g_strcmp0 (_tmp15_, "Since") == 0) {
+					GtkdocHeader* _tmp16_;
+					const gchar* _tmp17_;
+					gchar* _tmp18_;
+					_tmp16_ = header;
+					_tmp17_ = _tmp16_->value;
+					_tmp18_ = g_strdup (_tmp17_);
 					_g_free0 (since);
-					since = _tmp20_;
+					since = _tmp18_;
 				} else {
-					GtkdocHeader* _tmp21_;
-					const gchar* _tmp22_;
-					_tmp21_ = header;
-					_tmp22_ = _tmp21_->name;
-					valadoc_error_reporter_simple_warning (reporter, "GtkDoc", "Unknown versioning tag '%s'", _tmp22_);
+					GtkdocHeader* _tmp19_;
+					const gchar* _tmp20_;
+					_tmp19_ = header;
+					_tmp20_ = _tmp19_->name;
+					valadoc_error_reporter_simple_warning (reporter, "GtkDoc", "Unknown versioning tag '%s'", _tmp20_);
 				}
 			}
 			_gtkdoc_header_unref0 (header);
 		}
 		_vala_iterable_unref0 (_header_list);
 	}
-	_tmp23_ = g_string_new ("");
-	builder = _tmp23_;
-	_tmp24_ = deprecated;
-	if (_tmp24_ != NULL) {
-		GString* _tmp25_;
-		const gchar* _tmp26_;
-		const gchar* _tmp27_;
-		_tmp25_ = builder;
-		_tmp26_ = self->symbol;
-		_tmp27_ = deprecated;
-		g_string_append_printf (_tmp25_, "<warning><para><literal>%s</literal> is deprecated and should not be u" \
-"sed in newly-written code. %s</para></warning>", _tmp26_, _tmp27_);
+	_tmp21_ = g_string_new ("");
+	builder = _tmp21_;
+	_tmp22_ = deprecated;
+	if (_tmp22_ != NULL) {
+		GString* _tmp23_;
+		const gchar* _tmp24_;
+		const gchar* _tmp25_;
+		_tmp23_ = builder;
+		_tmp24_ = self->symbol;
+		_tmp25_ = deprecated;
+		g_string_append_printf (_tmp23_, "<warning><para><literal>%s</literal> is deprecated and should not be u" \
+"sed in newly-written code. %s</para></warning>", _tmp24_, _tmp25_);
 	}
-	_tmp28_ = self->brief_comment;
-	if (_tmp28_ != NULL) {
-		GString* _tmp29_;
-		const gchar* _tmp30_;
-		_tmp29_ = builder;
-		_tmp30_ = self->brief_comment;
-		g_string_append_printf (_tmp29_, "<para>%s</para>", _tmp30_);
+	_tmp26_ = self->brief_comment;
+	if (_tmp26_ != NULL) {
+		GString* _tmp27_;
+		const gchar* _tmp28_;
+		_tmp27_ = builder;
+		_tmp28_ = self->brief_comment;
+		g_string_append_printf (_tmp27_, "<para>%s</para>", _tmp28_);
 	}
-	_tmp31_ = self->long_comment;
-	if (_tmp31_ != NULL) {
-		GString* _tmp32_;
-		const gchar* _tmp33_;
-		_tmp32_ = builder;
-		_tmp33_ = self->long_comment;
-		g_string_append (_tmp32_, _tmp33_);
+	_tmp29_ = self->long_comment;
+	if (_tmp29_ != NULL) {
+		GString* _tmp30_;
+		const gchar* _tmp31_;
+		_tmp30_ = builder;
+		_tmp31_ = self->long_comment;
+		g_string_append (_tmp30_, _tmp31_);
 	}
+	_tmp32_ = self->headers;
+	vala_list_sort (_tmp32_, (GCompareDataFunc) gtkdoc_header_cmp, NULL, NULL);
 	_tmp34_ = self->headers;
-	vala_list_sort (_tmp34_, (GCompareDataFunc) gtkdoc_header_cmp, NULL, NULL);
-	_tmp36_ = self->headers;
-	_tmp37_ = vala_collection_get_size ((ValaCollection*) _tmp36_);
-	_tmp38_ = _tmp37_;
-	if (_tmp38_ > 0) {
-		_tmp35_ = TRUE;
+	_tmp35_ = vala_collection_get_size ((ValaCollection*) _tmp34_);
+	_tmp36_ = _tmp35_;
+	if (_tmp36_ > 0) {
+		_tmp33_ = TRUE;
 	} else {
-		const gchar* _tmp39_;
-		_tmp39_ = self->returns;
-		_tmp35_ = _tmp39_ != NULL;
+		const gchar* _tmp37_;
+		_tmp37_ = self->returns;
+		_tmp33_ = _tmp37_ != NULL;
 	}
-	if (_tmp35_) {
-		GString* _tmp40_;
-		const gchar* _tmp57_;
-		GString* _tmp60_;
-		_tmp40_ = builder;
-		g_string_append (_tmp40_, "<variablelist role=\"params\">");
+	if (_tmp33_) {
+		GString* _tmp38_;
+		const gchar* _tmp53_;
+		GString* _tmp56_;
+		_tmp38_ = builder;
+		g_string_append (_tmp38_, "<variablelist role=\"params\">");
 		{
 			ValaList* _header_list = NULL;
-			ValaList* _tmp41_;
-			ValaList* _tmp42_;
+			ValaList* _tmp39_;
+			ValaList* _tmp40_;
 			gint _header_size = 0;
-			ValaList* _tmp43_;
-			gint _tmp44_;
-			gint _tmp45_;
+			ValaList* _tmp41_;
+			gint _tmp42_;
+			gint _tmp43_;
 			gint _header_index = 0;
-			_tmp41_ = self->headers;
-			_tmp42_ = _vala_iterable_ref0 (_tmp41_);
-			_header_list = _tmp42_;
-			_tmp43_ = _header_list;
-			_tmp44_ = vala_collection_get_size ((ValaCollection*) _tmp43_);
-			_tmp45_ = _tmp44_;
-			_header_size = _tmp45_;
+			_tmp39_ = self->headers;
+			_tmp40_ = _vala_iterable_ref0 (_tmp39_);
+			_header_list = _tmp40_;
+			_tmp41_ = _header_list;
+			_tmp42_ = vala_collection_get_size ((ValaCollection*) _tmp41_);
+			_tmp43_ = _tmp42_;
+			_header_size = _tmp43_;
 			_header_index = -1;
 			while (TRUE) {
-				gint _tmp46_;
-				gint _tmp47_;
-				gint _tmp48_;
+				gint _tmp44_;
+				gint _tmp45_;
 				GtkdocHeader* header = NULL;
-				ValaList* _tmp49_;
-				gint _tmp50_;
-				gpointer _tmp51_;
-				GString* _tmp52_;
-				GtkdocHeader* _tmp53_;
-				const gchar* _tmp54_;
-				GtkdocHeader* _tmp55_;
-				const gchar* _tmp56_;
-				_tmp46_ = _header_index;
-				_header_index = _tmp46_ + 1;
-				_tmp47_ = _header_index;
-				_tmp48_ = _header_size;
-				if (!(_tmp47_ < _tmp48_)) {
+				ValaList* _tmp46_;
+				gpointer _tmp47_;
+				GString* _tmp48_;
+				GtkdocHeader* _tmp49_;
+				const gchar* _tmp50_;
+				GtkdocHeader* _tmp51_;
+				const gchar* _tmp52_;
+				_header_index = _header_index + 1;
+				_tmp44_ = _header_index;
+				_tmp45_ = _header_size;
+				if (!(_tmp44_ < _tmp45_)) {
 					break;
 				}
-				_tmp49_ = _header_list;
-				_tmp50_ = _header_index;
-				_tmp51_ = vala_list_get (_tmp49_, _tmp50_);
-				header = (GtkdocHeader*) _tmp51_;
-				_tmp52_ = builder;
-				_tmp53_ = header;
-				_tmp54_ = _tmp53_->name;
-				_tmp55_ = header;
-				_tmp56_ = _tmp55_->value;
-				g_string_append_printf (_tmp52_, "<varlistentry><term><parameter>%s</parameter>&#160;:</term>\n" \
-"<listitem><simpara> %s </simpara></listitem></varlistentry>", _tmp54_, _tmp56_);
+				_tmp46_ = _header_list;
+				_tmp47_ = vala_list_get (_tmp46_, _header_index);
+				header = (GtkdocHeader*) _tmp47_;
+				_tmp48_ = builder;
+				_tmp49_ = header;
+				_tmp50_ = _tmp49_->name;
+				_tmp51_ = header;
+				_tmp52_ = _tmp51_->value;
+				g_string_append_printf (_tmp48_, "<varlistentry><term><parameter>%s</parameter>&#160;:</term>\n" \
+"<listitem><simpara> %s </simpara></listitem></varlistentry>", _tmp50_, _tmp52_);
 				_gtkdoc_header_unref0 (header);
 			}
 			_vala_iterable_unref0 (_header_list);
 		}
-		_tmp57_ = self->returns;
-		if (_tmp57_ != NULL) {
-			GString* _tmp58_;
-			const gchar* _tmp59_;
-			_tmp58_ = builder;
-			_tmp59_ = self->returns;
-			g_string_append_printf (_tmp58_, "<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term>\n" \
-"<listitem><simpara> %s </simpara></listitem></varlistentry>", _tmp59_);
+		_tmp53_ = self->returns;
+		if (_tmp53_ != NULL) {
+			GString* _tmp54_;
+			const gchar* _tmp55_;
+			_tmp54_ = builder;
+			_tmp55_ = self->returns;
+			g_string_append_printf (_tmp54_, "<varlistentry><term><emphasis>Returns</emphasis>&#160;:</term>\n" \
+"<listitem><simpara> %s </simpara></listitem></varlistentry>", _tmp55_);
 		}
-		_tmp60_ = builder;
-		g_string_append (_tmp60_, "</variablelist>");
+		_tmp56_ = builder;
+		g_string_append (_tmp56_, "</variablelist>");
 	}
-	_tmp61_ = since;
-	if (_tmp61_ != NULL) {
-		GString* _tmp62_;
-		const gchar* _tmp63_;
-		_tmp62_ = builder;
-		_tmp63_ = since;
-		g_string_append_printf (_tmp62_, "<para role=\"since\">Since %s</para>", _tmp63_);
+	_tmp57_ = since;
+	if (_tmp57_ != NULL) {
+		GString* _tmp58_;
+		const gchar* _tmp59_;
+		_tmp58_ = builder;
+		_tmp59_ = since;
+		g_string_append_printf (_tmp58_, "<para role=\"since\">Since %s</para>", _tmp59_);
 	}
-	_tmp64_ = builder;
-	_tmp65_ = _tmp64_->str;
-	_tmp66_ = g_strdup (_tmp65_);
-	result = _tmp66_;
+	_tmp60_ = builder;
+	_tmp61_ = _tmp60_->str;
+	_tmp62_ = g_strdup (_tmp61_);
+	result = _tmp62_;
 	_g_string_free0 (builder);
 	_g_free0 (since);
 	_g_free0 (deprecated);
 	return result;
 }
-
 
 GtkdocGComment*
 gtkdoc_gcomment_construct (GType object_type)
@@ -1303,20 +1234,17 @@ gtkdoc_gcomment_construct (GType object_type)
 	return self;
 }
 
-
 GtkdocGComment*
 gtkdoc_gcomment_new (void)
 {
 	return gtkdoc_gcomment_construct (GTKDOC_TYPE_GCOMMENT);
 }
 
-
 static void
 gtkdoc_value_gcomment_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_value_gcomment_free_value (GValue* value)
@@ -1325,7 +1253,6 @@ gtkdoc_value_gcomment_free_value (GValue* value)
 		gtkdoc_gcomment_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_value_gcomment_copy_value (const GValue* src_value,
@@ -1338,13 +1265,11 @@ gtkdoc_value_gcomment_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_value_gcomment_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_value_gcomment_collect_value (GValue* value,
@@ -1367,7 +1292,6 @@ gtkdoc_value_gcomment_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_value_gcomment_lcopy_value (const GValue* value,
                                    guint n_collect_values,
@@ -1389,7 +1313,6 @@ gtkdoc_value_gcomment_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 gtkdoc_param_spec_gcomment (const gchar* name,
                             const gchar* nick,
@@ -1404,14 +1327,12 @@ gtkdoc_param_spec_gcomment (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 gtkdoc_value_get_gcomment (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_TYPE_GCOMMENT), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 gtkdoc_value_set_gcomment (GValue* value,
@@ -1433,7 +1354,6 @@ gtkdoc_value_set_gcomment (GValue* value,
 	}
 }
 
-
 void
 gtkdoc_value_take_gcomment (GValue* value,
                             gpointer v_object)
@@ -1453,17 +1373,17 @@ gtkdoc_value_take_gcomment (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_gcomment_class_init (GtkdocGCommentClass * klass)
+gtkdoc_gcomment_class_init (GtkdocGCommentClass * klass,
+                            gpointer klass_data)
 {
 	gtkdoc_gcomment_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocGCommentClass *) klass)->finalize = gtkdoc_gcomment_finalize;
 }
 
-
 static void
-gtkdoc_gcomment_instance_init (GtkdocGComment * self)
+gtkdoc_gcomment_instance_init (GtkdocGComment * self,
+                               gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -1477,7 +1397,6 @@ gtkdoc_gcomment_instance_init (GtkdocGComment * self)
 	self->versioning = (ValaList*) _tmp3_;
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_gcomment_finalize (GtkdocGComment * obj)
@@ -1496,22 +1415,28 @@ gtkdoc_gcomment_finalize (GtkdocGComment * obj)
 	self->see_also = (_vala_array_free (self->see_also, self->see_also_length1, (GDestroyNotify) g_free), NULL);
 }
 
+static GType
+gtkdoc_gcomment_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_value_gcomment_init, gtkdoc_value_gcomment_free_value, gtkdoc_value_gcomment_copy_value, gtkdoc_value_gcomment_peek_pointer, "p", gtkdoc_value_gcomment_collect_value, "p", gtkdoc_value_gcomment_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocGCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_gcomment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGComment), 0, (GInstanceInitFunc) gtkdoc_gcomment_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_gcomment_type_id;
+	gtkdoc_gcomment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocGComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_gcomment_type_id;
+}
 
 GType
 gtkdoc_gcomment_get_type (void)
 {
 	static volatile gsize gtkdoc_gcomment_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_gcomment_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_value_gcomment_init, gtkdoc_value_gcomment_free_value, gtkdoc_value_gcomment_copy_value, gtkdoc_value_gcomment_peek_pointer, "p", gtkdoc_value_gcomment_collect_value, "p", gtkdoc_value_gcomment_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocGCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_gcomment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGComment), 0, (GInstanceInitFunc) gtkdoc_gcomment_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_gcomment_type_id;
-		gtkdoc_gcomment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocGComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_gcomment_type_id = gtkdoc_gcomment_get_type_once ();
 		g_once_init_leave (&gtkdoc_gcomment_type_id__volatile, gtkdoc_gcomment_type_id);
 	}
 	return gtkdoc_gcomment_type_id__volatile;
 }
-
 
 gpointer
 gtkdoc_gcomment_ref (gpointer instance)
@@ -1521,7 +1446,6 @@ gtkdoc_gcomment_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 gtkdoc_gcomment_unref (gpointer instance)
@@ -1534,14 +1458,13 @@ gtkdoc_gcomment_unref (gpointer instance)
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1549,7 +1472,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1559,6 +1481,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

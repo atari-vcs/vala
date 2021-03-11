@@ -60,8 +60,10 @@ public class Vala.CreationMethod : Method {
 			param.accept (visitor);
 		}
 
-		foreach (DataType error_type in get_error_types ()) {
-			error_type.accept (visitor);
+		if (error_types != null) {
+			foreach (DataType error_type in error_types) {
+				error_type.accept (visitor);
+			}
 		}
 
 		foreach (Expression precondition in get_preconditions ()) {
@@ -91,6 +93,10 @@ public class Vala.CreationMethod : Method {
 			return false;
 		}
 
+		if (this_parameter != null) {
+			this_parameter.check (context);
+		}
+
 		var old_source_file = context.analyzer.current_source_file;
 		var old_symbol = context.analyzer.current_symbol;
 
@@ -101,16 +107,52 @@ public class Vala.CreationMethod : Method {
 
 		int i = 0;
 		foreach (Parameter param in get_parameters()) {
-			param.check (context);
+			if (!param.check (context)) {
+				error = true;
+			}
 			if (i == 0 && param.ellipsis && body != null) {
 				error = true;
 				Report.error (param.source_reference, "Named parameter required before `...'");
 			}
 			i++;
+
+			// Add local variable to provide access to params arrays which will be constructed out of the given va-args
+			if (param.params_array && body != null) {
+				if (params_array_var != null) {
+					error = true;
+					Report.error (param.source_reference, "Only one params-array parameter is allowed");
+					continue;
+				}
+				if (!context.experimental) {
+					Report.warning (param.source_reference, "Support of params-arrays is experimental");
+				}
+				var type = (ArrayType) param.variable_type.copy ();
+				type.element_type.value_owned = type.value_owned;
+				type.value_owned = true;
+				if (type.element_type.is_real_struct_type () && !type.element_type.nullable) {
+					error = true;
+					Report.error (param.source_reference, "Only nullable struct elements are supported in params-array");
+				}
+				if (type.length != null) {
+					error = true;
+					Report.error (param.source_reference, "Passing length to params-array is not supported yet");
+				}
+				params_array_var = new LocalVariable (type, param.name, null, param.source_reference);
+				body.insert_statement (0, new DeclarationStatement (params_array_var, param.source_reference));
+			}
 		}
 
-		foreach (DataType error_type in get_error_types ()) {
-			error_type.check (context);
+		if (error_types != null) {
+			foreach (DataType error_type in error_types) {
+				error_type.check (context);
+
+				// check whether error type is at least as accessible as the creation method
+				if (!context.analyzer.is_type_accessible (this, error_type)) {
+					error = true;
+					Report.error (source_reference, "error type `%s' is less accessible than creation method `%s'".printf (error_type.to_string (), get_full_name ()));
+					return false;
+				}
+			}
 		}
 
 		foreach (Expression precondition in get_preconditions ()) {
@@ -124,7 +166,7 @@ public class Vala.CreationMethod : Method {
 		if (body != null) {
 			body.check (context);
 
-			var cl = parent_symbol as Class;
+			unowned Class? cl = parent_symbol as Class;
 
 			// ensure we chain up to base constructor
 			if (!chain_up && cl != null && cl.base_class != null) {
@@ -166,17 +208,22 @@ public class Vala.CreationMethod : Method {
 		context.analyzer.current_symbol = old_symbol;
 
 		if (is_abstract || is_virtual || overrides) {
+			error = true;
 			Report.error (source_reference, "The creation method `%s' cannot be marked as override, virtual, or abstract".printf (get_full_name ()));
 			return false;
 		}
 
 		// check that all errors that can be thrown in the method body are declared
-		if (body != null) {
-			foreach (DataType body_error_type in body.get_error_types ()) {
+		if (body != null && !body.error) {
+			var body_errors = new ArrayList<DataType> ();
+			body.get_error_types (body_errors);
+			foreach (DataType body_error_type in body_errors) {
 				bool can_propagate_error = false;
-				foreach (DataType method_error_type in get_error_types ()) {
-					if (body_error_type.compatible (method_error_type)) {
-						can_propagate_error = true;
+				if (error_types != null) {
+					foreach (DataType method_error_type in error_types) {
+						if (body_error_type.compatible (method_error_type)) {
+							can_propagate_error = true;
+						}
 					}
 				}
 				if (!can_propagate_error && !((ErrorType) body_error_type).dynamic_error) {

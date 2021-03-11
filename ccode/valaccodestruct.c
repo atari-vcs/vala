@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
@@ -40,14 +39,13 @@ struct _ValaCCodeStructPrivate {
 	ValaList* declarations;
 };
 
-
 static gint ValaCCodeStruct_private_offset;
 static gpointer vala_ccode_struct_parent_class = NULL;
 
 static void vala_ccode_struct_real_write (ValaCCodeNode* base,
                                    ValaCCodeWriter* writer);
 static void vala_ccode_struct_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_struct_get_type_once (void);
 
 static inline gpointer
 vala_ccode_struct_get_instance_private (ValaCCodeStruct* self)
@@ -55,6 +53,42 @@ vala_ccode_struct_get_instance_private (ValaCCodeStruct* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeStruct_private_offset);
 }
 
+const gchar*
+vala_ccode_struct_get_name (ValaCCodeStruct* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_struct_set_name (ValaCCodeStruct* self,
+                            const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
+
+gboolean
+vala_ccode_struct_get_is_empty (ValaCCodeStruct* self)
+{
+	gboolean result;
+	ValaList* _tmp0_;
+	gint _tmp1_;
+	gint _tmp2_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = self->priv->declarations;
+	_tmp1_ = vala_collection_get_size ((ValaCollection*) _tmp0_);
+	_tmp2_ = _tmp1_;
+	result = _tmp2_ == 0;
+	return result;
+}
 
 ValaCCodeStruct*
 vala_ccode_struct_construct (GType object_type,
@@ -67,13 +101,11 @@ vala_ccode_struct_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeStruct*
 vala_ccode_struct_new (const gchar* name)
 {
 	return vala_ccode_struct_construct (VALA_TYPE_CCODE_STRUCT, name);
 }
-
 
 /**
  * Adds the specified declaration as member to this struct.
@@ -90,7 +122,6 @@ vala_ccode_struct_add_declaration (ValaCCodeStruct* self,
 	_tmp0_ = self->priv->declarations;
 	vala_collection_add ((ValaCollection*) _tmp0_, decl);
 }
-
 
 /**
  * Adds a variable with the specified type and name to this struct.
@@ -123,13 +154,11 @@ vala_ccode_struct_add_field (ValaCCodeStruct* self,
 	_vala_ccode_node_unref0 (decl);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 vala_ccode_struct_real_write (ValaCCodeNode* base,
@@ -137,8 +166,8 @@ vala_ccode_struct_real_write (ValaCCodeNode* base,
 {
 	ValaCCodeStruct * self;
 	const gchar* _tmp0_;
-	ValaCCodeModifiers _tmp13_;
-	ValaCCodeModifiers _tmp14_;
+	ValaCCodeModifiers _tmp11_;
+	ValaCCodeModifiers _tmp12_;
 	self = (ValaCCodeStruct*) base;
 	g_return_if_fail (writer != NULL);
 	vala_ccode_writer_write_string (writer, "struct ");
@@ -165,33 +194,29 @@ vala_ccode_struct_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValaCCodeDeclaration* decl = NULL;
-			ValaList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			ValaCCodeDeclaration* _tmp12_;
+			ValaList* _tmp8_;
+			gpointer _tmp9_;
+			ValaCCodeDeclaration* _tmp10_;
+			_decl_index = _decl_index + 1;
 			_tmp6_ = _decl_index;
-			_decl_index = _tmp6_ + 1;
-			_tmp7_ = _decl_index;
-			_tmp8_ = _decl_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _decl_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _decl_list;
-			_tmp10_ = _decl_index;
-			_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-			decl = (ValaCCodeDeclaration*) _tmp11_;
-			_tmp12_ = decl;
-			vala_ccode_node_write_declaration ((ValaCCodeNode*) _tmp12_, writer);
+			_tmp8_ = _decl_list;
+			_tmp9_ = vala_list_get (_tmp8_, _decl_index);
+			decl = (ValaCCodeDeclaration*) _tmp9_;
+			_tmp10_ = decl;
+			vala_ccode_node_write_declaration ((ValaCCodeNode*) _tmp10_, writer);
 			_vala_ccode_node_unref0 (decl);
 		}
 		_vala_iterable_unref0 (_decl_list);
 	}
 	vala_ccode_writer_write_end_block (writer);
-	_tmp13_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
-	_tmp14_ = _tmp13_;
-	if ((_tmp14_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
+	_tmp11_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
+	_tmp12_ = _tmp11_;
+	if ((_tmp12_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
 		vala_ccode_writer_write_string (writer, " G_GNUC_DEPRECATED");
 	}
 	vala_ccode_writer_write_string (writer, ";");
@@ -199,49 +224,9 @@ vala_ccode_struct_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_newline (writer);
 }
 
-
-const gchar*
-vala_ccode_struct_get_name (ValaCCodeStruct* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_struct_set_name (ValaCCodeStruct* self,
-                            const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
-gboolean
-vala_ccode_struct_get_is_empty (ValaCCodeStruct* self)
-{
-	gboolean result;
-	ValaList* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->declarations;
-	_tmp1_ = vala_collection_get_size ((ValaCollection*) _tmp0_);
-	_tmp2_ = _tmp1_;
-	result = _tmp2_ == 0;
-	return result;
-}
-
-
 static void
-vala_ccode_struct_class_init (ValaCCodeStructClass * klass)
+vala_ccode_struct_class_init (ValaCCodeStructClass * klass,
+                              gpointer klass_data)
 {
 	vala_ccode_struct_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_struct_finalize;
@@ -249,9 +234,9 @@ vala_ccode_struct_class_init (ValaCCodeStructClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_struct_real_write;
 }
 
-
 static void
-vala_ccode_struct_instance_init (ValaCCodeStruct * self)
+vala_ccode_struct_instance_init (ValaCCodeStruct * self,
+                                 gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -260,7 +245,6 @@ vala_ccode_struct_instance_init (ValaCCodeStruct * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_DECLARATION, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->declarations = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_struct_finalize (ValaCCodeNode * obj)
@@ -272,23 +256,28 @@ vala_ccode_struct_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_struct_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a struct declaration in the C code.
  */
+static GType
+vala_ccode_struct_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeStructClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_struct_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeStruct), 0, (GInstanceInitFunc) vala_ccode_struct_instance_init, NULL };
+	GType vala_ccode_struct_type_id;
+	vala_ccode_struct_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeStruct", &g_define_type_info, 0);
+	ValaCCodeStruct_private_offset = g_type_add_instance_private (vala_ccode_struct_type_id, sizeof (ValaCCodeStructPrivate));
+	return vala_ccode_struct_type_id;
+}
+
 GType
 vala_ccode_struct_get_type (void)
 {
 	static volatile gsize vala_ccode_struct_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_struct_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeStructClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_struct_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeStruct), 0, (GInstanceInitFunc) vala_ccode_struct_instance_init, NULL };
 		GType vala_ccode_struct_type_id;
-		vala_ccode_struct_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeStruct", &g_define_type_info, 0);
-		ValaCCodeStruct_private_offset = g_type_add_instance_private (vala_ccode_struct_type_id, sizeof (ValaCCodeStructPrivate));
+		vala_ccode_struct_type_id = vala_ccode_struct_get_type_once ();
 		g_once_init_leave (&vala_ccode_struct_type_id__volatile, vala_ccode_struct_type_id);
 	}
 	return vala_ccode_struct_type_id__volatile;
 }
-
-
 

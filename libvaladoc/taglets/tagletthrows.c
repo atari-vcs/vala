@@ -24,12 +24,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <valagee.h>
 
 enum  {
@@ -48,20 +47,21 @@ struct _ValadocTagletsThrowsPrivate {
 	ValadocApiNode* _error_domain;
 };
 
-
 static gint ValadocTagletsThrows_private_offset;
 static gpointer valadoc_taglets_throws_parent_class = NULL;
 static ValadocContentTagletIface * valadoc_taglets_throws_valadoc_content_taglet_parent_iface = NULL;
 static ValadocContentBlockIface * valadoc_taglets_throws_valadoc_content_block_parent_iface = NULL;
 
-static ValadocRule* valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
-                                                          ValadocRule* run_rule);
-static void __lambda131_ (ValadocTagletsThrows* self,
-                   ValadocToken* token,
-                   GError** error);
 static void valadoc_taglets_throws_set_error_domain_name (ValadocTagletsThrows* self,
                                                    const gchar* value);
-static void ___lambda131__valadoc_token_type_action (ValadocToken* token,
+static void valadoc_taglets_throws_set_error_domain (ValadocTagletsThrows* self,
+                                              ValadocApiNode* value);
+static ValadocRule* valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
+                                                          ValadocRule* run_rule);
+static void __lambda130_ (ValadocTagletsThrows* self,
+                   ValadocToken* token,
+                   GError** error);
+static void ___lambda130__valadoc_token_type_action (ValadocToken* token,
                                               gpointer self,
                                               GError** error);
 static void valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
@@ -70,8 +70,6 @@ static void valadoc_taglets_throws_real_check (ValadocContentContentElement* bas
                                         const gchar* file_path,
                                         ValadocErrorReporter* reporter,
                                         ValadocSettings* settings);
-static void valadoc_taglets_throws_set_error_domain (ValadocTagletsThrows* self,
-                                              ValadocApiNode* value);
 static void valadoc_taglets_throws_real_accept (ValadocContentContentElement* base,
                                          ValadocContentContentVisitor* visitor);
 static ValaList* valadoc_taglets_throws_real_get_inheritable_documentation (ValadocContentTaglet* base);
@@ -83,6 +81,7 @@ G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentC
                                                  ValadocContentContentElement* value);
 G_GNUC_INTERNAL ValadocContentBlockContent* valadoc_content_block_content_construct (GType object_type);
 static void valadoc_taglets_throws_finalize (GObject * obj);
+static GType valadoc_taglets_throws_get_type_once (void);
 static void _vala_valadoc_taglets_throws_get_property (GObject * object,
                                                 guint property_id,
                                                 GValue * value,
@@ -98,13 +97,49 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_taglets_throws_get_instance_private (ValadocTagletsThrows* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocTagletsThrows_private_offset);
 }
 
+const gchar*
+valadoc_taglets_throws_get_error_domain_name (ValadocTagletsThrows* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_error_domain_name;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_taglets_throws_set_error_domain_name (ValadocTagletsThrows* self,
+                                              const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_throws_get_error_domain_name (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_error_domain_name);
+		self->priv->_error_domain_name = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_throws_properties[VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_NAME_PROPERTY]);
+	}
+}
+
+ValadocApiNode*
+valadoc_taglets_throws_get_error_domain (ValadocTagletsThrows* self)
+{
+	ValadocApiNode* result;
+	ValadocApiNode* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_error_domain;
+	result = _tmp0_;
+	return result;
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -112,9 +147,24 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
+static void
+valadoc_taglets_throws_set_error_domain (ValadocTagletsThrows* self,
+                                         ValadocApiNode* value)
+{
+	ValadocApiNode* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_throws_get_error_domain (self);
+	if (old_value != value) {
+		ValadocApiNode* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_error_domain);
+		self->priv->_error_domain = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_throws_properties[VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_PROPERTY]);
+	}
+}
 
 static void
-__lambda131_ (ValadocTagletsThrows* self,
+__lambda130_ (ValadocTagletsThrows* self,
               ValadocToken* token,
               GError** error)
 {
@@ -124,22 +174,19 @@ __lambda131_ (ValadocTagletsThrows* self,
 	valadoc_taglets_throws_set_error_domain_name (self, _tmp0_);
 }
 
-
 static void
-___lambda131__valadoc_token_type_action (ValadocToken* token,
+___lambda130__valadoc_token_type_action (ValadocToken* token,
                                          gpointer self,
                                          GError** error)
 {
-	__lambda131_ ((ValadocTagletsThrows*) self, token, error);
+	__lambda130_ ((ValadocTagletsThrows*) self, token, error);
 }
-
 
 static ValadocRule*
 valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
                                              ValadocRule* run_rule)
 {
 	ValadocTagletsThrows * self;
-	ValadocRule* result = NULL;
 	ValadocTokenType* _tmp0_;
 	GObject* _tmp1_;
 	GObject** _tmp2_;
@@ -159,6 +206,7 @@ valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
 	gint _tmp13__length1;
 	ValadocRule* _tmp14_;
 	ValadocRule* _tmp15_;
+	ValadocRule* result = NULL;
 	self = (ValadocTagletsThrows*) base;
 	g_return_val_if_fail (run_rule != NULL, NULL);
 	_tmp0_ = valadoc_token_type_SPACE;
@@ -167,15 +215,15 @@ valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
 	_tmp2_[0] = _tmp1_;
 	_tmp3_ = _tmp2_;
 	_tmp3__length1 = 1;
-	_tmp4_ = valadoc_rule_many (_tmp3_, 1);
+	_tmp4_ = valadoc_rule_many (_tmp3_, (gint) 1);
 	_tmp5_ = g_new0 (GObject*, 1 + 1);
 	_tmp5_[0] = (GObject*) _tmp4_;
 	_tmp6_ = _tmp5_;
 	_tmp6__length1 = 1;
-	_tmp7_ = valadoc_rule_option (_tmp6_, 1);
+	_tmp7_ = valadoc_rule_option (_tmp6_, (gint) 1);
 	_tmp8_ = valadoc_token_type_any_word ();
 	_tmp9_ = _tmp8_;
-	_tmp10_ = valadoc_token_type_action (_tmp9_, ___lambda131__valadoc_token_type_action, self);
+	_tmp10_ = valadoc_token_type_action (_tmp9_, ___lambda130__valadoc_token_type_action, self);
 	_tmp11_ = _g_object_ref0 ((GObject*) run_rule);
 	_tmp12_ = g_new0 (GObject*, 3 + 1);
 	_tmp12_[0] = (GObject*) _tmp7_;
@@ -183,7 +231,7 @@ valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
 	_tmp12_[2] = _tmp11_;
 	_tmp13_ = _tmp12_;
 	_tmp13__length1 = 3;
-	_tmp14_ = valadoc_rule_seq (_tmp13_, 3);
+	_tmp14_ = valadoc_rule_seq (_tmp13_, (gint) 3);
 	_tmp15_ = _tmp14_;
 	_tmp13_ = (_vala_array_free (_tmp13_, _tmp13__length1, (GDestroyNotify) g_object_unref), NULL);
 	_g_object_unref0 (_tmp9_);
@@ -193,13 +241,11 @@ valadoc_taglets_throws_real_get_parser_rule (ValadocContentTaglet* base,
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
@@ -226,15 +272,14 @@ valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
 	ValadocApiItem* expected_error_domain = NULL;
 	ValadocApiItem* _tmp24_;
 	gboolean report_warning = FALSE;
-	gboolean _tmp42_;
 	self = (ValadocTagletsThrows*) base;
 	g_return_if_fail (api_root != NULL);
 	g_return_if_fail (container != NULL);
 	g_return_if_fail (file_path != NULL);
 	g_return_if_fail (reporter != NULL);
 	g_return_if_fail (settings != NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_METHOD) == FALSE) {
-		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_DELEGATE) == FALSE;
+	if (VALADOC_API_IS_METHOD (container) == FALSE) {
+		_tmp0_ = VALADOC_API_IS_DELEGATE (container) == FALSE;
 	} else {
 		_tmp0_ = FALSE;
 	}
@@ -281,12 +326,12 @@ valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
 	_tmp14_[1] = VALADOC_API_NODE_TYPE_CLASS;
 	_tmp15_ = _tmp14_;
 	_tmp15__length1 = 2;
-	_tmp16_ = valadoc_api_node_get_children_by_types (container, _tmp15_, 2, FALSE);
+	_tmp16_ = valadoc_api_node_get_children_by_types (container, _tmp15_, (gint) 2, FALSE);
 	_tmp17_ = _tmp16_;
 	_tmp15_ = (g_free (_tmp15_), NULL);
 	exceptions = _tmp17_;
 	_tmp19_ = self->priv->_error_domain;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp19_, VALADOC_API_TYPE_ERROR_CODE)) {
+	if (VALADOC_API_IS_ERROR_CODE (_tmp19_)) {
 		ValadocApiNode* _tmp20_;
 		ValadocApiItem* _tmp21_;
 		ValadocApiItem* _tmp22_;
@@ -322,43 +367,39 @@ valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp30_;
 			gint _tmp31_;
-			gint _tmp32_;
 			ValadocApiNode* exception = NULL;
-			ValaList* _tmp33_;
-			gint _tmp34_;
-			gpointer _tmp35_;
-			gboolean _tmp36_ = FALSE;
-			ValadocApiNode* _tmp37_;
-			ValadocApiItem* _tmp38_;
+			ValaList* _tmp32_;
+			gpointer _tmp33_;
+			gboolean _tmp34_ = FALSE;
+			ValadocApiNode* _tmp35_;
+			ValadocApiItem* _tmp36_;
+			_exception_index = _exception_index + 1;
 			_tmp30_ = _exception_index;
-			_exception_index = _tmp30_ + 1;
-			_tmp31_ = _exception_index;
-			_tmp32_ = _exception_size;
-			if (!(_tmp31_ < _tmp32_)) {
+			_tmp31_ = _exception_size;
+			if (!(_tmp30_ < _tmp31_)) {
 				break;
 			}
-			_tmp33_ = _exception_list;
-			_tmp34_ = _exception_index;
-			_tmp35_ = vala_list_get (_tmp33_, _tmp34_);
-			exception = (ValadocApiNode*) _tmp35_;
-			_tmp37_ = exception;
-			_tmp38_ = expected_error_domain;
-			if (G_TYPE_CHECK_INSTANCE_CAST (_tmp37_, VALADOC_API_TYPE_ITEM, ValadocApiItem) == _tmp38_) {
-				_tmp36_ = TRUE;
+			_tmp32_ = _exception_list;
+			_tmp33_ = vala_list_get (_tmp32_, _exception_index);
+			exception = (ValadocApiNode*) _tmp33_;
+			_tmp35_ = exception;
+			_tmp36_ = expected_error_domain;
+			if (G_TYPE_CHECK_INSTANCE_CAST (_tmp35_, VALADOC_API_TYPE_ITEM, ValadocApiItem) == _tmp36_) {
+				_tmp34_ = TRUE;
 			} else {
-				gboolean _tmp39_ = FALSE;
-				ValadocApiNode* _tmp40_;
-				_tmp40_ = exception;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp40_, VALADOC_API_TYPE_CLASS)) {
-					ValadocApiItem* _tmp41_;
-					_tmp41_ = expected_error_domain;
-					_tmp39_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp41_, VALADOC_API_TYPE_ERROR_DOMAIN);
+				gboolean _tmp37_ = FALSE;
+				ValadocApiNode* _tmp38_;
+				_tmp38_ = exception;
+				if (VALADOC_API_IS_CLASS (_tmp38_)) {
+					ValadocApiItem* _tmp39_;
+					_tmp39_ = expected_error_domain;
+					_tmp37_ = VALADOC_API_IS_ERROR_DOMAIN (_tmp39_);
 				} else {
-					_tmp39_ = FALSE;
+					_tmp37_ = FALSE;
 				}
-				_tmp36_ = _tmp39_;
+				_tmp34_ = _tmp37_;
 			}
-			if (_tmp36_) {
+			if (_tmp34_) {
 				report_warning = FALSE;
 				_g_object_unref0 (exception);
 				break;
@@ -367,27 +408,25 @@ valadoc_taglets_throws_real_check (ValadocContentContentElement* base,
 		}
 		_vala_iterable_unref0 (_exception_list);
 	}
-	_tmp42_ = report_warning;
-	if (_tmp42_) {
+	if (report_warning) {
+		gchar* _tmp40_;
+		gchar* _tmp41_;
+		gchar* _tmp42_;
 		gchar* _tmp43_;
-		gchar* _tmp44_;
-		gchar* _tmp45_;
-		gchar* _tmp46_;
-		const gchar* _tmp47_;
-		_tmp43_ = valadoc_api_node_get_full_name (container);
-		_tmp44_ = _tmp43_;
-		_tmp45_ = g_strdup_printf ("%s: %s: @throws", file_path, _tmp44_);
-		_tmp46_ = _tmp45_;
-		_tmp47_ = self->priv->_error_domain_name;
-		valadoc_error_reporter_simple_warning (reporter, _tmp46_, "`%s' does not exist in exception list", _tmp47_);
-		_g_free0 (_tmp46_);
-		_g_free0 (_tmp44_);
+		const gchar* _tmp44_;
+		_tmp40_ = valadoc_api_node_get_full_name (container);
+		_tmp41_ = _tmp40_;
+		_tmp42_ = g_strdup_printf ("%s: %s: @throws", file_path, _tmp41_);
+		_tmp43_ = _tmp42_;
+		_tmp44_ = self->priv->_error_domain_name;
+		valadoc_error_reporter_simple_warning (reporter, _tmp43_, "`%s' does not exist in exception list", _tmp44_);
+		_g_free0 (_tmp43_);
+		_g_free0 (_tmp41_);
 	}
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_taglets_throws_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_BLOCK_CONTENT, ValadocContentBlockContent), api_root, container, file_path, reporter, settings);
 	_g_object_unref0 (expected_error_domain);
 	_vala_iterable_unref0 (exceptions);
 }
-
 
 static void
 valadoc_taglets_throws_real_accept (ValadocContentContentElement* base,
@@ -399,15 +438,14 @@ valadoc_taglets_throws_real_accept (ValadocContentContentElement* base,
 	valadoc_content_content_visitor_visit_taglet (visitor, (ValadocContentTaglet*) self);
 }
 
-
 static ValaList*
 valadoc_taglets_throws_real_get_inheritable_documentation (ValadocContentTaglet* base)
 {
 	ValadocTagletsThrows * self;
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
 	ValaList* _tmp1_;
 	ValaList* _tmp2_;
+	ValaList* result = NULL;
 	self = (ValadocTagletsThrows*) base;
 	_tmp0_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) self);
 	_tmp1_ = _tmp0_;
@@ -416,22 +454,21 @@ valadoc_taglets_throws_real_get_inheritable_documentation (ValadocContentTaglet*
 	return result;
 }
 
-
 static gboolean
 valadoc_taglets_throws_real_inheritable (ValadocContentTaglet* base,
                                          ValadocContentTaglet* taglet)
 {
 	ValadocTagletsThrows * self;
-	gboolean result = FALSE;
 	ValadocTagletsThrows* t = NULL;
 	ValadocTagletsThrows* _tmp0_;
 	gboolean _tmp1_ = FALSE;
 	ValadocApiNode* _tmp2_;
 	ValadocTagletsThrows* _tmp3_;
 	ValadocApiNode* _tmp4_;
+	gboolean result = FALSE;
 	self = (ValadocTagletsThrows*) base;
 	g_return_val_if_fail (taglet != NULL, FALSE);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_THROWS) == FALSE) {
+	if (VALADOC_TAGLETS_IS_THROWS (taglet) == FALSE) {
 		result = FALSE;
 		return result;
 	}
@@ -456,13 +493,11 @@ valadoc_taglets_throws_real_inheritable (ValadocContentTaglet* base,
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_taglets_throws_real_copy (ValadocContentContentElement* base,
                                   ValadocContentContentElement* new_parent)
 {
 	ValadocTagletsThrows * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocTagletsThrows* tr = NULL;
 	ValadocTagletsThrows* _tmp0_;
 	ValadocTagletsThrows* _tmp1_;
@@ -470,6 +505,7 @@ valadoc_taglets_throws_real_copy (ValadocContentContentElement* base,
 	const gchar* _tmp3_;
 	ValadocTagletsThrows* _tmp4_;
 	ValadocApiNode* _tmp5_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocTagletsThrows*) base;
 	_tmp0_ = valadoc_taglets_throws_new ();
 	tr = _tmp0_;
@@ -503,44 +539,40 @@ valadoc_taglets_throws_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp12_;
 			gint _tmp13_;
-			gint _tmp14_;
 			ValadocContentBlock* element = NULL;
-			ValaList* _tmp15_;
-			gint _tmp16_;
-			gpointer _tmp17_;
+			ValaList* _tmp14_;
+			gpointer _tmp15_;
 			ValadocContentBlock* copy = NULL;
-			ValadocContentBlock* _tmp18_;
-			ValadocTagletsThrows* _tmp19_;
-			ValadocContentContentElement* _tmp20_;
-			ValadocContentBlock* _tmp21_;
-			ValadocTagletsThrows* _tmp22_;
-			ValaList* _tmp23_;
-			ValaList* _tmp24_;
-			ValadocContentBlock* _tmp25_;
+			ValadocContentBlock* _tmp16_;
+			ValadocTagletsThrows* _tmp17_;
+			ValadocContentContentElement* _tmp18_;
+			ValadocContentBlock* _tmp19_;
+			ValadocTagletsThrows* _tmp20_;
+			ValaList* _tmp21_;
+			ValaList* _tmp22_;
+			ValadocContentBlock* _tmp23_;
+			_element_index = _element_index + 1;
 			_tmp12_ = _element_index;
-			_element_index = _tmp12_ + 1;
-			_tmp13_ = _element_index;
-			_tmp14_ = _element_size;
-			if (!(_tmp13_ < _tmp14_)) {
+			_tmp13_ = _element_size;
+			if (!(_tmp12_ < _tmp13_)) {
 				break;
 			}
-			_tmp15_ = _element_list;
-			_tmp16_ = _element_index;
-			_tmp17_ = vala_list_get (_tmp15_, _tmp16_);
-			element = (ValadocContentBlock*) _tmp17_;
-			_tmp18_ = element;
-			_tmp19_ = tr;
-			_tmp20_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp18_, (ValadocContentContentElement*) _tmp19_);
-			_tmp21_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp20_, VALADOC_CONTENT_TYPE_BLOCK) ? ((ValadocContentBlock*) _tmp20_) : NULL;
-			if (_tmp21_ == NULL) {
-				_g_object_unref0 (_tmp20_);
+			_tmp14_ = _element_list;
+			_tmp15_ = vala_list_get (_tmp14_, _element_index);
+			element = (ValadocContentBlock*) _tmp15_;
+			_tmp16_ = element;
+			_tmp17_ = tr;
+			_tmp18_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp16_, (ValadocContentContentElement*) _tmp17_);
+			_tmp19_ = VALADOC_CONTENT_IS_BLOCK (_tmp18_) ? ((ValadocContentBlock*) _tmp18_) : NULL;
+			if (_tmp19_ == NULL) {
+				_g_object_unref0 (_tmp18_);
 			}
-			copy = _tmp21_;
-			_tmp22_ = tr;
-			_tmp23_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp22_);
-			_tmp24_ = _tmp23_;
-			_tmp25_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp24_, _tmp25_);
+			copy = _tmp19_;
+			_tmp20_ = tr;
+			_tmp21_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp20_);
+			_tmp22_ = _tmp21_;
+			_tmp23_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp22_, _tmp23_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -550,7 +582,6 @@ valadoc_taglets_throws_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
 ValadocTagletsThrows*
 valadoc_taglets_throws_construct (GType object_type)
 {
@@ -559,70 +590,15 @@ valadoc_taglets_throws_construct (GType object_type)
 	return self;
 }
 
-
 ValadocTagletsThrows*
 valadoc_taglets_throws_new (void)
 {
 	return valadoc_taglets_throws_construct (VALADOC_TAGLETS_TYPE_THROWS);
 }
 
-
-const gchar*
-valadoc_taglets_throws_get_error_domain_name (ValadocTagletsThrows* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_error_domain_name;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_taglets_throws_set_error_domain_name (ValadocTagletsThrows* self,
-                                              const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_taglets_throws_get_error_domain_name (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_error_domain_name);
-		self->priv->_error_domain_name = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_throws_properties[VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_NAME_PROPERTY]);
-	}
-}
-
-
-ValadocApiNode*
-valadoc_taglets_throws_get_error_domain (ValadocTagletsThrows* self)
-{
-	ValadocApiNode* result;
-	ValadocApiNode* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_error_domain;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_taglets_throws_set_error_domain (ValadocTagletsThrows* self,
-                                         ValadocApiNode* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_throws_get_error_domain (self) != value) {
-		ValadocApiNode* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_error_domain);
-		self->priv->_error_domain = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_throws_properties[VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_taglets_throws_class_init (ValadocTagletsThrowsClass * klass)
+valadoc_taglets_throws_class_init (ValadocTagletsThrowsClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_taglets_throws_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocTagletsThrows_private_offset);
@@ -639,9 +615,9 @@ valadoc_taglets_throws_class_init (ValadocTagletsThrowsClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_PROPERTY, valadoc_taglets_throws_properties[VALADOC_TAGLETS_THROWS_ERROR_DOMAIN_PROPERTY] = g_param_spec_object ("error-domain", "error-domain", "error-domain", VALADOC_API_TYPE_NODE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_taglets_throws_valadoc_content_taglet_interface_init (ValadocContentTagletIface * iface)
+valadoc_taglets_throws_valadoc_content_taglet_interface_init (ValadocContentTagletIface * iface,
+                                                              gpointer iface_data)
 {
 	valadoc_taglets_throws_valadoc_content_taglet_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_parser_rule = (ValadocRule* (*) (ValadocContentTaglet*, ValadocRule*)) valadoc_taglets_throws_real_get_parser_rule;
@@ -649,20 +625,19 @@ valadoc_taglets_throws_valadoc_content_taglet_interface_init (ValadocContentTagl
 	iface->inheritable = (gboolean (*) (ValadocContentTaglet*, ValadocContentTaglet*)) valadoc_taglets_throws_real_inheritable;
 }
 
-
 static void
-valadoc_taglets_throws_valadoc_content_block_interface_init (ValadocContentBlockIface * iface)
+valadoc_taglets_throws_valadoc_content_block_interface_init (ValadocContentBlockIface * iface,
+                                                             gpointer iface_data)
 {
 	valadoc_taglets_throws_valadoc_content_block_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_taglets_throws_instance_init (ValadocTagletsThrows * self)
+valadoc_taglets_throws_instance_init (ValadocTagletsThrows * self,
+                                      gpointer klass)
 {
 	self->priv = valadoc_taglets_throws_get_instance_private (self);
 }
-
 
 static void
 valadoc_taglets_throws_finalize (GObject * obj)
@@ -674,25 +649,31 @@ valadoc_taglets_throws_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_taglets_throws_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_taglets_throws_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsThrowsClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_throws_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsThrows), 0, (GInstanceInitFunc) valadoc_taglets_throws_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_taglet_info = { (GInterfaceInitFunc) valadoc_taglets_throws_valadoc_content_taglet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_taglets_throws_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_taglets_throws_type_id;
+	valadoc_taglets_throws_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_BLOCK_CONTENT, "ValadocTagletsThrows", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_taglets_throws_type_id, VALADOC_CONTENT_TYPE_TAGLET, &valadoc_content_taglet_info);
+	g_type_add_interface_static (valadoc_taglets_throws_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
+	ValadocTagletsThrows_private_offset = g_type_add_instance_private (valadoc_taglets_throws_type_id, sizeof (ValadocTagletsThrowsPrivate));
+	return valadoc_taglets_throws_type_id;
+}
 
 GType
 valadoc_taglets_throws_get_type (void)
 {
 	static volatile gsize valadoc_taglets_throws_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_taglets_throws_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsThrowsClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_throws_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsThrows), 0, (GInstanceInitFunc) valadoc_taglets_throws_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_taglet_info = { (GInterfaceInitFunc) valadoc_taglets_throws_valadoc_content_taglet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
-		static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_taglets_throws_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_taglets_throws_type_id;
-		valadoc_taglets_throws_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_BLOCK_CONTENT, "ValadocTagletsThrows", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_taglets_throws_type_id, VALADOC_CONTENT_TYPE_TAGLET, &valadoc_content_taglet_info);
-		g_type_add_interface_static (valadoc_taglets_throws_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
-		ValadocTagletsThrows_private_offset = g_type_add_instance_private (valadoc_taglets_throws_type_id, sizeof (ValadocTagletsThrowsPrivate));
+		valadoc_taglets_throws_type_id = valadoc_taglets_throws_get_type_once ();
 		g_once_init_leave (&valadoc_taglets_throws_type_id__volatile, valadoc_taglets_throws_type_id);
 	}
 	return valadoc_taglets_throws_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_taglets_throws_get_property (GObject * object,
@@ -715,7 +696,6 @@ _vala_valadoc_taglets_throws_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_taglets_throws_set_property (GObject * object,
                                            guint property_id,
@@ -737,14 +717,13 @@ _vala_valadoc_taglets_throws_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -752,7 +731,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -762,6 +740,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

@@ -1,4 +1,4 @@
-[GIR (gir_namespace = "GirTest", gir_version = "1.0")]
+[CCode (gir_namespace = "GirTest", gir_version = "1.0")]
 namespace GirTest {
 	public struct BoxedStruct {
 		public int field_name;
@@ -22,7 +22,8 @@ namespace GirTest {
 	}
 
 	[GIR (visible = false)]
-	public class SkippedStruct {
+	public struct SkippedStruct {
+		public int field_name;
 	}
 
 	public const int CONSTANT_NUMBER = 42;
@@ -70,6 +71,21 @@ namespace GirTest {
 		}
 		public virtual async void coroutine_async () {
 		}
+		public virtual void method_valist (int param, va_list vargs) {
+		}
+		[GIR (visible = false)]
+		public virtual async void skipped_coroutine_method (int param) {
+		}
+		[NoWrapper]
+		public virtual void no_wrapper_method () {
+		}
+		[NoWrapper]
+		public virtual async void no_wrapper_method_async () {
+		}
+		[HasEmitter]
+		public signal void some_signal (int param);
+		public static void static_method () {
+		}
 	}
 
 	[GIR (visible = false)]
@@ -78,8 +94,21 @@ namespace GirTest {
 
 	public delegate bool DelegateTest (void* a, void* b);
 
+	public delegate bool DelegateErrorTest () throws ErrorTest;
+
+	public delegate bool DelegateGenericsTest<G,T> (G g, T t);
+
 	[GIR (visible = false)]
 	public delegate void SkippedDelegate ();
+
+	public class TypeTest {
+		public string some_property { get; set; }
+	}
+
+	public class SubTypeTest : TypeTest {
+		public string[] array_field;
+		public DelegateTest delegate_field;
+	}
 
 	public class ObjectTest : Object {
 		private static ObjectTest global_instance = new ObjectTest ();
@@ -90,6 +119,10 @@ namespace GirTest {
 		public signal void skipped_signal (int param);
 
 		public int field = 42;
+
+		public int fixed_array_field[23];
+
+		public string? nullable_field;
 
 		public string some_property { get; construct set; }
 
@@ -103,6 +136,9 @@ namespace GirTest {
 		public ObjectTest () {
 		}
 		public ObjectTest.with_int (int param) {
+			field = param;
+		}
+		public ObjectTest.may_fail (int param) throws ErrorTest {
 			field = param;
 		}
 		public ObjectTest.newv (int param, ...) {
@@ -207,7 +243,22 @@ namespace GirTest {
 			return str_equal;
 		}
 
+		public (unowned string)[] container_return () {
+			return { "foo", "bar" };
+		}
+
+		public GenericArray<unowned string>? generic_array_container_return () {
+			return null;
+		}
+
 		public async void coroutine_async () {
+		}
+
+		public virtual async void coroutine_virtual_async () {
+		}
+
+		public virtual async void coroutine_method_throw (int i1, out int o1) throws ErrorTest {
+			o1 = i1;
 		}
 
 		public void simple_throw () throws ErrorTest {
@@ -216,8 +267,22 @@ namespace GirTest {
 		public virtual void method_throw () throws ErrorTest {
 		}
 
+		public void method_with_default (int i = Priority.HIGH) {
+		}
+
+		public virtual signal void signal_with_default_handlder (int i1) {
+		}
+
 		[GIR (visible = false)]
 		public void skipped_method () {
+		}
+
+		[NoWrapper]
+		public virtual void no_wrapper_method () {
+		}
+
+		[NoWrapper]
+		public virtual async void no_wrapper_method_async () {
 		}
 	}
 
@@ -229,6 +294,17 @@ namespace GirTest {
 		public abstract void method_int8_out (out int8 param);
 
 		public abstract void method_throw () throws ErrorTest;
+
+		public abstract void method_valist (int param, va_list vargs);
+
+		[GIR (visible = false)]
+		public abstract async void skipped_coroutine_method (int param);
+
+		[NoWrapper]
+		public abstract void no_wrapper_method ();
+
+		[NoWrapper]
+		public abstract async void no_wrapper_method_async ();
 	}
 
 	public interface PrerequisiteTest : InterfaceTest {
@@ -238,6 +314,12 @@ namespace GirTest {
 		public int property { get; construct set; }
 	}
 
+	[Compact]
+	public class CompactClass {
+		public string s;
+		public int i;
+	}
+
 	[GIR (visible = false)]
 	public class SkippedClass {
 	}
@@ -245,4 +327,52 @@ namespace GirTest {
 	[Version (deprecated = true, deprecated_since = "0.1.2", since = "0.1.0")]
 	public class DeprecatedClassTest {
 	}
+
+	public class GenericsTest<G,T> {
+		public GenericsTest (owned DelegateTest cb) {
+		}
+
+		public GenericsTest.typed (owned DelegateGenericsTest<G,T> cb) {
+		}
+
+		public void method (T param) {
+		}
+	}
+
+	public class GenericsObjectTest<G,T> : Object {
+		public void method<K> (K[] param) {
+		}
+	}
+
+	namespace Nested {
+		public void function () {
+		}
+	}
+}
+
+public enum InvalidEnum {
+	VALUE
+}
+
+public errordomain InvalidError {
+	FAILED
+}
+
+public class InvalidClass {
+}
+
+public interface InvalidIface {
+}
+
+public struct InvalidStruct {
+	public int i;
+}
+
+public delegate void InvalidFunc ();
+
+public const int INVALID_CONST = 0;
+
+public int invalid_field;
+
+public void invalid_method () {
 }

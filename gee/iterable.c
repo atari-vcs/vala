@@ -23,10 +23,9 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valagee.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 typedef struct _ValaParamSpecIterable ValaParamSpecIterable;
@@ -41,21 +40,19 @@ struct _ValaParamSpecIterable {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaIterable_private_offset;
 static gpointer vala_iterable_parent_class = NULL;
 
 static GType vala_iterable_real_get_element_type (ValaIterable* self);
 static ValaIterator* vala_iterable_real_iterator (ValaIterable* self);
 static void vala_iterable_finalize (ValaIterable * obj);
-
+static GType vala_iterable_get_type_once (void);
 
 static inline gpointer
 vala_iterable_get_instance_private (ValaIterable* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaIterable_private_offset);
 }
-
 
 static GType
 vala_iterable_real_get_element_type (ValaIterable* self)
@@ -65,14 +62,12 @@ vala_iterable_real_get_element_type (ValaIterable* self)
 	return _tmp0_;
 }
 
-
 GType
 vala_iterable_get_element_type (ValaIterable* self)
 {
 	g_return_val_if_fail (self != NULL, 0UL);
 	return VALA_ITERABLE_GET_CLASS (self)->get_element_type (self);
 }
-
 
 /**
  * Returns a Iterator that can be used for simple iteration over a
@@ -88,14 +83,12 @@ vala_iterable_real_iterator (ValaIterable* self)
 	return NULL;
 }
 
-
 ValaIterator*
 vala_iterable_iterator (ValaIterable* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_ITERABLE_GET_CLASS (self)->iterator (self);
 }
-
 
 ValaIterable*
 vala_iterable_construct (GType object_type,
@@ -111,13 +104,11 @@ vala_iterable_construct (GType object_type,
 	return self;
 }
 
-
 static void
 vala_value_iterable_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_iterable_free_value (GValue* value)
@@ -126,7 +117,6 @@ vala_value_iterable_free_value (GValue* value)
 		vala_iterable_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_iterable_copy_value (const GValue* src_value,
@@ -139,13 +129,11 @@ vala_value_iterable_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_iterable_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_iterable_collect_value (GValue* value,
@@ -168,7 +156,6 @@ vala_value_iterable_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_iterable_lcopy_value (const GValue* value,
                                  guint n_collect_values,
@@ -190,7 +177,6 @@ vala_value_iterable_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_iterable (const gchar* name,
                           const gchar* nick,
@@ -205,14 +191,12 @@ vala_param_spec_iterable (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_iterable (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_ITERABLE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_iterable (GValue* value,
@@ -234,7 +218,6 @@ vala_value_set_iterable (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_iterable (GValue* value,
                           gpointer v_object)
@@ -254,9 +237,9 @@ vala_value_take_iterable (GValue* value,
 	}
 }
 
-
 static void
-vala_iterable_class_init (ValaIterableClass * klass)
+vala_iterable_class_init (ValaIterableClass * klass,
+                          gpointer klass_data)
 {
 	vala_iterable_parent_class = g_type_class_peek_parent (klass);
 	((ValaIterableClass *) klass)->finalize = vala_iterable_finalize;
@@ -265,14 +248,13 @@ vala_iterable_class_init (ValaIterableClass * klass)
 	((ValaIterableClass *) klass)->iterator = (ValaIterator* (*) (ValaIterable*)) vala_iterable_real_iterator;
 }
 
-
 static void
-vala_iterable_instance_init (ValaIterable * self)
+vala_iterable_instance_init (ValaIterable * self,
+                             gpointer klass)
 {
 	self->priv = vala_iterable_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_iterable_finalize (ValaIterable * obj)
@@ -282,27 +264,33 @@ vala_iterable_finalize (ValaIterable * obj)
 	g_signal_handlers_destroy (self);
 }
 
-
 /**
  * Implemented by classes that support a simple iteration over instances of the
  * collection.
  */
+static GType
+vala_iterable_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_iterable_init, vala_value_iterable_free_value, vala_value_iterable_copy_value, vala_value_iterable_peek_pointer, "p", vala_value_iterable_collect_value, "p", vala_value_iterable_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaIterableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_iterable_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIterable), 0, (GInstanceInitFunc) vala_iterable_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_iterable_type_id;
+	vala_iterable_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaIterable", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
+	ValaIterable_private_offset = g_type_add_instance_private (vala_iterable_type_id, sizeof (ValaIterablePrivate));
+	return vala_iterable_type_id;
+}
+
 GType
 vala_iterable_get_type (void)
 {
 	static volatile gsize vala_iterable_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_iterable_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_iterable_init, vala_value_iterable_free_value, vala_value_iterable_copy_value, vala_value_iterable_peek_pointer, "p", vala_value_iterable_collect_value, "p", vala_value_iterable_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaIterableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_iterable_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIterable), 0, (GInstanceInitFunc) vala_iterable_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_iterable_type_id;
-		vala_iterable_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaIterable", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
-		ValaIterable_private_offset = g_type_add_instance_private (vala_iterable_type_id, sizeof (ValaIterablePrivate));
+		vala_iterable_type_id = vala_iterable_get_type_once ();
 		g_once_init_leave (&vala_iterable_type_id__volatile, vala_iterable_type_id);
 	}
 	return vala_iterable_type_id__volatile;
 }
-
 
 gpointer
 vala_iterable_ref (gpointer instance)
@@ -312,7 +300,6 @@ vala_iterable_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_iterable_unref (gpointer instance)
@@ -324,6 +311,4 @@ vala_iterable_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

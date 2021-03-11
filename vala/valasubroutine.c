@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,31 +39,17 @@ struct _ValaSubroutinePrivate {
 	ValaLocalVariable* _result_var;
 };
 
-
 static gint ValaSubroutine_private_offset;
 static gpointer vala_subroutine_parent_class = NULL;
 
 static void vala_subroutine_finalize (ValaCodeNode * obj);
-
+static GType vala_subroutine_get_type_once (void);
 
 static inline gpointer
 vala_subroutine_get_instance_private (ValaSubroutine* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaSubroutine_private_offset);
 }
-
-
-ValaSubroutine*
-vala_subroutine_construct (GType object_type,
-                           const gchar* name,
-                           ValaSourceReference* source_reference,
-                           ValaComment* comment)
-{
-	ValaSubroutine* self = NULL;
-	self = (ValaSubroutine*) vala_symbol_construct (object_type, name, source_reference, comment);
-	return self;
-}
-
 
 ValaBasicBlock*
 vala_subroutine_get_entry_block (ValaSubroutine* self)
@@ -78,13 +62,11 @@ vala_subroutine_get_entry_block (ValaSubroutine* self)
 	return result;
 }
 
-
 static gpointer
 _vala_basic_block_ref0 (gpointer self)
 {
 	return self ? vala_basic_block_ref (self) : NULL;
 }
-
 
 void
 vala_subroutine_set_entry_block (ValaSubroutine* self,
@@ -97,7 +79,6 @@ vala_subroutine_set_entry_block (ValaSubroutine* self,
 	self->priv->_entry_block = _tmp0_;
 }
 
-
 ValaBasicBlock*
 vala_subroutine_get_return_block (ValaSubroutine* self)
 {
@@ -108,7 +89,6 @@ vala_subroutine_get_return_block (ValaSubroutine* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_subroutine_set_return_block (ValaSubroutine* self,
@@ -121,7 +101,6 @@ vala_subroutine_set_return_block (ValaSubroutine* self,
 	self->priv->_return_block = _tmp0_;
 }
 
-
 ValaBasicBlock*
 vala_subroutine_get_exit_block (ValaSubroutine* self)
 {
@@ -132,7 +111,6 @@ vala_subroutine_get_exit_block (ValaSubroutine* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_subroutine_set_exit_block (ValaSubroutine* self,
@@ -145,7 +123,6 @@ vala_subroutine_set_exit_block (ValaSubroutine* self,
 	self->priv->_exit_block = _tmp0_;
 }
 
-
 ValaLocalVariable*
 vala_subroutine_get_result_var (ValaSubroutine* self)
 {
@@ -157,13 +134,11 @@ vala_subroutine_get_result_var (ValaSubroutine* self)
 	return result;
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
-
 
 void
 vala_subroutine_set_result_var (ValaSubroutine* self,
@@ -176,7 +151,6 @@ vala_subroutine_set_result_var (ValaSubroutine* self,
 	self->priv->_result_var = _tmp0_;
 }
 
-
 gboolean
 vala_subroutine_get_has_result (ValaSubroutine* self)
 {
@@ -184,6 +158,16 @@ vala_subroutine_get_has_result (ValaSubroutine* self)
 	return VALA_SUBROUTINE_GET_CLASS (self)->get_has_result (self);
 }
 
+ValaSubroutine*
+vala_subroutine_construct (GType object_type,
+                           const gchar* name,
+                           ValaSourceReference* source_reference,
+                           ValaComment* comment)
+{
+	ValaSubroutine* self = NULL;
+	self = (ValaSubroutine*) vala_symbol_construct (object_type, name, source_reference, comment);
+	return self;
+}
 
 ValaBlock*
 vala_subroutine_get_body (ValaSubroutine* self)
@@ -195,7 +179,6 @@ vala_subroutine_get_body (ValaSubroutine* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_subroutine_set_body (ValaSubroutine* self,
@@ -222,22 +205,21 @@ vala_subroutine_set_body (ValaSubroutine* self,
 	}
 }
 
-
 static void
-vala_subroutine_class_init (ValaSubroutineClass * klass)
+vala_subroutine_class_init (ValaSubroutineClass * klass,
+                            gpointer klass_data)
 {
 	vala_subroutine_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_subroutine_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaSubroutine_private_offset);
 }
 
-
 static void
-vala_subroutine_instance_init (ValaSubroutine * self)
+vala_subroutine_instance_init (ValaSubroutine * self,
+                               gpointer klass)
 {
 	self->priv = vala_subroutine_get_instance_private (self);
 }
-
 
 static void
 vala_subroutine_finalize (ValaCodeNode * obj)
@@ -252,20 +234,25 @@ vala_subroutine_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_subroutine_parent_class)->finalize (obj);
 }
 
+static GType
+vala_subroutine_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaSubroutineClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_subroutine_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSubroutine), 0, (GInstanceInitFunc) vala_subroutine_instance_init, NULL };
+	GType vala_subroutine_type_id;
+	vala_subroutine_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaSubroutine", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValaSubroutine_private_offset = g_type_add_instance_private (vala_subroutine_type_id, sizeof (ValaSubroutinePrivate));
+	return vala_subroutine_type_id;
+}
 
 GType
 vala_subroutine_get_type (void)
 {
 	static volatile gsize vala_subroutine_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_subroutine_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaSubroutineClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_subroutine_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSubroutine), 0, (GInstanceInitFunc) vala_subroutine_instance_init, NULL };
 		GType vala_subroutine_type_id;
-		vala_subroutine_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaSubroutine", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValaSubroutine_private_offset = g_type_add_instance_private (vala_subroutine_type_id, sizeof (ValaSubroutinePrivate));
+		vala_subroutine_type_id = vala_subroutine_get_type_once ();
 		g_once_init_leave (&vala_subroutine_type_id__volatile, vala_subroutine_type_id);
 	}
 	return vala_subroutine_type_id__volatile;
 }
-
-
 

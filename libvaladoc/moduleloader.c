@@ -24,18 +24,16 @@
  * 	Brosch Florian <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gmodule.h>
 #include <glib/gstdio.h>
 #include <config.h>
 #include <vala.h>
-
 
 #define VALADOC_MODULE_LOADER_TYPE_MODULE_DATA (valadoc_module_loader_module_data_get_type ())
 #define VALADOC_MODULE_LOADER_MODULE_DATA(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_MODULE_LOADER_TYPE_MODULE_DATA, ValadocModuleLoaderModuleData))
@@ -78,7 +76,6 @@ struct _ValadocModuleLoaderModuleDataClass {
 	GObjectClass parent_class;
 };
 
-
 static gint ValadocModuleLoader_private_offset;
 static gpointer valadoc_module_loader_parent_class = NULL;
 static ValadocModuleLoader* valadoc_module_loader_instance;
@@ -93,8 +90,9 @@ static gchar* valadoc_module_loader_get_plugin_path (const gchar* pluginpath,
 static ValadocModuleLoaderModuleData* valadoc_module_loader_module_data_new (void);
 static ValadocModuleLoaderModuleData* valadoc_module_loader_module_data_construct (GType object_type);
 static void valadoc_module_loader_module_data_finalize (GObject * obj);
+static GType valadoc_module_loader_module_data_get_type_once (void);
 static void valadoc_module_loader_finalize (GObject * obj);
-
+static GType valadoc_module_loader_get_type_once (void);
 
 static inline gpointer
 valadoc_module_loader_get_instance_private (ValadocModuleLoader* self)
@@ -102,21 +100,19 @@ valadoc_module_loader_get_instance_private (ValadocModuleLoader* self)
 	return G_STRUCT_MEMBER_P (self, ValadocModuleLoader_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocModuleLoader*
 valadoc_module_loader_get_instance (void)
 {
-	ValadocModuleLoader* result = NULL;
 	ValadocModuleLoader* _tmp0_;
 	ValadocModuleLoader* _tmp3_;
 	ValadocModuleLoader* _tmp4_;
+	ValadocModuleLoader* result = NULL;
 	_tmp0_ = valadoc_module_loader_instance;
 	if (_tmp0_ == NULL) {
 		ValadocModuleLoader* _tmp1_;
@@ -133,7 +129,6 @@ valadoc_module_loader_get_instance (void)
 	return result;
 }
 
-
 static ValadocModuleLoader*
 valadoc_module_loader_construct (GType object_type)
 {
@@ -142,21 +137,19 @@ valadoc_module_loader_construct (GType object_type)
 	return self;
 }
 
-
 static ValadocModuleLoader*
 valadoc_module_loader_new (void)
 {
 	return valadoc_module_loader_construct (VALADOC_TYPE_MODULE_LOADER);
 }
 
-
 gboolean
 valadoc_module_loader_is_doclet (const gchar* path)
 {
-	gboolean result = FALSE;
 	gchar* library_path = NULL;
 	gchar* _tmp0_;
 	gboolean _tmp1_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (path != NULL, FALSE);
 	_tmp0_ = g_build_filename (path, "libdoclet." G_MODULE_SUFFIX, NULL);
 	library_path = _tmp0_;
@@ -172,13 +165,12 @@ valadoc_module_loader_is_doclet (const gchar* path)
 	return result;
 }
 
-
 static gchar*
 valadoc_module_loader_get_plugin_path (const gchar* pluginpath,
                                        const gchar* pluginsubdir)
 {
-	gchar* result = NULL;
 	gchar* _tmp6_;
+	gchar* result = NULL;
 	g_return_val_if_fail (pluginpath != NULL, NULL);
 	g_return_val_if_fail (pluginsubdir != NULL, NULL);
 	if (g_path_is_absolute (pluginpath) == FALSE) {
@@ -200,7 +192,7 @@ valadoc_module_loader_get_plugin_path (const gchar* pluginpath,
 			return result;
 		} else {
 			gchar* _tmp5_;
-			_tmp5_ = g_build_filename (PACKAGE_DATADIR, pluginsubdir, pluginpath, NULL);
+			_tmp5_ = g_build_filename (PACKAGE_VALADOC_LIBDIR, pluginsubdir, pluginpath, NULL);
 			result = _tmp5_;
 			_g_free0 (local_path);
 			return result;
@@ -212,17 +204,16 @@ valadoc_module_loader_get_plugin_path (const gchar* pluginpath,
 	return result;
 }
 
-
 gchar*
 valadoc_module_loader_get_doclet_path (const gchar* docletpath,
                                        ValadocErrorReporter* reporter)
 {
-	gchar* result = NULL;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (reporter != NULL, NULL);
 	if (docletpath == NULL) {
 		gchar* _tmp0_;
-		_tmp0_ = g_build_filename (PACKAGE_DATADIR, "doclets", "html", NULL);
+		_tmp0_ = g_build_filename (PACKAGE_VALADOC_LIBDIR, "doclets", "html", NULL);
 		result = _tmp0_;
 		return result;
 	}
@@ -231,14 +222,13 @@ valadoc_module_loader_get_doclet_path (const gchar* docletpath,
 	return result;
 }
 
-
 ValadocContentTaglet*
 valadoc_module_loader_create_taglet (ValadocModuleLoader* self,
                                      const gchar* keyword)
 {
-	ValadocContentTaglet* result = NULL;
 	ValadocContentTaglet* _tmp0_ = NULL;
 	ValaHashMap* _tmp1_;
+	ValadocContentTaglet* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (keyword != NULL, NULL);
 	_tmp1_ = self->priv->taglets;
@@ -261,7 +251,6 @@ valadoc_module_loader_create_taglet (ValadocModuleLoader* self,
 	return result;
 }
 
-
 void
 valadoc_module_loader_register_taglet (ValadocModuleLoader* self,
                                        const gchar* keyword,
@@ -274,12 +263,10 @@ valadoc_module_loader_register_taglet (ValadocModuleLoader* self,
 	vala_map_set ((ValaMap*) _tmp0_, keyword, (gpointer) ((gintptr) type));
 }
 
-
 ValadocDoclet*
 valadoc_module_loader_create_doclet (ValadocModuleLoader* self,
                                      const gchar* _path)
 {
-	ValadocDoclet* result = NULL;
 	gchar* path = NULL;
 	gchar* _tmp0_;
 	ValadocModuleLoaderModuleData* data = NULL;
@@ -288,9 +275,9 @@ valadoc_module_loader_create_doclet (ValadocModuleLoader* self,
 	gpointer _tmp3_;
 	ValadocModuleLoaderModuleData* _tmp4_;
 	ValadocModuleLoaderModuleData* _tmp23_;
-	GType _tmp24_;
+	GObject* _tmp24_;
 	GObject* _tmp25_;
-	GObject* _tmp26_;
+	ValadocDoclet* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (_path != NULL, NULL);
 	_tmp0_ = vala_code_context_realpath (_path);
@@ -368,15 +355,13 @@ valadoc_module_loader_create_doclet (ValadocModuleLoader* self,
 		_g_module_close0 (module);
 	}
 	_tmp23_ = data;
-	_tmp24_ = _tmp23_->type;
-	_tmp25_ = g_object_new (_tmp24_, NULL);
-	_tmp26_ = G_IS_INITIALLY_UNOWNED (_tmp25_) ? g_object_ref_sink (_tmp25_) : _tmp25_;
-	result = G_TYPE_CHECK_INSTANCE_CAST (_tmp26_, VALADOC_TYPE_DOCLET, ValadocDoclet);
+	_tmp24_ = g_object_new (_tmp23_->type, NULL);
+	_tmp25_ = G_IS_INITIALLY_UNOWNED (_tmp24_) ? g_object_ref_sink (_tmp24_) : _tmp24_;
+	result = G_TYPE_CHECK_INSTANCE_CAST (_tmp25_, VALADOC_TYPE_DOCLET, ValadocDoclet);
 	_g_object_unref0 (data);
 	_g_free0 (path);
 	return result;
 }
-
 
 static ValadocModuleLoaderModuleData*
 valadoc_module_loader_module_data_construct (GType object_type)
@@ -386,27 +371,25 @@ valadoc_module_loader_module_data_construct (GType object_type)
 	return self;
 }
 
-
 static ValadocModuleLoaderModuleData*
 valadoc_module_loader_module_data_new (void)
 {
 	return valadoc_module_loader_module_data_construct (VALADOC_MODULE_LOADER_TYPE_MODULE_DATA);
 }
 
-
 static void
-valadoc_module_loader_module_data_class_init (ValadocModuleLoaderModuleDataClass * klass)
+valadoc_module_loader_module_data_class_init (ValadocModuleLoaderModuleDataClass * klass,
+                                              gpointer klass_data)
 {
 	valadoc_module_loader_module_data_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_module_loader_module_data_finalize;
 }
 
-
 static void
-valadoc_module_loader_module_data_instance_init (ValadocModuleLoaderModuleData * self)
+valadoc_module_loader_module_data_instance_init (ValadocModuleLoaderModuleData * self,
+                                                 gpointer klass)
 {
 }
-
 
 static void
 valadoc_module_loader_module_data_finalize (GObject * obj)
@@ -417,32 +400,39 @@ valadoc_module_loader_module_data_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_module_loader_module_data_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_module_loader_module_data_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocModuleLoaderModuleDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_module_loader_module_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocModuleLoaderModuleData), 0, (GInstanceInitFunc) valadoc_module_loader_module_data_instance_init, NULL };
+	GType valadoc_module_loader_module_data_type_id;
+	valadoc_module_loader_module_data_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocModuleLoaderModuleData", &g_define_type_info, 0);
+	return valadoc_module_loader_module_data_type_id;
+}
 
 static GType
 valadoc_module_loader_module_data_get_type (void)
 {
 	static volatile gsize valadoc_module_loader_module_data_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_module_loader_module_data_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocModuleLoaderModuleDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_module_loader_module_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocModuleLoaderModuleData), 0, (GInstanceInitFunc) valadoc_module_loader_module_data_instance_init, NULL };
 		GType valadoc_module_loader_module_data_type_id;
-		valadoc_module_loader_module_data_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocModuleLoaderModuleData", &g_define_type_info, 0);
+		valadoc_module_loader_module_data_type_id = valadoc_module_loader_module_data_get_type_once ();
 		g_once_init_leave (&valadoc_module_loader_module_data_type_id__volatile, valadoc_module_loader_module_data_type_id);
 	}
 	return valadoc_module_loader_module_data_type_id__volatile;
 }
 
-
 static void
-valadoc_module_loader_class_init (ValadocModuleLoaderClass * klass)
+valadoc_module_loader_class_init (ValadocModuleLoaderClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_module_loader_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocModuleLoader_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_module_loader_finalize;
 }
 
-
 static void
-valadoc_module_loader_instance_init (ValadocModuleLoader * self)
+valadoc_module_loader_instance_init (ValadocModuleLoader * self,
+                                     gpointer klass)
 {
 	GHashFunc _tmp0_;
 	GEqualFunc _tmp1_;
@@ -465,7 +455,6 @@ valadoc_module_loader_instance_init (ValadocModuleLoader * self)
 	self->priv->taglets = _tmp7_;
 }
 
-
 static void
 valadoc_module_loader_finalize (GObject * obj)
 {
@@ -476,20 +465,25 @@ valadoc_module_loader_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_module_loader_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_module_loader_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocModuleLoaderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_module_loader_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocModuleLoader), 0, (GInstanceInitFunc) valadoc_module_loader_instance_init, NULL };
+	GType valadoc_module_loader_type_id;
+	valadoc_module_loader_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocModuleLoader", &g_define_type_info, 0);
+	ValadocModuleLoader_private_offset = g_type_add_instance_private (valadoc_module_loader_type_id, sizeof (ValadocModuleLoaderPrivate));
+	return valadoc_module_loader_type_id;
+}
 
 GType
 valadoc_module_loader_get_type (void)
 {
 	static volatile gsize valadoc_module_loader_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_module_loader_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocModuleLoaderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_module_loader_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocModuleLoader), 0, (GInstanceInitFunc) valadoc_module_loader_instance_init, NULL };
 		GType valadoc_module_loader_type_id;
-		valadoc_module_loader_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocModuleLoader", &g_define_type_info, 0);
-		ValadocModuleLoader_private_offset = g_type_add_instance_private (valadoc_module_loader_type_id, sizeof (ValadocModuleLoaderPrivate));
+		valadoc_module_loader_type_id = valadoc_module_loader_get_type_once ();
 		g_once_init_leave (&valadoc_module_loader_type_id__volatile, valadoc_module_loader_type_id);
 	}
 	return valadoc_module_loader_type_id__volatile;
 }
-
-
 

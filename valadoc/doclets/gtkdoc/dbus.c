@@ -23,16 +23,14 @@
  * 	Luca Bruno <lethalman88@gmail.com>
  */
 
-
-#include <glib.h>
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <gobject/gvaluecollector.h>
 #include <valagee.h>
 #include <valadoc.h>
 #include <glib/gstdio.h>
-#include <gobject/gvaluecollector.h>
-
 
 #define GTKDOC_DBUS_TYPE_PARAMETER (gtkdoc_dbus_parameter_get_type ())
 #define GTKDOC_DBUS_PARAMETER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTKDOC_DBUS_TYPE_PARAMETER, GtkdocDBusParameter))
@@ -49,7 +47,6 @@ typedef enum  {
 	GTKDOC_DBUS_PARAMETER_DIRECTION_IN,
 	GTKDOC_DBUS_PARAMETER_DIRECTION_OUT
 } GtkdocDBusParameterDirection;
-
 
 #define GTKDOC_DBUS_PARAMETER_TYPE_DIRECTION (gtkdoc_dbus_parameter_direction_get_type ())
 #define _g_free0(var) (var = (g_free (var), NULL))
@@ -178,7 +175,6 @@ struct _GtkdocDBusParamSpecInterface {
 	GParamSpec parent_instance;
 };
 
-
 static gpointer gtkdoc_dbus_parameter_parent_class = NULL;
 static gpointer gtkdoc_dbus_member_parent_class = NULL;
 static gpointer gtkdoc_dbus_interface_parent_class = NULL;
@@ -196,6 +192,7 @@ void gtkdoc_dbus_value_take_parameter (GValue* value,
                                        gpointer v_object);
 gpointer gtkdoc_dbus_value_get_parameter (const GValue* value);
 GType gtkdoc_dbus_parameter_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusParameter, gtkdoc_dbus_parameter_unref)
 GType gtkdoc_dbus_parameter_direction_get_type (void) G_GNUC_CONST;
 const gchar* gtkdoc_dbus_parameter_direction_to_string (GtkdocDBusParameterDirection self);
 GtkdocDBusParameter* gtkdoc_dbus_parameter_new (const gchar* name,
@@ -207,6 +204,7 @@ GtkdocDBusParameter* gtkdoc_dbus_parameter_construct (GType object_type,
                                                       GtkdocDBusParameterDirection direction);
 gchar* gtkdoc_dbus_parameter_to_string (GtkdocDBusParameter* self);
 static void gtkdoc_dbus_parameter_finalize (GtkdocDBusParameter * obj);
+static GType gtkdoc_dbus_parameter_get_type_once (void);
 gpointer gtkdoc_dbus_member_ref (gpointer instance);
 void gtkdoc_dbus_member_unref (gpointer instance);
 GParamSpec* gtkdoc_dbus_param_spec_member (const gchar* name,
@@ -220,6 +218,7 @@ void gtkdoc_dbus_value_take_member (GValue* value,
                                     gpointer v_object);
 gpointer gtkdoc_dbus_value_get_member (const GValue* value);
 GType gtkdoc_dbus_member_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusMember, gtkdoc_dbus_member_unref)
 gpointer gtkdoc_gcomment_ref (gpointer instance);
 void gtkdoc_gcomment_unref (gpointer instance);
 GParamSpec* gtkdoc_param_spec_gcomment (const gchar* name,
@@ -233,6 +232,7 @@ void gtkdoc_value_take_gcomment (GValue* value,
                                  gpointer v_object);
 gpointer gtkdoc_value_get_gcomment (const GValue* value);
 GType gtkdoc_gcomment_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGComment, gtkdoc_gcomment_unref)
 gpointer gtkdoc_dbus_interface_ref (gpointer instance);
 void gtkdoc_dbus_interface_unref (gpointer instance);
 GParamSpec* gtkdoc_dbus_param_spec_interface (const gchar* name,
@@ -246,6 +246,7 @@ void gtkdoc_dbus_value_take_interface (GValue* value,
                                        gpointer v_object);
 gpointer gtkdoc_dbus_value_get_interface (const GValue* value);
 GType gtkdoc_dbus_interface_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusInterface, gtkdoc_dbus_interface_unref)
 GtkdocDBusMember* gtkdoc_dbus_member_new (const gchar* name);
 GtkdocDBusMember* gtkdoc_dbus_member_construct (GType object_type,
                                                 const gchar* name);
@@ -258,6 +259,7 @@ gchar* gtkdoc_dbus_member_to_string (GtkdocDBusMember* self,
                                      gboolean link);
 gchar* gtkdoc_dbus_interface_get_docbook_id (GtkdocDBusInterface* self);
 static void gtkdoc_dbus_member_finalize (GtkdocDBusMember * obj);
+static GType gtkdoc_dbus_member_get_type_once (void);
 GtkdocDBusInterface* gtkdoc_dbus_interface_new (const gchar* package_name,
                                                 const gchar* name,
                                                 const gchar* purpose,
@@ -287,6 +289,7 @@ void gtkdoc_value_take_text_writer (GValue* value,
                                     gpointer v_object);
 gpointer gtkdoc_value_get_text_writer (const GValue* value);
 GType gtkdoc_text_writer_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocTextWriter, gtkdoc_text_writer_unref)
 GtkdocTextWriter* gtkdoc_text_writer_new (const gchar* filename,
                                           const gchar* mode);
 GtkdocTextWriter* gtkdoc_text_writer_construct (GType object_type,
@@ -301,7 +304,7 @@ void gtkdoc_text_writer_close (GtkdocTextWriter* self);
 gchar* gtkdoc_gcomment_to_docbook (GtkdocGComment* self,
                                    ValadocErrorReporter* reporter);
 static void gtkdoc_dbus_interface_finalize (GtkdocDBusInterface * obj);
-
+static GType gtkdoc_dbus_interface_get_type_once (void);
 
 const gchar*
 gtkdoc_dbus_parameter_direction_to_string (GtkdocDBusParameterDirection self)
@@ -330,20 +333,26 @@ gtkdoc_dbus_parameter_direction_to_string (GtkdocDBusParameterDirection self)
 	}
 }
 
+static GType
+gtkdoc_dbus_parameter_direction_get_type_once (void)
+{
+	static const GEnumValue values[] = {{GTKDOC_DBUS_PARAMETER_DIRECTION_NONE, "GTKDOC_DBUS_PARAMETER_DIRECTION_NONE", "none"}, {GTKDOC_DBUS_PARAMETER_DIRECTION_IN, "GTKDOC_DBUS_PARAMETER_DIRECTION_IN", "in"}, {GTKDOC_DBUS_PARAMETER_DIRECTION_OUT, "GTKDOC_DBUS_PARAMETER_DIRECTION_OUT", "out"}, {0, NULL, NULL}};
+	GType gtkdoc_dbus_parameter_direction_type_id;
+	gtkdoc_dbus_parameter_direction_type_id = g_enum_register_static ("GtkdocDBusParameterDirection", values);
+	return gtkdoc_dbus_parameter_direction_type_id;
+}
 
 GType
 gtkdoc_dbus_parameter_direction_get_type (void)
 {
 	static volatile gsize gtkdoc_dbus_parameter_direction_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_dbus_parameter_direction_type_id__volatile)) {
-		static const GEnumValue values[] = {{GTKDOC_DBUS_PARAMETER_DIRECTION_NONE, "GTKDOC_DBUS_PARAMETER_DIRECTION_NONE", "none"}, {GTKDOC_DBUS_PARAMETER_DIRECTION_IN, "GTKDOC_DBUS_PARAMETER_DIRECTION_IN", "in"}, {GTKDOC_DBUS_PARAMETER_DIRECTION_OUT, "GTKDOC_DBUS_PARAMETER_DIRECTION_OUT", "out"}, {0, NULL, NULL}};
 		GType gtkdoc_dbus_parameter_direction_type_id;
-		gtkdoc_dbus_parameter_direction_type_id = g_enum_register_static ("GtkdocDBusParameterDirection", values);
+		gtkdoc_dbus_parameter_direction_type_id = gtkdoc_dbus_parameter_direction_get_type_once ();
 		g_once_init_leave (&gtkdoc_dbus_parameter_direction_type_id__volatile, gtkdoc_dbus_parameter_direction_type_id);
 	}
 	return gtkdoc_dbus_parameter_direction_type_id__volatile;
 }
-
 
 GtkdocDBusParameter*
 gtkdoc_dbus_parameter_construct (GType object_type,
@@ -367,7 +376,6 @@ gtkdoc_dbus_parameter_construct (GType object_type,
 	return self;
 }
 
-
 GtkdocDBusParameter*
 gtkdoc_dbus_parameter_new (const gchar* name,
                            const gchar* signature,
@@ -376,12 +384,11 @@ gtkdoc_dbus_parameter_new (const gchar* name,
 	return gtkdoc_dbus_parameter_construct (GTKDOC_DBUS_TYPE_PARAMETER, name, signature, direction);
 }
 
-
 gchar*
 gtkdoc_dbus_parameter_to_string (GtkdocDBusParameter* self)
 {
-	gchar* result = NULL;
 	GtkdocDBusParameterDirection _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->direction;
 	if (_tmp0_ == GTKDOC_DBUS_PARAMETER_DIRECTION_NONE) {
@@ -409,13 +416,11 @@ gtkdoc_dbus_parameter_to_string (GtkdocDBusParameter* self)
 	}
 }
 
-
 static void
 gtkdoc_dbus_value_parameter_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_dbus_value_parameter_free_value (GValue* value)
@@ -424,7 +429,6 @@ gtkdoc_dbus_value_parameter_free_value (GValue* value)
 		gtkdoc_dbus_parameter_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_dbus_value_parameter_copy_value (const GValue* src_value,
@@ -437,13 +441,11 @@ gtkdoc_dbus_value_parameter_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_dbus_value_parameter_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_dbus_value_parameter_collect_value (GValue* value,
@@ -466,7 +468,6 @@ gtkdoc_dbus_value_parameter_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_dbus_value_parameter_lcopy_value (const GValue* value,
                                          guint n_collect_values,
@@ -488,7 +489,6 @@ gtkdoc_dbus_value_parameter_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 gtkdoc_dbus_param_spec_parameter (const gchar* name,
                                   const gchar* nick,
@@ -503,14 +503,12 @@ gtkdoc_dbus_param_spec_parameter (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 gtkdoc_dbus_value_get_parameter (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_DBUS_TYPE_PARAMETER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 gtkdoc_dbus_value_set_parameter (GValue* value,
@@ -532,7 +530,6 @@ gtkdoc_dbus_value_set_parameter (GValue* value,
 	}
 }
 
-
 void
 gtkdoc_dbus_value_take_parameter (GValue* value,
                                   gpointer v_object)
@@ -552,21 +549,20 @@ gtkdoc_dbus_value_take_parameter (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_dbus_parameter_class_init (GtkdocDBusParameterClass * klass)
+gtkdoc_dbus_parameter_class_init (GtkdocDBusParameterClass * klass,
+                                  gpointer klass_data)
 {
 	gtkdoc_dbus_parameter_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocDBusParameterClass *) klass)->finalize = gtkdoc_dbus_parameter_finalize;
 }
 
-
 static void
-gtkdoc_dbus_parameter_instance_init (GtkdocDBusParameter * self)
+gtkdoc_dbus_parameter_instance_init (GtkdocDBusParameter * self,
+                                     gpointer klass)
 {
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_dbus_parameter_finalize (GtkdocDBusParameter * obj)
@@ -578,22 +574,28 @@ gtkdoc_dbus_parameter_finalize (GtkdocDBusParameter * obj)
 	_g_free0 (self->signature);
 }
 
+static GType
+gtkdoc_dbus_parameter_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_parameter_init, gtkdoc_dbus_value_parameter_free_value, gtkdoc_dbus_value_parameter_copy_value, gtkdoc_dbus_value_parameter_peek_pointer, "p", gtkdoc_dbus_value_parameter_collect_value, "p", gtkdoc_dbus_value_parameter_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_parameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusParameter), 0, (GInstanceInitFunc) gtkdoc_dbus_parameter_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_dbus_parameter_type_id;
+	gtkdoc_dbus_parameter_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusParameter", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_dbus_parameter_type_id;
+}
 
 GType
 gtkdoc_dbus_parameter_get_type (void)
 {
 	static volatile gsize gtkdoc_dbus_parameter_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_dbus_parameter_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_parameter_init, gtkdoc_dbus_value_parameter_free_value, gtkdoc_dbus_value_parameter_copy_value, gtkdoc_dbus_value_parameter_peek_pointer, "p", gtkdoc_dbus_value_parameter_collect_value, "p", gtkdoc_dbus_value_parameter_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_parameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusParameter), 0, (GInstanceInitFunc) gtkdoc_dbus_parameter_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_dbus_parameter_type_id;
-		gtkdoc_dbus_parameter_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusParameter", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_dbus_parameter_type_id = gtkdoc_dbus_parameter_get_type_once ();
 		g_once_init_leave (&gtkdoc_dbus_parameter_type_id__volatile, gtkdoc_dbus_parameter_type_id);
 	}
 	return gtkdoc_dbus_parameter_type_id__volatile;
 }
-
 
 gpointer
 gtkdoc_dbus_parameter_ref (gpointer instance)
@@ -603,7 +605,6 @@ gtkdoc_dbus_parameter_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 gtkdoc_dbus_parameter_unref (gpointer instance)
@@ -615,7 +616,6 @@ gtkdoc_dbus_parameter_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
 
 GtkdocDBusMember*
 gtkdoc_dbus_member_construct (GType object_type,
@@ -631,13 +631,11 @@ gtkdoc_dbus_member_construct (GType object_type,
 	return self;
 }
 
-
 GtkdocDBusMember*
 gtkdoc_dbus_member_new (const gchar* name)
 {
 	return gtkdoc_dbus_member_construct (GTKDOC_DBUS_TYPE_MEMBER, name);
 }
-
 
 void
 gtkdoc_dbus_member_add_parameter (GtkdocDBusMember* self,
@@ -650,13 +648,12 @@ gtkdoc_dbus_member_add_parameter (GtkdocDBusMember* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, parameter);
 }
 
-
 gchar*
 gtkdoc_dbus_member_get_docbook_id (GtkdocDBusMember* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->name;
 	_tmp1_ = gtkdoc_to_docbook_id (_tmp0_);
@@ -664,22 +661,21 @@ gtkdoc_dbus_member_get_docbook_id (GtkdocDBusMember* self)
 	return result;
 }
 
-
 gchar*
 gtkdoc_dbus_member_to_string (GtkdocDBusMember* self,
                               gint indent,
                               gboolean link)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	ValaList* _tmp20_;
 	gint _tmp21_;
 	gint _tmp22_;
-	GString* _tmp46_;
-	GString* _tmp47_;
-	const gchar* _tmp48_;
-	gchar* _tmp49_;
+	GString* _tmp44_;
+	GString* _tmp45_;
+	const gchar* _tmp46_;
+	gchar* _tmp47_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
@@ -757,71 +753,65 @@ gtkdoc_dbus_member_to_string (GtkdocDBusMember* self,
 			gboolean _tmp29_ = FALSE;
 			_tmp29_ = TRUE;
 			while (TRUE) {
-				gint _tmp31_;
-				ValaList* _tmp32_;
+				ValaList* _tmp31_;
+				gint _tmp32_;
 				gint _tmp33_;
-				gint _tmp34_;
+				GString* _tmp34_;
 				GString* _tmp35_;
-				GString* _tmp36_;
+				gchar* _tmp36_;
 				gchar* _tmp37_;
-				gchar* _tmp38_;
-				GString* _tmp39_;
-				ValaList* _tmp40_;
-				gint _tmp41_;
-				gpointer _tmp42_;
-				GtkdocDBusParameter* _tmp43_;
-				gchar* _tmp44_;
-				gchar* _tmp45_;
+				GString* _tmp38_;
+				ValaList* _tmp39_;
+				gpointer _tmp40_;
+				GtkdocDBusParameter* _tmp41_;
+				gchar* _tmp42_;
+				gchar* _tmp43_;
 				if (!_tmp29_) {
 					gint _tmp30_;
 					_tmp30_ = i;
 					i = _tmp30_ + 1;
 				}
 				_tmp29_ = FALSE;
-				_tmp31_ = i;
-				_tmp32_ = self->parameters;
-				_tmp33_ = vala_collection_get_size ((ValaCollection*) _tmp32_);
-				_tmp34_ = _tmp33_;
-				if (!(_tmp31_ < _tmp34_)) {
+				_tmp31_ = self->parameters;
+				_tmp32_ = vala_collection_get_size ((ValaCollection*) _tmp31_);
+				_tmp33_ = _tmp32_;
+				if (!(i < _tmp33_)) {
 					break;
 				}
+				_tmp34_ = builder;
+				g_string_append (_tmp34_, ",\n");
 				_tmp35_ = builder;
-				g_string_append (_tmp35_, ",\n");
-				_tmp36_ = builder;
-				_tmp37_ = g_strnfill ((gsize) (indent + 1), ' ');
-				_tmp38_ = _tmp37_;
-				g_string_append (_tmp36_, _tmp38_);
-				_g_free0 (_tmp38_);
-				_tmp39_ = builder;
-				_tmp40_ = self->parameters;
-				_tmp41_ = i;
-				_tmp42_ = vala_list_get (_tmp40_, _tmp41_);
-				_tmp43_ = (GtkdocDBusParameter*) _tmp42_;
-				_tmp44_ = gtkdoc_dbus_parameter_to_string (_tmp43_);
-				_tmp45_ = _tmp44_;
-				g_string_append (_tmp39_, _tmp45_);
-				_g_free0 (_tmp45_);
-				_gtkdoc_dbus_parameter_unref0 (_tmp43_);
+				_tmp36_ = g_strnfill ((gsize) (indent + 1), ' ');
+				_tmp37_ = _tmp36_;
+				g_string_append (_tmp35_, _tmp37_);
+				_g_free0 (_tmp37_);
+				_tmp38_ = builder;
+				_tmp39_ = self->parameters;
+				_tmp40_ = vala_list_get (_tmp39_, i);
+				_tmp41_ = (GtkdocDBusParameter*) _tmp40_;
+				_tmp42_ = gtkdoc_dbus_parameter_to_string (_tmp41_);
+				_tmp43_ = _tmp42_;
+				g_string_append (_tmp38_, _tmp43_);
+				_g_free0 (_tmp43_);
+				_gtkdoc_dbus_parameter_unref0 (_tmp41_);
 			}
 		}
 	}
-	_tmp46_ = builder;
-	g_string_append_c (_tmp46_, ')');
-	_tmp47_ = builder;
-	_tmp48_ = _tmp47_->str;
-	_tmp49_ = g_strdup (_tmp48_);
-	result = _tmp49_;
+	_tmp44_ = builder;
+	g_string_append_c (_tmp44_, ')');
+	_tmp45_ = builder;
+	_tmp46_ = _tmp45_->str;
+	_tmp47_ = g_strdup (_tmp46_);
+	result = _tmp47_;
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 static void
 gtkdoc_dbus_value_member_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_dbus_value_member_free_value (GValue* value)
@@ -830,7 +820,6 @@ gtkdoc_dbus_value_member_free_value (GValue* value)
 		gtkdoc_dbus_member_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_dbus_value_member_copy_value (const GValue* src_value,
@@ -843,13 +832,11 @@ gtkdoc_dbus_value_member_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_dbus_value_member_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_dbus_value_member_collect_value (GValue* value,
@@ -872,7 +859,6 @@ gtkdoc_dbus_value_member_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_dbus_value_member_lcopy_value (const GValue* value,
                                       guint n_collect_values,
@@ -894,7 +880,6 @@ gtkdoc_dbus_value_member_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 gtkdoc_dbus_param_spec_member (const gchar* name,
                                const gchar* nick,
@@ -909,14 +894,12 @@ gtkdoc_dbus_param_spec_member (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 gtkdoc_dbus_value_get_member (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_DBUS_TYPE_MEMBER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 gtkdoc_dbus_value_set_member (GValue* value,
@@ -938,7 +921,6 @@ gtkdoc_dbus_value_set_member (GValue* value,
 	}
 }
 
-
 void
 gtkdoc_dbus_value_take_member (GValue* value,
                                gpointer v_object)
@@ -958,17 +940,17 @@ gtkdoc_dbus_value_take_member (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_dbus_member_class_init (GtkdocDBusMemberClass * klass)
+gtkdoc_dbus_member_class_init (GtkdocDBusMemberClass * klass,
+                               gpointer klass_data)
 {
 	gtkdoc_dbus_member_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocDBusMemberClass *) klass)->finalize = gtkdoc_dbus_member_finalize;
 }
 
-
 static void
-gtkdoc_dbus_member_instance_init (GtkdocDBusMember * self)
+gtkdoc_dbus_member_instance_init (GtkdocDBusMember * self,
+                                  gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -977,7 +959,6 @@ gtkdoc_dbus_member_instance_init (GtkdocDBusMember * self)
 	self->parameters = (ValaList*) _tmp1_;
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_dbus_member_finalize (GtkdocDBusMember * obj)
@@ -991,22 +972,28 @@ gtkdoc_dbus_member_finalize (GtkdocDBusMember * obj)
 	_gtkdoc_dbus_interface_unref0 (self->iface);
 }
 
+static GType
+gtkdoc_dbus_member_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_member_init, gtkdoc_dbus_value_member_free_value, gtkdoc_dbus_value_member_copy_value, gtkdoc_dbus_value_member_peek_pointer, "p", gtkdoc_dbus_value_member_collect_value, "p", gtkdoc_dbus_value_member_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusMemberClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_member_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusMember), 0, (GInstanceInitFunc) gtkdoc_dbus_member_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_dbus_member_type_id;
+	gtkdoc_dbus_member_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusMember", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_dbus_member_type_id;
+}
 
 GType
 gtkdoc_dbus_member_get_type (void)
 {
 	static volatile gsize gtkdoc_dbus_member_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_dbus_member_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_member_init, gtkdoc_dbus_value_member_free_value, gtkdoc_dbus_value_member_copy_value, gtkdoc_dbus_value_member_peek_pointer, "p", gtkdoc_dbus_value_member_collect_value, "p", gtkdoc_dbus_value_member_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusMemberClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_member_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusMember), 0, (GInstanceInitFunc) gtkdoc_dbus_member_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_dbus_member_type_id;
-		gtkdoc_dbus_member_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusMember", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_dbus_member_type_id = gtkdoc_dbus_member_get_type_once ();
 		g_once_init_leave (&gtkdoc_dbus_member_type_id__volatile, gtkdoc_dbus_member_type_id);
 	}
 	return gtkdoc_dbus_member_type_id__volatile;
 }
-
 
 gpointer
 gtkdoc_dbus_member_ref (gpointer instance)
@@ -1016,7 +1003,6 @@ gtkdoc_dbus_member_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 gtkdoc_dbus_member_unref (gpointer instance)
@@ -1028,7 +1014,6 @@ gtkdoc_dbus_member_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
 
 GtkdocDBusInterface*
 gtkdoc_dbus_interface_construct (GType object_type,
@@ -1062,7 +1047,6 @@ gtkdoc_dbus_interface_construct (GType object_type,
 	return self;
 }
 
-
 GtkdocDBusInterface*
 gtkdoc_dbus_interface_new (const gchar* package_name,
                            const gchar* name,
@@ -1072,13 +1056,11 @@ gtkdoc_dbus_interface_new (const gchar* package_name,
 	return gtkdoc_dbus_interface_construct (GTKDOC_DBUS_TYPE_INTERFACE, package_name, name, purpose, description);
 }
 
-
 static gpointer
 _gtkdoc_dbus_interface_ref0 (gpointer self)
 {
 	return self ? gtkdoc_dbus_interface_ref (self) : NULL;
 }
-
 
 void
 gtkdoc_dbus_interface_add_method (GtkdocDBusInterface* self,
@@ -1095,7 +1077,6 @@ gtkdoc_dbus_interface_add_method (GtkdocDBusInterface* self,
 	vala_collection_add ((ValaCollection*) _tmp1_, member);
 }
 
-
 void
 gtkdoc_dbus_interface_add_signal (GtkdocDBusInterface* self,
                                   GtkdocDBusMember* member)
@@ -1111,13 +1092,12 @@ gtkdoc_dbus_interface_add_signal (GtkdocDBusInterface* self,
 	vala_collection_add ((ValaCollection*) _tmp1_, member);
 }
 
-
 gchar*
 gtkdoc_dbus_interface_get_docbook_id (GtkdocDBusInterface* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->name;
 	_tmp1_ = gtkdoc_to_docbook_id (_tmp0_);
@@ -1125,13 +1105,11 @@ gtkdoc_dbus_interface_get_docbook_id (GtkdocDBusInterface* self)
 	return result;
 }
 
-
 gboolean
 gtkdoc_dbus_interface_write (GtkdocDBusInterface* self,
                              ValadocSettings* settings,
                              ValadocErrorReporter* reporter)
 {
-	gboolean result = FALSE;
 	gchar* xml_dir = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
@@ -1153,6 +1131,7 @@ gtkdoc_dbus_interface_write (GtkdocDBusInterface* self,
 	gchar* _tmp17_;
 	gchar* _tmp18_;
 	GtkdocTextWriter* _tmp19_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (settings != NULL, FALSE);
 	g_return_val_if_fail (reporter != NULL, FALSE);
@@ -1202,57 +1181,53 @@ gtkdoc_dbus_interface_write (GtkdocDBusInterface* self,
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 gchar*
 gtkdoc_dbus_interface_to_string (GtkdocDBusInterface* self,
                                  ValadocErrorReporter* reporter)
 {
-	gchar* result = NULL;
 	gint method_indent = 0;
-	gint _tmp16_;
 	gint signal_indent = 0;
-	gint _tmp33_;
 	GString* builder = NULL;
-	GString* _tmp34_;
+	GString* _tmp26_;
 	gchar* docbook_id = NULL;
-	gchar* _tmp35_;
-	GString* _tmp36_;
-	const gchar* _tmp37_ = NULL;
+	gchar* _tmp27_;
+	GString* _tmp28_;
+	const gchar* _tmp29_ = NULL;
+	const gchar* _tmp30_;
+	GString* _tmp31_;
+	const gchar* _tmp32_;
+	const gchar* _tmp33_;
+	const gchar* _tmp34_;
+	const gchar* _tmp35_;
+	gchar* _tmp36_;
+	gchar* _tmp37_;
 	const gchar* _tmp38_;
-	GString* _tmp39_;
-	const gchar* _tmp40_;
-	const gchar* _tmp41_;
-	const gchar* _tmp42_;
-	const gchar* _tmp43_;
-	gchar* _tmp44_;
-	gchar* _tmp45_;
-	const gchar* _tmp46_;
-	ValaList* _tmp47_;
-	gint _tmp48_;
-	gint _tmp49_;
-	ValaList* _tmp69_;
-	gint _tmp70_;
-	gint _tmp71_;
-	GString* _tmp91_;
-	const gchar* _tmp92_;
-	const gchar* _tmp93_;
-	ValaList* _tmp94_;
-	gint _tmp95_;
-	gint _tmp96_;
-	ValaList* _tmp129_;
-	gint _tmp130_;
-	gint _tmp131_;
-	GString* _tmp164_;
-	GString* _tmp165_;
-	const gchar* _tmp166_;
-	gchar* _tmp167_;
+	ValaList* _tmp39_;
+	gint _tmp40_;
+	gint _tmp41_;
+	ValaList* _tmp58_;
+	gint _tmp59_;
+	gint _tmp60_;
+	GString* _tmp77_;
+	const gchar* _tmp78_;
+	const gchar* _tmp79_;
+	ValaList* _tmp80_;
+	gint _tmp81_;
+	gint _tmp82_;
+	ValaList* _tmp112_;
+	gint _tmp113_;
+	gint _tmp114_;
+	GString* _tmp144_;
+	GString* _tmp145_;
+	const gchar* _tmp146_;
+	gchar* _tmp147_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
 	method_indent = 0;
@@ -1276,115 +1251,101 @@ gtkdoc_dbus_interface_to_string (GtkdocDBusInterface* self,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			GtkdocDBusMember* method = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			GtkdocDBusMember* _tmp9_;
+			const gchar* _tmp10_;
 			gint _tmp11_;
-			GtkdocDBusMember* _tmp12_;
-			const gchar* _tmp13_;
-			gint _tmp14_;
-			gint _tmp15_;
+			gint _tmp12_;
+			_method_index = _method_index + 1;
 			_tmp5_ = _method_index;
-			_method_index = _tmp5_ + 1;
-			_tmp6_ = _method_index;
-			_tmp7_ = _method_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _method_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _method_list;
-			_tmp9_ = _method_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			method = (GtkdocDBusMember*) _tmp10_;
-			_tmp11_ = method_indent;
-			_tmp12_ = method;
-			_tmp13_ = _tmp12_->name;
-			_tmp14_ = strlen (_tmp13_);
-			_tmp15_ = _tmp14_;
-			method_indent = MAX (_tmp11_, (gint) _tmp15_);
+			_tmp7_ = _method_list;
+			_tmp8_ = vala_list_get (_tmp7_, _method_index);
+			method = (GtkdocDBusMember*) _tmp8_;
+			_tmp9_ = method;
+			_tmp10_ = _tmp9_->name;
+			_tmp11_ = strlen (_tmp10_);
+			_tmp12_ = _tmp11_;
+			method_indent = MAX (method_indent, (gint) _tmp12_);
 			_gtkdoc_dbus_member_unref0 (method);
 		}
 		_vala_iterable_unref0 (_method_list);
 	}
-	_tmp16_ = method_indent;
-	method_indent = _tmp16_ + 5;
+	method_indent += 5;
 	signal_indent = 0;
 	{
 		ValaList* _sig_list = NULL;
-		ValaList* _tmp17_;
-		ValaList* _tmp18_;
+		ValaList* _tmp13_;
+		ValaList* _tmp14_;
 		gint _sig_size = 0;
-		ValaList* _tmp19_;
-		gint _tmp20_;
-		gint _tmp21_;
+		ValaList* _tmp15_;
+		gint _tmp16_;
+		gint _tmp17_;
 		gint _sig_index = 0;
-		_tmp17_ = self->signals;
-		_tmp18_ = _vala_iterable_ref0 (_tmp17_);
-		_sig_list = _tmp18_;
-		_tmp19_ = _sig_list;
-		_tmp20_ = vala_collection_get_size ((ValaCollection*) _tmp19_);
-		_tmp21_ = _tmp20_;
-		_sig_size = _tmp21_;
+		_tmp13_ = self->signals;
+		_tmp14_ = _vala_iterable_ref0 (_tmp13_);
+		_sig_list = _tmp14_;
+		_tmp15_ = _sig_list;
+		_tmp16_ = vala_collection_get_size ((ValaCollection*) _tmp15_);
+		_tmp17_ = _tmp16_;
+		_sig_size = _tmp17_;
 		_sig_index = -1;
 		while (TRUE) {
-			gint _tmp22_;
-			gint _tmp23_;
-			gint _tmp24_;
+			gint _tmp18_;
+			gint _tmp19_;
 			GtkdocDBusMember* sig = NULL;
-			ValaList* _tmp25_;
-			gint _tmp26_;
-			gpointer _tmp27_;
-			gint _tmp28_;
-			GtkdocDBusMember* _tmp29_;
-			const gchar* _tmp30_;
-			gint _tmp31_;
-			gint _tmp32_;
-			_tmp22_ = _sig_index;
-			_sig_index = _tmp22_ + 1;
-			_tmp23_ = _sig_index;
-			_tmp24_ = _sig_size;
-			if (!(_tmp23_ < _tmp24_)) {
+			ValaList* _tmp20_;
+			gpointer _tmp21_;
+			GtkdocDBusMember* _tmp22_;
+			const gchar* _tmp23_;
+			gint _tmp24_;
+			gint _tmp25_;
+			_sig_index = _sig_index + 1;
+			_tmp18_ = _sig_index;
+			_tmp19_ = _sig_size;
+			if (!(_tmp18_ < _tmp19_)) {
 				break;
 			}
-			_tmp25_ = _sig_list;
-			_tmp26_ = _sig_index;
-			_tmp27_ = vala_list_get (_tmp25_, _tmp26_);
-			sig = (GtkdocDBusMember*) _tmp27_;
-			_tmp28_ = signal_indent;
-			_tmp29_ = sig;
-			_tmp30_ = _tmp29_->name;
-			_tmp31_ = strlen (_tmp30_);
-			_tmp32_ = _tmp31_;
-			signal_indent = MAX (_tmp28_, (gint) _tmp32_);
+			_tmp20_ = _sig_list;
+			_tmp21_ = vala_list_get (_tmp20_, _sig_index);
+			sig = (GtkdocDBusMember*) _tmp21_;
+			_tmp22_ = sig;
+			_tmp23_ = _tmp22_->name;
+			_tmp24_ = strlen (_tmp23_);
+			_tmp25_ = _tmp24_;
+			signal_indent = MAX (signal_indent, (gint) _tmp25_);
 			_gtkdoc_dbus_member_unref0 (sig);
 		}
 		_vala_iterable_unref0 (_sig_list);
 	}
-	_tmp33_ = signal_indent;
-	signal_indent = _tmp33_ + 5;
-	_tmp34_ = g_string_new ("");
-	builder = _tmp34_;
-	_tmp35_ = gtkdoc_dbus_interface_get_docbook_id (self);
-	docbook_id = _tmp35_;
-	_tmp36_ = builder;
-	g_string_append (_tmp36_, "<?xml version=\"1.0\"?><!DOCTYPE refentry PUBLIC \"-//OASIS//DTD DocBo" \
+	signal_indent += 5;
+	_tmp26_ = g_string_new ("");
+	builder = _tmp26_;
+	_tmp27_ = gtkdoc_dbus_interface_get_docbook_id (self);
+	docbook_id = _tmp27_;
+	_tmp28_ = builder;
+	g_string_append (_tmp28_, "<?xml version=\"1.0\"?><!DOCTYPE refentry PUBLIC \"-//OASIS//DTD DocBo" \
 "ok XML V4.3//EN\" \"http://www.oasis-open.org/docbook/xml/4.3/docbookx" \
 ".dtd\"");
-	_tmp38_ = self->purpose;
-	_tmp37_ = _tmp38_;
-	if (_tmp37_ == NULL) {
-		_tmp37_ = "";
+	_tmp30_ = self->purpose;
+	_tmp29_ = _tmp30_;
+	if (_tmp29_ == NULL) {
+		_tmp29_ = "";
 	}
-	_tmp39_ = builder;
-	_tmp40_ = docbook_id;
-	_tmp41_ = docbook_id;
-	_tmp42_ = self->name;
-	_tmp43_ = self->package_name;
-	_tmp44_ = g_utf8_strup (_tmp43_, (gssize) -1);
-	_tmp45_ = _tmp44_;
-	_tmp46_ = self->name;
-	g_string_append_printf (_tmp39_, "\n" \
+	_tmp31_ = builder;
+	_tmp32_ = docbook_id;
+	_tmp33_ = docbook_id;
+	_tmp34_ = self->name;
+	_tmp35_ = self->package_name;
+	_tmp36_ = g_ascii_strup (_tmp35_, (gssize) -1);
+	_tmp37_ = _tmp36_;
+	_tmp38_ = self->name;
+	g_string_append_printf (_tmp31_, "\n" \
 "[<!ENTITY %% local.common.attrib \"xmlns:xi  CDATA  #FIXED 'http://www" \
 ".w3.org/2003/XInclude'\">]>\n" \
 "<refentry id=\"docs-%s\">\n" \
@@ -1399,384 +1360,358 @@ gtkdoc_dbus_interface_to_string (GtkdocDBusInterface* self,
 "<refnamediv>\n" \
 "<refname>%s</refname>\n" \
 "<refpurpose>%s</refpurpose>\n" \
-"</refnamediv>", _tmp40_, _tmp41_, _tmp42_, _tmp45_, _tmp46_, _tmp37_);
-	_g_free0 (_tmp45_);
-	_tmp47_ = self->methods;
-	_tmp48_ = vala_collection_get_size ((ValaCollection*) _tmp47_);
-	_tmp49_ = _tmp48_;
-	if (_tmp49_ > 0) {
-		GString* _tmp50_;
-		const gchar* _tmp51_;
-		GString* _tmp68_;
-		_tmp50_ = builder;
-		_tmp51_ = docbook_id;
-		g_string_append_printf (_tmp50_, "\n" \
+"</refnamediv>", _tmp32_, _tmp33_, _tmp34_, _tmp37_, _tmp38_, _tmp29_);
+	_g_free0 (_tmp37_);
+	_tmp39_ = self->methods;
+	_tmp40_ = vala_collection_get_size ((ValaCollection*) _tmp39_);
+	_tmp41_ = _tmp40_;
+	if (_tmp41_ > 0) {
+		GString* _tmp42_;
+		const gchar* _tmp43_;
+		GString* _tmp57_;
+		_tmp42_ = builder;
+		_tmp43_ = docbook_id;
+		g_string_append_printf (_tmp42_, "\n" \
 "<refsynopsisdiv id=\"docs-%s.synopsis\" role=\"synopsis\">\n" \
 "<title role=\"synopsis.title\">Methods</title>\n" \
-"<synopsis>", _tmp51_);
+"<synopsis>", _tmp43_);
 		{
 			ValaList* _method_list = NULL;
-			ValaList* _tmp52_;
-			ValaList* _tmp53_;
+			ValaList* _tmp44_;
+			ValaList* _tmp45_;
 			gint _method_size = 0;
-			ValaList* _tmp54_;
-			gint _tmp55_;
-			gint _tmp56_;
+			ValaList* _tmp46_;
+			gint _tmp47_;
+			gint _tmp48_;
 			gint _method_index = 0;
-			_tmp52_ = self->methods;
-			_tmp53_ = _vala_iterable_ref0 (_tmp52_);
-			_method_list = _tmp53_;
-			_tmp54_ = _method_list;
-			_tmp55_ = vala_collection_get_size ((ValaCollection*) _tmp54_);
-			_tmp56_ = _tmp55_;
-			_method_size = _tmp56_;
+			_tmp44_ = self->methods;
+			_tmp45_ = _vala_iterable_ref0 (_tmp44_);
+			_method_list = _tmp45_;
+			_tmp46_ = _method_list;
+			_tmp47_ = vala_collection_get_size ((ValaCollection*) _tmp46_);
+			_tmp48_ = _tmp47_;
+			_method_size = _tmp48_;
 			_method_index = -1;
 			while (TRUE) {
-				gint _tmp57_;
-				gint _tmp58_;
-				gint _tmp59_;
+				gint _tmp49_;
+				gint _tmp50_;
 				GtkdocDBusMember* method = NULL;
-				ValaList* _tmp60_;
-				gint _tmp61_;
-				gpointer _tmp62_;
-				GString* _tmp63_;
-				GtkdocDBusMember* _tmp64_;
-				gint _tmp65_;
-				gchar* _tmp66_;
-				gchar* _tmp67_;
-				_tmp57_ = _method_index;
-				_method_index = _tmp57_ + 1;
-				_tmp58_ = _method_index;
-				_tmp59_ = _method_size;
-				if (!(_tmp58_ < _tmp59_)) {
+				ValaList* _tmp51_;
+				gpointer _tmp52_;
+				GString* _tmp53_;
+				GtkdocDBusMember* _tmp54_;
+				gchar* _tmp55_;
+				gchar* _tmp56_;
+				_method_index = _method_index + 1;
+				_tmp49_ = _method_index;
+				_tmp50_ = _method_size;
+				if (!(_tmp49_ < _tmp50_)) {
 					break;
 				}
-				_tmp60_ = _method_list;
-				_tmp61_ = _method_index;
-				_tmp62_ = vala_list_get (_tmp60_, _tmp61_);
-				method = (GtkdocDBusMember*) _tmp62_;
-				_tmp63_ = builder;
-				_tmp64_ = method;
-				_tmp65_ = method_indent;
-				_tmp66_ = gtkdoc_dbus_member_to_string (_tmp64_, _tmp65_, TRUE);
-				_tmp67_ = _tmp66_;
-				g_string_append (_tmp63_, _tmp67_);
-				_g_free0 (_tmp67_);
+				_tmp51_ = _method_list;
+				_tmp52_ = vala_list_get (_tmp51_, _method_index);
+				method = (GtkdocDBusMember*) _tmp52_;
+				_tmp53_ = builder;
+				_tmp54_ = method;
+				_tmp55_ = gtkdoc_dbus_member_to_string (_tmp54_, method_indent, TRUE);
+				_tmp56_ = _tmp55_;
+				g_string_append (_tmp53_, _tmp56_);
+				_g_free0 (_tmp56_);
 				_gtkdoc_dbus_member_unref0 (method);
 			}
 			_vala_iterable_unref0 (_method_list);
 		}
-		_tmp68_ = builder;
-		g_string_append (_tmp68_, "</synopsis></refsynopsisdiv>");
+		_tmp57_ = builder;
+		g_string_append (_tmp57_, "</synopsis></refsynopsisdiv>");
 	}
-	_tmp69_ = self->signals;
-	_tmp70_ = vala_collection_get_size ((ValaCollection*) _tmp69_);
-	_tmp71_ = _tmp70_;
-	if (_tmp71_ > 0) {
-		GString* _tmp72_;
-		const gchar* _tmp73_;
-		GString* _tmp90_;
-		_tmp72_ = builder;
-		_tmp73_ = docbook_id;
-		g_string_append_printf (_tmp72_, "\n" \
+	_tmp58_ = self->signals;
+	_tmp59_ = vala_collection_get_size ((ValaCollection*) _tmp58_);
+	_tmp60_ = _tmp59_;
+	if (_tmp60_ > 0) {
+		GString* _tmp61_;
+		const gchar* _tmp62_;
+		GString* _tmp76_;
+		_tmp61_ = builder;
+		_tmp62_ = docbook_id;
+		g_string_append_printf (_tmp61_, "\n" \
 "<refsynopsisdiv id=\"docs-%s.signals\" role=\"signal_proto\">\n" \
 "<title role=\"signal_proto.title\">Signals</title>\n" \
-"<synopsis>", _tmp73_);
+"<synopsis>", _tmp62_);
 		{
 			ValaList* _sig_list = NULL;
-			ValaList* _tmp74_;
-			ValaList* _tmp75_;
+			ValaList* _tmp63_;
+			ValaList* _tmp64_;
 			gint _sig_size = 0;
-			ValaList* _tmp76_;
-			gint _tmp77_;
-			gint _tmp78_;
+			ValaList* _tmp65_;
+			gint _tmp66_;
+			gint _tmp67_;
 			gint _sig_index = 0;
-			_tmp74_ = self->signals;
-			_tmp75_ = _vala_iterable_ref0 (_tmp74_);
-			_sig_list = _tmp75_;
-			_tmp76_ = _sig_list;
-			_tmp77_ = vala_collection_get_size ((ValaCollection*) _tmp76_);
-			_tmp78_ = _tmp77_;
-			_sig_size = _tmp78_;
+			_tmp63_ = self->signals;
+			_tmp64_ = _vala_iterable_ref0 (_tmp63_);
+			_sig_list = _tmp64_;
+			_tmp65_ = _sig_list;
+			_tmp66_ = vala_collection_get_size ((ValaCollection*) _tmp65_);
+			_tmp67_ = _tmp66_;
+			_sig_size = _tmp67_;
 			_sig_index = -1;
 			while (TRUE) {
-				gint _tmp79_;
-				gint _tmp80_;
-				gint _tmp81_;
+				gint _tmp68_;
+				gint _tmp69_;
 				GtkdocDBusMember* sig = NULL;
-				ValaList* _tmp82_;
-				gint _tmp83_;
-				gpointer _tmp84_;
-				GString* _tmp85_;
-				GtkdocDBusMember* _tmp86_;
-				gint _tmp87_;
-				gchar* _tmp88_;
-				gchar* _tmp89_;
-				_tmp79_ = _sig_index;
-				_sig_index = _tmp79_ + 1;
-				_tmp80_ = _sig_index;
-				_tmp81_ = _sig_size;
-				if (!(_tmp80_ < _tmp81_)) {
+				ValaList* _tmp70_;
+				gpointer _tmp71_;
+				GString* _tmp72_;
+				GtkdocDBusMember* _tmp73_;
+				gchar* _tmp74_;
+				gchar* _tmp75_;
+				_sig_index = _sig_index + 1;
+				_tmp68_ = _sig_index;
+				_tmp69_ = _sig_size;
+				if (!(_tmp68_ < _tmp69_)) {
 					break;
 				}
-				_tmp82_ = _sig_list;
-				_tmp83_ = _sig_index;
-				_tmp84_ = vala_list_get (_tmp82_, _tmp83_);
-				sig = (GtkdocDBusMember*) _tmp84_;
-				_tmp85_ = builder;
-				_tmp86_ = sig;
-				_tmp87_ = signal_indent;
-				_tmp88_ = gtkdoc_dbus_member_to_string (_tmp86_, _tmp87_, TRUE);
-				_tmp89_ = _tmp88_;
-				g_string_append (_tmp85_, _tmp89_);
-				_g_free0 (_tmp89_);
+				_tmp70_ = _sig_list;
+				_tmp71_ = vala_list_get (_tmp70_, _sig_index);
+				sig = (GtkdocDBusMember*) _tmp71_;
+				_tmp72_ = builder;
+				_tmp73_ = sig;
+				_tmp74_ = gtkdoc_dbus_member_to_string (_tmp73_, signal_indent, TRUE);
+				_tmp75_ = _tmp74_;
+				g_string_append (_tmp72_, _tmp75_);
+				_g_free0 (_tmp75_);
 				_gtkdoc_dbus_member_unref0 (sig);
 			}
 			_vala_iterable_unref0 (_sig_list);
 		}
-		_tmp90_ = builder;
-		g_string_append (_tmp90_, "</synopsis></refsynopsisdiv>");
+		_tmp76_ = builder;
+		g_string_append (_tmp76_, "</synopsis></refsynopsisdiv>");
 	}
-	_tmp91_ = builder;
-	_tmp92_ = docbook_id;
-	_tmp93_ = self->description;
-	g_string_append_printf (_tmp91_, "\n" \
+	_tmp77_ = builder;
+	_tmp78_ = docbook_id;
+	_tmp79_ = self->description;
+	g_string_append_printf (_tmp77_, "\n" \
 "<refsect1 id=\"docs-%s.description\" role=\"desc\">\n" \
 "<title role=\"desc.title\">Description</title>\n" \
 "%s\n" \
-"</refsect1>", _tmp92_, _tmp93_);
-	_tmp94_ = self->methods;
-	_tmp95_ = vala_collection_get_size ((ValaCollection*) _tmp94_);
-	_tmp96_ = _tmp95_;
-	if (_tmp96_ > 0) {
-		GString* _tmp97_;
-		const gchar* _tmp98_;
-		GString* _tmp128_;
-		_tmp97_ = builder;
-		_tmp98_ = docbook_id;
-		g_string_append_printf (_tmp97_, "\n" \
+"</refsect1>", _tmp78_, _tmp79_);
+	_tmp80_ = self->methods;
+	_tmp81_ = vala_collection_get_size ((ValaCollection*) _tmp80_);
+	_tmp82_ = _tmp81_;
+	if (_tmp82_ > 0) {
+		GString* _tmp83_;
+		const gchar* _tmp84_;
+		GString* _tmp111_;
+		_tmp83_ = builder;
+		_tmp84_ = docbook_id;
+		g_string_append_printf (_tmp83_, "\n" \
 "<refsect1 id=\"docs-%s.details\" role=\"details\">\n" \
-"<title role=\"details.title\">Details</title>", _tmp98_);
+"<title role=\"details.title\">Details</title>", _tmp84_);
 		{
 			ValaList* _method_list = NULL;
-			ValaList* _tmp99_;
-			ValaList* _tmp100_;
+			ValaList* _tmp85_;
+			ValaList* _tmp86_;
 			gint _method_size = 0;
-			ValaList* _tmp101_;
-			gint _tmp102_;
-			gint _tmp103_;
+			ValaList* _tmp87_;
+			gint _tmp88_;
+			gint _tmp89_;
 			gint _method_index = 0;
-			_tmp99_ = self->methods;
-			_tmp100_ = _vala_iterable_ref0 (_tmp99_);
-			_method_list = _tmp100_;
-			_tmp101_ = _method_list;
-			_tmp102_ = vala_collection_get_size ((ValaCollection*) _tmp101_);
-			_tmp103_ = _tmp102_;
-			_method_size = _tmp103_;
+			_tmp85_ = self->methods;
+			_tmp86_ = _vala_iterable_ref0 (_tmp85_);
+			_method_list = _tmp86_;
+			_tmp87_ = _method_list;
+			_tmp88_ = vala_collection_get_size ((ValaCollection*) _tmp87_);
+			_tmp89_ = _tmp88_;
+			_method_size = _tmp89_;
 			_method_index = -1;
 			while (TRUE) {
-				gint _tmp104_;
-				gint _tmp105_;
-				gint _tmp106_;
+				gint _tmp90_;
+				gint _tmp91_;
 				GtkdocDBusMember* method = NULL;
-				ValaList* _tmp107_;
-				gint _tmp108_;
-				gpointer _tmp109_;
-				gchar* _tmp110_ = NULL;
-				GtkdocDBusMember* _tmp111_;
-				GtkdocGComment* _tmp112_;
-				GString* _tmp117_;
-				const gchar* _tmp118_;
-				GtkdocDBusMember* _tmp119_;
-				gchar* _tmp120_;
-				gchar* _tmp121_;
-				GtkdocDBusMember* _tmp122_;
-				const gchar* _tmp123_;
-				GtkdocDBusMember* _tmp124_;
-				gint _tmp125_;
-				gchar* _tmp126_;
-				gchar* _tmp127_;
-				_tmp104_ = _method_index;
-				_method_index = _tmp104_ + 1;
-				_tmp105_ = _method_index;
-				_tmp106_ = _method_size;
-				if (!(_tmp105_ < _tmp106_)) {
+				ValaList* _tmp92_;
+				gpointer _tmp93_;
+				gchar* _tmp94_ = NULL;
+				GtkdocDBusMember* _tmp95_;
+				GtkdocGComment* _tmp96_;
+				GString* _tmp101_;
+				const gchar* _tmp102_;
+				GtkdocDBusMember* _tmp103_;
+				gchar* _tmp104_;
+				gchar* _tmp105_;
+				GtkdocDBusMember* _tmp106_;
+				const gchar* _tmp107_;
+				GtkdocDBusMember* _tmp108_;
+				gchar* _tmp109_;
+				gchar* _tmp110_;
+				_method_index = _method_index + 1;
+				_tmp90_ = _method_index;
+				_tmp91_ = _method_size;
+				if (!(_tmp90_ < _tmp91_)) {
 					break;
 				}
-				_tmp107_ = _method_list;
-				_tmp108_ = _method_index;
-				_tmp109_ = vala_list_get (_tmp107_, _tmp108_);
-				method = (GtkdocDBusMember*) _tmp109_;
-				_tmp111_ = method;
-				_tmp112_ = _tmp111_->comment;
-				if (_tmp112_ != NULL) {
-					GtkdocDBusMember* _tmp113_;
-					GtkdocGComment* _tmp114_;
-					gchar* _tmp115_;
-					_tmp113_ = method;
-					_tmp114_ = _tmp113_->comment;
-					_tmp115_ = gtkdoc_gcomment_to_docbook (_tmp114_, reporter);
-					_g_free0 (_tmp110_);
-					_tmp110_ = _tmp115_;
+				_tmp92_ = _method_list;
+				_tmp93_ = vala_list_get (_tmp92_, _method_index);
+				method = (GtkdocDBusMember*) _tmp93_;
+				_tmp95_ = method;
+				_tmp96_ = _tmp95_->comment;
+				if (_tmp96_ != NULL) {
+					GtkdocDBusMember* _tmp97_;
+					GtkdocGComment* _tmp98_;
+					gchar* _tmp99_;
+					_tmp97_ = method;
+					_tmp98_ = _tmp97_->comment;
+					_tmp99_ = gtkdoc_gcomment_to_docbook (_tmp98_, reporter);
+					_g_free0 (_tmp94_);
+					_tmp94_ = _tmp99_;
 				} else {
-					gchar* _tmp116_;
-					_tmp116_ = g_strdup ("");
-					_g_free0 (_tmp110_);
-					_tmp110_ = _tmp116_;
+					gchar* _tmp100_;
+					_tmp100_ = g_strdup ("");
+					_g_free0 (_tmp94_);
+					_tmp94_ = _tmp100_;
 				}
-				_tmp117_ = builder;
-				_tmp118_ = docbook_id;
-				_tmp119_ = method;
-				_tmp120_ = gtkdoc_dbus_member_get_docbook_id (_tmp119_);
-				_tmp121_ = _tmp120_;
-				_tmp122_ = method;
-				_tmp123_ = _tmp122_->name;
-				_tmp124_ = method;
-				_tmp125_ = method_indent;
-				_tmp126_ = gtkdoc_dbus_member_to_string (_tmp124_, _tmp125_, FALSE);
-				_tmp127_ = _tmp126_;
-				g_string_append_printf (_tmp117_, "\n" \
+				_tmp101_ = builder;
+				_tmp102_ = docbook_id;
+				_tmp103_ = method;
+				_tmp104_ = gtkdoc_dbus_member_get_docbook_id (_tmp103_);
+				_tmp105_ = _tmp104_;
+				_tmp106_ = method;
+				_tmp107_ = _tmp106_->name;
+				_tmp108_ = method;
+				_tmp109_ = gtkdoc_dbus_member_to_string (_tmp108_, method_indent, FALSE);
+				_tmp110_ = _tmp109_;
+				g_string_append_printf (_tmp101_, "\n" \
 "<refsect2 id=\"%s-%s\" role=\"function\">\n" \
 "<title>%s ()</title>\n" \
 "<programlisting>%s\n" \
 "</programlisting>\n" \
 "%s\n" \
-"</refsect2>", _tmp118_, _tmp121_, _tmp123_, _tmp127_, _tmp110_);
-				_g_free0 (_tmp127_);
-				_g_free0 (_tmp121_);
+"</refsect2>", _tmp102_, _tmp105_, _tmp107_, _tmp110_, _tmp94_);
 				_g_free0 (_tmp110_);
+				_g_free0 (_tmp105_);
+				_g_free0 (_tmp94_);
 				_gtkdoc_dbus_member_unref0 (method);
 			}
 			_vala_iterable_unref0 (_method_list);
 		}
-		_tmp128_ = builder;
-		g_string_append (_tmp128_, "</refsect1>");
+		_tmp111_ = builder;
+		g_string_append (_tmp111_, "</refsect1>");
 	}
-	_tmp129_ = self->signals;
-	_tmp130_ = vala_collection_get_size ((ValaCollection*) _tmp129_);
-	_tmp131_ = _tmp130_;
-	if (_tmp131_ > 0) {
-		GString* _tmp132_;
-		const gchar* _tmp133_;
-		GString* _tmp163_;
-		_tmp132_ = builder;
-		_tmp133_ = docbook_id;
-		g_string_append_printf (_tmp132_, "\n" \
+	_tmp112_ = self->signals;
+	_tmp113_ = vala_collection_get_size ((ValaCollection*) _tmp112_);
+	_tmp114_ = _tmp113_;
+	if (_tmp114_ > 0) {
+		GString* _tmp115_;
+		const gchar* _tmp116_;
+		GString* _tmp143_;
+		_tmp115_ = builder;
+		_tmp116_ = docbook_id;
+		g_string_append_printf (_tmp115_, "\n" \
 "<refsect1 id=\"docs-%s.signal-details\" role=\"signals\">\n" \
-"<title role=\"signals.title\">Signal Details</title>", _tmp133_);
+"<title role=\"signals.title\">Signal Details</title>", _tmp116_);
 		{
 			ValaList* _sig_list = NULL;
-			ValaList* _tmp134_;
-			ValaList* _tmp135_;
+			ValaList* _tmp117_;
+			ValaList* _tmp118_;
 			gint _sig_size = 0;
-			ValaList* _tmp136_;
-			gint _tmp137_;
-			gint _tmp138_;
+			ValaList* _tmp119_;
+			gint _tmp120_;
+			gint _tmp121_;
 			gint _sig_index = 0;
-			_tmp134_ = self->signals;
-			_tmp135_ = _vala_iterable_ref0 (_tmp134_);
-			_sig_list = _tmp135_;
-			_tmp136_ = _sig_list;
-			_tmp137_ = vala_collection_get_size ((ValaCollection*) _tmp136_);
-			_tmp138_ = _tmp137_;
-			_sig_size = _tmp138_;
+			_tmp117_ = self->signals;
+			_tmp118_ = _vala_iterable_ref0 (_tmp117_);
+			_sig_list = _tmp118_;
+			_tmp119_ = _sig_list;
+			_tmp120_ = vala_collection_get_size ((ValaCollection*) _tmp119_);
+			_tmp121_ = _tmp120_;
+			_sig_size = _tmp121_;
 			_sig_index = -1;
 			while (TRUE) {
-				gint _tmp139_;
-				gint _tmp140_;
-				gint _tmp141_;
+				gint _tmp122_;
+				gint _tmp123_;
 				GtkdocDBusMember* sig = NULL;
-				ValaList* _tmp142_;
-				gint _tmp143_;
-				gpointer _tmp144_;
-				gchar* _tmp145_ = NULL;
-				GtkdocDBusMember* _tmp146_;
-				GtkdocGComment* _tmp147_;
-				GString* _tmp152_;
-				const gchar* _tmp153_;
-				GtkdocDBusMember* _tmp154_;
-				gchar* _tmp155_;
-				gchar* _tmp156_;
-				GtkdocDBusMember* _tmp157_;
-				const gchar* _tmp158_;
-				GtkdocDBusMember* _tmp159_;
-				gint _tmp160_;
-				gchar* _tmp161_;
-				gchar* _tmp162_;
-				_tmp139_ = _sig_index;
-				_sig_index = _tmp139_ + 1;
-				_tmp140_ = _sig_index;
-				_tmp141_ = _sig_size;
-				if (!(_tmp140_ < _tmp141_)) {
+				ValaList* _tmp124_;
+				gpointer _tmp125_;
+				gchar* _tmp126_ = NULL;
+				GtkdocDBusMember* _tmp127_;
+				GtkdocGComment* _tmp128_;
+				GString* _tmp133_;
+				const gchar* _tmp134_;
+				GtkdocDBusMember* _tmp135_;
+				gchar* _tmp136_;
+				gchar* _tmp137_;
+				GtkdocDBusMember* _tmp138_;
+				const gchar* _tmp139_;
+				GtkdocDBusMember* _tmp140_;
+				gchar* _tmp141_;
+				gchar* _tmp142_;
+				_sig_index = _sig_index + 1;
+				_tmp122_ = _sig_index;
+				_tmp123_ = _sig_size;
+				if (!(_tmp122_ < _tmp123_)) {
 					break;
 				}
-				_tmp142_ = _sig_list;
-				_tmp143_ = _sig_index;
-				_tmp144_ = vala_list_get (_tmp142_, _tmp143_);
-				sig = (GtkdocDBusMember*) _tmp144_;
-				_tmp146_ = sig;
-				_tmp147_ = _tmp146_->comment;
-				if (_tmp147_ != NULL) {
-					GtkdocDBusMember* _tmp148_;
-					GtkdocGComment* _tmp149_;
-					gchar* _tmp150_;
-					_tmp148_ = sig;
-					_tmp149_ = _tmp148_->comment;
-					_tmp150_ = gtkdoc_gcomment_to_docbook (_tmp149_, reporter);
-					_g_free0 (_tmp145_);
-					_tmp145_ = _tmp150_;
+				_tmp124_ = _sig_list;
+				_tmp125_ = vala_list_get (_tmp124_, _sig_index);
+				sig = (GtkdocDBusMember*) _tmp125_;
+				_tmp127_ = sig;
+				_tmp128_ = _tmp127_->comment;
+				if (_tmp128_ != NULL) {
+					GtkdocDBusMember* _tmp129_;
+					GtkdocGComment* _tmp130_;
+					gchar* _tmp131_;
+					_tmp129_ = sig;
+					_tmp130_ = _tmp129_->comment;
+					_tmp131_ = gtkdoc_gcomment_to_docbook (_tmp130_, reporter);
+					_g_free0 (_tmp126_);
+					_tmp126_ = _tmp131_;
 				} else {
-					gchar* _tmp151_;
-					_tmp151_ = g_strdup ("");
-					_g_free0 (_tmp145_);
-					_tmp145_ = _tmp151_;
+					gchar* _tmp132_;
+					_tmp132_ = g_strdup ("");
+					_g_free0 (_tmp126_);
+					_tmp126_ = _tmp132_;
 				}
-				_tmp152_ = builder;
-				_tmp153_ = docbook_id;
-				_tmp154_ = sig;
-				_tmp155_ = gtkdoc_dbus_member_get_docbook_id (_tmp154_);
-				_tmp156_ = _tmp155_;
-				_tmp157_ = sig;
-				_tmp158_ = _tmp157_->name;
-				_tmp159_ = sig;
-				_tmp160_ = signal_indent;
-				_tmp161_ = gtkdoc_dbus_member_to_string (_tmp159_, _tmp160_, FALSE);
-				_tmp162_ = _tmp161_;
-				g_string_append_printf (_tmp152_, "\n" \
+				_tmp133_ = builder;
+				_tmp134_ = docbook_id;
+				_tmp135_ = sig;
+				_tmp136_ = gtkdoc_dbus_member_get_docbook_id (_tmp135_);
+				_tmp137_ = _tmp136_;
+				_tmp138_ = sig;
+				_tmp139_ = _tmp138_->name;
+				_tmp140_ = sig;
+				_tmp141_ = gtkdoc_dbus_member_to_string (_tmp140_, signal_indent, FALSE);
+				_tmp142_ = _tmp141_;
+				g_string_append_printf (_tmp133_, "\n" \
 "<refsect2 id=\"%s-%s\" role=\"signal\">\n" \
 "<title>The <literal>%s</literal> signal</title>\n" \
 "<programlisting>%s\n" \
 "</programlisting>\n" \
 "%s\n" \
-"</refsect2>", _tmp153_, _tmp156_, _tmp158_, _tmp162_, _tmp145_);
-				_g_free0 (_tmp162_);
-				_g_free0 (_tmp156_);
-				_g_free0 (_tmp145_);
+"</refsect2>", _tmp134_, _tmp137_, _tmp139_, _tmp142_, _tmp126_);
+				_g_free0 (_tmp142_);
+				_g_free0 (_tmp137_);
+				_g_free0 (_tmp126_);
 				_gtkdoc_dbus_member_unref0 (sig);
 			}
 			_vala_iterable_unref0 (_sig_list);
 		}
-		_tmp163_ = builder;
-		g_string_append (_tmp163_, "</refsect1>");
+		_tmp143_ = builder;
+		g_string_append (_tmp143_, "</refsect1>");
 	}
-	_tmp164_ = builder;
-	g_string_append (_tmp164_, "</refentry>");
-	_tmp165_ = builder;
-	_tmp166_ = _tmp165_->str;
-	_tmp167_ = g_strdup (_tmp166_);
-	result = _tmp167_;
+	_tmp144_ = builder;
+	g_string_append (_tmp144_, "</refentry>");
+	_tmp145_ = builder;
+	_tmp146_ = _tmp145_->str;
+	_tmp147_ = g_strdup (_tmp146_);
+	result = _tmp147_;
 	_g_free0 (docbook_id);
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 static void
 gtkdoc_dbus_value_interface_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_dbus_value_interface_free_value (GValue* value)
@@ -1785,7 +1720,6 @@ gtkdoc_dbus_value_interface_free_value (GValue* value)
 		gtkdoc_dbus_interface_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_dbus_value_interface_copy_value (const GValue* src_value,
@@ -1798,13 +1732,11 @@ gtkdoc_dbus_value_interface_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_dbus_value_interface_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_dbus_value_interface_collect_value (GValue* value,
@@ -1827,7 +1759,6 @@ gtkdoc_dbus_value_interface_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_dbus_value_interface_lcopy_value (const GValue* value,
                                          guint n_collect_values,
@@ -1849,7 +1780,6 @@ gtkdoc_dbus_value_interface_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 gtkdoc_dbus_param_spec_interface (const gchar* name,
                                   const gchar* nick,
@@ -1864,14 +1794,12 @@ gtkdoc_dbus_param_spec_interface (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 gtkdoc_dbus_value_get_interface (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_DBUS_TYPE_INTERFACE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 gtkdoc_dbus_value_set_interface (GValue* value,
@@ -1893,7 +1821,6 @@ gtkdoc_dbus_value_set_interface (GValue* value,
 	}
 }
 
-
 void
 gtkdoc_dbus_value_take_interface (GValue* value,
                                   gpointer v_object)
@@ -1913,17 +1840,17 @@ gtkdoc_dbus_value_take_interface (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_dbus_interface_class_init (GtkdocDBusInterfaceClass * klass)
+gtkdoc_dbus_interface_class_init (GtkdocDBusInterfaceClass * klass,
+                                  gpointer klass_data)
 {
 	gtkdoc_dbus_interface_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocDBusInterfaceClass *) klass)->finalize = gtkdoc_dbus_interface_finalize;
 }
 
-
 static void
-gtkdoc_dbus_interface_instance_init (GtkdocDBusInterface * self)
+gtkdoc_dbus_interface_instance_init (GtkdocDBusInterface * self,
+                                     gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -1937,7 +1864,6 @@ gtkdoc_dbus_interface_instance_init (GtkdocDBusInterface * self)
 	self->signals = (ValaList*) _tmp3_;
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_dbus_interface_finalize (GtkdocDBusInterface * obj)
@@ -1953,22 +1879,28 @@ gtkdoc_dbus_interface_finalize (GtkdocDBusInterface * obj)
 	_vala_iterable_unref0 (self->signals);
 }
 
+static GType
+gtkdoc_dbus_interface_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_interface_init, gtkdoc_dbus_value_interface_free_value, gtkdoc_dbus_value_interface_copy_value, gtkdoc_dbus_value_interface_peek_pointer, "p", gtkdoc_dbus_value_interface_collect_value, "p", gtkdoc_dbus_value_interface_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusInterfaceClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_interface_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusInterface), 0, (GInstanceInitFunc) gtkdoc_dbus_interface_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_dbus_interface_type_id;
+	gtkdoc_dbus_interface_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusInterface", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_dbus_interface_type_id;
+}
 
 GType
 gtkdoc_dbus_interface_get_type (void)
 {
 	static volatile gsize gtkdoc_dbus_interface_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_dbus_interface_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_dbus_value_interface_init, gtkdoc_dbus_value_interface_free_value, gtkdoc_dbus_value_interface_copy_value, gtkdoc_dbus_value_interface_peek_pointer, "p", gtkdoc_dbus_value_interface_collect_value, "p", gtkdoc_dbus_value_interface_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocDBusInterfaceClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_dbus_interface_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDBusInterface), 0, (GInstanceInitFunc) gtkdoc_dbus_interface_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_dbus_interface_type_id;
-		gtkdoc_dbus_interface_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocDBusInterface", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_dbus_interface_type_id = gtkdoc_dbus_interface_get_type_once ();
 		g_once_init_leave (&gtkdoc_dbus_interface_type_id__volatile, gtkdoc_dbus_interface_type_id);
 	}
 	return gtkdoc_dbus_interface_type_id__volatile;
 }
-
 
 gpointer
 gtkdoc_dbus_interface_ref (gpointer instance)
@@ -1978,7 +1910,6 @@ gtkdoc_dbus_interface_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 gtkdoc_dbus_interface_unref (gpointer instance)
@@ -1990,6 +1921,4 @@ gtkdoc_dbus_interface_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

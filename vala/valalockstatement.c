@@ -26,10 +26,8 @@
  * 	Jiří Zárevúcky <zarevucky.jiri@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
@@ -37,7 +35,6 @@ struct _ValaLockStatementPrivate {
 	ValaExpression* _resource;
 	ValaBlock* _body;
 };
-
 
 static gint ValaLockStatement_private_offset;
 static gpointer vala_lock_statement_parent_class = NULL;
@@ -53,7 +50,7 @@ static gboolean vala_lock_statement_real_check (ValaCodeNode* base,
 static void vala_lock_statement_real_emit (ValaCodeNode* base,
                                     ValaCodeGenerator* codegen);
 static void vala_lock_statement_finalize (ValaCodeNode * obj);
-
+static GType vala_lock_statement_get_type_once (void);
 
 static inline gpointer
 vala_lock_statement_get_instance_private (ValaLockStatement* self)
@@ -61,6 +58,65 @@ vala_lock_statement_get_instance_private (ValaLockStatement* self)
 	return G_STRUCT_MEMBER_P (self, ValaLockStatement_private_offset);
 }
 
+ValaExpression*
+vala_lock_statement_get_resource (ValaLockStatement* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_resource;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_lock_statement_set_resource (ValaLockStatement* self,
+                                  ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_resource);
+	self->priv->_resource = _tmp0_;
+	_tmp1_ = self->priv->_resource;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaBlock*
+vala_lock_statement_get_body (ValaLockStatement* self)
+{
+	ValaBlock* result;
+	ValaBlock* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_body;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_lock_statement_set_body (ValaLockStatement* self,
+                              ValaBlock* value)
+{
+	ValaBlock* _tmp0_;
+	ValaBlock* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_body);
+	self->priv->_body = _tmp0_;
+	_tmp1_ = self->priv->_body;
+	if (_tmp1_ != NULL) {
+		ValaBlock* _tmp2_;
+		_tmp2_ = self->priv->_body;
+		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
+	}
+}
 
 ValaLockStatement*
 vala_lock_statement_construct (GType object_type,
@@ -77,7 +133,6 @@ vala_lock_statement_construct (GType object_type,
 	return self;
 }
 
-
 ValaLockStatement*
 vala_lock_statement_new (ValaExpression* resource,
                          ValaBlock* body,
@@ -85,7 +140,6 @@ vala_lock_statement_new (ValaExpression* resource,
 {
 	return vala_lock_statement_construct (VALA_TYPE_LOCK_STATEMENT, resource, body, source_reference);
 }
-
 
 static void
 vala_lock_statement_real_accept (ValaCodeNode* base,
@@ -113,7 +167,6 @@ vala_lock_statement_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_lock_statement (visitor, self);
 }
 
-
 static void
 vala_lock_statement_real_replace_expression (ValaCodeNode* base,
                                              ValaExpression* old_node,
@@ -132,20 +185,11 @@ vala_lock_statement_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
 static gboolean
 vala_lock_statement_real_check (ValaCodeNode* base,
                                 ValaCodeContext* context)
 {
 	ValaLockStatement * self;
-	gboolean result = FALSE;
 	ValaBlock* _tmp0_;
 	ValaBlock* _tmp1_;
 	gboolean _tmp36_;
@@ -177,6 +221,7 @@ vala_lock_statement_real_check (ValaCodeNode* base,
 	ValaSymbol* _tmp86_;
 	gboolean _tmp87_;
 	gboolean _tmp88_;
+	gboolean result = FALSE;
 	self = (ValaLockStatement*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_lock_statement_get_body (self);
@@ -285,7 +330,7 @@ vala_lock_statement_real_check (ValaCodeNode* base,
 	vala_code_node_check ((ValaCodeNode*) _tmp41_, context);
 	_tmp43_ = vala_lock_statement_get_resource (self);
 	_tmp44_ = _tmp43_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp44_, VALA_TYPE_MEMBER_ACCESS)) {
+	if (VALA_IS_MEMBER_ACCESS (_tmp44_)) {
 		ValaExpression* _tmp45_;
 		ValaExpression* _tmp46_;
 		ValaSymbol* _tmp47_;
@@ -294,7 +339,7 @@ vala_lock_statement_real_check (ValaCodeNode* base,
 		_tmp46_ = _tmp45_;
 		_tmp47_ = vala_expression_get_symbol_reference (_tmp46_);
 		_tmp48_ = _tmp47_;
-		_tmp42_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp48_, VALA_TYPE_LOCKABLE);
+		_tmp42_ = VALA_IS_LOCKABLE (_tmp48_);
 	} else {
 		_tmp42_ = FALSE;
 	}
@@ -383,7 +428,6 @@ vala_lock_statement_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_lock_statement_real_emit (ValaCodeNode* base,
                                ValaCodeGenerator* codegen)
@@ -399,67 +443,9 @@ vala_lock_statement_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_lock_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
-ValaExpression*
-vala_lock_statement_get_resource (ValaLockStatement* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_resource;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_lock_statement_set_resource (ValaLockStatement* self,
-                                  ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_resource);
-	self->priv->_resource = _tmp0_;
-	_tmp1_ = self->priv->_resource;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaBlock*
-vala_lock_statement_get_body (ValaLockStatement* self)
-{
-	ValaBlock* result;
-	ValaBlock* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_body;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_lock_statement_set_body (ValaLockStatement* self,
-                              ValaBlock* value)
-{
-	ValaBlock* _tmp0_;
-	ValaBlock* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_body);
-	self->priv->_body = _tmp0_;
-	_tmp1_ = self->priv->_body;
-	if (_tmp1_ != NULL) {
-		ValaBlock* _tmp2_;
-		_tmp2_ = self->priv->_body;
-		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
-	}
-}
-
-
 static void
-vala_lock_statement_class_init (ValaLockStatementClass * klass)
+vala_lock_statement_class_init (ValaLockStatementClass * klass,
+                                gpointer klass_data)
 {
 	vala_lock_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_lock_statement_finalize;
@@ -470,20 +456,19 @@ vala_lock_statement_class_init (ValaLockStatementClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_lock_statement_real_emit;
 }
 
-
 static void
-vala_lock_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_lock_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                   gpointer iface_data)
 {
 	vala_lock_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_lock_statement_instance_init (ValaLockStatement * self)
+vala_lock_statement_instance_init (ValaLockStatement * self,
+                                   gpointer klass)
 {
 	self->priv = vala_lock_statement_get_instance_private (self);
 }
-
 
 static void
 vala_lock_statement_finalize (ValaCodeNode * obj)
@@ -495,29 +480,36 @@ vala_lock_statement_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_lock_statement_parent_class)->finalize (obj);
 }
 
-
 /**
- * Represents a lock statement e.g. {{{ lock (a); }}} or {{{ lock (a) { f(a); } }}}.
+ * Represents a lock statement.
  *
- * If the statement is empty, the mutex remains locked until a corresponding UnlockStatement
- * occurs. Otherwise it's translated into a try/finally statement which unlocks the mutex
- * after the block is finished.
+ * {{{ lock (foo); }}} or {{{ lock (foo) { ... } }}}
+ *
+ * If the statement is empty, the mutex remains locked until a corresponding
+ * {@link Vala.UnlockStatement} occurs. Otherwise it's translated into a
+ * try/finally statement which unlocks the mutex after the block is finished.
  */
+static GType
+vala_lock_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaLockStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_lock_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaLockStatement), 0, (GInstanceInitFunc) vala_lock_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_lock_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_lock_statement_type_id;
+	vala_lock_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaLockStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_lock_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	ValaLockStatement_private_offset = g_type_add_instance_private (vala_lock_statement_type_id, sizeof (ValaLockStatementPrivate));
+	return vala_lock_statement_type_id;
+}
+
 GType
 vala_lock_statement_get_type (void)
 {
 	static volatile gsize vala_lock_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_lock_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaLockStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_lock_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaLockStatement), 0, (GInstanceInitFunc) vala_lock_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_lock_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_lock_statement_type_id;
-		vala_lock_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaLockStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_lock_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaLockStatement_private_offset = g_type_add_instance_private (vala_lock_statement_type_id, sizeof (ValaLockStatementPrivate));
+		vala_lock_statement_type_id = vala_lock_statement_get_type_once ();
 		g_once_init_leave (&vala_lock_statement_type_id__volatile, vala_lock_statement_type_id);
 	}
 	return vala_lock_statement_type_id__volatile;
 }
-
-
 

@@ -23,23 +23,18 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
-#include <valagee.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
-#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
 struct _ValaTypeCheckPrivate {
 	ValaExpression* _expression;
 	ValaDataType* _data_type;
 };
-
 
 static gint ValaTypeCheck_private_offset;
 static gpointer vala_typecheck_parent_class = NULL;
@@ -61,7 +56,7 @@ static void vala_typecheck_real_emit (ValaCodeNode* base,
                                ValaCodeGenerator* codegen);
 static gchar* vala_typecheck_real_to_string (ValaCodeNode* base);
 static void vala_typecheck_finalize (ValaCodeNode * obj);
-
+static GType vala_typecheck_get_type_once (void);
 
 static inline gpointer
 vala_typecheck_get_instance_private (ValaTypeCheck* self)
@@ -69,6 +64,61 @@ vala_typecheck_get_instance_private (ValaTypeCheck* self)
 	return G_STRUCT_MEMBER_P (self, ValaTypeCheck_private_offset);
 }
 
+ValaExpression*
+vala_typecheck_get_expression (ValaTypeCheck* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_expression;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_typecheck_set_expression (ValaTypeCheck* self,
+                               ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_expression);
+	self->priv->_expression = _tmp0_;
+	_tmp1_ = self->priv->_expression;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaDataType*
+vala_typecheck_get_type_reference (ValaTypeCheck* self)
+{
+	ValaDataType* result;
+	ValaDataType* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_data_type;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_typecheck_set_type_reference (ValaTypeCheck* self,
+                                   ValaDataType* value)
+{
+	ValaDataType* _tmp0_;
+	ValaDataType* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_data_type);
+	self->priv->_data_type = _tmp0_;
+	_tmp1_ = self->priv->_data_type;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 /**
  * Creates a new type check expression.
@@ -87,14 +137,12 @@ vala_typecheck_construct (GType object_type,
 	ValaTypeCheck* self = NULL;
 	g_return_val_if_fail (expr != NULL, NULL);
 	g_return_val_if_fail (type != NULL, NULL);
-	g_return_val_if_fail (source != NULL, NULL);
 	self = (ValaTypeCheck*) vala_expression_construct (object_type);
 	vala_typecheck_set_expression (self, expr);
 	vala_typecheck_set_type_reference (self, type);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source);
 	return self;
 }
-
 
 ValaTypeCheck*
 vala_typecheck_new (ValaExpression* expr,
@@ -103,7 +151,6 @@ vala_typecheck_new (ValaExpression* expr,
 {
 	return vala_typecheck_construct (VALA_TYPE_TYPECHECK, expr, type, source);
 }
-
 
 static void
 vala_typecheck_real_accept (ValaCodeNode* base,
@@ -115,7 +162,6 @@ vala_typecheck_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_type_check (visitor, self);
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
-
 
 static void
 vala_typecheck_real_accept_children (ValaCodeNode* base,
@@ -136,21 +182,19 @@ vala_typecheck_real_accept_children (ValaCodeNode* base,
 	vala_code_node_accept ((ValaCodeNode*) _tmp3_, visitor);
 }
 
-
 static gboolean
 vala_typecheck_real_is_pure (ValaExpression* base)
 {
 	ValaTypeCheck * self;
-	gboolean result = FALSE;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
+	gboolean result = FALSE;
 	self = (ValaTypeCheck*) base;
 	_tmp0_ = vala_typecheck_get_expression (self);
 	_tmp1_ = _tmp0_;
 	result = vala_expression_is_pure (_tmp1_);
 	return result;
 }
-
 
 static void
 vala_typecheck_real_replace_type (ValaCodeNode* base,
@@ -170,7 +214,6 @@ vala_typecheck_real_replace_type (ValaCodeNode* base,
 	}
 }
 
-
 static void
 vala_typecheck_real_replace_expression (ValaCodeNode* base,
                                         ValaExpression* old_node,
@@ -189,13 +232,11 @@ vala_typecheck_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_typecheck_real_check (ValaCodeNode* base,
                            ValaCodeContext* context)
 {
 	ValaTypeCheck * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
@@ -216,11 +257,12 @@ vala_typecheck_real_check (ValaCodeNode* base,
 	gboolean _tmp37_ = FALSE;
 	ValaProfile _tmp38_;
 	ValaProfile _tmp39_;
-	ValaSemanticAnalyzer* _tmp49_;
-	ValaSemanticAnalyzer* _tmp50_;
-	ValaDataType* _tmp51_;
-	gboolean _tmp52_;
-	gboolean _tmp53_;
+	ValaSemanticAnalyzer* _tmp45_;
+	ValaSemanticAnalyzer* _tmp46_;
+	ValaDataType* _tmp47_;
+	gboolean _tmp48_;
+	gboolean _tmp49_;
+	gboolean result = FALSE;
 	self = (ValaTypeCheck*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -260,7 +302,7 @@ vala_typecheck_real_check (ValaCodeNode* base,
 	}
 	_tmp16_ = vala_typecheck_get_type_reference (self);
 	_tmp17_ = _tmp16_;
-	_tmp18_ = vala_data_type_get_data_type (_tmp17_);
+	_tmp18_ = vala_data_type_get_type_symbol (_tmp17_);
 	_tmp19_ = _tmp18_;
 	if (_tmp19_ == NULL) {
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
@@ -269,7 +311,7 @@ vala_typecheck_real_check (ValaCodeNode* base,
 	}
 	_tmp21_ = vala_typecheck_get_type_reference (self);
 	_tmp22_ = _tmp21_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp22_, VALA_TYPE_ERROR_TYPE)) {
+	if (VALA_IS_ERROR_TYPE (_tmp22_)) {
 		ValaExpression* _tmp23_;
 		ValaExpression* _tmp24_;
 		ValaDataType* _tmp25_;
@@ -278,7 +320,7 @@ vala_typecheck_real_check (ValaCodeNode* base,
 		_tmp24_ = _tmp23_;
 		_tmp25_ = vala_expression_get_value_type (_tmp24_);
 		_tmp26_ = _tmp25_;
-		_tmp20_ = !G_TYPE_CHECK_INSTANCE_TYPE (_tmp26_, VALA_TYPE_ERROR_TYPE);
+		_tmp20_ = !VALA_IS_ERROR_TYPE (_tmp26_);
 	} else {
 		_tmp20_ = FALSE;
 	}
@@ -315,40 +357,30 @@ vala_typecheck_real_check (ValaCodeNode* base,
 	if (_tmp39_ == VALA_PROFILE_GOBJECT) {
 		ValaDataType* _tmp40_;
 		ValaDataType* _tmp41_;
-		ValaList* _tmp42_;
-		ValaList* _tmp43_;
-		gint _tmp44_;
-		gint _tmp45_;
 		_tmp40_ = vala_typecheck_get_type_reference (self);
 		_tmp41_ = _tmp40_;
-		_tmp42_ = vala_data_type_get_type_arguments (_tmp41_);
-		_tmp43_ = _tmp42_;
-		_tmp44_ = vala_collection_get_size ((ValaCollection*) _tmp43_);
-		_tmp45_ = _tmp44_;
-		_tmp37_ = _tmp45_ > 0;
-		_vala_iterable_unref0 (_tmp43_);
+		_tmp37_ = vala_data_type_has_type_arguments (_tmp41_);
 	} else {
 		_tmp37_ = FALSE;
 	}
 	if (_tmp37_) {
-		ValaDataType* _tmp46_;
-		ValaSourceReference* _tmp47_;
-		ValaSourceReference* _tmp48_;
-		_tmp46_ = self->priv->_data_type;
-		_tmp47_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp46_);
-		_tmp48_ = _tmp47_;
-		vala_report_warning (_tmp48_, "Type argument list has no effect");
+		ValaDataType* _tmp42_;
+		ValaSourceReference* _tmp43_;
+		ValaSourceReference* _tmp44_;
+		_tmp42_ = self->priv->_data_type;
+		_tmp43_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp42_);
+		_tmp44_ = _tmp43_;
+		vala_report_warning (_tmp44_, "Type argument list has no effect");
 	}
-	_tmp49_ = vala_code_context_get_analyzer (context);
-	_tmp50_ = _tmp49_;
-	_tmp51_ = _tmp50_->bool_type;
-	vala_expression_set_value_type ((ValaExpression*) self, _tmp51_);
-	_tmp52_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp53_ = _tmp52_;
-	result = !_tmp53_;
+	_tmp45_ = vala_code_context_get_analyzer (context);
+	_tmp46_ = _tmp45_;
+	_tmp47_ = _tmp46_->bool_type;
+	vala_expression_set_value_type ((ValaExpression*) self, _tmp47_);
+	_tmp48_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp49_ = _tmp48_;
+	result = !_tmp49_;
 	return result;
 }
-
 
 static void
 vala_typecheck_real_emit (ValaCodeNode* base,
@@ -366,12 +398,10 @@ vala_typecheck_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
 static gchar*
 vala_typecheck_real_to_string (ValaCodeNode* base)
 {
 	ValaTypeCheck * self;
-	gchar* result = NULL;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
 	gchar* _tmp2_;
@@ -382,6 +412,7 @@ vala_typecheck_real_to_string (ValaCodeNode* base)
 	gchar* _tmp7_;
 	gchar* _tmp8_;
 	gchar* _tmp9_;
+	gchar* result = NULL;
 	self = (ValaTypeCheck*) base;
 	_tmp0_ = vala_typecheck_get_expression (self);
 	_tmp1_ = _tmp0_;
@@ -399,70 +430,9 @@ vala_typecheck_real_to_string (ValaCodeNode* base)
 	return result;
 }
 
-
-ValaExpression*
-vala_typecheck_get_expression (ValaTypeCheck* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_expression;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_typecheck_set_expression (ValaTypeCheck* self,
-                               ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_expression);
-	self->priv->_expression = _tmp0_;
-	_tmp1_ = self->priv->_expression;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaDataType*
-vala_typecheck_get_type_reference (ValaTypeCheck* self)
-{
-	ValaDataType* result;
-	ValaDataType* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_data_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_typecheck_set_type_reference (ValaTypeCheck* self,
-                                   ValaDataType* value)
-{
-	ValaDataType* _tmp0_;
-	ValaDataType* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_data_type);
-	self->priv->_data_type = _tmp0_;
-	_tmp1_ = self->priv->_data_type;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_typecheck_class_init (ValaTypeCheckClass * klass)
+vala_typecheck_class_init (ValaTypeCheckClass * klass,
+                           gpointer klass_data)
 {
 	vala_typecheck_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_typecheck_finalize;
@@ -477,13 +447,12 @@ vala_typecheck_class_init (ValaTypeCheckClass * klass)
 	((ValaCodeNodeClass *) klass)->to_string = (gchar* (*) (ValaCodeNode*)) vala_typecheck_real_to_string;
 }
 
-
 static void
-vala_typecheck_instance_init (ValaTypeCheck * self)
+vala_typecheck_instance_init (ValaTypeCheck * self,
+                              gpointer klass)
 {
 	self->priv = vala_typecheck_get_instance_private (self);
 }
-
 
 static void
 vala_typecheck_finalize (ValaCodeNode * obj)
@@ -495,23 +464,28 @@ vala_typecheck_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_typecheck_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a type check (`is`) expression in the source code.
  */
+static GType
+vala_typecheck_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaTypeCheckClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_typecheck_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTypeCheck), 0, (GInstanceInitFunc) vala_typecheck_instance_init, NULL };
+	GType vala_typecheck_type_id;
+	vala_typecheck_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaTypeCheck", &g_define_type_info, 0);
+	ValaTypeCheck_private_offset = g_type_add_instance_private (vala_typecheck_type_id, sizeof (ValaTypeCheckPrivate));
+	return vala_typecheck_type_id;
+}
+
 GType
 vala_typecheck_get_type (void)
 {
 	static volatile gsize vala_typecheck_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_typecheck_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaTypeCheckClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_typecheck_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTypeCheck), 0, (GInstanceInitFunc) vala_typecheck_instance_init, NULL };
 		GType vala_typecheck_type_id;
-		vala_typecheck_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaTypeCheck", &g_define_type_info, 0);
-		ValaTypeCheck_private_offset = g_type_add_instance_private (vala_typecheck_type_id, sizeof (ValaTypeCheckPrivate));
+		vala_typecheck_type_id = vala_typecheck_get_type_once ();
 		g_once_init_leave (&vala_typecheck_type_id__volatile, vala_typecheck_type_id);
 	}
 	return vala_typecheck_type_id__volatile;
 }
-
-
 

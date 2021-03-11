@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
+#include <valacodegen.h>
 
 enum  {
 	VALADOC_API_CONSTANT_0_PROPERTY,
@@ -47,7 +46,6 @@ struct _ValadocApiConstantPrivate {
 	ValadocApiTypeReference* _constant_type;
 };
 
-
 static gint ValadocApiConstant_private_offset;
 static gpointer valadoc_api_constant_parent_class = NULL;
 
@@ -55,6 +53,7 @@ static ValadocContentInline* valadoc_api_constant_real_build_signature (ValadocA
 static void valadoc_api_constant_real_accept (ValadocApiNode* base,
                                        ValadocApiVisitor* visitor);
 static void valadoc_api_constant_finalize (GObject * obj);
+static GType valadoc_api_constant_get_type_once (void);
 static void _vala_valadoc_api_constant_get_property (GObject * object,
                                               guint property_id,
                                               GValue * value,
@@ -64,22 +63,52 @@ static void _vala_valadoc_api_constant_set_property (GObject * object,
                                               const GValue * value,
                                               GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_constant_get_instance_private (ValadocApiConstant* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiConstant_private_offset);
 }
 
+ValadocApiTypeReference*
+valadoc_api_constant_get_constant_type (ValadocApiConstant* self)
+{
+	ValadocApiTypeReference* result;
+	ValadocApiTypeReference* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_constant_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_api_constant_set_constant_type (ValadocApiConstant* self,
+                                        ValadocApiTypeReference* value)
+{
+	ValadocApiTypeReference* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_constant_get_constant_type (self);
+	if (old_value != value) {
+		ValadocApiTypeReference* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_constant_type);
+		self->priv->_constant_type = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_constant_properties[VALADOC_API_CONSTANT_CONSTANT_TYPE_PROPERTY]);
+	}
+}
 
 ValadocApiConstant*
 valadoc_api_constant_construct (GType object_type,
                                 ValadocApiNode* parent,
                                 ValadocApiSourceFile* file,
                                 const gchar* name,
-                                ValadocApiSymbolAccessibility accessibility,
+                                ValaSymbolAccessibility accessibility,
                                 ValadocApiSourceComment* comment,
-                                const gchar* cname,
                                 ValaConstant* data)
 {
 	ValadocApiConstant * self = NULL;
@@ -88,26 +117,23 @@ valadoc_api_constant_construct (GType object_type,
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiConstant*) valadoc_api_member_construct (object_type, parent, file, name, accessibility, comment, (ValaSymbol*) data);
-	_tmp0_ = g_strdup (cname);
+	self = (ValadocApiConstant*) valadoc_api_symbol_construct (object_type, parent, file, name, accessibility, comment, (ValaSymbol*) data);
+	_tmp0_ = vala_get_ccode_name ((ValaCodeNode*) data);
 	_g_free0 (self->priv->cname);
 	self->priv->cname = _tmp0_;
 	return self;
 }
 
-
 ValadocApiConstant*
 valadoc_api_constant_new (ValadocApiNode* parent,
                           ValadocApiSourceFile* file,
                           const gchar* name,
-                          ValadocApiSymbolAccessibility accessibility,
+                          ValaSymbolAccessibility accessibility,
                           ValadocApiSourceComment* comment,
-                          const gchar* cname,
                           ValaConstant* data)
 {
-	return valadoc_api_constant_construct (VALADOC_API_TYPE_CONSTANT, parent, file, name, accessibility, comment, cname, data);
+	return valadoc_api_constant_construct (VALADOC_API_TYPE_CONSTANT, parent, file, name, accessibility, comment, data);
 }
-
 
 /**
  * Returns the name of this constant as it is used in C.
@@ -115,16 +141,15 @@ valadoc_api_constant_new (ValadocApiNode* parent,
 gchar*
 valadoc_api_constant_get_cname (ValadocApiConstant* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->cname;
 	_tmp1_ = g_strdup (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
 
 /**
  * {@inheritDoc}
@@ -133,11 +158,10 @@ static ValadocContentInline*
 valadoc_api_constant_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiConstant * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp1_;
-	ValadocApiSymbolAccessibility _tmp2_;
-	ValadocApiSymbolAccessibility _tmp3_;
+	ValaSymbolAccessibility _tmp2_;
+	ValaSymbolAccessibility _tmp3_;
 	const gchar* _tmp4_;
 	ValadocApiSignatureBuilder* _tmp5_;
 	ValadocApiSignatureBuilder* _tmp6_;
@@ -148,12 +172,13 @@ valadoc_api_constant_real_build_signature (ValadocApiItem* base)
 	ValadocApiSignatureBuilder* _tmp11_;
 	ValadocContentRun* _tmp12_;
 	ValadocContentInline* _tmp13_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiConstant*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	_tmp1_ = _tmp0_;
 	_tmp2_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_api_symbol_accessibility_to_string (_tmp3_);
+	_tmp4_ = vala_symbol_accessibility_to_string (_tmp3_);
 	_tmp5_ = valadoc_api_signature_builder_append_keyword (_tmp1_, _tmp4_, TRUE);
 	_tmp6_ = valadoc_api_signature_builder_append_keyword (_tmp5_, "const", TRUE);
 	_tmp7_ = self->priv->_constant_type;
@@ -168,6 +193,15 @@ valadoc_api_constant_real_build_signature (ValadocApiItem* base)
 	return result;
 }
 
+static ValadocApiNodeType
+valadoc_api_constant_real_get_node_type (ValadocApiNode* base)
+{
+	ValadocApiNodeType result;
+	ValadocApiConstant* self;
+	self = (ValadocApiConstant*) base;
+	result = VALADOC_API_NODE_TYPE_CONSTANT;
+	return result;
+}
 
 /**
  * {@inheritDoc}
@@ -182,54 +216,9 @@ valadoc_api_constant_real_accept (ValadocApiNode* base,
 	valadoc_api_visitor_visit_constant (visitor, self);
 }
 
-
-ValadocApiTypeReference*
-valadoc_api_constant_get_constant_type (ValadocApiConstant* self)
-{
-	ValadocApiTypeReference* result;
-	ValadocApiTypeReference* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_constant_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
-void
-valadoc_api_constant_set_constant_type (ValadocApiConstant* self,
-                                        ValadocApiTypeReference* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_constant_get_constant_type (self) != value) {
-		ValadocApiTypeReference* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_constant_type);
-		self->priv->_constant_type = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_constant_properties[VALADOC_API_CONSTANT_CONSTANT_TYPE_PROPERTY]);
-	}
-}
-
-
-static ValadocApiNodeType
-valadoc_api_constant_real_get_node_type (ValadocApiNode* base)
-{
-	ValadocApiNodeType result;
-	ValadocApiConstant* self;
-	self = (ValadocApiConstant*) base;
-	result = VALADOC_API_NODE_TYPE_CONSTANT;
-	return result;
-}
-
-
 static void
-valadoc_api_constant_class_init (ValadocApiConstantClass * klass)
+valadoc_api_constant_class_init (ValadocApiConstantClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_api_constant_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiConstant_private_offset);
@@ -249,13 +238,12 @@ valadoc_api_constant_class_init (ValadocApiConstantClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_CONSTANT_NODE_TYPE_PROPERTY, valadoc_api_constant_properties[VALADOC_API_CONSTANT_NODE_TYPE_PROPERTY] = g_param_spec_enum ("node-type", "node-type", "node-type", VALADOC_API_TYPE_NODE_TYPE, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_constant_instance_init (ValadocApiConstant * self)
+valadoc_api_constant_instance_init (ValadocApiConstant * self,
+                                    gpointer klass)
 {
 	self->priv = valadoc_api_constant_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_constant_finalize (GObject * obj)
@@ -267,24 +255,30 @@ valadoc_api_constant_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_constant_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a type member with a constant value.
  */
+static GType
+valadoc_api_constant_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiConstantClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_constant_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiConstant), 0, (GInstanceInitFunc) valadoc_api_constant_instance_init, NULL };
+	GType valadoc_api_constant_type_id;
+	valadoc_api_constant_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiConstant", &g_define_type_info, 0);
+	ValadocApiConstant_private_offset = g_type_add_instance_private (valadoc_api_constant_type_id, sizeof (ValadocApiConstantPrivate));
+	return valadoc_api_constant_type_id;
+}
+
 GType
 valadoc_api_constant_get_type (void)
 {
 	static volatile gsize valadoc_api_constant_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_constant_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiConstantClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_constant_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiConstant), 0, (GInstanceInitFunc) valadoc_api_constant_instance_init, NULL };
 		GType valadoc_api_constant_type_id;
-		valadoc_api_constant_type_id = g_type_register_static (VALADOC_API_TYPE_MEMBER, "ValadocApiConstant", &g_define_type_info, 0);
-		ValadocApiConstant_private_offset = g_type_add_instance_private (valadoc_api_constant_type_id, sizeof (ValadocApiConstantPrivate));
+		valadoc_api_constant_type_id = valadoc_api_constant_get_type_once ();
 		g_once_init_leave (&valadoc_api_constant_type_id__volatile, valadoc_api_constant_type_id);
 	}
 	return valadoc_api_constant_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_constant_get_property (GObject * object,
@@ -307,7 +301,6 @@ _vala_valadoc_api_constant_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_constant_set_property (GObject * object,
                                          guint property_id,
@@ -325,6 +318,4 @@ _vala_valadoc_api_constant_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

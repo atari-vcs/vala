@@ -23,20 +23,15 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-
 
 G_GNUC_INTERNAL const gchar* valadoc_api_callable_get_implicit_array_length_cparameter_name (ValadocApiCallable* self);
 G_GNUC_INTERNAL void valadoc_api_callable_set_implicit_array_length_cparameter_name (ValadocApiCallable* self,
                                                                      const gchar* value);
-
+static GType valadoc_api_callable_get_type_once (void);
 
 ValadocApiTypeReference*
 valadoc_api_callable_get_return_type (ValadocApiCallable* self)
@@ -44,7 +39,6 @@ valadoc_api_callable_get_return_type (ValadocApiCallable* self)
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_API_CALLABLE_GET_INTERFACE (self)->get_return_type (self);
 }
-
 
 void
 valadoc_api_callable_set_return_type (ValadocApiCallable* self,
@@ -54,14 +48,12 @@ valadoc_api_callable_set_return_type (ValadocApiCallable* self,
 	VALADOC_API_CALLABLE_GET_INTERFACE (self)->set_return_type (self, value);
 }
 
-
 G_GNUC_INTERNAL const gchar*
 valadoc_api_callable_get_implicit_array_length_cparameter_name (ValadocApiCallable* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_API_CALLABLE_GET_INTERFACE (self)->get_implicit_array_length_cparameter_name (self);
 }
-
 
 G_GNUC_INTERNAL void
 valadoc_api_callable_set_implicit_array_length_cparameter_name (ValadocApiCallable* self,
@@ -71,9 +63,9 @@ valadoc_api_callable_set_implicit_array_length_cparameter_name (ValadocApiCallab
 	VALADOC_API_CALLABLE_GET_INTERFACE (self)->set_implicit_array_length_cparameter_name (self, value);
 }
 
-
 static void
-valadoc_api_callable_default_init (ValadocApiCallableIface * iface)
+valadoc_api_callable_default_init (ValadocApiCallableIface * iface,
+                                   gpointer iface_data)
 {
 	/**
 	 * The return type of this symbol.
@@ -85,23 +77,28 @@ valadoc_api_callable_default_init (ValadocApiCallableIface * iface)
 	g_object_interface_install_property (iface, g_param_spec_string ("implicit-array-length-cparameter-name", "implicit-array-length-cparameter-name", "implicit-array-length-cparameter-name", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 /**
  * Used to translate imported C-documentation
  */
+static GType
+valadoc_api_callable_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiCallableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_callable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_api_callable_type_id;
+	valadoc_api_callable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocApiCallable", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_api_callable_type_id, VALADOC_API_TYPE_SYMBOL);
+	return valadoc_api_callable_type_id;
+}
+
 GType
 valadoc_api_callable_get_type (void)
 {
 	static volatile gsize valadoc_api_callable_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_callable_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiCallableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_callable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_api_callable_type_id;
-		valadoc_api_callable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocApiCallable", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_api_callable_type_id, VALADOC_API_TYPE_SYMBOL);
+		valadoc_api_callable_type_id = valadoc_api_callable_get_type_once ();
 		g_once_init_leave (&valadoc_api_callable_type_id__volatile, valadoc_api_callable_type_id);
 	}
 	return valadoc_api_callable_type_id__volatile;
 }
-
-
 

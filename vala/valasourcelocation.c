@@ -23,16 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <string.h>
-
-
-
-
-
+#include <stdlib.h>
 
 void
 vala_source_location_init (ValaSourceLocation *self,
@@ -46,6 +40,20 @@ vala_source_location_init (ValaSourceLocation *self,
 	(*self).column = _column;
 }
 
+/**
+ * Returns a string representation of this source location.
+ *
+ * @return human-readable string
+ */
+gchar*
+vala_source_location_to_string (ValaSourceLocation *self)
+{
+	gchar* _tmp0_;
+	gchar* result = NULL;
+	_tmp0_ = g_strdup_printf ("%d.%d", (*self).line, (*self).column);
+	result = _tmp0_;
+	return result;
+}
 
 ValaSourceLocation*
 vala_source_location_dup (const ValaSourceLocation* self)
@@ -56,13 +64,19 @@ vala_source_location_dup (const ValaSourceLocation* self)
 	return dup;
 }
 
-
 void
 vala_source_location_free (ValaSourceLocation* self)
 {
 	g_free (self);
 }
 
+static GType
+vala_source_location_get_type_once (void)
+{
+	GType vala_source_location_type_id;
+	vala_source_location_type_id = g_boxed_type_register_static ("ValaSourceLocation", (GBoxedCopyFunc) vala_source_location_dup, (GBoxedFreeFunc) vala_source_location_free);
+	return vala_source_location_type_id;
+}
 
 GType
 vala_source_location_get_type (void)
@@ -70,11 +84,9 @@ vala_source_location_get_type (void)
 	static volatile gsize vala_source_location_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_source_location_type_id__volatile)) {
 		GType vala_source_location_type_id;
-		vala_source_location_type_id = g_boxed_type_register_static ("ValaSourceLocation", (GBoxedCopyFunc) vala_source_location_dup, (GBoxedFreeFunc) vala_source_location_free);
+		vala_source_location_type_id = vala_source_location_get_type_once ();
 		g_once_init_leave (&vala_source_location_type_id__volatile, vala_source_location_type_id);
 	}
 	return vala_source_location_type_id__volatile;
 }
-
-
 

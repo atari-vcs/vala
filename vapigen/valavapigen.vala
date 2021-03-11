@@ -62,11 +62,13 @@ class Vala.VAPIGen {
 			if (!quiet_mode) {
 				stdout.printf ("Generation succeeded - %d warning(s)\n", context.report.get_warnings ());
 			}
+			CodeContext.pop ();
 			return 0;
 		} else {
 			if (!quiet_mode) {
 				stdout.printf ("Generation failed: %d error(s), %d warning(s)\n", context.report.get_errors (), context.report.get_warnings ());
 			}
+			CodeContext.pop ();
 			return 1;
 		}
 	}
@@ -74,6 +76,7 @@ class Vala.VAPIGen {
 	private int run () {
 		context = new CodeContext ();
 		context.profile = Profile.GOBJECT;
+		context.add_define ("GOBJECT");
 		context.vapi_directories = vapi_directories;
 		context.gir_directories = gir_directories;
 		context.metadata_directories = metadata_directories;
@@ -132,7 +135,7 @@ class Vala.VAPIGen {
 		foreach (string source in sources) {
 			if (FileUtils.test (source, FileTest.EXISTS)) {
 				var source_file = new SourceFile (context, SourceFileType.PACKAGE, source);
-				source_file.explicit = true;
+				source_file.from_commandline = true;
 				context.add_source_file (source_file);
 			} else {
 				Report.error (null, "%s not found".printf (source));
@@ -184,13 +187,12 @@ class Vala.VAPIGen {
 					// mark relative metadata as source
 					string? metadata_filename = context.get_metadata_path (file.filename);
 					if (metadata_filename != null) {
-						foreach (SourceFile metadata_file in context.get_source_files ()) {
-							if (metadata_file.filename == metadata_filename) {
-								metadata_file.file_type = SourceFileType.SOURCE;
-							}
+						unowned SourceFile? metadata_file = context.get_source_file (metadata_filename);
+						if (metadata_file != null) {
+							metadata_file.file_type = SourceFileType.SOURCE;
 						}
 					}
-					if (file.explicit && file.package_name != null) {
+					if (file.from_commandline && file.package_name != null) {
 						package_names += file.package_name;
 					}
 				}

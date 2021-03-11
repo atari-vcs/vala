@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CONTENT_TABLE_CELL_0_PROPERTY,
@@ -54,7 +53,6 @@ struct _ValadocContentTableCellPrivate {
 	gint _rowspan;
 };
 
-
 static gint ValadocContentTableCell_private_offset;
 static gpointer valadoc_content_table_cell_parent_class = NULL;
 static ValadocContentStyleAttributesIface * valadoc_content_table_cell_valadoc_content_style_attributes_parent_iface = NULL;
@@ -76,6 +74,7 @@ static ValadocContentContentElement* valadoc_content_table_cell_real_copy (Valad
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_table_cell_finalize (GObject * obj);
+static GType valadoc_content_table_cell_get_type_once (void);
 static void _vala_valadoc_content_table_cell_get_property (GObject * object,
                                                     guint property_id,
                                                     GValue * value,
@@ -85,13 +84,136 @@ static void _vala_valadoc_content_table_cell_set_property (GObject * object,
                                                     const GValue * value,
                                                     GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_content_table_cell_get_instance_private (ValadocContentTableCell* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentTableCell_private_offset);
 }
 
+static ValadocContentHorizontalAlign
+valadoc_content_table_cell_real_get_horizontal_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentHorizontalAlign result;
+	ValadocContentTableCell* self;
+	ValadocContentHorizontalAlign _tmp0_;
+	self = (ValadocContentTableCell*) base;
+	_tmp0_ = self->priv->_horizontal_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_table_cell_real_set_horizontal_align (ValadocContentStyleAttributes* base,
+                                                      ValadocContentHorizontalAlign value)
+{
+	ValadocContentTableCell* self;
+	ValadocContentHorizontalAlign old_value;
+	self = (ValadocContentTableCell*) base;
+	old_value = valadoc_content_table_cell_real_get_horizontal_align (base);
+	if (old_value != value) {
+		self->priv->_horizontal_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_HORIZONTAL_ALIGN_PROPERTY]);
+	}
+}
+
+static ValadocContentVerticalAlign
+valadoc_content_table_cell_real_get_vertical_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentVerticalAlign result;
+	ValadocContentTableCell* self;
+	ValadocContentVerticalAlign _tmp0_;
+	self = (ValadocContentTableCell*) base;
+	_tmp0_ = self->priv->_vertical_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_table_cell_real_set_vertical_align (ValadocContentStyleAttributes* base,
+                                                    ValadocContentVerticalAlign value)
+{
+	ValadocContentTableCell* self;
+	ValadocContentVerticalAlign old_value;
+	self = (ValadocContentTableCell*) base;
+	old_value = valadoc_content_table_cell_real_get_vertical_align (base);
+	if (old_value != value) {
+		self->priv->_vertical_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_VERTICAL_ALIGN_PROPERTY]);
+	}
+}
+
+static const gchar*
+valadoc_content_table_cell_real_get_style (ValadocContentStyleAttributes* base)
+{
+	const gchar* result;
+	ValadocContentTableCell* self;
+	const gchar* _tmp0_;
+	self = (ValadocContentTableCell*) base;
+	_tmp0_ = self->priv->_style;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_table_cell_real_set_style (ValadocContentStyleAttributes* base,
+                                           const gchar* value)
+{
+	ValadocContentTableCell* self;
+	gchar* old_value;
+	self = (ValadocContentTableCell*) base;
+	old_value = valadoc_content_table_cell_real_get_style (base);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_style);
+		self->priv->_style = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_STYLE_PROPERTY]);
+	}
+}
+
+gint
+valadoc_content_table_cell_get_colspan (ValadocContentTableCell* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_colspan;
+	return result;
+}
+
+void
+valadoc_content_table_cell_set_colspan (ValadocContentTableCell* self,
+                                        gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_table_cell_get_colspan (self);
+	if (old_value != value) {
+		self->priv->_colspan = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_COLSPAN_PROPERTY]);
+	}
+}
+
+gint
+valadoc_content_table_cell_get_rowspan (ValadocContentTableCell* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_rowspan;
+	return result;
+}
+
+void
+valadoc_content_table_cell_set_rowspan (ValadocContentTableCell* self,
+                                        gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_table_cell_get_rowspan (self);
+	if (old_value != value) {
+		self->priv->_rowspan = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_ROWSPAN_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentTableCell*
 valadoc_content_table_cell_construct (GType object_type)
@@ -103,13 +225,11 @@ valadoc_content_table_cell_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentTableCell*
 valadoc_content_table_cell_new (void)
 {
 	return valadoc_content_table_cell_construct (VALADOC_CONTENT_TYPE_TABLE_CELL);
 }
-
 
 static void
 valadoc_content_table_cell_real_check (ValadocContentContentElement* base,
@@ -129,7 +249,6 @@ valadoc_content_table_cell_real_check (ValadocContentContentElement* base,
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_content_table_cell_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_INLINE_CONTENT, ValadocContentInlineContent), api_root, container, file_path, reporter, settings);
 }
 
-
 static void
 valadoc_content_table_cell_real_accept (ValadocContentContentElement* base,
                                         ValadocContentContentVisitor* visitor)
@@ -139,7 +258,6 @@ valadoc_content_table_cell_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_table_cell (visitor, self);
 }
-
 
 static gboolean
 valadoc_content_table_cell_real_is_empty (ValadocContentContentElement* base)
@@ -151,20 +269,17 @@ valadoc_content_table_cell_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_table_cell_real_copy (ValadocContentContentElement* base,
                                       ValadocContentContentElement* new_parent)
 {
 	ValadocContentTableCell * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentTableCell* cell = NULL;
 	ValadocContentTableCell* _tmp0_;
 	ValadocContentTableCell* _tmp1_;
@@ -181,6 +296,7 @@ valadoc_content_table_cell_real_copy (ValadocContentContentElement* base,
 	ValadocContentTableCell* _tmp12_;
 	const gchar* _tmp13_;
 	const gchar* _tmp14_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentTableCell*) base;
 	_tmp0_ = valadoc_content_table_cell_new ();
 	cell = _tmp0_;
@@ -226,44 +342,40 @@ valadoc_content_table_cell_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp21_;
 			gint _tmp22_;
-			gint _tmp23_;
 			ValadocContentInline* element = NULL;
-			ValaList* _tmp24_;
-			gint _tmp25_;
-			gpointer _tmp26_;
+			ValaList* _tmp23_;
+			gpointer _tmp24_;
 			ValadocContentInline* copy = NULL;
-			ValadocContentInline* _tmp27_;
-			ValadocContentTableCell* _tmp28_;
-			ValadocContentContentElement* _tmp29_;
-			ValadocContentInline* _tmp30_;
-			ValadocContentTableCell* _tmp31_;
-			ValaList* _tmp32_;
-			ValaList* _tmp33_;
-			ValadocContentInline* _tmp34_;
+			ValadocContentInline* _tmp25_;
+			ValadocContentTableCell* _tmp26_;
+			ValadocContentContentElement* _tmp27_;
+			ValadocContentInline* _tmp28_;
+			ValadocContentTableCell* _tmp29_;
+			ValaList* _tmp30_;
+			ValaList* _tmp31_;
+			ValadocContentInline* _tmp32_;
+			_element_index = _element_index + 1;
 			_tmp21_ = _element_index;
-			_element_index = _tmp21_ + 1;
-			_tmp22_ = _element_index;
-			_tmp23_ = _element_size;
-			if (!(_tmp22_ < _tmp23_)) {
+			_tmp22_ = _element_size;
+			if (!(_tmp21_ < _tmp22_)) {
 				break;
 			}
-			_tmp24_ = _element_list;
-			_tmp25_ = _element_index;
-			_tmp26_ = vala_list_get (_tmp24_, _tmp25_);
-			element = (ValadocContentInline*) _tmp26_;
-			_tmp27_ = element;
-			_tmp28_ = cell;
-			_tmp29_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp27_, (ValadocContentContentElement*) _tmp28_);
-			_tmp30_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp29_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp29_) : NULL;
-			if (_tmp30_ == NULL) {
-				_g_object_unref0 (_tmp29_);
+			_tmp23_ = _element_list;
+			_tmp24_ = vala_list_get (_tmp23_, _element_index);
+			element = (ValadocContentInline*) _tmp24_;
+			_tmp25_ = element;
+			_tmp26_ = cell;
+			_tmp27_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp25_, (ValadocContentContentElement*) _tmp26_);
+			_tmp28_ = VALADOC_CONTENT_IS_INLINE (_tmp27_) ? ((ValadocContentInline*) _tmp27_) : NULL;
+			if (_tmp28_ == NULL) {
+				_g_object_unref0 (_tmp27_);
 			}
-			copy = _tmp30_;
-			_tmp31_ = cell;
-			_tmp32_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp31_);
-			_tmp33_ = _tmp32_;
-			_tmp34_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp33_, _tmp34_);
+			copy = _tmp28_;
+			_tmp29_ = cell;
+			_tmp30_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp29_);
+			_tmp31_ = _tmp30_;
+			_tmp32_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp31_, _tmp32_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -273,138 +385,9 @@ valadoc_content_table_cell_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-static ValadocContentHorizontalAlign
-valadoc_content_table_cell_real_get_horizontal_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentHorizontalAlign result;
-	ValadocContentTableCell* self;
-	ValadocContentHorizontalAlign _tmp0_;
-	self = (ValadocContentTableCell*) base;
-	_tmp0_ = self->priv->_horizontal_align;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_content_table_cell_real_set_horizontal_align (ValadocContentStyleAttributes* base,
-                                                      ValadocContentHorizontalAlign value)
-{
-	ValadocContentTableCell* self;
-	self = (ValadocContentTableCell*) base;
-	if (valadoc_content_table_cell_real_get_horizontal_align (base) != value) {
-		self->priv->_horizontal_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_HORIZONTAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static ValadocContentVerticalAlign
-valadoc_content_table_cell_real_get_vertical_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentVerticalAlign result;
-	ValadocContentTableCell* self;
-	ValadocContentVerticalAlign _tmp0_;
-	self = (ValadocContentTableCell*) base;
-	_tmp0_ = self->priv->_vertical_align;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_table_cell_real_set_vertical_align (ValadocContentStyleAttributes* base,
-                                                    ValadocContentVerticalAlign value)
-{
-	ValadocContentTableCell* self;
-	self = (ValadocContentTableCell*) base;
-	if (valadoc_content_table_cell_real_get_vertical_align (base) != value) {
-		self->priv->_vertical_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_VERTICAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static const gchar*
-valadoc_content_table_cell_real_get_style (ValadocContentStyleAttributes* base)
-{
-	const gchar* result;
-	ValadocContentTableCell* self;
-	const gchar* _tmp0_;
-	self = (ValadocContentTableCell*) base;
-	_tmp0_ = self->priv->_style;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_table_cell_real_set_style (ValadocContentStyleAttributes* base,
-                                           const gchar* value)
-{
-	ValadocContentTableCell* self;
-	self = (ValadocContentTableCell*) base;
-	if (g_strcmp0 (value, valadoc_content_table_cell_real_get_style (base)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_style);
-		self->priv->_style = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_STYLE_PROPERTY]);
-	}
-}
-
-
-gint
-valadoc_content_table_cell_get_colspan (ValadocContentTableCell* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_colspan;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_table_cell_set_colspan (ValadocContentTableCell* self,
-                                        gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_table_cell_get_colspan (self) != value) {
-		self->priv->_colspan = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_COLSPAN_PROPERTY]);
-	}
-}
-
-
-gint
-valadoc_content_table_cell_get_rowspan (ValadocContentTableCell* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_rowspan;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_table_cell_set_rowspan (ValadocContentTableCell* self,
-                                        gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_table_cell_get_rowspan (self) != value) {
-		self->priv->_rowspan = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_ROWSPAN_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_content_table_cell_class_init (ValadocContentTableCellClass * klass)
+valadoc_content_table_cell_class_init (ValadocContentTableCellClass * klass,
+                                       gpointer klass_data)
 {
 	valadoc_content_table_cell_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentTableCell_private_offset);
@@ -422,9 +405,9 @@ valadoc_content_table_cell_class_init (ValadocContentTableCellClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_TABLE_CELL_ROWSPAN_PROPERTY, valadoc_content_table_cell_properties[VALADOC_CONTENT_TABLE_CELL_ROWSPAN_PROPERTY] = g_param_spec_int ("rowspan", "rowspan", "rowspan", G_MININT, G_MAXINT, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_table_cell_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface)
+valadoc_content_table_cell_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface,
+                                                                            gpointer iface_data)
 {
 	valadoc_content_table_cell_valadoc_content_style_attributes_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_horizontal_align = valadoc_content_table_cell_real_get_horizontal_align;
@@ -435,13 +418,12 @@ valadoc_content_table_cell_valadoc_content_style_attributes_interface_init (Vala
 	iface->set_style = valadoc_content_table_cell_real_set_style;
 }
 
-
 static void
-valadoc_content_table_cell_instance_init (ValadocContentTableCell * self)
+valadoc_content_table_cell_instance_init (ValadocContentTableCell * self,
+                                          gpointer klass)
 {
 	self->priv = valadoc_content_table_cell_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_table_cell_finalize (GObject * obj)
@@ -452,23 +434,29 @@ valadoc_content_table_cell_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_table_cell_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_table_cell_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTableCellClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_table_cell_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentTableCell), 0, (GInstanceInitFunc) valadoc_content_table_cell_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_table_cell_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_table_cell_type_id;
+	valadoc_content_table_cell_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentTableCell", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_table_cell_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
+	ValadocContentTableCell_private_offset = g_type_add_instance_private (valadoc_content_table_cell_type_id, sizeof (ValadocContentTableCellPrivate));
+	return valadoc_content_table_cell_type_id;
+}
 
 GType
 valadoc_content_table_cell_get_type (void)
 {
 	static volatile gsize valadoc_content_table_cell_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_table_cell_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTableCellClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_table_cell_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentTableCell), 0, (GInstanceInitFunc) valadoc_content_table_cell_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_table_cell_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_table_cell_type_id;
-		valadoc_content_table_cell_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentTableCell", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_table_cell_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
-		ValadocContentTableCell_private_offset = g_type_add_instance_private (valadoc_content_table_cell_type_id, sizeof (ValadocContentTableCellPrivate));
+		valadoc_content_table_cell_type_id = valadoc_content_table_cell_get_type_once ();
 		g_once_init_leave (&valadoc_content_table_cell_type_id__volatile, valadoc_content_table_cell_type_id);
 	}
 	return valadoc_content_table_cell_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_table_cell_get_property (GObject * object,
@@ -500,7 +488,6 @@ _vala_valadoc_content_table_cell_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_table_cell_set_property (GObject * object,
                                                guint property_id,
@@ -530,6 +517,4 @@ _vala_valadoc_content_table_cell_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

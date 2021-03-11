@@ -23,13 +23,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
@@ -44,7 +43,6 @@ struct _ValadocApiSignatureBuilderPrivate {
 struct _ValadocApiParamSpecSignatureBuilder {
 	GParamSpec parent_instance;
 };
-
 
 static gint ValadocApiSignatureBuilder_private_offset;
 static gpointer valadoc_api_signature_builder_parent_class = NULL;
@@ -63,14 +61,13 @@ G_GNUC_INTERNAL ValadocContentSymbolLink* valadoc_content_symbol_link_construct 
                                                                  ValadocApiNode* symbol,
                                                                  const gchar* given_symbol_name);
 static void valadoc_api_signature_builder_finalize (ValadocApiSignatureBuilder * obj);
-
+static GType valadoc_api_signature_builder_get_type_once (void);
 
 static inline gpointer
 valadoc_api_signature_builder_get_instance_private (ValadocApiSignatureBuilder* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiSignatureBuilder_private_offset);
 }
-
 
 /**
  * Creates a new SignatureBuilder
@@ -87,13 +84,11 @@ valadoc_api_signature_builder_construct (GType object_type)
 	return self;
 }
 
-
 ValadocApiSignatureBuilder*
 valadoc_api_signature_builder_new (void)
 {
 	return valadoc_api_signature_builder_construct (VALADOC_API_TYPE_SIGNATURE_BUILDER);
 }
-
 
 static void
 valadoc_api_signature_builder_append_text (ValadocApiSignatureBuilder* self,
@@ -103,7 +98,7 @@ valadoc_api_signature_builder_append_text (ValadocApiSignatureBuilder* self,
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (text != NULL);
 	_tmp0_ = self->priv->last_appended;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp0_, VALADOC_CONTENT_TYPE_TEXT)) {
+	if (VALADOC_CONTENT_IS_TEXT (_tmp0_)) {
 		ValadocContentInline* _tmp1_;
 		ValadocContentInline* _tmp2_;
 		const gchar* _tmp3_;
@@ -135,7 +130,6 @@ valadoc_api_signature_builder_append_text (ValadocApiSignatureBuilder* self,
 	}
 }
 
-
 /**
  * Adds text onto the end of the builder.
  *
@@ -148,12 +142,12 @@ valadoc_api_signature_builder_append (ValadocApiSignatureBuilder* self,
                                       const gchar* text,
                                       gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	const gchar* _tmp0_ = NULL;
 	gboolean _tmp1_ = FALSE;
 	ValadocContentInline* _tmp2_;
 	gchar* content = NULL;
 	gchar* _tmp3_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (text != NULL, NULL);
 	_tmp2_ = self->priv->last_appended;
@@ -174,7 +168,6 @@ valadoc_api_signature_builder_append (ValadocApiSignatureBuilder* self,
 	_g_free0 (content);
 	return result;
 }
-
 
 /**
  * Adds text onto the end of the builder.
@@ -188,12 +181,12 @@ valadoc_api_signature_builder_append_attribute (ValadocApiSignatureBuilder* self
                                                 const gchar* text,
                                                 gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	const gchar* _tmp0_ = NULL;
 	gboolean _tmp1_ = FALSE;
 	ValadocContentInline* _tmp2_;
 	gchar* content = NULL;
 	gchar* _tmp3_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (text != NULL, NULL);
 	_tmp2_ = self->priv->last_appended;
@@ -215,7 +208,6 @@ valadoc_api_signature_builder_append_attribute (ValadocApiSignatureBuilder* self
 	return result;
 }
 
-
 /**
  * Adds highlighted text onto the end of the builder.
  *
@@ -228,7 +220,6 @@ valadoc_api_signature_builder_append_highlighted (ValadocApiSignatureBuilder* se
                                                   const gchar* text,
                                                   gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	const gchar* _tmp0_ = NULL;
 	gboolean _tmp1_ = FALSE;
 	ValadocContentInline* _tmp2_;
@@ -241,6 +232,7 @@ valadoc_api_signature_builder_append_highlighted (ValadocApiSignatureBuilder* se
 	ValadocContentText* _tmp7_;
 	ValadocContentText* _tmp8_;
 	ValadocApiSignatureBuilder* _tmp9_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (text != NULL, NULL);
 	_tmp2_ = self->priv->last_appended;
@@ -271,7 +263,6 @@ valadoc_api_signature_builder_append_highlighted (ValadocApiSignatureBuilder* se
 	return result;
 }
 
-
 /**
  * Adds a Inline onto the end of the builder.
  *
@@ -285,13 +276,11 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocApiSignatureBuilder*
 valadoc_api_signature_builder_append_content (ValadocApiSignatureBuilder* self,
                                               ValadocContentInline* content,
                                               gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	ValadocContentInline* _tmp1_;
 	ValadocContentRun* _tmp2_;
@@ -299,6 +288,7 @@ valadoc_api_signature_builder_append_content (ValadocApiSignatureBuilder* self,
 	ValaList* _tmp4_;
 	ValadocContentInline* _tmp5_;
 	ValadocContentInline* _tmp6_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (content != NULL, NULL);
 	_tmp1_ = self->priv->last_appended;
@@ -322,7 +312,6 @@ valadoc_api_signature_builder_append_content (ValadocApiSignatureBuilder* self,
 	return result;
 }
 
-
 /**
  * Adds a keyword onto the end of the builder.
  *
@@ -335,7 +324,6 @@ valadoc_api_signature_builder_append_keyword (ValadocApiSignatureBuilder* self,
                                               const gchar* keyword,
                                               gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	ValadocContentRun* inner = NULL;
 	ValadocContentRun* _tmp0_;
 	ValaList* _tmp1_;
@@ -343,6 +331,7 @@ valadoc_api_signature_builder_append_keyword (ValadocApiSignatureBuilder* self,
 	ValadocContentText* _tmp3_;
 	ValadocContentText* _tmp4_;
 	ValadocApiSignatureBuilder* _tmp5_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (keyword != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_LANG_KEYWORD);
@@ -359,7 +348,6 @@ valadoc_api_signature_builder_append_keyword (ValadocApiSignatureBuilder* self,
 	return result;
 }
 
-
 /**
  * Adds a symbol onto the end of the builder.
  *
@@ -372,7 +360,6 @@ valadoc_api_signature_builder_append_symbol (ValadocApiSignatureBuilder* self,
                                              ValadocApiNode* node,
                                              gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	ValadocContentRun* inner = NULL;
 	ValadocContentRun* _tmp0_;
 	ValaList* _tmp1_;
@@ -382,6 +369,7 @@ valadoc_api_signature_builder_append_symbol (ValadocApiSignatureBuilder* self,
 	ValadocContentSymbolLink* _tmp5_;
 	ValadocContentSymbolLink* _tmp6_;
 	ValadocApiSignatureBuilder* _tmp7_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (node != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_BOLD);
@@ -400,7 +388,6 @@ valadoc_api_signature_builder_append_symbol (ValadocApiSignatureBuilder* self,
 	return result;
 }
 
-
 /**
  * Adds a type onto the end of the builder.
  *
@@ -413,7 +400,6 @@ valadoc_api_signature_builder_append_type (ValadocApiSignatureBuilder* self,
                                            ValadocApiNode* node,
                                            gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	ValadocContentRunStyle style = 0;
 	gboolean _tmp0_ = FALSE;
 	ValadocContentRun* inner = NULL;
@@ -426,10 +412,11 @@ valadoc_api_signature_builder_append_type (ValadocApiSignatureBuilder* self,
 	ValadocContentSymbolLink* _tmp9_;
 	ValadocContentSymbolLink* _tmp10_;
 	ValadocApiSignatureBuilder* _tmp11_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (node != NULL, NULL);
 	style = VALADOC_CONTENT_RUN_STYLE_LANG_TYPE;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (node, VALADOC_API_TYPE_TYPESYMBOL)) {
+	if (VALADOC_API_IS_TYPESYMBOL (node)) {
 		gboolean _tmp1_;
 		gboolean _tmp2_;
 		_tmp1_ = valadoc_api_typesymbol_get_is_basic_type (G_TYPE_CHECK_INSTANCE_CAST (node, VALADOC_API_TYPE_TYPESYMBOL, ValadocApiTypeSymbol));
@@ -458,7 +445,6 @@ valadoc_api_signature_builder_append_type (ValadocApiSignatureBuilder* self,
 	return result;
 }
 
-
 /**
  * Adds a type name onto the end of the builder.
  *
@@ -471,7 +457,6 @@ valadoc_api_signature_builder_append_type_name (ValadocApiSignatureBuilder* self
                                                 const gchar* name,
                                                 gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	ValadocContentRun* inner = NULL;
 	ValadocContentRun* _tmp0_;
 	ValaList* _tmp1_;
@@ -479,6 +464,7 @@ valadoc_api_signature_builder_append_type_name (ValadocApiSignatureBuilder* self
 	ValadocContentText* _tmp3_;
 	ValadocContentText* _tmp4_;
 	ValadocApiSignatureBuilder* _tmp5_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_LANG_TYPE);
@@ -495,7 +481,6 @@ valadoc_api_signature_builder_append_type_name (ValadocApiSignatureBuilder* self
 	return result;
 }
 
-
 /**
  * Adds a literal onto the end of the builder.
  *
@@ -508,7 +493,6 @@ valadoc_api_signature_builder_append_literal (ValadocApiSignatureBuilder* self,
                                               const gchar* literal,
                                               gboolean spaced)
 {
-	ValadocApiSignatureBuilder* result = NULL;
 	ValadocContentRun* inner = NULL;
 	ValadocContentRun* _tmp0_;
 	ValaList* _tmp1_;
@@ -516,6 +500,7 @@ valadoc_api_signature_builder_append_literal (ValadocApiSignatureBuilder* self,
 	ValadocContentText* _tmp3_;
 	ValadocContentText* _tmp4_;
 	ValadocApiSignatureBuilder* _tmp5_;
+	ValadocApiSignatureBuilder* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (literal != NULL, NULL);
 	_tmp0_ = valadoc_content_run_new (VALADOC_CONTENT_RUN_STYLE_LANG_LITERAL);
@@ -532,16 +517,15 @@ valadoc_api_signature_builder_append_literal (ValadocApiSignatureBuilder* self,
 	return result;
 }
 
-
 /**
  * The content
  */
 ValadocContentRun*
 valadoc_api_signature_builder_get (ValadocApiSignatureBuilder* self)
 {
-	ValadocContentRun* result = NULL;
 	ValadocContentRun* _tmp0_;
 	ValadocContentRun* _tmp1_;
+	ValadocContentRun* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->run;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
@@ -549,13 +533,11 @@ valadoc_api_signature_builder_get (ValadocApiSignatureBuilder* self)
 	return result;
 }
 
-
 static void
 valadoc_api_value_signature_builder_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_api_value_signature_builder_free_value (GValue* value)
@@ -564,7 +546,6 @@ valadoc_api_value_signature_builder_free_value (GValue* value)
 		valadoc_api_signature_builder_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_api_value_signature_builder_copy_value (const GValue* src_value,
@@ -577,13 +558,11 @@ valadoc_api_value_signature_builder_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_api_value_signature_builder_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_api_value_signature_builder_collect_value (GValue* value,
@@ -606,7 +585,6 @@ valadoc_api_value_signature_builder_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_api_value_signature_builder_lcopy_value (const GValue* value,
                                                  guint n_collect_values,
@@ -628,7 +606,6 @@ valadoc_api_value_signature_builder_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_api_param_spec_signature_builder (const gchar* name,
                                           const gchar* nick,
@@ -643,14 +620,12 @@ valadoc_api_param_spec_signature_builder (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_api_value_get_signature_builder (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_API_TYPE_SIGNATURE_BUILDER), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_api_value_set_signature_builder (GValue* value,
@@ -672,7 +647,6 @@ valadoc_api_value_set_signature_builder (GValue* value,
 	}
 }
 
-
 void
 valadoc_api_value_take_signature_builder (GValue* value,
                                           gpointer v_object)
@@ -692,23 +666,22 @@ valadoc_api_value_take_signature_builder (GValue* value,
 	}
 }
 
-
 static void
-valadoc_api_signature_builder_class_init (ValadocApiSignatureBuilderClass * klass)
+valadoc_api_signature_builder_class_init (ValadocApiSignatureBuilderClass * klass,
+                                          gpointer klass_data)
 {
 	valadoc_api_signature_builder_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiSignatureBuilderClass *) klass)->finalize = valadoc_api_signature_builder_finalize;
 	g_type_class_adjust_private_offset (klass, &ValadocApiSignatureBuilder_private_offset);
 }
 
-
 static void
-valadoc_api_signature_builder_instance_init (ValadocApiSignatureBuilder * self)
+valadoc_api_signature_builder_instance_init (ValadocApiSignatureBuilder * self,
+                                             gpointer klass)
 {
 	self->priv = valadoc_api_signature_builder_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_api_signature_builder_finalize (ValadocApiSignatureBuilder * obj)
@@ -720,26 +693,32 @@ valadoc_api_signature_builder_finalize (ValadocApiSignatureBuilder * obj)
 	_g_object_unref0 (self->priv->last_appended);
 }
 
-
 /**
  * Builds up a signature from the given items.
  */
+static GType
+valadoc_api_signature_builder_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_api_value_signature_builder_init, valadoc_api_value_signature_builder_free_value, valadoc_api_value_signature_builder_copy_value, valadoc_api_value_signature_builder_peek_pointer, "p", valadoc_api_value_signature_builder_collect_value, "p", valadoc_api_value_signature_builder_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSignatureBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_signature_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSignatureBuilder), 0, (GInstanceInitFunc) valadoc_api_signature_builder_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_api_signature_builder_type_id;
+	valadoc_api_signature_builder_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocApiSignatureBuilder", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocApiSignatureBuilder_private_offset = g_type_add_instance_private (valadoc_api_signature_builder_type_id, sizeof (ValadocApiSignatureBuilderPrivate));
+	return valadoc_api_signature_builder_type_id;
+}
+
 GType
 valadoc_api_signature_builder_get_type (void)
 {
 	static volatile gsize valadoc_api_signature_builder_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_signature_builder_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_api_value_signature_builder_init, valadoc_api_value_signature_builder_free_value, valadoc_api_value_signature_builder_copy_value, valadoc_api_value_signature_builder_peek_pointer, "p", valadoc_api_value_signature_builder_collect_value, "p", valadoc_api_value_signature_builder_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSignatureBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_signature_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSignatureBuilder), 0, (GInstanceInitFunc) valadoc_api_signature_builder_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_api_signature_builder_type_id;
-		valadoc_api_signature_builder_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocApiSignatureBuilder", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocApiSignatureBuilder_private_offset = g_type_add_instance_private (valadoc_api_signature_builder_type_id, sizeof (ValadocApiSignatureBuilderPrivate));
+		valadoc_api_signature_builder_type_id = valadoc_api_signature_builder_get_type_once ();
 		g_once_init_leave (&valadoc_api_signature_builder_type_id__volatile, valadoc_api_signature_builder_type_id);
 	}
 	return valadoc_api_signature_builder_type_id__volatile;
 }
-
 
 gpointer
 valadoc_api_signature_builder_ref (gpointer instance)
@@ -749,7 +728,6 @@ valadoc_api_signature_builder_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_api_signature_builder_unref (gpointer instance)
@@ -761,6 +739,4 @@ valadoc_api_signature_builder_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

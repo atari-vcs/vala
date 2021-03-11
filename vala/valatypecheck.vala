@@ -59,7 +59,7 @@ public class Vala.TypeCheck : Expression {
 	 * @param source reference to source code
 	 * @return       newly created type check expression
 	 */
-	public TypeCheck (Expression expr, DataType type, SourceReference source) {
+	public TypeCheck (Expression expr, DataType type, SourceReference? source = null) {
 		expression = expr;
 		type_reference = type;
 		source_reference = source;
@@ -110,7 +110,7 @@ public class Vala.TypeCheck : Expression {
 			return false;
 		}
 
-		if (type_reference.data_type == null) {
+		if (type_reference.type_symbol == null) {
 			/* if type resolving didn't succeed, skip this check */
 			error = true;
 			return false;
@@ -122,7 +122,7 @@ public class Vala.TypeCheck : Expression {
 			return false;
 		}
 
-		if (context.profile == Profile.GOBJECT && type_reference.get_type_arguments ().size > 0) {
+		if (context.profile == Profile.GOBJECT && type_reference.has_type_arguments ()) {
 			Report.warning (_data_type.source_reference, "Type argument list has no effect");
 		}
 

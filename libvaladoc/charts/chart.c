@@ -23,10 +23,8 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <graphviz/gvc.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,19 +39,17 @@ static GParamSpec* valadoc_charts_chart_properties[VALADOC_CHARTS_CHART_NUM_PROP
 #define _agclose0(var) ((var == NULL) ? NULL : (var = (agclose (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 
-
 static gpointer valadoc_charts_chart_parent_class = NULL;
 
 void valadoc_compat_gvc_init (void);
 static void valadoc_charts_chart_finalize (GObject * obj);
-
+static GType valadoc_charts_chart_get_type_once (void);
 
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocChartsChart*
 valadoc_charts_chart_construct (GType object_type,
@@ -76,14 +72,12 @@ valadoc_charts_chart_construct (GType object_type,
 	return self;
 }
 
-
 ValadocChartsChart*
 valadoc_charts_chart_new (ValadocChartsFactory* factory,
                           ValadocApiNode* node)
 {
 	return valadoc_charts_chart_construct (VALADOC_CHARTS_TYPE_CHART, factory, node);
 }
-
 
 void
 valadoc_charts_chart_save (ValadocChartsChart* self,
@@ -112,7 +106,6 @@ valadoc_charts_chart_save (ValadocChartsChart* self,
 	gvRenderFilename (_tmp4_, _tmp5_, (char*) file_type, (char*) file_name);
 }
 
-
 void
 valadoc_charts_chart_write (ValadocChartsChart* self,
                             FILE* file,
@@ -140,13 +133,11 @@ valadoc_charts_chart_write (ValadocChartsChart* self,
 	gvRender (_tmp4_, _tmp5_, (char*) file_type, file);
 }
 
-
 guint8*
 valadoc_charts_chart_write_buffer (ValadocChartsChart* self,
                                    const gchar* file_type,
-                                   int* result_length1)
+                                   gint* result_length1)
 {
-	guint8* result = NULL;
 	GVC_t* _tmp0_;
 	guint8* data = NULL;
 	gint data_length1 = 0;
@@ -154,9 +145,10 @@ valadoc_charts_chart_write_buffer (ValadocChartsChart* self,
 	GVC_t* _tmp4_;
 	Agraph_t* _tmp5_;
 	guint8* _tmp6_ = NULL;
-	gint _tmp7_;
+	unsigned int _tmp7_ = 0;
 	guint8* _tmp8_;
 	gint _tmp8__length1;
+	guint8* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (file_type != NULL, NULL);
 	_tmp0_ = self->context;
@@ -186,21 +178,20 @@ valadoc_charts_chart_write_buffer (ValadocChartsChart* self,
 	return result;
 }
 
-
 static void
-valadoc_charts_chart_class_init (ValadocChartsChartClass * klass)
+valadoc_charts_chart_class_init (ValadocChartsChartClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_charts_chart_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_charts_chart_finalize;
 	valadoc_compat_gvc_init ();
 }
 
-
 static void
-valadoc_charts_chart_instance_init (ValadocChartsChart * self)
+valadoc_charts_chart_instance_init (ValadocChartsChart * self,
+                                    gpointer klass)
 {
 }
-
 
 static void
 valadoc_charts_chart_finalize (GObject * obj)
@@ -222,19 +213,24 @@ valadoc_charts_chart_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_charts_chart_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_charts_chart_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsChartClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_chart_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsChart), 0, (GInstanceInitFunc) valadoc_charts_chart_instance_init, NULL };
+	GType valadoc_charts_chart_type_id;
+	valadoc_charts_chart_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocChartsChart", &g_define_type_info, 0);
+	return valadoc_charts_chart_type_id;
+}
 
 GType
 valadoc_charts_chart_get_type (void)
 {
 	static volatile gsize valadoc_charts_chart_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_charts_chart_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsChartClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_chart_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsChart), 0, (GInstanceInitFunc) valadoc_charts_chart_instance_init, NULL };
 		GType valadoc_charts_chart_type_id;
-		valadoc_charts_chart_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocChartsChart", &g_define_type_info, 0);
+		valadoc_charts_chart_type_id = valadoc_charts_chart_get_type_once ();
 		g_once_init_leave (&valadoc_charts_chart_type_id__volatile, valadoc_charts_chart_type_id);
 	}
 	return valadoc_charts_chart_type_id__volatile;
 }
-
-
 

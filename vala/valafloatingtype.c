@@ -23,18 +23,13 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-#define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-
+#include <glib.h>
 
 static gpointer vala_floating_type_parent_class = NULL;
 
 static ValaDataType* vala_floating_type_real_copy (ValaDataType* base);
-
+static GType vala_floating_type_get_type_once (void);
 
 ValaFloatingType*
 vala_floating_type_construct (GType object_type,
@@ -46,19 +41,16 @@ vala_floating_type_construct (GType object_type,
 	return self;
 }
 
-
 ValaFloatingType*
 vala_floating_type_new (ValaStruct* type_symbol)
 {
 	return vala_floating_type_construct (VALA_TYPE_FLOATING_TYPE, type_symbol);
 }
 
-
 static ValaDataType*
 vala_floating_type_real_copy (ValaDataType* base)
 {
 	ValaFloatingType * self;
-	ValaDataType* result = NULL;
 	ValaFloatingType* _result_ = NULL;
 	ValaTypeSymbol* _tmp0_;
 	ValaTypeSymbol* _tmp1_;
@@ -69,8 +61,9 @@ vala_floating_type_real_copy (ValaDataType* base)
 	gboolean _tmp6_;
 	gboolean _tmp7_;
 	gboolean _tmp8_;
+	ValaDataType* result = NULL;
 	self = (ValaFloatingType*) base;
-	_tmp0_ = vala_value_type_get_type_symbol ((ValaValueType*) self);
+	_tmp0_ = vala_data_type_get_type_symbol ((ValaDataType*) self);
 	_tmp1_ = _tmp0_;
 	_tmp2_ = vala_floating_type_new (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_STRUCT, ValaStruct));
 	_result_ = _tmp2_;
@@ -87,36 +80,41 @@ vala_floating_type_real_copy (ValaDataType* base)
 	return result;
 }
 
-
 static void
-vala_floating_type_class_init (ValaFloatingTypeClass * klass)
+vala_floating_type_class_init (ValaFloatingTypeClass * klass,
+                               gpointer klass_data)
 {
 	vala_floating_type_parent_class = g_type_class_peek_parent (klass);
 	((ValaDataTypeClass *) klass)->copy = (ValaDataType* (*) (ValaDataType*)) vala_floating_type_real_copy;
 }
 
-
 static void
-vala_floating_type_instance_init (ValaFloatingType * self)
+vala_floating_type_instance_init (ValaFloatingType * self,
+                                  gpointer klass)
 {
 }
-
 
 /**
  * A floating-point type.
  */
+static GType
+vala_floating_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaFloatingTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_floating_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaFloatingType), 0, (GInstanceInitFunc) vala_floating_type_instance_init, NULL };
+	GType vala_floating_type_type_id;
+	vala_floating_type_type_id = g_type_register_static (VALA_TYPE_VALUE_TYPE, "ValaFloatingType", &g_define_type_info, 0);
+	return vala_floating_type_type_id;
+}
+
 GType
 vala_floating_type_get_type (void)
 {
 	static volatile gsize vala_floating_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_floating_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaFloatingTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_floating_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaFloatingType), 0, (GInstanceInitFunc) vala_floating_type_instance_init, NULL };
 		GType vala_floating_type_type_id;
-		vala_floating_type_type_id = g_type_register_static (VALA_TYPE_VALUE_TYPE, "ValaFloatingType", &g_define_type_info, 0);
+		vala_floating_type_type_id = vala_floating_type_get_type_once ();
 		g_once_init_leave (&vala_floating_type_type_id__volatile, vala_floating_type_type_id);
 	}
 	return vala_floating_type_type_id__volatile;
 }
-
-
 

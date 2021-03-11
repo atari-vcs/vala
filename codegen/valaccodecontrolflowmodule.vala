@@ -242,12 +242,12 @@ public abstract class Vala.CCodeControlFlowModule : CCodeMethodModule {
 		if (stmt.collection.value_type is ArrayType) {
 			array_type = (ArrayType) stmt.collection.value_type;
 
-			var array_len = get_array_length_cexpression (stmt.collection);
+			var array_len = get_variable_cexpression (get_array_length_cname (get_local_cname (collection_backup), 1));
 
 			// store array length for use by _vala_array_free
-			ccode.add_assignment (get_variable_cexpression (get_array_length_cname (get_local_cname (collection_backup), 1)), array_len);
+			ccode.add_assignment (array_len, get_array_length_cexpression (stmt.collection));
 
-			var iterator_variable = new LocalVariable (int_type.copy (), stmt.variable_name + "_it");
+			var iterator_variable = new LocalVariable (array_type.length_type.copy (), stmt.variable_name + "_it");
 			visit_local_variable (iterator_variable);
 			var it_name = get_local_cname (iterator_variable);
 
@@ -338,6 +338,10 @@ public abstract class Vala.CCodeControlFlowModule : CCodeMethodModule {
 			stmt.body.emit (this);
 
 			ccode.close ();
+		} else {
+			Report.error (stmt.source_reference, "internal error: unsupported collection type");
+			stmt.error = true;
+			return;
 		}
 
 		foreach (LocalVariable local in stmt.get_local_variables ()) {
@@ -350,13 +354,13 @@ public abstract class Vala.CCodeControlFlowModule : CCodeMethodModule {
 	}
 
 	public override void visit_break_statement (BreakStatement stmt) {
-		append_local_free (current_symbol, true);
+		append_local_free (current_symbol, stmt);
 
 		ccode.add_break ();
 	}
 
 	public override void visit_continue_statement (ContinueStatement stmt) {
-		append_local_free (current_symbol, true);
+		append_local_free (current_symbol, stmt);
 
 		ccode.add_continue ();
 	}

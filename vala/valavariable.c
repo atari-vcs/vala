@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,46 +36,17 @@ struct _ValaVariablePrivate {
 	ValaDataType* _variable_type;
 };
 
-
 static gint ValaVariable_private_offset;
 static gpointer vala_variable_parent_class = NULL;
 
 static void vala_variable_finalize (ValaCodeNode * obj);
-
+static GType vala_variable_get_type_once (void);
 
 static inline gpointer
 vala_variable_get_instance_private (ValaVariable* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaVariable_private_offset);
 }
-
-
-ValaVariable*
-vala_variable_construct (GType object_type,
-                         ValaDataType* variable_type,
-                         const gchar* name,
-                         ValaExpression* initializer,
-                         ValaSourceReference* source_reference,
-                         ValaComment* comment)
-{
-	ValaVariable* self = NULL;
-	self = (ValaVariable*) vala_symbol_construct (object_type, name, source_reference, comment);
-	vala_variable_set_variable_type (self, variable_type);
-	vala_variable_set_initializer (self, initializer);
-	return self;
-}
-
-
-ValaVariable*
-vala_variable_new (ValaDataType* variable_type,
-                   const gchar* name,
-                   ValaExpression* initializer,
-                   ValaSourceReference* source_reference,
-                   ValaComment* comment)
-{
-	return vala_variable_construct (VALA_TYPE_VARIABLE, variable_type, name, initializer, source_reference, comment);
-}
-
 
 ValaExpression*
 vala_variable_get_initializer (ValaVariable* self)
@@ -90,13 +59,11 @@ vala_variable_get_initializer (ValaVariable* self)
 	return result;
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
-
 
 void
 vala_variable_set_initializer (ValaVariable* self,
@@ -116,7 +83,6 @@ vala_variable_set_initializer (ValaVariable* self,
 	}
 }
 
-
 ValaDataType*
 vala_variable_get_variable_type (ValaVariable* self)
 {
@@ -127,7 +93,6 @@ vala_variable_get_variable_type (ValaVariable* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_variable_set_variable_type (ValaVariable* self,
@@ -147,18 +112,14 @@ vala_variable_set_variable_type (ValaVariable* self,
 	}
 }
 
-
 gboolean
 vala_variable_get_single_assignment (ValaVariable* self)
 {
 	gboolean result;
-	gboolean _tmp0_;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_single_assignment;
-	result = _tmp0_;
+	result = self->priv->_single_assignment;
 	return result;
 }
-
 
 void
 vala_variable_set_single_assignment (ValaVariable* self,
@@ -168,22 +129,46 @@ vala_variable_set_single_assignment (ValaVariable* self,
 	self->priv->_single_assignment = value;
 }
 
+ValaVariable*
+vala_variable_construct (GType object_type,
+                         ValaDataType* variable_type,
+                         const gchar* name,
+                         ValaExpression* initializer,
+                         ValaSourceReference* source_reference,
+                         ValaComment* comment)
+{
+	ValaVariable* self = NULL;
+	self = (ValaVariable*) vala_symbol_construct (object_type, name, source_reference, comment);
+	vala_variable_set_variable_type (self, variable_type);
+	vala_variable_set_initializer (self, initializer);
+	return self;
+}
+
+ValaVariable*
+vala_variable_new (ValaDataType* variable_type,
+                   const gchar* name,
+                   ValaExpression* initializer,
+                   ValaSourceReference* source_reference,
+                   ValaComment* comment)
+{
+	return vala_variable_construct (VALA_TYPE_VARIABLE, variable_type, name, initializer, source_reference, comment);
+}
 
 static void
-vala_variable_class_init (ValaVariableClass * klass)
+vala_variable_class_init (ValaVariableClass * klass,
+                          gpointer klass_data)
 {
 	vala_variable_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_variable_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaVariable_private_offset);
 }
 
-
 static void
-vala_variable_instance_init (ValaVariable * self)
+vala_variable_instance_init (ValaVariable * self,
+                             gpointer klass)
 {
 	self->priv = vala_variable_get_instance_private (self);
 }
-
 
 static void
 vala_variable_finalize (ValaCodeNode * obj)
@@ -195,20 +180,25 @@ vala_variable_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_variable_parent_class)->finalize (obj);
 }
 
+static GType
+vala_variable_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaVariableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_variable_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVariable), 0, (GInstanceInitFunc) vala_variable_instance_init, NULL };
+	GType vala_variable_type_id;
+	vala_variable_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaVariable", &g_define_type_info, 0);
+	ValaVariable_private_offset = g_type_add_instance_private (vala_variable_type_id, sizeof (ValaVariablePrivate));
+	return vala_variable_type_id;
+}
 
 GType
 vala_variable_get_type (void)
 {
 	static volatile gsize vala_variable_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_variable_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaVariableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_variable_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVariable), 0, (GInstanceInitFunc) vala_variable_instance_init, NULL };
 		GType vala_variable_type_id;
-		vala_variable_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaVariable", &g_define_type_info, 0);
-		ValaVariable_private_offset = g_type_add_instance_private (vala_variable_type_id, sizeof (ValaVariablePrivate));
+		vala_variable_type_id = vala_variable_get_type_once ();
 		g_once_init_leave (&vala_variable_type_id__volatile, vala_variable_type_id);
 	}
 	return vala_variable_type_id__volatile;
 }
-
-
 

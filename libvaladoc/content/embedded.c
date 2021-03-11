@@ -24,12 +24,10 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gstdio.h>
 
 enum  {
@@ -53,7 +51,6 @@ struct _ValadocContentEmbeddedPrivate {
 	gchar* _style;
 	ValadocResourceLocator* _locator;
 };
-
 
 static gint ValadocContentEmbedded_private_offset;
 static gpointer valadoc_content_embedded_parent_class = NULL;
@@ -79,6 +76,7 @@ static ValadocContentContentElement* valadoc_content_embedded_real_copy (Valadoc
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_embedded_finalize (GObject * obj);
+static GType valadoc_content_embedded_get_type_once (void);
 static void _vala_valadoc_content_embedded_get_property (GObject * object,
                                                   guint property_id,
                                                   GValue * value,
@@ -88,13 +86,146 @@ static void _vala_valadoc_content_embedded_set_property (GObject * object,
                                                   const GValue * value,
                                                   GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_content_embedded_get_instance_private (ValadocContentEmbedded* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentEmbedded_private_offset);
 }
 
+const gchar*
+valadoc_content_embedded_get_url (ValadocContentEmbedded* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_url;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_content_embedded_set_url (ValadocContentEmbedded* self,
+                                  const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_embedded_get_url (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_url);
+		self->priv->_url = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_URL_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_content_embedded_get_caption (ValadocContentEmbedded* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_caption;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_content_embedded_set_caption (ValadocContentEmbedded* self,
+                                      const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_embedded_get_caption (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_caption);
+		self->priv->_caption = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_CAPTION_PROPERTY]);
+	}
+}
+
+static ValadocContentHorizontalAlign
+valadoc_content_embedded_real_get_horizontal_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentHorizontalAlign result;
+	ValadocContentEmbedded* self;
+	ValadocContentHorizontalAlign _tmp0_;
+	self = (ValadocContentEmbedded*) base;
+	_tmp0_ = self->priv->_horizontal_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_embedded_real_set_horizontal_align (ValadocContentStyleAttributes* base,
+                                                    ValadocContentHorizontalAlign value)
+{
+	ValadocContentEmbedded* self;
+	ValadocContentHorizontalAlign old_value;
+	self = (ValadocContentEmbedded*) base;
+	old_value = valadoc_content_embedded_real_get_horizontal_align (base);
+	if (old_value != value) {
+		self->priv->_horizontal_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_HORIZONTAL_ALIGN_PROPERTY]);
+	}
+}
+
+static ValadocContentVerticalAlign
+valadoc_content_embedded_real_get_vertical_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentVerticalAlign result;
+	ValadocContentEmbedded* self;
+	ValadocContentVerticalAlign _tmp0_;
+	self = (ValadocContentEmbedded*) base;
+	_tmp0_ = self->priv->_vertical_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_embedded_real_set_vertical_align (ValadocContentStyleAttributes* base,
+                                                  ValadocContentVerticalAlign value)
+{
+	ValadocContentEmbedded* self;
+	ValadocContentVerticalAlign old_value;
+	self = (ValadocContentEmbedded*) base;
+	old_value = valadoc_content_embedded_real_get_vertical_align (base);
+	if (old_value != value) {
+		self->priv->_vertical_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_VERTICAL_ALIGN_PROPERTY]);
+	}
+}
+
+static const gchar*
+valadoc_content_embedded_real_get_style (ValadocContentStyleAttributes* base)
+{
+	const gchar* result;
+	ValadocContentEmbedded* self;
+	const gchar* _tmp0_;
+	self = (ValadocContentEmbedded*) base;
+	_tmp0_ = self->priv->_style;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_embedded_real_set_style (ValadocContentStyleAttributes* base,
+                                         const gchar* value)
+{
+	ValadocContentEmbedded* self;
+	gchar* old_value;
+	self = (ValadocContentEmbedded*) base;
+	old_value = valadoc_content_embedded_real_get_style (base);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_style);
+		self->priv->_style = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_STYLE_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentEmbedded*
 valadoc_content_embedded_construct (GType object_type)
@@ -104,20 +235,17 @@ valadoc_content_embedded_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentEmbedded*
 valadoc_content_embedded_new (void)
 {
 	return valadoc_content_embedded_construct (VALADOC_CONTENT_TYPE_EMBEDDED);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 static void
 valadoc_content_embedded_real_configure (ValadocContentContentElement* base,
@@ -133,7 +261,6 @@ valadoc_content_embedded_real_configure (ValadocContentContentElement* base,
 	_g_object_unref0 (self->priv->_locator);
 	self->priv->_locator = _tmp0_;
 }
-
 
 static void
 valadoc_content_embedded_real_check (ValadocContentContentElement* base,
@@ -216,7 +343,7 @@ valadoc_content_embedded_real_check (ValadocContentContentElement* base,
 			gint dir_it = 0;
 			dir_collection = _tmp15_;
 			dir_collection_length1 = _tmp15__length1;
-			for (dir_it = 0; dir_it < _tmp15__length1; dir_it = dir_it + 1) {
+			for (dir_it = 0; dir_it < dir_collection_length1; dir_it = dir_it + 1) {
 				const gchar* dir = NULL;
 				dir = dir_collection[dir_it];
 				{
@@ -254,7 +381,7 @@ valadoc_content_embedded_real_check (ValadocContentContentElement* base,
 				}
 			}
 		}
-		if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PACKAGE)) {
+		if (VALADOC_API_IS_PACKAGE (container)) {
 			gchar* _tmp26_;
 			_tmp26_ = g_strdup ("");
 			_g_free0 (_tmp25_);
@@ -293,7 +420,6 @@ valadoc_content_embedded_real_check (ValadocContentContentElement* base,
 	}
 }
 
-
 static void
 valadoc_content_embedded_real_accept (ValadocContentContentElement* base,
                                       ValadocContentContentVisitor* visitor)
@@ -303,7 +429,6 @@ valadoc_content_embedded_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_embedded (visitor, self);
 }
-
 
 static gboolean
 valadoc_content_embedded_real_is_empty (ValadocContentContentElement* base)
@@ -315,13 +440,11 @@ valadoc_content_embedded_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_embedded_real_copy (ValadocContentContentElement* base,
                                     ValadocContentContentElement* new_parent)
 {
 	ValadocContentEmbedded * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentEmbedded* embedded = NULL;
 	ValadocContentEmbedded* _tmp0_;
 	ValadocContentHorizontalAlign _tmp1_;
@@ -336,6 +459,7 @@ valadoc_content_embedded_real_copy (ValadocContentContentElement* base,
 	const gchar* _tmp10_;
 	const gchar* _tmp11_;
 	const gchar* _tmp12_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentEmbedded*) base;
 	_tmp0_ = valadoc_content_embedded_new ();
 	embedded = _tmp0_;
@@ -365,144 +489,9 @@ valadoc_content_embedded_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-const gchar*
-valadoc_content_embedded_get_url (ValadocContentEmbedded* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_url;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_embedded_set_url (ValadocContentEmbedded* self,
-                                  const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_content_embedded_get_url (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_url);
-		self->priv->_url = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_URL_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_content_embedded_get_caption (ValadocContentEmbedded* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_caption;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_embedded_set_caption (ValadocContentEmbedded* self,
-                                      const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_content_embedded_get_caption (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_caption);
-		self->priv->_caption = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_CAPTION_PROPERTY]);
-	}
-}
-
-
-static ValadocContentHorizontalAlign
-valadoc_content_embedded_real_get_horizontal_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentHorizontalAlign result;
-	ValadocContentEmbedded* self;
-	ValadocContentHorizontalAlign _tmp0_;
-	self = (ValadocContentEmbedded*) base;
-	_tmp0_ = self->priv->_horizontal_align;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_content_embedded_real_set_horizontal_align (ValadocContentStyleAttributes* base,
-                                                    ValadocContentHorizontalAlign value)
-{
-	ValadocContentEmbedded* self;
-	self = (ValadocContentEmbedded*) base;
-	if (valadoc_content_embedded_real_get_horizontal_align (base) != value) {
-		self->priv->_horizontal_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_HORIZONTAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static ValadocContentVerticalAlign
-valadoc_content_embedded_real_get_vertical_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentVerticalAlign result;
-	ValadocContentEmbedded* self;
-	ValadocContentVerticalAlign _tmp0_;
-	self = (ValadocContentEmbedded*) base;
-	_tmp0_ = self->priv->_vertical_align;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_embedded_real_set_vertical_align (ValadocContentStyleAttributes* base,
-                                                  ValadocContentVerticalAlign value)
-{
-	ValadocContentEmbedded* self;
-	self = (ValadocContentEmbedded*) base;
-	if (valadoc_content_embedded_real_get_vertical_align (base) != value) {
-		self->priv->_vertical_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_VERTICAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static const gchar*
-valadoc_content_embedded_real_get_style (ValadocContentStyleAttributes* base)
-{
-	const gchar* result;
-	ValadocContentEmbedded* self;
-	const gchar* _tmp0_;
-	self = (ValadocContentEmbedded*) base;
-	_tmp0_ = self->priv->_style;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_embedded_real_set_style (ValadocContentStyleAttributes* base,
-                                         const gchar* value)
-{
-	ValadocContentEmbedded* self;
-	self = (ValadocContentEmbedded*) base;
-	if (g_strcmp0 (value, valadoc_content_embedded_real_get_style (base)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_style);
-		self->priv->_style = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_STYLE_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_content_embedded_class_init (ValadocContentEmbeddedClass * klass)
+valadoc_content_embedded_class_init (ValadocContentEmbeddedClass * klass,
+                                     gpointer klass_data)
 {
 	valadoc_content_embedded_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentEmbedded_private_offset);
@@ -521,16 +510,16 @@ valadoc_content_embedded_class_init (ValadocContentEmbeddedClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_EMBEDDED_STYLE_PROPERTY, valadoc_content_embedded_properties[VALADOC_CONTENT_EMBEDDED_STYLE_PROPERTY] = g_param_spec_string ("style", "style", "style", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_embedded_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface)
+valadoc_content_embedded_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface,
+                                                                gpointer iface_data)
 {
 	valadoc_content_embedded_valadoc_content_inline_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_embedded_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface)
+valadoc_content_embedded_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface,
+                                                                          gpointer iface_data)
 {
 	valadoc_content_embedded_valadoc_content_style_attributes_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_horizontal_align = valadoc_content_embedded_real_get_horizontal_align;
@@ -541,13 +530,12 @@ valadoc_content_embedded_valadoc_content_style_attributes_interface_init (Valado
 	iface->set_style = valadoc_content_embedded_real_set_style;
 }
 
-
 static void
-valadoc_content_embedded_instance_init (ValadocContentEmbedded * self)
+valadoc_content_embedded_instance_init (ValadocContentEmbedded * self,
+                                        gpointer klass)
 {
 	self->priv = valadoc_content_embedded_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_embedded_finalize (GObject * obj)
@@ -562,25 +550,31 @@ valadoc_content_embedded_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_embedded_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_embedded_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentEmbeddedClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_embedded_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentEmbedded), 0, (GInstanceInitFunc) valadoc_content_embedded_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_embedded_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_embedded_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_embedded_type_id;
+	valadoc_content_embedded_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentEmbedded", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_embedded_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
+	g_type_add_interface_static (valadoc_content_embedded_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
+	ValadocContentEmbedded_private_offset = g_type_add_instance_private (valadoc_content_embedded_type_id, sizeof (ValadocContentEmbeddedPrivate));
+	return valadoc_content_embedded_type_id;
+}
 
 GType
 valadoc_content_embedded_get_type (void)
 {
 	static volatile gsize valadoc_content_embedded_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_embedded_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentEmbeddedClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_embedded_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentEmbedded), 0, (GInstanceInitFunc) valadoc_content_embedded_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_embedded_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
-		static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_embedded_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_embedded_type_id;
-		valadoc_content_embedded_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentEmbedded", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_embedded_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
-		g_type_add_interface_static (valadoc_content_embedded_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
-		ValadocContentEmbedded_private_offset = g_type_add_instance_private (valadoc_content_embedded_type_id, sizeof (ValadocContentEmbeddedPrivate));
+		valadoc_content_embedded_type_id = valadoc_content_embedded_get_type_once ();
 		g_once_init_leave (&valadoc_content_embedded_type_id__volatile, valadoc_content_embedded_type_id);
 	}
 	return valadoc_content_embedded_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_embedded_get_property (GObject * object,
@@ -612,7 +606,6 @@ _vala_valadoc_content_embedded_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_embedded_set_property (GObject * object,
                                              guint property_id,
@@ -642,6 +635,4 @@ _vala_valadoc_content_embedded_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

@@ -23,24 +23,29 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
 struct _ValaGenericTypePrivate {
 	ValaTypeParameter* _type_parameter;
+	ValaGenericDupField* dup_field;
+	ValaGenericDestroyField* destroy_field;
 };
-
 
 static gint ValaGenericType_private_offset;
 static gpointer vala_generic_type_parent_class = NULL;
 
 static ValaDataType* vala_generic_type_real_copy (ValaDataType* base);
+static ValaDataType* vala_generic_type_real_get_actual_type (ValaDataType* base,
+                                                      ValaDataType* derived_instance_type,
+                                                      ValaList* method_type_arguments,
+                                                      ValaCodeNode* node_reference);
 static ValaDataType* vala_generic_type_real_infer_type_argument (ValaDataType* base,
                                                           ValaTypeParameter* type_param,
                                                           ValaDataType* value_type);
@@ -48,8 +53,10 @@ static gchar* vala_generic_type_real_to_qualified_string (ValaDataType* base,
                                                    ValaScope* scope);
 static ValaSymbol* vala_generic_type_real_get_member (ValaDataType* base,
                                                const gchar* member_name);
+static ValaGenericDupField* vala_generic_type_get_dup_field (ValaGenericType* self);
+static ValaGenericDestroyField* vala_generic_type_get_destroy_field (ValaGenericType* self);
 static void vala_generic_type_finalize (ValaCodeNode * obj);
-
+static GType vala_generic_type_get_type_once (void);
 
 static inline gpointer
 vala_generic_type_get_instance_private (ValaGenericType* self)
@@ -57,6 +64,24 @@ vala_generic_type_get_instance_private (ValaGenericType* self)
 	return G_STRUCT_MEMBER_P (self, ValaGenericType_private_offset);
 }
 
+ValaTypeParameter*
+vala_generic_type_get_type_parameter (ValaGenericType* self)
+{
+	ValaTypeParameter* result;
+	ValaTypeParameter* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_type_parameter;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_generic_type_set_type_parameter (ValaGenericType* self,
+                                      ValaTypeParameter* value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_type_parameter = value;
+}
 
 ValaGenericType*
 vala_generic_type_construct (GType object_type,
@@ -70,19 +95,16 @@ vala_generic_type_construct (GType object_type,
 	return self;
 }
 
-
 ValaGenericType*
 vala_generic_type_new (ValaTypeParameter* type_parameter)
 {
 	return vala_generic_type_construct (VALA_TYPE_GENERIC_TYPE, type_parameter);
 }
 
-
 static ValaDataType*
 vala_generic_type_real_copy (ValaDataType* base)
 {
 	ValaGenericType * self;
-	ValaDataType* result = NULL;
 	ValaGenericType* _result_ = NULL;
 	ValaTypeParameter* _tmp0_;
 	ValaGenericType* _tmp1_;
@@ -94,6 +116,7 @@ vala_generic_type_real_copy (ValaDataType* base)
 	gboolean _tmp7_;
 	gboolean _tmp8_;
 	gboolean _tmp9_;
+	ValaDataType* result = NULL;
 	self = (ValaGenericType*) base;
 	_tmp0_ = self->priv->_type_parameter;
 	_tmp1_ = vala_generic_type_new (_tmp0_);
@@ -114,6 +137,38 @@ vala_generic_type_real_copy (ValaDataType* base)
 	return result;
 }
 
+static ValaDataType*
+vala_generic_type_real_get_actual_type (ValaDataType* base,
+                                        ValaDataType* derived_instance_type,
+                                        ValaList* method_type_arguments,
+                                        ValaCodeNode* node_reference)
+{
+	ValaGenericType * self;
+	ValaDataType* _result_ = NULL;
+	ValaDataType* _tmp0_;
+	gboolean _tmp1_ = FALSE;
+	ValaDataType* _tmp2_;
+	ValaDataType* _tmp3_;
+	ValaDataType* result = NULL;
+	self = (ValaGenericType*) base;
+	_tmp0_ = vala_data_type_copy ((ValaDataType*) self);
+	_result_ = _tmp0_;
+	if (derived_instance_type == NULL) {
+		_tmp1_ = method_type_arguments == NULL;
+	} else {
+		_tmp1_ = FALSE;
+	}
+	if (_tmp1_) {
+		result = _result_;
+		return result;
+	}
+	_tmp2_ = _result_;
+	_tmp3_ = vala_semantic_analyzer_get_actual_type (derived_instance_type, method_type_arguments, G_TYPE_CHECK_INSTANCE_CAST (_tmp2_, VALA_TYPE_GENERIC_TYPE, ValaGenericType), node_reference);
+	_vala_code_node_unref0 (_result_);
+	_result_ = _tmp3_;
+	result = _result_;
+	return result;
+}
 
 static ValaDataType*
 vala_generic_type_real_infer_type_argument (ValaDataType* base,
@@ -121,8 +176,8 @@ vala_generic_type_real_infer_type_argument (ValaDataType* base,
                                             ValaDataType* value_type)
 {
 	ValaGenericType * self;
-	ValaDataType* result = NULL;
 	ValaTypeParameter* _tmp0_;
+	ValaDataType* result = NULL;
 	self = (ValaGenericType*) base;
 	g_return_val_if_fail (type_param != NULL, NULL);
 	g_return_val_if_fail (value_type != NULL, NULL);
@@ -142,17 +197,16 @@ vala_generic_type_real_infer_type_argument (ValaDataType* base,
 	return result;
 }
 
-
 static gchar*
 vala_generic_type_real_to_qualified_string (ValaDataType* base,
                                             ValaScope* scope)
 {
 	ValaGenericType * self;
-	gchar* result = NULL;
 	ValaTypeParameter* _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
 	gchar* _tmp3_;
+	gchar* result = NULL;
 	self = (ValaGenericType*) base;
 	_tmp0_ = self->priv->_type_parameter;
 	_tmp1_ = vala_symbol_get_name ((ValaSymbol*) _tmp0_);
@@ -162,6 +216,11 @@ vala_generic_type_real_to_qualified_string (ValaDataType* base,
 	return result;
 }
 
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
 
 static ValaSymbol*
 vala_generic_type_real_get_member (ValaDataType* base,
@@ -171,77 +230,132 @@ vala_generic_type_real_get_member (ValaDataType* base,
 	ValaSymbol* result = NULL;
 	self = (ValaGenericType*) base;
 	g_return_val_if_fail (member_name != NULL, NULL);
+	if (g_strcmp0 (member_name, "dup") == 0) {
+		ValaGenericDupField* _tmp0_;
+		ValaSymbol* _tmp1_;
+		_tmp0_ = vala_generic_type_get_dup_field (self);
+		_tmp1_ = _vala_code_node_ref0 ((ValaSymbol*) _tmp0_);
+		result = _tmp1_;
+		return result;
+	} else {
+		if (g_strcmp0 (member_name, "destroy") == 0) {
+			ValaGenericDestroyField* _tmp2_;
+			ValaSymbol* _tmp3_;
+			_tmp2_ = vala_generic_type_get_destroy_field (self);
+			_tmp3_ = _vala_code_node_ref0 ((ValaSymbol*) _tmp2_);
+			result = _tmp3_;
+			return result;
+		}
+	}
 	result = NULL;
 	return result;
 }
 
-
-ValaTypeParameter*
-vala_generic_type_get_type_parameter (ValaGenericType* self)
+static ValaGenericDupField*
+vala_generic_type_get_dup_field (ValaGenericType* self)
 {
-	ValaTypeParameter* result;
-	ValaTypeParameter* _tmp0_;
+	ValaGenericDupField* _tmp0_;
+	ValaGenericDupField* _tmp5_;
+	ValaGenericDupField* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_type_parameter;
-	result = _tmp0_;
+	_tmp0_ = self->priv->dup_field;
+	if (_tmp0_ == NULL) {
+		ValaSourceReference* _tmp1_;
+		ValaSourceReference* _tmp2_;
+		ValaGenericDupField* _tmp3_;
+		ValaGenericDupField* _tmp4_;
+		_tmp1_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+		_tmp2_ = _tmp1_;
+		_tmp3_ = vala_generic_dup_field_new (_tmp2_);
+		_vala_code_node_unref0 (self->priv->dup_field);
+		self->priv->dup_field = _tmp3_;
+		_tmp4_ = self->priv->dup_field;
+		vala_symbol_set_access ((ValaSymbol*) _tmp4_, VALA_SYMBOL_ACCESSIBILITY_PUBLIC);
+	}
+	_tmp5_ = self->priv->dup_field;
+	result = _tmp5_;
 	return result;
 }
 
-
-void
-vala_generic_type_set_type_parameter (ValaGenericType* self,
-                                      ValaTypeParameter* value)
+static ValaGenericDestroyField*
+vala_generic_type_get_destroy_field (ValaGenericType* self)
 {
-	g_return_if_fail (self != NULL);
-	self->priv->_type_parameter = value;
+	ValaGenericDestroyField* _tmp0_;
+	ValaGenericDestroyField* _tmp5_;
+	ValaGenericDestroyField* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->destroy_field;
+	if (_tmp0_ == NULL) {
+		ValaSourceReference* _tmp1_;
+		ValaSourceReference* _tmp2_;
+		ValaGenericDestroyField* _tmp3_;
+		ValaGenericDestroyField* _tmp4_;
+		_tmp1_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+		_tmp2_ = _tmp1_;
+		_tmp3_ = vala_generic_destroy_field_new (_tmp2_);
+		_vala_code_node_unref0 (self->priv->destroy_field);
+		self->priv->destroy_field = _tmp3_;
+		_tmp4_ = self->priv->destroy_field;
+		vala_symbol_set_access ((ValaSymbol*) _tmp4_, VALA_SYMBOL_ACCESSIBILITY_PUBLIC);
+	}
+	_tmp5_ = self->priv->destroy_field;
+	result = _tmp5_;
+	return result;
 }
 
-
 static void
-vala_generic_type_class_init (ValaGenericTypeClass * klass)
+vala_generic_type_class_init (ValaGenericTypeClass * klass,
+                              gpointer klass_data)
 {
 	vala_generic_type_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_generic_type_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaGenericType_private_offset);
 	((ValaDataTypeClass *) klass)->copy = (ValaDataType* (*) (ValaDataType*)) vala_generic_type_real_copy;
+	((ValaDataTypeClass *) klass)->get_actual_type = (ValaDataType* (*) (ValaDataType*, ValaDataType*, ValaList*, ValaCodeNode*)) vala_generic_type_real_get_actual_type;
 	((ValaDataTypeClass *) klass)->infer_type_argument = (ValaDataType* (*) (ValaDataType*, ValaTypeParameter*, ValaDataType*)) vala_generic_type_real_infer_type_argument;
 	((ValaDataTypeClass *) klass)->to_qualified_string = (gchar* (*) (ValaDataType*, ValaScope*)) vala_generic_type_real_to_qualified_string;
 	((ValaDataTypeClass *) klass)->get_member = (ValaSymbol* (*) (ValaDataType*, const gchar*)) vala_generic_type_real_get_member;
 }
 
-
 static void
-vala_generic_type_instance_init (ValaGenericType * self)
+vala_generic_type_instance_init (ValaGenericType * self,
+                                 gpointer klass)
 {
 	self->priv = vala_generic_type_get_instance_private (self);
 }
-
 
 static void
 vala_generic_type_finalize (ValaCodeNode * obj)
 {
 	ValaGenericType * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_GENERIC_TYPE, ValaGenericType);
+	_vala_code_node_unref0 (self->priv->dup_field);
+	_vala_code_node_unref0 (self->priv->destroy_field);
 	VALA_CODE_NODE_CLASS (vala_generic_type_parent_class)->finalize (obj);
 }
-
 
 /**
  * The type of a generic type parameter.
  */
+static GType
+vala_generic_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaGenericTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_generic_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaGenericType), 0, (GInstanceInitFunc) vala_generic_type_instance_init, NULL };
+	GType vala_generic_type_type_id;
+	vala_generic_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaGenericType", &g_define_type_info, 0);
+	ValaGenericType_private_offset = g_type_add_instance_private (vala_generic_type_type_id, sizeof (ValaGenericTypePrivate));
+	return vala_generic_type_type_id;
+}
+
 GType
 vala_generic_type_get_type (void)
 {
 	static volatile gsize vala_generic_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_generic_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaGenericTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_generic_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaGenericType), 0, (GInstanceInitFunc) vala_generic_type_instance_init, NULL };
 		GType vala_generic_type_type_id;
-		vala_generic_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaGenericType", &g_define_type_info, 0);
-		ValaGenericType_private_offset = g_type_add_instance_private (vala_generic_type_type_id, sizeof (ValaGenericTypePrivate));
+		vala_generic_type_type_id = vala_generic_type_get_type_once ();
 		g_once_init_leave (&vala_generic_type_type_id__volatile, vala_generic_type_type_id);
 	}
 	return vala_generic_type_type_id__volatile;
 }
-
-
 

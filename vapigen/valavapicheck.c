@@ -23,20 +23,18 @@
  * 	Mathias Hasselmann <mathias.hasselmann@gmx.de>
  */
 
-
-#include <glib.h>
 #include <glib-object.h>
 #include <vala.h>
 #include <valagee.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gidlmodule.h>
 #include <gidlparser.h>
 #include <gidlnode.h>
 #include <stdio.h>
 #include <glib/gstdio.h>
 #include <gobject/gvaluecollector.h>
-
 
 #define VALA_TYPE_VAPI_CHECK (vala_vapi_check_get_type ())
 #define VALA_VAPI_CHECK(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALA_TYPE_VAPI_CHECK, ValaVAPICheck))
@@ -48,10 +46,10 @@
 typedef struct _ValaVAPICheck ValaVAPICheck;
 typedef struct _ValaVAPICheckClass ValaVAPICheckClass;
 typedef struct _ValaVAPICheckPrivate ValaVAPICheckPrivate;
-#define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
 #define _vala_source_file_unref0(var) ((var == NULL) ? NULL : (var = (vala_source_file_unref (var), NULL)))
-#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
+#define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
+#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _g_io_channel_unref0(var) ((var == NULL) ? NULL : (var = (g_io_channel_unref (var), NULL)))
 #define _vala_source_reference_unref0(var) ((var == NULL) ? NULL : (var = (vala_source_reference_unref (var), NULL)))
@@ -81,7 +79,6 @@ struct _ValaParamSpecVAPICheck {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaVAPICheck_private_offset;
 static gpointer vala_vapi_check_parent_class = NULL;
 
@@ -98,6 +95,7 @@ G_GNUC_INTERNAL void vala_value_take_vapi_check (GValue* value,
                                  gpointer v_object);
 G_GNUC_INTERNAL gpointer vala_value_get_vapi_check (const GValue* value) G_GNUC_UNUSED;
 G_GNUC_INTERNAL GType vala_vapi_check_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValaVAPICheck, vala_vapi_check_unref)
 G_GNUC_INTERNAL ValaVAPICheck* vala_vapi_check_new (const gchar* gidlname,
                                     ValaCodeContext* context);
 G_GNUC_INTERNAL ValaVAPICheck* vala_vapi_check_construct (GType object_type,
@@ -109,8 +107,10 @@ static void vala_vapi_check_set_metadata (ValaVAPICheck* self,
                                    ValaSourceFile* value);
 static void vala_vapi_check_set_context (ValaVAPICheck* self,
                                   ValaCodeContext* value);
-static void vala_vapi_check_parse_gidl (ValaVAPICheck* self);
+G_GNUC_INTERNAL ValaCodeContext* vala_vapi_check_get_context (ValaVAPICheck* self);
 G_GNUC_INTERNAL ValaSourceFile* vala_vapi_check_get_gidl (ValaVAPICheck* self);
+G_GNUC_INTERNAL ValaSourceFile* vala_vapi_check_get_metadata (ValaVAPICheck* self);
+static void vala_vapi_check_parse_gidl (ValaVAPICheck* self);
 static void vala_vapi_check_parse_members (ValaVAPICheck* self,
                                     const gchar* name,
                                     GList* members);
@@ -124,12 +124,11 @@ static void vala_vapi_check_enter_scope (ValaVAPICheck* self,
                                   const gchar* name);
 static void vala_vapi_check_leave_scope (ValaVAPICheck* self);
 static gint vala_vapi_check_check_metadata (ValaVAPICheck* self);
-G_GNUC_INTERNAL ValaSourceFile* vala_vapi_check_get_metadata (ValaVAPICheck* self);
 G_GNUC_INTERNAL gint vala_vapi_check_run (ValaVAPICheck* self);
 static gint vala_vapi_check_main (gchar** args,
-                           int args_length1);
-G_GNUC_INTERNAL ValaCodeContext* vala_vapi_check_get_context (ValaVAPICheck* self);
+                           gint args_length1);
 static void vala_vapi_check_finalize (ValaVAPICheck * obj);
+static GType vala_vapi_check_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -138,22 +137,20 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 vala_vapi_check_get_instance_private (ValaVAPICheck* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaVAPICheck_private_offset);
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -168,17 +165,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -195,27 +190,19 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 G_GNUC_INTERNAL ValaVAPICheck*
 vala_vapi_check_construct (GType object_type,
@@ -256,7 +243,6 @@ vala_vapi_check_construct (GType object_type,
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValaVAPICheck*
 vala_vapi_check_new (const gchar* gidlname,
                      ValaCodeContext* context)
@@ -264,6 +250,83 @@ vala_vapi_check_new (const gchar* gidlname,
 	return vala_vapi_check_construct (VALA_TYPE_VAPI_CHECK, gidlname, context);
 }
 
+G_GNUC_INTERNAL ValaCodeContext*
+vala_vapi_check_get_context (ValaVAPICheck* self)
+{
+	ValaCodeContext* result;
+	ValaCodeContext* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_context;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_context_ref0 (gpointer self)
+{
+	return self ? vala_code_context_ref (self) : NULL;
+}
+
+static void
+vala_vapi_check_set_context (ValaVAPICheck* self,
+                             ValaCodeContext* value)
+{
+	ValaCodeContext* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_context_ref0 (value);
+	_vala_code_context_unref0 (self->priv->_context);
+	self->priv->_context = _tmp0_;
+}
+
+G_GNUC_INTERNAL ValaSourceFile*
+vala_vapi_check_get_gidl (ValaVAPICheck* self)
+{
+	ValaSourceFile* result;
+	ValaSourceFile* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_gidl;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_source_file_ref0 (gpointer self)
+{
+	return self ? vala_source_file_ref (self) : NULL;
+}
+
+static void
+vala_vapi_check_set_gidl (ValaVAPICheck* self,
+                          ValaSourceFile* value)
+{
+	ValaSourceFile* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_source_file_ref0 (value);
+	_vala_source_file_unref0 (self->priv->_gidl);
+	self->priv->_gidl = _tmp0_;
+}
+
+G_GNUC_INTERNAL ValaSourceFile*
+vala_vapi_check_get_metadata (ValaVAPICheck* self)
+{
+	ValaSourceFile* result;
+	ValaSourceFile* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_metadata;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+vala_vapi_check_set_metadata (ValaVAPICheck* self,
+                              ValaSourceFile* value)
+{
+	ValaSourceFile* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_source_file_ref0 (value);
+	_vala_source_file_unref0 (self->priv->_metadata);
+	self->priv->_metadata = _tmp0_;
+}
 
 static void
 _g_idl_module_free0_ (gpointer var)
@@ -271,13 +334,11 @@ _g_idl_module_free0_ (gpointer var)
 	(var == NULL) ? NULL : (var = (g_idl_module_free (var), NULL));
 }
 
-
 static inline void
 _g_list_free__g_idl_module_free0_ (GList* self)
 {
 	g_list_free_full (self, (GDestroyNotify) _g_idl_module_free0_);
 }
-
 
 static void
 vala_vapi_check_parse_gidl (ValaVAPICheck* self)
@@ -287,7 +348,7 @@ vala_vapi_check_parse_gidl (ValaVAPICheck* self)
 	GHashFunc _tmp2_;
 	GEqualFunc _tmp3_;
 	ValaHashSet* _tmp4_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = g_direct_equal;
 	_tmp1_ = vala_array_list_new (G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, _tmp0_);
@@ -307,14 +368,14 @@ vala_vapi_check_parse_gidl (ValaVAPICheck* self)
 		_tmp6_ = self->priv->_gidl;
 		_tmp7_ = vala_source_file_get_filename (_tmp6_);
 		_tmp8_ = _tmp7_;
-		_tmp9_ = g_idl_parse_file (_tmp8_, &_inner_error_);
+		_tmp9_ = g_idl_parse_file (_tmp8_, &_inner_error0_);
 		_tmp5_ = _tmp9_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_MARKUP_ERROR) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_MARKUP_ERROR) {
 				goto __catch0_g_markup_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 		{
@@ -349,8 +410,8 @@ vala_vapi_check_parse_gidl (ValaVAPICheck* self)
 		const gchar* _tmp17_;
 		GError* _tmp18_;
 		const gchar* _tmp19_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp14_ = stderr;
 		_tmp15_ = self->priv->_gidl;
 		_tmp16_ = vala_source_file_get_filename (_tmp15_);
@@ -361,13 +422,12 @@ vala_vapi_check_parse_gidl (ValaVAPICheck* self)
 		_g_error_free0 (e);
 	}
 	__finally0:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
 }
-
 
 static void
 vala_vapi_check_add_symbol (ValaVAPICheck* self,
@@ -406,16 +466,15 @@ vala_vapi_check_add_symbol (ValaVAPICheck* self,
 	}
 }
 
-
 static gchar*
 vala_vapi_check_get_scope (ValaVAPICheck* self)
 {
-	gchar* result = NULL;
 	ValaList* _tmp0_;
 	ValaList* _tmp1_;
 	gint _tmp2_;
 	gint _tmp3_;
 	gpointer _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->_scope;
 	_tmp1_ = self->priv->_scope;
@@ -425,7 +484,6 @@ vala_vapi_check_get_scope (ValaVAPICheck* self)
 	result = (gchar*) _tmp4_;
 	return result;
 }
-
 
 static void
 vala_vapi_check_enter_scope (ValaVAPICheck* self,
@@ -438,7 +496,6 @@ vala_vapi_check_enter_scope (ValaVAPICheck* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, name);
 	vala_vapi_check_add_symbol (self, name, NULL);
 }
-
 
 static void
 vala_vapi_check_leave_scope (ValaVAPICheck* self)
@@ -458,7 +515,6 @@ vala_vapi_check_leave_scope (ValaVAPICheck* self)
 	_tmp5_ = (gchar*) _tmp4_;
 	_g_free0 (_tmp5_);
 }
-
 
 static void
 vala_vapi_check_parse_members (ValaVAPICheck* self,
@@ -592,13 +648,12 @@ vala_vapi_check_parse_members (ValaVAPICheck* self,
 	vala_vapi_check_leave_scope (self);
 }
 
-
 static gint
 vala_vapi_check_check_metadata (ValaVAPICheck* self)
 {
+	gint _tmp38_ = -1;
+	GError* _inner_error0_ = NULL;
 	gint result = 0;
-	gint _tmp41_ = -1;
-	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (self != NULL, 0);
 	{
 		GIOChannel* metafile = NULL;
@@ -611,10 +666,10 @@ vala_vapi_check_check_metadata (ValaVAPICheck* self)
 		_tmp0_ = self->priv->_metadata;
 		_tmp1_ = vala_source_file_get_filename (_tmp0_);
 		_tmp2_ = _tmp1_;
-		_tmp3_ = g_io_channel_new_file (_tmp2_, "r", &_inner_error_);
+		_tmp3_ = g_io_channel_new_file (_tmp2_, "r", &_inner_error0_);
 		metafile = _tmp3_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			goto __catch1_g_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch0_g_error;
 		}
 		lineno = 1;
 		while (TRUE) {
@@ -637,16 +692,15 @@ vala_vapi_check_check_metadata (ValaVAPICheck* self)
 			const gchar* _tmp15_;
 			gint _tmp16_;
 			gint _tmp17_;
-			gint _tmp33_;
 			_tmp5_ = metafile;
-			_tmp7_ = g_io_channel_read_line (_tmp5_, &_tmp6_, NULL, NULL, &_inner_error_);
+			_tmp7_ = g_io_channel_read_line (_tmp5_, &_tmp6_, NULL, NULL, &_inner_error0_);
 			_g_free0 (line);
 			line = _tmp6_;
 			_tmp4_ = _tmp7_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				_g_free0 (line);
 				_g_io_channel_unref0 (metafile);
-				goto __catch1_g_error;
+				goto __catch0_g_error;
 			}
 			if (!(G_IO_STATUS_NORMAL == _tmp4_)) {
 				break;
@@ -676,38 +730,33 @@ vala_vapi_check_check_metadata (ValaVAPICheck* self)
 			if (_tmp14_) {
 				ValaSourceReference* src = NULL;
 				ValaSourceFile* _tmp20_;
-				gint _tmp21_;
-				ValaSourceLocation _tmp22_ = {0};
+				ValaSourceLocation _tmp21_ = {0};
+				const gchar* _tmp22_;
 				gint _tmp23_;
-				const gchar* _tmp24_;
-				gint _tmp25_;
-				gint _tmp26_;
-				ValaSourceLocation _tmp27_ = {0};
-				ValaSourceReference* _tmp28_;
-				ValaSourceReference* _tmp29_;
-				const gchar* _tmp30_;
-				gchar* _tmp31_;
-				gchar* _tmp32_;
+				gint _tmp24_;
+				ValaSourceLocation _tmp25_ = {0};
+				ValaSourceReference* _tmp26_;
+				ValaSourceReference* _tmp27_;
+				const gchar* _tmp28_;
+				gchar* _tmp29_;
+				gchar* _tmp30_;
 				_tmp20_ = self->priv->_metadata;
-				_tmp21_ = lineno;
-				vala_source_location_init (&_tmp22_, NULL, _tmp21_, 1);
-				_tmp23_ = lineno;
-				_tmp24_ = symbol;
-				_tmp25_ = strlen (_tmp24_);
-				_tmp26_ = _tmp25_;
-				vala_source_location_init (&_tmp27_, NULL, _tmp23_, (gint) _tmp26_);
-				_tmp28_ = vala_source_reference_new (_tmp20_, &_tmp22_, &_tmp27_);
-				src = _tmp28_;
-				_tmp29_ = src;
-				_tmp30_ = symbol;
-				_tmp31_ = g_strdup_printf ("Symbol `%s' not found", _tmp30_);
-				_tmp32_ = _tmp31_;
-				vala_report_error (_tmp29_, _tmp32_);
-				_g_free0 (_tmp32_);
+				vala_source_location_init (&_tmp21_, NULL, lineno, 1);
+				_tmp22_ = symbol;
+				_tmp23_ = strlen (_tmp22_);
+				_tmp24_ = _tmp23_;
+				vala_source_location_init (&_tmp25_, NULL, lineno, (gint) _tmp24_);
+				_tmp26_ = vala_source_reference_new (_tmp20_, &_tmp21_, &_tmp25_);
+				src = _tmp26_;
+				_tmp27_ = src;
+				_tmp28_ = symbol;
+				_tmp29_ = g_strdup_printf ("Symbol `%s' not found", _tmp28_);
+				_tmp30_ = _tmp29_;
+				vala_report_error (_tmp27_, _tmp30_);
+				_g_free0 (_tmp30_);
 				_vala_source_reference_unref0 (src);
 			}
-			_tmp33_ = lineno;
-			lineno = _tmp33_ + 1;
+			lineno += 1;
 			_g_free0 (symbol);
 			tokens = (_vala_array_free (tokens, tokens_length1, (GDestroyNotify) g_free), NULL);
 		}
@@ -716,49 +765,48 @@ vala_vapi_check_check_metadata (ValaVAPICheck* self)
 		_g_io_channel_unref0 (metafile);
 		return result;
 	}
-	goto __finally1;
-	__catch1_g_error:
+	goto __finally0;
+	__catch0_g_error:
 	{
 		GError* _error_ = NULL;
-		ValaSourceFile* _tmp34_;
+		ValaSourceFile* _tmp31_;
+		const gchar* _tmp32_;
+		const gchar* _tmp33_;
+		GError* _tmp34_;
 		const gchar* _tmp35_;
-		const gchar* _tmp36_;
-		GError* _tmp37_;
-		const gchar* _tmp38_;
-		gchar* _tmp39_;
-		gchar* _tmp40_;
-		_error_ = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp34_ = self->priv->_metadata;
-		_tmp35_ = vala_source_file_get_filename (_tmp34_);
-		_tmp36_ = _tmp35_;
-		_tmp37_ = _error_;
-		_tmp38_ = _tmp37_->message;
-		_tmp39_ = g_strdup_printf ("%s: %s", _tmp36_, _tmp38_);
-		_tmp40_ = _tmp39_;
-		vala_report_error (NULL, _tmp40_);
-		_g_free0 (_tmp40_);
+		gchar* _tmp36_;
+		gchar* _tmp37_;
+		_error_ = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp31_ = self->priv->_metadata;
+		_tmp32_ = vala_source_file_get_filename (_tmp31_);
+		_tmp33_ = _tmp32_;
+		_tmp34_ = _error_;
+		_tmp35_ = _tmp34_->message;
+		_tmp36_ = g_strdup_printf ("%s: %s", _tmp33_, _tmp35_);
+		_tmp37_ = _tmp36_;
+		vala_report_error (NULL, _tmp37_);
+		_g_free0 (_tmp37_);
 		result = 1;
 		_g_error_free0 (_error_);
 		return result;
 	}
-	__finally1:
-	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-	g_clear_error (&_inner_error_);
-	return _tmp41_;
+	__finally0:
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
+	return _tmp38_;
 }
-
 
 G_GNUC_INTERNAL gint
 vala_vapi_check_run (ValaVAPICheck* self)
 {
-	gint result = 0;
 	ValaSourceFile* _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
 	ValaSourceFile* _tmp8_;
 	const gchar* _tmp9_;
 	const gchar* _tmp10_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = self->priv->_gidl;
 	_tmp1_ = vala_source_file_get_filename (_tmp0_);
@@ -803,12 +851,10 @@ vala_vapi_check_run (ValaVAPICheck* self)
 	return result;
 }
 
-
 static gint
 vala_vapi_check_main (gchar** args,
-                      int args_length1)
+                      gint args_length1)
 {
-	gint result = 0;
 	gboolean _tmp0_ = FALSE;
 	ValaVAPICheck* vapicheck = NULL;
 	const gchar* _tmp6_;
@@ -817,6 +863,7 @@ vala_vapi_check_main (gchar** args,
 	ValaVAPICheck* _tmp9_;
 	ValaVAPICheck* _tmp10_;
 	ValaVAPICheck* _tmp11_;
+	gint result = 0;
 	if (2 != args_length1) {
 		_tmp0_ = TRUE;
 	} else {
@@ -851,7 +898,6 @@ vala_vapi_check_main (gchar** args,
 	return result;
 }
 
-
 int
 main (int argc,
       char ** argv)
@@ -859,99 +905,11 @@ main (int argc,
 	return vala_vapi_check_main (argv, argc);
 }
 
-
-G_GNUC_INTERNAL ValaCodeContext*
-vala_vapi_check_get_context (ValaVAPICheck* self)
-{
-	ValaCodeContext* result;
-	ValaCodeContext* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_context;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_context_ref0 (gpointer self)
-{
-	return self ? vala_code_context_ref (self) : NULL;
-}
-
-
-static void
-vala_vapi_check_set_context (ValaVAPICheck* self,
-                             ValaCodeContext* value)
-{
-	ValaCodeContext* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_context_ref0 (value);
-	_vala_code_context_unref0 (self->priv->_context);
-	self->priv->_context = _tmp0_;
-}
-
-
-G_GNUC_INTERNAL ValaSourceFile*
-vala_vapi_check_get_gidl (ValaVAPICheck* self)
-{
-	ValaSourceFile* result;
-	ValaSourceFile* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_gidl;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_source_file_ref0 (gpointer self)
-{
-	return self ? vala_source_file_ref (self) : NULL;
-}
-
-
-static void
-vala_vapi_check_set_gidl (ValaVAPICheck* self,
-                          ValaSourceFile* value)
-{
-	ValaSourceFile* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_source_file_ref0 (value);
-	_vala_source_file_unref0 (self->priv->_gidl);
-	self->priv->_gidl = _tmp0_;
-}
-
-
-G_GNUC_INTERNAL ValaSourceFile*
-vala_vapi_check_get_metadata (ValaVAPICheck* self)
-{
-	ValaSourceFile* result;
-	ValaSourceFile* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_metadata;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-vala_vapi_check_set_metadata (ValaVAPICheck* self,
-                              ValaSourceFile* value)
-{
-	ValaSourceFile* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_source_file_ref0 (value);
-	_vala_source_file_unref0 (self->priv->_metadata);
-	self->priv->_metadata = _tmp0_;
-}
-
-
 static void
 vala_value_vapi_check_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_vapi_check_free_value (GValue* value)
@@ -960,7 +918,6 @@ vala_value_vapi_check_free_value (GValue* value)
 		vala_vapi_check_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_vapi_check_copy_value (const GValue* src_value,
@@ -973,13 +930,11 @@ vala_value_vapi_check_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_vapi_check_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_vapi_check_collect_value (GValue* value,
@@ -1002,7 +957,6 @@ vala_value_vapi_check_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_vapi_check_lcopy_value (const GValue* value,
                                    guint n_collect_values,
@@ -1024,7 +978,6 @@ vala_value_vapi_check_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 G_GNUC_INTERNAL GParamSpec*
 vala_param_spec_vapi_check (const gchar* name,
                             const gchar* nick,
@@ -1039,14 +992,12 @@ vala_param_spec_vapi_check (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 G_GNUC_INTERNAL gpointer
 vala_value_get_vapi_check (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_VAPI_CHECK), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 G_GNUC_INTERNAL void
 vala_value_set_vapi_check (GValue* value,
@@ -1068,7 +1019,6 @@ vala_value_set_vapi_check (GValue* value,
 	}
 }
 
-
 G_GNUC_INTERNAL void
 vala_value_take_vapi_check (GValue* value,
                             gpointer v_object)
@@ -1088,23 +1038,22 @@ vala_value_take_vapi_check (GValue* value,
 	}
 }
 
-
 static void
-vala_vapi_check_class_init (ValaVAPICheckClass * klass)
+vala_vapi_check_class_init (ValaVAPICheckClass * klass,
+                            gpointer klass_data)
 {
 	vala_vapi_check_parent_class = g_type_class_peek_parent (klass);
 	((ValaVAPICheckClass *) klass)->finalize = vala_vapi_check_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaVAPICheck_private_offset);
 }
 
-
 static void
-vala_vapi_check_instance_init (ValaVAPICheck * self)
+vala_vapi_check_instance_init (ValaVAPICheck * self,
+                               gpointer klass)
 {
 	self->priv = vala_vapi_check_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_vapi_check_finalize (ValaVAPICheck * obj)
@@ -1119,23 +1068,29 @@ vala_vapi_check_finalize (ValaVAPICheck * obj)
 	_vala_iterable_unref0 (self->priv->_symbols);
 }
 
+static GType
+vala_vapi_check_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_vapi_check_init, vala_value_vapi_check_free_value, vala_value_vapi_check_copy_value, vala_value_vapi_check_peek_pointer, "p", vala_value_vapi_check_collect_value, "p", vala_value_vapi_check_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaVAPICheckClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_vapi_check_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVAPICheck), 0, (GInstanceInitFunc) vala_vapi_check_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_vapi_check_type_id;
+	vala_vapi_check_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaVAPICheck", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaVAPICheck_private_offset = g_type_add_instance_private (vala_vapi_check_type_id, sizeof (ValaVAPICheckPrivate));
+	return vala_vapi_check_type_id;
+}
 
 G_GNUC_INTERNAL GType
 vala_vapi_check_get_type (void)
 {
 	static volatile gsize vala_vapi_check_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_vapi_check_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_vapi_check_init, vala_value_vapi_check_free_value, vala_value_vapi_check_copy_value, vala_value_vapi_check_peek_pointer, "p", vala_value_vapi_check_collect_value, "p", vala_value_vapi_check_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaVAPICheckClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_vapi_check_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVAPICheck), 0, (GInstanceInitFunc) vala_vapi_check_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_vapi_check_type_id;
-		vala_vapi_check_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaVAPICheck", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaVAPICheck_private_offset = g_type_add_instance_private (vala_vapi_check_type_id, sizeof (ValaVAPICheckPrivate));
+		vala_vapi_check_type_id = vala_vapi_check_get_type_once ();
 		g_once_init_leave (&vala_vapi_check_type_id__volatile, vala_vapi_check_type_id);
 	}
 	return vala_vapi_check_type_id__volatile;
 }
-
 
 G_GNUC_INTERNAL gpointer
 vala_vapi_check_ref (gpointer instance)
@@ -1145,7 +1100,6 @@ vala_vapi_check_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 G_GNUC_INTERNAL void
 vala_vapi_check_unref (gpointer instance)
@@ -1158,14 +1112,13 @@ vala_vapi_check_unref (gpointer instance)
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1173,7 +1126,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1184,11 +1136,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1197,6 +1148,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

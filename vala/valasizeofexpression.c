@@ -23,17 +23,14 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
 struct _ValaSizeofExpressionPrivate {
 	ValaDataType* _data_type;
 };
-
 
 static gint ValaSizeofExpression_private_offset;
 static gpointer vala_sizeof_expression_parent_class = NULL;
@@ -52,7 +49,7 @@ static gboolean vala_sizeof_expression_real_check (ValaCodeNode* base,
 static void vala_sizeof_expression_real_emit (ValaCodeNode* base,
                                        ValaCodeGenerator* codegen);
 static void vala_sizeof_expression_finalize (ValaCodeNode * obj);
-
+static GType vala_sizeof_expression_get_type_once (void);
 
 static inline gpointer
 vala_sizeof_expression_get_instance_private (ValaSizeofExpression* self)
@@ -60,6 +57,36 @@ vala_sizeof_expression_get_instance_private (ValaSizeofExpression* self)
 	return G_STRUCT_MEMBER_P (self, ValaSizeofExpression_private_offset);
 }
 
+ValaDataType*
+vala_sizeof_expression_get_type_reference (ValaSizeofExpression* self)
+{
+	ValaDataType* result;
+	ValaDataType* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_data_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_sizeof_expression_set_type_reference (ValaSizeofExpression* self,
+                                           ValaDataType* value)
+{
+	ValaDataType* _tmp0_;
+	ValaDataType* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_data_type);
+	self->priv->_data_type = _tmp0_;
+	_tmp1_ = self->priv->_data_type;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 /**
  * Creates a new sizeof expression.
@@ -75,13 +102,11 @@ vala_sizeof_expression_construct (GType object_type,
 {
 	ValaSizeofExpression* self = NULL;
 	g_return_val_if_fail (type != NULL, NULL);
-	g_return_val_if_fail (source != NULL, NULL);
 	self = (ValaSizeofExpression*) vala_expression_construct (object_type);
 	vala_sizeof_expression_set_type_reference (self, type);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source);
 	return self;
 }
-
 
 ValaSizeofExpression*
 vala_sizeof_expression_new (ValaDataType* type,
@@ -89,7 +114,6 @@ vala_sizeof_expression_new (ValaDataType* type,
 {
 	return vala_sizeof_expression_construct (VALA_TYPE_SIZEOF_EXPRESSION, type, source);
 }
-
 
 static void
 vala_sizeof_expression_real_accept (ValaCodeNode* base,
@@ -101,7 +125,6 @@ vala_sizeof_expression_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_sizeof_expression (visitor, self);
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
-
 
 static void
 vala_sizeof_expression_real_accept_children (ValaCodeNode* base,
@@ -117,7 +140,6 @@ vala_sizeof_expression_real_accept_children (ValaCodeNode* base,
 	vala_code_node_accept ((ValaCodeNode*) _tmp1_, visitor);
 }
 
-
 static gboolean
 vala_sizeof_expression_real_is_pure (ValaExpression* base)
 {
@@ -128,7 +150,6 @@ vala_sizeof_expression_real_is_pure (ValaExpression* base)
 	return result;
 }
 
-
 static gboolean
 vala_sizeof_expression_real_is_constant (ValaExpression* base)
 {
@@ -138,7 +159,6 @@ vala_sizeof_expression_real_is_constant (ValaExpression* base)
 	result = TRUE;
 	return result;
 }
-
 
 static void
 vala_sizeof_expression_real_replace_type (ValaCodeNode* base,
@@ -158,13 +178,11 @@ vala_sizeof_expression_real_replace_type (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_sizeof_expression_real_check (ValaCodeNode* base,
                                    ValaCodeContext* context)
 {
 	ValaSizeofExpression * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaDataType* _tmp4_;
@@ -174,6 +192,7 @@ vala_sizeof_expression_real_check (ValaCodeNode* base,
 	ValaDataType* _tmp8_;
 	gboolean _tmp9_;
 	gboolean _tmp10_;
+	gboolean result = FALSE;
 	self = (ValaSizeofExpression*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -200,7 +219,6 @@ vala_sizeof_expression_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_sizeof_expression_real_emit (ValaCodeNode* base,
                                   ValaCodeGenerator* codegen)
@@ -212,43 +230,9 @@ vala_sizeof_expression_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
-ValaDataType*
-vala_sizeof_expression_get_type_reference (ValaSizeofExpression* self)
-{
-	ValaDataType* result;
-	ValaDataType* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_data_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_sizeof_expression_set_type_reference (ValaSizeofExpression* self,
-                                           ValaDataType* value)
-{
-	ValaDataType* _tmp0_;
-	ValaDataType* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_data_type);
-	self->priv->_data_type = _tmp0_;
-	_tmp1_ = self->priv->_data_type;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_sizeof_expression_class_init (ValaSizeofExpressionClass * klass)
+vala_sizeof_expression_class_init (ValaSizeofExpressionClass * klass,
+                                   gpointer klass_data)
 {
 	vala_sizeof_expression_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_sizeof_expression_finalize;
@@ -262,13 +246,12 @@ vala_sizeof_expression_class_init (ValaSizeofExpressionClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_sizeof_expression_real_emit;
 }
 
-
 static void
-vala_sizeof_expression_instance_init (ValaSizeofExpression * self)
+vala_sizeof_expression_instance_init (ValaSizeofExpression * self,
+                                      gpointer klass)
 {
 	self->priv = vala_sizeof_expression_get_instance_private (self);
 }
-
 
 static void
 vala_sizeof_expression_finalize (ValaCodeNode * obj)
@@ -279,23 +262,28 @@ vala_sizeof_expression_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_sizeof_expression_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a sizeof expression in the source code.
  */
+static GType
+vala_sizeof_expression_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaSizeofExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_sizeof_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSizeofExpression), 0, (GInstanceInitFunc) vala_sizeof_expression_instance_init, NULL };
+	GType vala_sizeof_expression_type_id;
+	vala_sizeof_expression_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaSizeofExpression", &g_define_type_info, 0);
+	ValaSizeofExpression_private_offset = g_type_add_instance_private (vala_sizeof_expression_type_id, sizeof (ValaSizeofExpressionPrivate));
+	return vala_sizeof_expression_type_id;
+}
+
 GType
 vala_sizeof_expression_get_type (void)
 {
 	static volatile gsize vala_sizeof_expression_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_sizeof_expression_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaSizeofExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_sizeof_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSizeofExpression), 0, (GInstanceInitFunc) vala_sizeof_expression_instance_init, NULL };
 		GType vala_sizeof_expression_type_id;
-		vala_sizeof_expression_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaSizeofExpression", &g_define_type_info, 0);
-		ValaSizeofExpression_private_offset = g_type_add_instance_private (vala_sizeof_expression_type_id, sizeof (ValaSizeofExpressionPrivate));
+		vala_sizeof_expression_type_id = vala_sizeof_expression_get_type_once ();
 		g_once_init_leave (&vala_sizeof_expression_type_id__volatile, vala_sizeof_expression_type_id);
 	}
 	return vala_sizeof_expression_type_id__volatile;
 }
-
-
 

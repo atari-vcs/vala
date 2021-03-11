@@ -23,17 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-
 
 static gpointer vala_invalid_type_parent_class = NULL;
 
 static ValaDataType* vala_invalid_type_real_copy (ValaDataType* base);
-
+static GType vala_invalid_type_get_type_once (void);
 
 ValaInvalidType*
 vala_invalid_type_construct (GType object_type)
@@ -44,56 +39,59 @@ vala_invalid_type_construct (GType object_type)
 	return self;
 }
 
-
 ValaInvalidType*
 vala_invalid_type_new (void)
 {
 	return vala_invalid_type_construct (VALA_TYPE_INVALID_TYPE);
 }
 
-
 static ValaDataType*
 vala_invalid_type_real_copy (ValaDataType* base)
 {
 	ValaInvalidType * self;
-	ValaDataType* result = NULL;
 	ValaInvalidType* _tmp0_;
+	ValaDataType* result = NULL;
 	self = (ValaInvalidType*) base;
 	_tmp0_ = vala_invalid_type_new ();
 	result = (ValaDataType*) _tmp0_;
 	return result;
 }
 
-
 static void
-vala_invalid_type_class_init (ValaInvalidTypeClass * klass)
+vala_invalid_type_class_init (ValaInvalidTypeClass * klass,
+                              gpointer klass_data)
 {
 	vala_invalid_type_parent_class = g_type_class_peek_parent (klass);
 	((ValaDataTypeClass *) klass)->copy = (ValaDataType* (*) (ValaDataType*)) vala_invalid_type_real_copy;
 }
 
-
 static void
-vala_invalid_type_instance_init (ValaInvalidType * self)
+vala_invalid_type_instance_init (ValaInvalidType * self,
+                                 gpointer klass)
 {
 }
-
 
 /**
  * An invalid reference to a data type.
  */
+static GType
+vala_invalid_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaInvalidTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_invalid_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaInvalidType), 0, (GInstanceInitFunc) vala_invalid_type_instance_init, NULL };
+	GType vala_invalid_type_type_id;
+	vala_invalid_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaInvalidType", &g_define_type_info, 0);
+	return vala_invalid_type_type_id;
+}
+
 GType
 vala_invalid_type_get_type (void)
 {
 	static volatile gsize vala_invalid_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_invalid_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaInvalidTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_invalid_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaInvalidType), 0, (GInstanceInitFunc) vala_invalid_type_instance_init, NULL };
 		GType vala_invalid_type_type_id;
-		vala_invalid_type_type_id = g_type_register_static (VALA_TYPE_DATA_TYPE, "ValaInvalidType", &g_define_type_info, 0);
+		vala_invalid_type_type_id = vala_invalid_type_get_type_once ();
 		g_once_init_leave (&vala_invalid_type_type_id__volatile, vala_invalid_type_type_id);
 	}
 	return vala_invalid_type_type_id__volatile;
 }
-
-
 

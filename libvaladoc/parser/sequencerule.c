@@ -23,13 +23,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 #define VALADOC_TYPE_SEQUENCE_RULE (valadoc_sequence_rule_get_type ())
 #define VALADOC_SEQUENCE_RULE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_SEQUENCE_RULE, ValadocSequenceRule))
@@ -90,19 +88,18 @@ struct _ValadocSequenceRuleStateClass {
 	GObjectClass parent_class;
 };
 
-
 static gint ValadocSequenceRule_private_offset;
 static gpointer valadoc_sequence_rule_parent_class = NULL;
 static gpointer valadoc_sequence_rule_state_parent_class = NULL;
 
 G_GNUC_INTERNAL GType valadoc_sequence_rule_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
 G_GNUC_INTERNAL ValadocSequenceRule* valadoc_sequence_rule_new (GObject** scheme,
-                                                int scheme_length1);
+                                                gint scheme_length1);
 G_GNUC_INTERNAL ValadocSequenceRule* valadoc_sequence_rule_construct (GType object_type,
                                                       GObject** scheme,
-                                                      int scheme_length1);
+                                                      gint scheme_length1);
 static GObject** _vala_array_dup3 (GObject** self,
-                            int length);
+                            gint length);
 static gboolean valadoc_sequence_rule_real_is_optional (ValadocRule* base);
 static gboolean valadoc_sequence_rule_real_starts_with_token (ValadocRule* base,
                                                        ValadocToken* token);
@@ -129,7 +126,9 @@ static gboolean valadoc_sequence_rule_real_would_reduce (ValadocRule* base,
 static gchar* valadoc_sequence_rule_real_to_string (ValadocRule* base,
                                              GObject* rule_state);
 static void valadoc_sequence_rule_state_finalize (GObject * obj);
+static GType valadoc_sequence_rule_state_get_type_once (void);
 static void valadoc_sequence_rule_finalize (GObject * obj);
+static GType valadoc_sequence_rule_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -137,13 +136,11 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_sequence_rule_get_instance_private (ValadocSequenceRule* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocSequenceRule_private_offset);
 }
-
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -151,27 +148,28 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static GObject**
 _vala_array_dup3 (GObject** self,
-                  int length)
+                  gint length)
 {
-	GObject** result;
-	int i;
-	result = g_new0 (GObject*, length + 1);
-	for (i = 0; i < length; i++) {
-		GObject* _tmp0_;
-		_tmp0_ = _g_object_ref0 (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		GObject** result;
+		gint i;
+		result = g_new0 (GObject*, length + 1);
+		for (i = 0; i < length; i++) {
+			GObject* _tmp0_;
+			_tmp0_ = _g_object_ref0 (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 G_GNUC_INTERNAL ValadocSequenceRule*
 valadoc_sequence_rule_construct (GType object_type,
                                  GObject** scheme,
-                                 int scheme_length1)
+                                 gint scheme_length1)
 {
 	ValadocSequenceRule * self = NULL;
 	GObject** _tmp0_;
@@ -186,14 +184,12 @@ valadoc_sequence_rule_construct (GType object_type,
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocSequenceRule*
 valadoc_sequence_rule_new (GObject** scheme,
-                           int scheme_length1)
+                           gint scheme_length1)
 {
 	return valadoc_sequence_rule_construct (VALADOC_TYPE_SEQUENCE_RULE, scheme, scheme_length1);
 }
-
 
 static gboolean
 valadoc_sequence_rule_real_is_optional (ValadocRule* base)
@@ -204,7 +200,6 @@ valadoc_sequence_rule_real_is_optional (ValadocRule* base)
 	result = FALSE;
 	return result;
 }
-
 
 static gboolean
 valadoc_sequence_rule_real_starts_with_token (ValadocRule* base,
@@ -218,99 +213,86 @@ valadoc_sequence_rule_real_starts_with_token (ValadocRule* base,
 	return result;
 }
 
-
 static gboolean
 valadoc_sequence_rule_test_token (ValadocSequenceRule* self,
                                   gint from_index,
                                   ValadocToken* token)
 {
-	gboolean result = FALSE;
 	gint i = 0;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (token != NULL, FALSE);
 	i = from_index;
 	while (TRUE) {
-		gint _tmp0_;
+		GObject** _tmp0_;
+		gint _tmp0__length1;
 		GObject** _tmp1_;
 		gint _tmp1__length1;
-		GObject** _tmp2_;
-		gint _tmp2__length1;
-		gint _tmp3_;
+		GObject* _tmp2_;
+		GObject** _tmp3_;
+		gint _tmp3__length1;
 		GObject* _tmp4_;
-		GObject** _tmp5_;
-		gint _tmp5__length1;
-		gint _tmp6_;
-		GObject* _tmp7_;
-		gint _tmp8_;
-		_tmp0_ = i;
-		_tmp1_ = self->priv->_scheme;
-		_tmp1__length1 = self->priv->_scheme_length1;
-		if (!(_tmp0_ < _tmp1__length1)) {
+		gint _tmp5_;
+		_tmp0_ = self->priv->_scheme;
+		_tmp0__length1 = self->priv->_scheme_length1;
+		if (!(i < _tmp0__length1)) {
 			break;
 		}
-		_tmp2_ = self->priv->_scheme;
-		_tmp2__length1 = self->priv->_scheme_length1;
-		_tmp3_ = i;
-		_tmp4_ = _tmp2_[_tmp3_];
-		if (valadoc_rule_has_start_token ((ValadocRule*) self, _tmp4_, token)) {
+		_tmp1_ = self->priv->_scheme;
+		_tmp1__length1 = self->priv->_scheme_length1;
+		_tmp2_ = _tmp1_[i];
+		if (valadoc_rule_has_start_token ((ValadocRule*) self, _tmp2_, token)) {
 			result = TRUE;
 			return result;
 		}
-		_tmp5_ = self->priv->_scheme;
-		_tmp5__length1 = self->priv->_scheme_length1;
-		_tmp6_ = i;
-		_tmp7_ = _tmp5_[_tmp6_];
-		if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp7_)) {
+		_tmp3_ = self->priv->_scheme;
+		_tmp3__length1 = self->priv->_scheme_length1;
+		_tmp4_ = _tmp3_[i];
+		if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp4_)) {
 			break;
 		}
-		_tmp8_ = i;
-		i = _tmp8_ + 1;
+		_tmp5_ = i;
+		i = _tmp5_ + 1;
 	}
 	result = FALSE;
 	return result;
 }
-
 
 static gboolean
 valadoc_sequence_rule_test_reduce (ValadocSequenceRule* self,
                                    gint from_index,
                                    ValadocToken* token)
 {
-	gboolean result = FALSE;
 	gint i = 0;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (token != NULL, FALSE);
 	i = from_index;
 	while (TRUE) {
-		gint _tmp0_;
+		GObject** _tmp0_;
+		gint _tmp0__length1;
 		GObject** _tmp1_;
 		gint _tmp1__length1;
-		GObject** _tmp2_;
-		gint _tmp2__length1;
+		GObject* _tmp2_;
 		gint _tmp3_;
-		GObject* _tmp4_;
-		gint _tmp5_;
-		_tmp0_ = i;
-		_tmp1_ = self->priv->_scheme;
-		_tmp1__length1 = self->priv->_scheme_length1;
-		if (!(_tmp0_ < _tmp1__length1)) {
+		_tmp0_ = self->priv->_scheme;
+		_tmp0__length1 = self->priv->_scheme_length1;
+		if (!(i < _tmp0__length1)) {
 			break;
 		}
-		_tmp2_ = self->priv->_scheme;
-		_tmp2__length1 = self->priv->_scheme_length1;
-		_tmp3_ = i;
-		_tmp4_ = _tmp2_[_tmp3_];
-		if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp4_)) {
+		_tmp1_ = self->priv->_scheme;
+		_tmp1__length1 = self->priv->_scheme_length1;
+		_tmp2_ = _tmp1_[i];
+		if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp2_)) {
 			result = FALSE;
 			return result;
 		}
-		_tmp5_ = i;
-		i = _tmp5_ + 1;
+		_tmp3_ = i;
+		i = _tmp3_ + 1;
 	}
 	result = TRUE;
 	return result;
 }
-
 
 static gboolean
 valadoc_sequence_rule_real_accept_token (ValadocRule* base,
@@ -320,26 +302,24 @@ valadoc_sequence_rule_real_accept_token (ValadocRule* base,
                                          GError** error)
 {
 	ValadocSequenceRule * self;
-	gboolean result = FALSE;
 	ValadocSequenceRuleState* state = NULL;
 	GObject* _tmp0_;
 	ValadocSequenceRuleState* _tmp1_;
 	ValadocSequenceRuleState* _tmp2_;
 	ValadocSequenceRuleState* _tmp5_;
-	gint _tmp6_;
 	GObject* scheme_element = NULL;
 	gboolean handled = FALSE;
-	ValadocSequenceRuleState* _tmp37_;
-	gint _tmp38_;
-	GObject** _tmp39_;
-	gint _tmp39__length1;
-	GObject* _tmp42_;
-	GError * _inner_error_ = NULL;
+	ValadocSequenceRuleState* _tmp33_;
+	GObject** _tmp34_;
+	gint _tmp34__length1;
+	GObject* _tmp37_;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	self = (ValadocSequenceRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
 	g_return_val_if_fail (parser != NULL, FALSE);
 	_tmp0_ = valadoc_parser_callback_get_rule_state (parser);
-	_tmp1_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp0_, VALADOC_SEQUENCE_RULE_TYPE_STATE) ? ((ValadocSequenceRuleState*) _tmp0_) : NULL;
+	_tmp1_ = VALADOC_SEQUENCE_RULE_IS_STATE (_tmp0_) ? ((ValadocSequenceRuleState*) _tmp0_) : NULL;
 	if (_tmp1_ == NULL) {
 		_g_object_unref0 (_tmp0_);
 	}
@@ -355,46 +335,43 @@ valadoc_sequence_rule_real_accept_token (ValadocRule* base,
 		valadoc_parser_callback_set_rule_state (parser, (GObject*) _tmp4_);
 	}
 	_tmp5_ = state;
-	_tmp6_ = _tmp5_->index;
-	if (_tmp6_ == 0) {
-		valadoc_rule_do_start ((ValadocRule*) self, parser, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				gboolean _tmp7_ = FALSE;
-				g_propagate_error (error, _inner_error_);
+	if (_tmp5_->index == 0) {
+		valadoc_rule_do_start ((ValadocRule*) self, parser, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				gboolean _tmp6_ = FALSE;
+				g_propagate_error (error, _inner_error0_);
 				_g_object_unref0 (state);
-				return _tmp7_;
+				return _tmp6_;
 			} else {
-				gboolean _tmp8_ = FALSE;
+				gboolean _tmp7_ = FALSE;
 				_g_object_unref0 (state);
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
-				return _tmp8_;
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
+				return _tmp7_;
 			}
 		}
 	} else {
-		ValadocSequenceRuleState* _tmp9_;
-		gint _tmp10_;
-		GObject** _tmp11_;
-		gint _tmp11__length1;
-		_tmp9_ = state;
-		_tmp10_ = _tmp9_->index;
-		_tmp11_ = self->priv->_scheme;
-		_tmp11__length1 = self->priv->_scheme_length1;
-		if (_tmp10_ == _tmp11__length1) {
-			valadoc_rule_do_reduce ((ValadocRule*) self, parser, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					gboolean _tmp12_ = FALSE;
-					g_propagate_error (error, _inner_error_);
+		ValadocSequenceRuleState* _tmp8_;
+		GObject** _tmp9_;
+		gint _tmp9__length1;
+		_tmp8_ = state;
+		_tmp9_ = self->priv->_scheme;
+		_tmp9__length1 = self->priv->_scheme_length1;
+		if (_tmp8_->index == _tmp9__length1) {
+			valadoc_rule_do_reduce ((ValadocRule*) self, parser, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					gboolean _tmp10_ = FALSE;
+					g_propagate_error (error, _inner_error0_);
 					_g_object_unref0 (state);
-					return _tmp12_;
+					return _tmp10_;
 				} else {
-					gboolean _tmp13_ = FALSE;
+					gboolean _tmp11_ = FALSE;
 					_g_object_unref0 (state);
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
-					return _tmp13_;
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
+					return _tmp11_;
 				}
 			}
 			result = FALSE;
@@ -404,124 +381,119 @@ valadoc_sequence_rule_real_accept_token (ValadocRule* base,
 	}
 	scheme_element = NULL;
 	{
-		gboolean _tmp14_ = FALSE;
-		_tmp14_ = TRUE;
+		gboolean _tmp12_ = FALSE;
+		_tmp12_ = TRUE;
 		while (TRUE) {
-			GObject** _tmp18_;
-			gint _tmp18__length1;
-			ValadocSequenceRuleState* _tmp19_;
-			gint _tmp20_;
-			GObject* _tmp21_;
-			GObject* _tmp22_;
-			gboolean _tmp23_ = FALSE;
-			GObject* _tmp24_;
-			gboolean _tmp25_ = FALSE;
-			gboolean _tmp26_;
-			GObject* _tmp31_;
-			ValadocSequenceRuleState* _tmp35_;
-			gint _tmp36_;
-			if (!_tmp14_) {
-				ValadocSequenceRuleState* _tmp15_;
-				gint _tmp16_;
-				GObject** _tmp17_;
-				gint _tmp17__length1;
-				_tmp15_ = state;
-				_tmp16_ = _tmp15_->index;
-				_tmp17_ = self->priv->_scheme;
-				_tmp17__length1 = self->priv->_scheme_length1;
-				if (!(_tmp16_ < _tmp17__length1)) {
+			GObject** _tmp15_;
+			gint _tmp15__length1;
+			ValadocSequenceRuleState* _tmp16_;
+			GObject* _tmp17_;
+			GObject* _tmp18_;
+			gboolean _tmp19_ = FALSE;
+			GObject* _tmp20_;
+			gboolean _tmp21_ = FALSE;
+			gboolean _tmp22_;
+			GObject* _tmp27_;
+			ValadocSequenceRuleState* _tmp31_;
+			gint _tmp32_;
+			if (!_tmp12_) {
+				ValadocSequenceRuleState* _tmp13_;
+				GObject** _tmp14_;
+				gint _tmp14__length1;
+				_tmp13_ = state;
+				_tmp14_ = self->priv->_scheme;
+				_tmp14__length1 = self->priv->_scheme_length1;
+				if (!(_tmp13_->index < _tmp14__length1)) {
 					break;
 				}
 			}
-			_tmp14_ = FALSE;
-			_tmp18_ = self->priv->_scheme;
-			_tmp18__length1 = self->priv->_scheme_length1;
-			_tmp19_ = state;
-			_tmp20_ = _tmp19_->index;
-			_tmp21_ = _tmp18_[_tmp20_];
-			_tmp22_ = _g_object_ref0 (_tmp21_);
+			_tmp12_ = FALSE;
+			_tmp15_ = self->priv->_scheme;
+			_tmp15__length1 = self->priv->_scheme_length1;
+			_tmp16_ = state;
+			_tmp17_ = _tmp15_[_tmp16_->index];
+			_tmp18_ = _g_object_ref0 (_tmp17_);
 			_g_object_unref0 (scheme_element);
-			scheme_element = _tmp22_;
-			_tmp24_ = scheme_element;
-			_tmp26_ = valadoc_rule_try_to_apply ((ValadocRule*) self, _tmp24_, token, parser, &_tmp25_, &_inner_error_);
-			handled = _tmp25_;
-			_tmp23_ = _tmp26_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					gboolean _tmp27_ = FALSE;
-					g_propagate_error (error, _inner_error_);
+			scheme_element = _tmp18_;
+			_tmp20_ = scheme_element;
+			_tmp22_ = valadoc_rule_try_to_apply ((ValadocRule*) self, _tmp20_, token, parser, &_tmp21_, &_inner_error0_);
+			handled = _tmp21_;
+			_tmp19_ = _tmp22_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					gboolean _tmp23_ = FALSE;
+					g_propagate_error (error, _inner_error0_);
 					_g_object_unref0 (scheme_element);
 					_g_object_unref0 (state);
-					return _tmp27_;
+					return _tmp23_;
 				} else {
-					gboolean _tmp28_ = FALSE;
+					gboolean _tmp24_ = FALSE;
 					_g_object_unref0 (scheme_element);
 					_g_object_unref0 (state);
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
-					return _tmp28_;
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
+					return _tmp24_;
 				}
 			}
-			if (_tmp23_) {
-				ValadocSequenceRuleState* _tmp29_;
-				gint _tmp30_;
-				_tmp29_ = state;
-				_tmp30_ = _tmp29_->index;
-				_tmp29_->index = _tmp30_ + 1;
+			if (_tmp19_) {
+				ValadocSequenceRuleState* _tmp25_;
+				gint _tmp26_;
+				_tmp25_ = state;
+				_tmp26_ = _tmp25_->index;
+				_tmp25_->index = _tmp26_ + 1;
 				result = handled;
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
 				return result;
 			}
-			_tmp31_ = scheme_element;
-			if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp31_)) {
+			_tmp27_ = scheme_element;
+			if (!valadoc_rule_is_optional_rule ((ValadocRule*) self, _tmp27_)) {
 				break;
 			} else {
-				GObject* _tmp32_;
-				_tmp32_ = scheme_element;
-				valadoc_rule_do_skip (G_TYPE_CHECK_INSTANCE_CAST (_tmp32_, VALADOC_TYPE_RULE, ValadocRule), parser, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						gboolean _tmp33_ = FALSE;
-						g_propagate_error (error, _inner_error_);
+				GObject* _tmp28_;
+				_tmp28_ = scheme_element;
+				valadoc_rule_do_skip (G_TYPE_CHECK_INSTANCE_CAST (_tmp28_, VALADOC_TYPE_RULE, ValadocRule), parser, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						gboolean _tmp29_ = FALSE;
+						g_propagate_error (error, _inner_error0_);
 						_g_object_unref0 (scheme_element);
 						_g_object_unref0 (state);
-						return _tmp33_;
+						return _tmp29_;
 					} else {
-						gboolean _tmp34_ = FALSE;
+						gboolean _tmp30_ = FALSE;
 						_g_object_unref0 (scheme_element);
 						_g_object_unref0 (state);
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
-						return _tmp34_;
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
+						return _tmp30_;
 					}
 				}
 			}
-			_tmp35_ = state;
-			_tmp36_ = _tmp35_->index;
-			_tmp35_->index = _tmp36_ + 1;
+			_tmp31_ = state;
+			_tmp32_ = _tmp31_->index;
+			_tmp31_->index = _tmp32_ + 1;
 		}
 	}
-	_tmp37_ = state;
-	_tmp38_ = _tmp37_->index;
-	_tmp39_ = self->priv->_scheme;
-	_tmp39__length1 = self->priv->_scheme_length1;
-	if (_tmp38_ == _tmp39__length1) {
-		valadoc_rule_do_reduce ((ValadocRule*) self, parser, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				gboolean _tmp40_ = FALSE;
-				g_propagate_error (error, _inner_error_);
+	_tmp33_ = state;
+	_tmp34_ = self->priv->_scheme;
+	_tmp34__length1 = self->priv->_scheme_length1;
+	if (_tmp33_->index == _tmp34__length1) {
+		valadoc_rule_do_reduce ((ValadocRule*) self, parser, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				gboolean _tmp35_ = FALSE;
+				g_propagate_error (error, _inner_error0_);
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				return _tmp40_;
+				return _tmp35_;
 			} else {
-				gboolean _tmp41_ = FALSE;
+				gboolean _tmp36_ = FALSE;
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
-				return _tmp41_;
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
+				return _tmp36_;
 			}
 		}
 		result = FALSE;
@@ -529,50 +501,50 @@ valadoc_sequence_rule_real_accept_token (ValadocRule* base,
 		_g_object_unref0 (state);
 		return result;
 	}
-	_tmp42_ = scheme_element;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp42_, VALADOC_TYPE_TOKEN_TYPE)) {
-		GObject* _tmp43_;
-		const gchar* _tmp44_;
-		gchar* _tmp45_;
-		gchar* _tmp46_;
-		_tmp43_ = scheme_element;
-		_tmp44_ = valadoc_token_type_to_pretty_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp43_, VALADOC_TYPE_TOKEN_TYPE, ValadocTokenType));
-		_tmp45_ = g_strdup_printf ("expected %s", _tmp44_);
-		_tmp46_ = _tmp45_;
-		valadoc_parser_callback_error (parser, token, _tmp46_, &_inner_error_);
-		_g_free0 (_tmp46_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				gboolean _tmp47_ = FALSE;
-				g_propagate_error (error, _inner_error_);
+	_tmp37_ = scheme_element;
+	if (VALADOC_IS_TOKEN_TYPE (_tmp37_)) {
+		GObject* _tmp38_;
+		const gchar* _tmp39_;
+		gchar* _tmp40_;
+		gchar* _tmp41_;
+		_tmp38_ = scheme_element;
+		_tmp39_ = valadoc_token_type_to_pretty_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp38_, VALADOC_TYPE_TOKEN_TYPE, ValadocTokenType));
+		_tmp40_ = g_strdup_printf ("expected %s", _tmp39_);
+		_tmp41_ = _tmp40_;
+		valadoc_parser_callback_error (parser, token, _tmp41_, &_inner_error0_);
+		_g_free0 (_tmp41_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				gboolean _tmp42_ = FALSE;
+				g_propagate_error (error, _inner_error0_);
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				return _tmp47_;
+				return _tmp42_;
 			} else {
-				gboolean _tmp48_ = FALSE;
+				gboolean _tmp43_ = FALSE;
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
-				return _tmp48_;
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
+				return _tmp43_;
 			}
 		}
 	} else {
-		valadoc_parser_callback_error (parser, token, "unexpected token", &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				gboolean _tmp49_ = FALSE;
-				g_propagate_error (error, _inner_error_);
+		valadoc_parser_callback_error (parser, token, "unexpected token", &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				gboolean _tmp44_ = FALSE;
+				g_propagate_error (error, _inner_error0_);
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				return _tmp49_;
+				return _tmp44_;
 			} else {
-				gboolean _tmp50_ = FALSE;
+				gboolean _tmp45_ = FALSE;
 				_g_object_unref0 (scheme_element);
 				_g_object_unref0 (state);
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
-				return _tmp50_;
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
+				return _tmp45_;
 			}
 		}
 	}
@@ -581,27 +553,23 @@ valadoc_sequence_rule_real_accept_token (ValadocRule* base,
 	_g_object_unref0 (state);
 }
 
-
 static gboolean
 valadoc_sequence_rule_real_would_accept_token (ValadocRule* base,
                                                ValadocToken* token,
                                                GObject* rule_state)
 {
 	ValadocSequenceRule * self;
-	gboolean result = FALSE;
 	ValadocSequenceRuleState* state = NULL;
 	ValadocSequenceRuleState* _tmp0_;
-	gint _tmp1_;
+	gboolean result = FALSE;
 	self = (ValadocSequenceRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (rule_state, VALADOC_SEQUENCE_RULE_TYPE_STATE) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_SEQUENCE_RULE_IS_STATE (rule_state) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
 	state = _tmp0_;
-	_tmp1_ = state->index;
-	result = valadoc_sequence_rule_test_token (self, _tmp1_, token);
+	result = valadoc_sequence_rule_test_token (self, state->index, token);
 	_g_object_unref0 (state);
 	return result;
 }
-
 
 static gboolean
 valadoc_sequence_rule_real_would_reduce (ValadocRule* base,
@@ -609,43 +577,37 @@ valadoc_sequence_rule_real_would_reduce (ValadocRule* base,
                                          GObject* rule_state)
 {
 	ValadocSequenceRule * self;
-	gboolean result = FALSE;
 	ValadocSequenceRuleState* state = NULL;
 	ValadocSequenceRuleState* _tmp0_;
 	gboolean _tmp1_ = FALSE;
 	ValadocSequenceRuleState* _tmp2_;
-	gint _tmp3_;
-	GObject** _tmp4_;
-	gint _tmp4__length1;
+	GObject** _tmp3_;
+	gint _tmp3__length1;
+	gboolean result = FALSE;
 	self = (ValadocSequenceRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (rule_state, VALADOC_SEQUENCE_RULE_TYPE_STATE) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_SEQUENCE_RULE_IS_STATE (rule_state) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
 	state = _tmp0_;
 	_tmp2_ = state;
-	_tmp3_ = _tmp2_->index;
-	_tmp4_ = self->priv->_scheme;
-	_tmp4__length1 = self->priv->_scheme_length1;
-	if (_tmp3_ == _tmp4__length1) {
+	_tmp3_ = self->priv->_scheme;
+	_tmp3__length1 = self->priv->_scheme_length1;
+	if (_tmp2_->index == _tmp3__length1) {
 		_tmp1_ = TRUE;
 	} else {
-		ValadocSequenceRuleState* _tmp5_;
-		gint _tmp6_;
-		_tmp5_ = state;
-		_tmp6_ = _tmp5_->index;
-		_tmp1_ = valadoc_sequence_rule_test_reduce (self, _tmp6_, token);
+		ValadocSequenceRuleState* _tmp4_;
+		_tmp4_ = state;
+		_tmp1_ = valadoc_sequence_rule_test_reduce (self, _tmp4_->index, token);
 	}
 	result = _tmp1_;
 	_g_object_unref0 (state);
 	return result;
 }
 
-
 static gchar*
 valadoc_sequence_rule_real_to_string (ValadocRule* base,
                                       GObject* rule_state)
 {
 	ValadocSequenceRule * self;
-	gchar* result = NULL;
 	ValadocSequenceRuleState* state = NULL;
 	ValadocSequenceRuleState* _tmp0_;
 	ValadocSequenceRuleState* _tmp1_;
@@ -653,12 +615,12 @@ valadoc_sequence_rule_real_to_string (ValadocRule* base,
 	const gchar* _tmp4_;
 	const gchar* _tmp5_;
 	ValadocSequenceRuleState* _tmp8_;
-	gint _tmp9_;
-	GObject** _tmp10_;
-	gint _tmp10__length1;
-	gchar* _tmp11_;
+	GObject** _tmp9_;
+	gint _tmp9__length1;
+	gchar* _tmp10_;
+	gchar* result = NULL;
 	self = (ValadocSequenceRule*) base;
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (rule_state, VALADOC_SEQUENCE_RULE_TYPE_STATE) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_SEQUENCE_RULE_IS_STATE (rule_state) ? ((ValadocSequenceRuleState*) rule_state) : NULL);
 	state = _tmp0_;
 	_tmp1_ = state;
 	if (_tmp1_ == NULL) {
@@ -679,15 +641,13 @@ valadoc_sequence_rule_real_to_string (ValadocRule* base,
 		_tmp3_ = " ";
 	}
 	_tmp8_ = state;
-	_tmp9_ = _tmp8_->index;
-	_tmp10_ = self->priv->_scheme;
-	_tmp10__length1 = self->priv->_scheme_length1;
-	_tmp11_ = g_strdup_printf ("%-15s%-15s(index=%d/%d)", _tmp3_, "[seq]", _tmp9_, _tmp10__length1);
-	result = _tmp11_;
+	_tmp9_ = self->priv->_scheme;
+	_tmp9__length1 = self->priv->_scheme_length1;
+	_tmp10_ = g_strdup_printf ("%-15s%-15s(index=%d/%d)", _tmp3_, "[seq]", _tmp8_->index, _tmp9__length1);
+	result = _tmp10_;
 	_g_object_unref0 (state);
 	return result;
 }
-
 
 static ValadocSequenceRuleState*
 valadoc_sequence_rule_state_construct (GType object_type)
@@ -697,28 +657,26 @@ valadoc_sequence_rule_state_construct (GType object_type)
 	return self;
 }
 
-
 static ValadocSequenceRuleState*
 valadoc_sequence_rule_state_new (void)
 {
 	return valadoc_sequence_rule_state_construct (VALADOC_SEQUENCE_RULE_TYPE_STATE);
 }
 
-
 static void
-valadoc_sequence_rule_state_class_init (ValadocSequenceRuleStateClass * klass)
+valadoc_sequence_rule_state_class_init (ValadocSequenceRuleStateClass * klass,
+                                        gpointer klass_data)
 {
 	valadoc_sequence_rule_state_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_sequence_rule_state_finalize;
 }
 
-
 static void
-valadoc_sequence_rule_state_instance_init (ValadocSequenceRuleState * self)
+valadoc_sequence_rule_state_instance_init (ValadocSequenceRuleState * self,
+                                           gpointer klass)
 {
 	self->index = 0;
 }
-
 
 static void
 valadoc_sequence_rule_state_finalize (GObject * obj)
@@ -728,23 +686,30 @@ valadoc_sequence_rule_state_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_sequence_rule_state_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_sequence_rule_state_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocSequenceRuleStateClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_sequence_rule_state_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSequenceRuleState), 0, (GInstanceInitFunc) valadoc_sequence_rule_state_instance_init, NULL };
+	GType valadoc_sequence_rule_state_type_id;
+	valadoc_sequence_rule_state_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocSequenceRuleState", &g_define_type_info, 0);
+	return valadoc_sequence_rule_state_type_id;
+}
 
 static GType
 valadoc_sequence_rule_state_get_type (void)
 {
 	static volatile gsize valadoc_sequence_rule_state_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_sequence_rule_state_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocSequenceRuleStateClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_sequence_rule_state_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSequenceRuleState), 0, (GInstanceInitFunc) valadoc_sequence_rule_state_instance_init, NULL };
 		GType valadoc_sequence_rule_state_type_id;
-		valadoc_sequence_rule_state_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocSequenceRuleState", &g_define_type_info, 0);
+		valadoc_sequence_rule_state_type_id = valadoc_sequence_rule_state_get_type_once ();
 		g_once_init_leave (&valadoc_sequence_rule_state_type_id__volatile, valadoc_sequence_rule_state_type_id);
 	}
 	return valadoc_sequence_rule_state_type_id__volatile;
 }
 
-
 static void
-valadoc_sequence_rule_class_init (ValadocSequenceRuleClass * klass)
+valadoc_sequence_rule_class_init (ValadocSequenceRuleClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_sequence_rule_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocSequenceRule_private_offset);
@@ -757,13 +722,12 @@ valadoc_sequence_rule_class_init (ValadocSequenceRuleClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_sequence_rule_finalize;
 }
 
-
 static void
-valadoc_sequence_rule_instance_init (ValadocSequenceRule * self)
+valadoc_sequence_rule_instance_init (ValadocSequenceRule * self,
+                                     gpointer klass)
 {
 	self->priv = valadoc_sequence_rule_get_instance_private (self);
 }
-
 
 static void
 valadoc_sequence_rule_finalize (GObject * obj)
@@ -774,21 +738,27 @@ valadoc_sequence_rule_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_sequence_rule_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_sequence_rule_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocSequenceRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_sequence_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSequenceRule), 0, (GInstanceInitFunc) valadoc_sequence_rule_instance_init, NULL };
+	GType valadoc_sequence_rule_type_id;
+	valadoc_sequence_rule_type_id = g_type_register_static (VALADOC_TYPE_RULE, "ValadocSequenceRule", &g_define_type_info, 0);
+	ValadocSequenceRule_private_offset = g_type_add_instance_private (valadoc_sequence_rule_type_id, sizeof (ValadocSequenceRulePrivate));
+	return valadoc_sequence_rule_type_id;
+}
 
 G_GNUC_INTERNAL GType
 valadoc_sequence_rule_get_type (void)
 {
 	static volatile gsize valadoc_sequence_rule_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_sequence_rule_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocSequenceRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_sequence_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSequenceRule), 0, (GInstanceInitFunc) valadoc_sequence_rule_instance_init, NULL };
 		GType valadoc_sequence_rule_type_id;
-		valadoc_sequence_rule_type_id = g_type_register_static (VALADOC_TYPE_RULE, "ValadocSequenceRule", &g_define_type_info, 0);
-		ValadocSequenceRule_private_offset = g_type_add_instance_private (valadoc_sequence_rule_type_id, sizeof (ValadocSequenceRulePrivate));
+		valadoc_sequence_rule_type_id = valadoc_sequence_rule_get_type_once ();
 		g_once_init_leave (&valadoc_sequence_rule_type_id__volatile, valadoc_sequence_rule_type_id);
 	}
 	return valadoc_sequence_rule_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -796,7 +766,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -804,7 +774,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -814,6 +783,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

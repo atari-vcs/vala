@@ -23,28 +23,23 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
-
-
-
-
+static GType valadoc_content_style_attributes_get_type_once (void);
 
 ValadocContentHorizontalAlign
 valadoc_content_horizontal_align_from_string (const gchar* str)
 {
-	ValadocContentHorizontalAlign result = 0;
 	const gchar* _tmp0_;
 	GQuark _tmp2_ = 0U;
 	static GQuark _tmp1_label0 = 0;
 	static GQuark _tmp1_label1 = 0;
 	static GQuark _tmp1_label2 = 0;
 	static GQuark _tmp1_label3 = 0;
+	ValadocContentHorizontalAlign result = 0;
 	g_return_val_if_fail (str != NULL, 0);
 	_tmp0_ = str;
 	_tmp2_ = (NULL == _tmp0_) ? 0 : g_quark_from_string (_tmp0_);
@@ -84,7 +79,6 @@ valadoc_content_horizontal_align_from_string (const gchar* str)
 	g_assert_not_reached ();
 }
 
-
 const gchar*
 valadoc_content_horizontal_align_to_string (ValadocContentHorizontalAlign self)
 {
@@ -116,31 +110,37 @@ valadoc_content_horizontal_align_to_string (ValadocContentHorizontalAlign self)
 	g_assert_not_reached ();
 }
 
+static GType
+valadoc_content_horizontal_align_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_CONTENT_HORIZONTAL_ALIGN_NONE, "VALADOC_CONTENT_HORIZONTAL_ALIGN_NONE", "none"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_LEFT, "VALADOC_CONTENT_HORIZONTAL_ALIGN_LEFT", "left"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_RIGHT, "VALADOC_CONTENT_HORIZONTAL_ALIGN_RIGHT", "right"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_CENTER, "VALADOC_CONTENT_HORIZONTAL_ALIGN_CENTER", "center"}, {0, NULL, NULL}};
+	GType valadoc_content_horizontal_align_type_id;
+	valadoc_content_horizontal_align_type_id = g_enum_register_static ("ValadocContentHorizontalAlign", values);
+	return valadoc_content_horizontal_align_type_id;
+}
 
 GType
 valadoc_content_horizontal_align_get_type (void)
 {
 	static volatile gsize valadoc_content_horizontal_align_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_horizontal_align_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_CONTENT_HORIZONTAL_ALIGN_NONE, "VALADOC_CONTENT_HORIZONTAL_ALIGN_NONE", "none"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_LEFT, "VALADOC_CONTENT_HORIZONTAL_ALIGN_LEFT", "left"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_RIGHT, "VALADOC_CONTENT_HORIZONTAL_ALIGN_RIGHT", "right"}, {VALADOC_CONTENT_HORIZONTAL_ALIGN_CENTER, "VALADOC_CONTENT_HORIZONTAL_ALIGN_CENTER", "center"}, {0, NULL, NULL}};
 		GType valadoc_content_horizontal_align_type_id;
-		valadoc_content_horizontal_align_type_id = g_enum_register_static ("ValadocContentHorizontalAlign", values);
+		valadoc_content_horizontal_align_type_id = valadoc_content_horizontal_align_get_type_once ();
 		g_once_init_leave (&valadoc_content_horizontal_align_type_id__volatile, valadoc_content_horizontal_align_type_id);
 	}
 	return valadoc_content_horizontal_align_type_id__volatile;
 }
 
-
 ValadocContentVerticalAlign
 valadoc_content_vertical_align_from_string (const gchar* str)
 {
-	ValadocContentVerticalAlign result = 0;
 	const gchar* _tmp0_;
 	GQuark _tmp2_ = 0U;
 	static GQuark _tmp1_label0 = 0;
 	static GQuark _tmp1_label1 = 0;
 	static GQuark _tmp1_label2 = 0;
 	static GQuark _tmp1_label3 = 0;
+	ValadocContentVerticalAlign result = 0;
 	g_return_val_if_fail (str != NULL, 0);
 	_tmp0_ = str;
 	_tmp2_ = (NULL == _tmp0_) ? 0 : g_quark_from_string (_tmp0_);
@@ -180,7 +180,6 @@ valadoc_content_vertical_align_from_string (const gchar* str)
 	g_assert_not_reached ();
 }
 
-
 const gchar*
 valadoc_content_vertical_align_to_string (ValadocContentVerticalAlign self)
 {
@@ -212,20 +211,26 @@ valadoc_content_vertical_align_to_string (ValadocContentVerticalAlign self)
 	g_assert_not_reached ();
 }
 
+static GType
+valadoc_content_vertical_align_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_CONTENT_VERTICAL_ALIGN_NONE, "VALADOC_CONTENT_VERTICAL_ALIGN_NONE", "none"}, {VALADOC_CONTENT_VERTICAL_ALIGN_TOP, "VALADOC_CONTENT_VERTICAL_ALIGN_TOP", "top"}, {VALADOC_CONTENT_VERTICAL_ALIGN_MIDDLE, "VALADOC_CONTENT_VERTICAL_ALIGN_MIDDLE", "middle"}, {VALADOC_CONTENT_VERTICAL_ALIGN_BOTTOM, "VALADOC_CONTENT_VERTICAL_ALIGN_BOTTOM", "bottom"}, {0, NULL, NULL}};
+	GType valadoc_content_vertical_align_type_id;
+	valadoc_content_vertical_align_type_id = g_enum_register_static ("ValadocContentVerticalAlign", values);
+	return valadoc_content_vertical_align_type_id;
+}
 
 GType
 valadoc_content_vertical_align_get_type (void)
 {
 	static volatile gsize valadoc_content_vertical_align_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_vertical_align_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_CONTENT_VERTICAL_ALIGN_NONE, "VALADOC_CONTENT_VERTICAL_ALIGN_NONE", "none"}, {VALADOC_CONTENT_VERTICAL_ALIGN_TOP, "VALADOC_CONTENT_VERTICAL_ALIGN_TOP", "top"}, {VALADOC_CONTENT_VERTICAL_ALIGN_MIDDLE, "VALADOC_CONTENT_VERTICAL_ALIGN_MIDDLE", "middle"}, {VALADOC_CONTENT_VERTICAL_ALIGN_BOTTOM, "VALADOC_CONTENT_VERTICAL_ALIGN_BOTTOM", "bottom"}, {0, NULL, NULL}};
 		GType valadoc_content_vertical_align_type_id;
-		valadoc_content_vertical_align_type_id = g_enum_register_static ("ValadocContentVerticalAlign", values);
+		valadoc_content_vertical_align_type_id = valadoc_content_vertical_align_get_type_once ();
 		g_once_init_leave (&valadoc_content_vertical_align_type_id__volatile, valadoc_content_vertical_align_type_id);
 	}
 	return valadoc_content_vertical_align_type_id__volatile;
 }
-
 
 ValadocContentHorizontalAlign
 valadoc_content_style_attributes_get_horizontal_align (ValadocContentStyleAttributes* self)
@@ -233,7 +238,6 @@ valadoc_content_style_attributes_get_horizontal_align (ValadocContentStyleAttrib
 	g_return_val_if_fail (self != NULL, 0);
 	return VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->get_horizontal_align (self);
 }
-
 
 void
 valadoc_content_style_attributes_set_horizontal_align (ValadocContentStyleAttributes* self,
@@ -243,14 +247,12 @@ valadoc_content_style_attributes_set_horizontal_align (ValadocContentStyleAttrib
 	VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->set_horizontal_align (self, value);
 }
 
-
 ValadocContentVerticalAlign
 valadoc_content_style_attributes_get_vertical_align (ValadocContentStyleAttributes* self)
 {
 	g_return_val_if_fail (self != NULL, 0);
 	return VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->get_vertical_align (self);
 }
-
 
 void
 valadoc_content_style_attributes_set_vertical_align (ValadocContentStyleAttributes* self,
@@ -260,14 +262,12 @@ valadoc_content_style_attributes_set_vertical_align (ValadocContentStyleAttribut
 	VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->set_vertical_align (self, value);
 }
 
-
 const gchar*
 valadoc_content_style_attributes_get_style (ValadocContentStyleAttributes* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->get_style (self);
 }
-
 
 void
 valadoc_content_style_attributes_set_style (ValadocContentStyleAttributes* self,
@@ -277,29 +277,34 @@ valadoc_content_style_attributes_set_style (ValadocContentStyleAttributes* self,
 	VALADOC_CONTENT_STYLE_ATTRIBUTES_GET_INTERFACE (self)->set_style (self, value);
 }
 
-
 static void
-valadoc_content_style_attributes_default_init (ValadocContentStyleAttributesIface * iface)
+valadoc_content_style_attributes_default_init (ValadocContentStyleAttributesIface * iface,
+                                               gpointer iface_data)
 {
 	g_object_interface_install_property (iface, g_param_spec_enum ("horizontal-align", "horizontal-align", "horizontal-align", VALADOC_CONTENT_TYPE_HORIZONTAL_ALIGN, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 	g_object_interface_install_property (iface, g_param_spec_enum ("vertical-align", "vertical-align", "vertical-align", VALADOC_CONTENT_TYPE_VERTICAL_ALIGN, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 	g_object_interface_install_property (iface, g_param_spec_string ("style", "style", "style", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
+static GType
+valadoc_content_style_attributes_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentStyleAttributesIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_style_attributes_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_content_style_attributes_type_id;
+	valadoc_content_style_attributes_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocContentStyleAttributes", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_content_style_attributes_type_id, VALADOC_CONTENT_TYPE_CONTENT_ELEMENT);
+	return valadoc_content_style_attributes_type_id;
+}
 
 GType
 valadoc_content_style_attributes_get_type (void)
 {
 	static volatile gsize valadoc_content_style_attributes_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_style_attributes_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentStyleAttributesIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_style_attributes_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_content_style_attributes_type_id;
-		valadoc_content_style_attributes_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocContentStyleAttributes", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_content_style_attributes_type_id, VALADOC_CONTENT_TYPE_CONTENT_ELEMENT);
+		valadoc_content_style_attributes_type_id = valadoc_content_style_attributes_get_type_once ();
 		g_once_init_leave (&valadoc_content_style_attributes_type_id__volatile, valadoc_content_style_attributes_type_id);
 	}
 	return valadoc_content_style_attributes_type_id__volatile;
 }
-
-
 

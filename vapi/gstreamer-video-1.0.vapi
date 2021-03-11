@@ -5,6 +5,7 @@ namespace Gst {
 	namespace Video {
 		[CCode (cheader_filename = "gst/video/video.h", type_id = "gst_video_aggregator_get_type ()")]
 		[GIR (name = "VideoAggregator")]
+		[Version (since = "1.16")]
 		public abstract class Aggregator : Gst.Base.Aggregator {
 			public weak Gst.Video.Info info;
 			[CCode (has_construct_function = false)]
@@ -20,6 +21,7 @@ namespace Gst {
 		}
 		[CCode (cheader_filename = "gst/video/video.h", type_id = "gst_video_aggregator_convert_pad_get_type ()")]
 		[GIR (name = "VideoAggregatorConvertPad")]
+		[Version (since = "1.16")]
 		public class AggregatorConvertPad : Gst.Video.AggregatorPad {
 			[CCode (has_construct_function = false)]
 			protected AggregatorConvertPad ();
@@ -31,6 +33,7 @@ namespace Gst {
 		}
 		[CCode (cheader_filename = "gst/video/video.h", type_id = "gst_video_aggregator_pad_get_type ()")]
 		[GIR (name = "VideoAggregatorPad")]
+		[Version (since = "1.16")]
 		public class AggregatorPad : Gst.Base.AggregatorPad {
 			public weak Gst.Video.Info info;
 			[CCode (has_construct_function = false)]
@@ -45,6 +48,8 @@ namespace Gst {
 			public void set_needs_alpha (bool needs_alpha);
 			[NoWrapper]
 			public virtual void update_conversion_info ();
+			[NoAccessorMethod]
+			public uint64 max_last_buffer_repeat { get; set; }
 			[NoAccessorMethod]
 			public bool repeat_after_eos { get; set; }
 			[NoAccessorMethod]
@@ -203,6 +208,11 @@ namespace Gst {
 			public virtual bool stop ();
 			[NoWrapper]
 			public virtual bool transform_meta (Gst.Video.CodecFrame frame, Gst.Meta meta);
+			[Version (since = "1.18")]
+			public int max_errors { get; set; }
+			[NoAccessorMethod]
+			[Version (since = "1.18")]
+			public bool qos { get; set; }
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[Compact]
@@ -225,6 +235,8 @@ namespace Gst {
 			[NoWrapper]
 			public virtual Gst.FlowReturn finish ();
 			public Gst.FlowReturn finish_frame (owned Gst.Video.CodecFrame frame);
+			[Version (since = "1.18")]
+			public Gst.FlowReturn finish_subframe (Gst.Video.CodecFrame frame);
 			[NoWrapper]
 			public virtual bool flush ();
 			public void get_allocator (out Gst.Allocator allocator, out Gst.AllocationParams @params);
@@ -233,6 +245,8 @@ namespace Gst {
 			public void get_latency (out Gst.ClockTime min_latency, out Gst.ClockTime max_latency);
 			[Version (since = "1.14")]
 			public Gst.ClockTimeDiff get_max_encode_time (Gst.Video.CodecFrame frame);
+			[Version (since = "1.18")]
+			public Gst.ClockTime get_min_force_key_unit_interval ();
 			public Gst.Video.CodecFrame get_oldest_frame ();
 			public Gst.Video.CodecState get_output_state ();
 			[NoWrapper]
@@ -256,6 +270,9 @@ namespace Gst {
 			public virtual bool set_format (Gst.Video.CodecState state);
 			public void set_headers (owned GLib.List<Gst.Buffer> headers);
 			public void set_latency (Gst.ClockTime min_latency, Gst.ClockTime max_latency);
+			[Version (since = "1.18")]
+			public void set_min_force_key_unit_interval (Gst.ClockTime interval);
+			[Version (since = "1.6")]
 			public void set_min_pts (Gst.ClockTime min_pts);
 			public Gst.Video.CodecState set_output_state (owned Gst.Caps caps, Gst.Video.CodecState? reference);
 			[Version (since = "1.14")]
@@ -274,6 +291,8 @@ namespace Gst {
 			public virtual bool stop ();
 			[NoWrapper]
 			public virtual bool transform_meta (Gst.Video.CodecFrame frame, Gst.Meta meta);
+			[Version (since = "1.18")]
+			public uint64 min_force_key_unit_interval { get; set; }
 			[NoAccessorMethod]
 			public bool qos { get; set; }
 		}
@@ -323,6 +342,8 @@ namespace Gst {
 			[Version (since = "1.6")]
 			public Info ();
 			public bool align (Gst.Video.Alignment align);
+			[Version (since = "1.18")]
+			public bool align_full (Gst.Video.Alignment align, out size_t plane_size);
 			public bool convert (Gst.Format src_format, int64 src_value, Gst.Format dest_format, out int64 dest_value);
 			[Version (since = "1.6")]
 			public Gst.Video.Info copy ();
@@ -353,6 +374,7 @@ namespace Gst {
 			public Gst.Video.OverlayComposition copy ();
 			public unowned Gst.Video.OverlayRectangle get_rectangle (uint n);
 			public uint get_seqnum ();
+			[DestroysInstance]
 			[ReturnsModifiedPointer]
 			public Gst.Video.OverlayComposition make_writable ();
 			public uint n_rectangles ();
@@ -434,7 +456,7 @@ namespace Gst {
 			[Version (since = "1.12")]
 			public TimeCode.from_string (string tc_str);
 			public void increment_frame ();
-			public void init (uint fps_n, uint fps_d, GLib.DateTime latest_daily_jam, Gst.Video.TimeCodeFlags flags, uint hours, uint minutes, uint seconds, uint frames, uint field_count);
+			public void init (uint fps_n, uint fps_d, GLib.DateTime? latest_daily_jam, Gst.Video.TimeCodeFlags flags, uint hours, uint minutes, uint seconds, uint frames, uint field_count);
 			[Version (since = "1.12")]
 			public void init_from_date_time (uint fps_n, uint fps_d, GLib.DateTime dt, Gst.Video.TimeCodeFlags flags, uint field_count);
 			[Version (since = "1.16")]
@@ -511,6 +533,8 @@ namespace Gst {
 			public static bool event_parse_key_event (Gst.Event event, out unowned string key);
 			public static bool event_parse_mouse_button_event (Gst.Event event, out int button, out double x, out double y);
 			public static bool event_parse_mouse_move_event (Gst.Event event, out double x, out double y);
+			[Version (since = "1.18")]
+			public static bool event_parse_mouse_scroll_event (Gst.Event event, out double x, out double y, out double delta_x, out double delta_y);
 			public static Gst.Video.NavigationMessageType message_get_type (Gst.Message message);
 			public static Gst.Message message_new_angles_changed (Gst.Object src, uint cur_angle, uint n_angles);
 			public static Gst.Message message_new_commands_changed (Gst.Object src);
@@ -533,6 +557,8 @@ namespace Gst {
 			public abstract void send_event (Gst.Structure structure);
 			public void send_key_event (string event, string key);
 			public void send_mouse_event (string event, int button, double x, double y);
+			[Version (since = "1.18")]
+			public void send_mouse_scroll_event (double x, double y, double delta_x, double delta_y);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", type_id = "gst_video_orientation_get_type ()")]
 		[GIR (name = "VideoOrientation")]
@@ -552,8 +578,10 @@ namespace Gst {
 			public abstract void expose ();
 			public void got_window_handle ([CCode (type = "guintptr")] uint* handle);
 			public abstract void handle_events (bool handle_events);
+			[Version (since = "1.14")]
 			public static void install_properties (GLib.ObjectClass oclass, int last_prop_id);
 			public void prepare_window_handle ();
+			[Version (since = "1.14")]
 			public static bool set_property (GLib.Object object, int last_prop_id, uint property_id, GLib.Value value);
 			[NoWrapper]
 			public virtual void set_render_rectangle (int x, int y, int width, int height);
@@ -562,13 +590,22 @@ namespace Gst {
 			public bool try_set_render_rectangle (int x, int y, int width, int height);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
+		[GIR (name = "VideoAFDMeta")]
+		[Version (since = "1.18")]
+		public struct AFDMeta {
+			public Gst.Meta meta;
+			public uint8 field;
+			public Gst.Video.AFDSpec spec;
+			public Gst.Video.AFDValue afd;
+		}
+		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[GIR (name = "VideoAffineTransformationMeta")]
 		[Version (since = "1.8")]
 		public struct AffineTransformationMeta {
 			public Gst.Meta meta;
 			[CCode (array_length = false)]
 			public weak float matrix[16];
-			public void apply_matrix (float matrix);
+			public void apply_matrix ([CCode (array_length = false)] float matrix[16]);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[GIR (name = "VideoAlignment")]
@@ -590,6 +627,16 @@ namespace Gst {
 			public uint8 data_count;
 			[CCode (array_length_cname = "data_count", array_length_type = "guint8")]
 			public weak uint8[] data;
+		}
+		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
+		[GIR (name = "VideoBarMeta")]
+		[Version (since = "1.18")]
+		public struct BarMeta {
+			public Gst.Meta meta;
+			public uint8 field;
+			public bool is_letterbox;
+			public uint bar_data1;
+			public uint bar_data2;
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[GIR (name = "VideoCaptionMeta")]
@@ -626,6 +673,18 @@ namespace Gst {
 			[Version (since = "1.6")]
 			public bool is_equal (Gst.Video.Colorimetry other);
 			public bool matches (string color);
+			public string? to_string ();
+		}
+		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
+		[GIR (name = "VideoContentLightLevel")]
+		[Version (since = "1.18")]
+		public struct ContentLightLevel {
+			public uint16 max_content_light_level;
+			public uint16 max_frame_average_light_level;
+			public bool add_to_caps (Gst.Caps caps);
+			public bool from_caps (Gst.Caps caps);
+			public bool from_string (string level);
+			public void init ();
 			public string to_string ();
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
@@ -668,6 +727,8 @@ namespace Gst {
 			public Gst.Video.TileMode tile_mode;
 			public uint tile_ws;
 			public uint tile_hs;
+			[Version (since = "1.18")]
+			public void component (uint plane, out int components);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[GIR (name = "VideoFrame")]
@@ -696,6 +757,28 @@ namespace Gst {
 			public bool upload (uint texture_id);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
+		[GIR (name = "VideoMasteringDisplayInfo")]
+		[Version (since = "1.18")]
+		public struct MasteringDisplayInfo {
+			[CCode (array_length = false)]
+			public weak Gst.Video.MasteringDisplayInfoCoordinates display_primaries[3];
+			public Gst.Video.MasteringDisplayInfoCoordinates white_point;
+			public uint32 max_display_mastering_luminance;
+			public uint32 min_display_mastering_luminance;
+			public bool add_to_caps (Gst.Caps caps);
+			public bool from_caps (Gst.Caps caps);
+			public void init ();
+			public bool is_equal (Gst.Video.MasteringDisplayInfo other);
+			public string to_string ();
+		}
+		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
+		[GIR (name = "VideoMasteringDisplayInfoCoordinates")]
+		[Version (since = "1.18")]
+		public struct MasteringDisplayInfoCoordinates {
+			public uint16 x;
+			public uint16 y;
+		}
+		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
 		[GIR (name = "VideoMeta")]
 		public struct Meta {
 			public Gst.Meta meta;
@@ -710,7 +793,14 @@ namespace Gst {
 			public weak size_t offset[4];
 			[CCode (array_length = false)]
 			public weak int stride[4];
+			public Gst.Video.Alignment alignment;
+			[Version (since = "1.18")]
+			public bool get_plane_height (out uint plane_height);
+			[Version (since = "1.18")]
+			public bool get_plane_size (out size_t plane_size);
 			public bool map (uint plane, Gst.MapInfo info, out void* data, out int stride, Gst.MapFlags flags);
+			[Version (since = "1.18")]
+			public bool set_alignment (Gst.Video.Alignment alignment);
 			public bool unmap (uint plane, Gst.MapInfo info);
 		}
 		[CCode (cheader_filename = "gst/video/video.h", has_type_id = false)]
@@ -781,6 +871,30 @@ namespace Gst {
 			public Gst.Meta meta;
 			public weak Gst.Video.TimeCode tc;
 		}
+		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_AFD_SPEC_", type_id = "gst_video_afd_spec_get_type ()")]
+		[GIR (name = "VideoAFDSpec")]
+		[Version (since = "1.18")]
+		public enum AFDSpec {
+			DVB_ETSI,
+			ATSC_A53,
+			SMPTE_ST2016_1
+		}
+		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_AFD_", type_id = "gst_video_afd_value_get_type ()")]
+		[GIR (name = "VideoAFDValue")]
+		[Version (since = "1.18")]
+		public enum AFDValue {
+			UNAVAILABLE,
+			@16_9_TOP_ALIGNED,
+			@14_9_TOP_ALIGNED,
+			GREATER_THAN_16_9,
+			@4_3_FULL_16_9_FULL,
+			@4_3_FULL_4_3_PILLAR,
+			@16_9_LETTER_16_9_FULL,
+			@14_9_LETTER_14_9_PILLAR,
+			@4_3_FULL_14_9_CENTER,
+			@16_9_LETTER_14_9_CENTER,
+			@16_9_LETTER_4_3_CENTER
+		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_ALPHA_MODE_", type_id = "gst_video_alpha_mode_get_type ()")]
 		[GIR (name = "VideoAlphaMode")]
 		[Version (since = "1.6")]
@@ -791,6 +905,7 @@ namespace Gst {
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_ANCILLARY_DID_", type_id = "gst_video_ancillary_did_get_type ()")]
 		[GIR (name = "VideoAncillaryDID")]
+		[Version (since = "1.16")]
 		public enum AncillaryDID {
 			UNDEFINED,
 			DELETION,
@@ -805,12 +920,13 @@ namespace Gst {
 			HANC_SDTV_AUDIO_DATA_2_FIRST,
 			HANC_SDTV_AUDIO_DATA_2_LAST
 		}
-		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_ANCILLARY_DID16_S334_EIA_", type_id = "gst_video_ancillary_di_d16_get_type ()")]
+		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_ANCILLARY_DID16_", type_id = "gst_video_ancillary_di_d16_get_type ()")]
 		[GIR (name = "VideoAncillaryDID16")]
 		[Version (since = "1.16")]
 		public enum AncillaryDID16 {
-			@708,
-			@608
+			S334_EIA_708,
+			S334_EIA_608,
+			S2016_3_AFD_BAR
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_BUFFER_FLAG_", type_id = "gst_video_buffer_flags_get_type ()")]
 		[Flags]
@@ -824,6 +940,7 @@ namespace Gst {
 			FIRST_IN_BUNDLE,
 			TOP_FIELD,
 			BOTTOM_FIELD,
+			MARKER,
 			LAST
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_CAPTION_TYPE_", type_id = "gst_video_caption_type_get_type ()")]
@@ -909,7 +1026,11 @@ namespace Gst {
 			SMPTE240M,
 			FILM,
 			BT2020,
-			ADOBERGB
+			ADOBERGB,
+			SMPTEST428,
+			SMPTERP431,
+			SMPTEEG432,
+			EBU3213
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_COLOR_RANGE_", type_id = "gst_video_color_range_get_type ()")]
 		[GIR (name = "VideoColorRange")]
@@ -1045,7 +1166,24 @@ namespace Gst {
 			NV16_10LE32,
 			NV12_10LE40,
 			Y210,
-			Y410
+			Y410,
+			VUYA,
+			BGR10A2_LE,
+			RGB10A2_LE,
+			Y444_16BE,
+			Y444_16LE,
+			P016_BE,
+			P016_LE,
+			P012_BE,
+			P012_LE,
+			Y212_BE,
+			Y212_LE,
+			Y412_BE,
+			Y412_LE,
+			[Version (since = "1.18")]
+			NV12_4L4,
+			[Version (since = "1.18")]
+			NV12_32L32
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_FORMAT_FLAG_", type_id = "gst_video_format_flags_get_type ()")]
 		[Flags]
@@ -1199,7 +1337,8 @@ namespace Gst {
 			MOUSE_BUTTON_PRESS,
 			MOUSE_BUTTON_RELEASE,
 			MOUSE_MOVE,
-			COMMAND
+			COMMAND,
+			MOUSE_SCROLL
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GstNavigationMessageType", cprefix = "GST_NAVIGATION_MESSAGE_", type_id = "gst_navigation_message_type_get_type ()")]
 		[GIR (name = "NavigationMessageType")]
@@ -1285,14 +1424,16 @@ namespace Gst {
 		[GIR (name = "VideoTileMode")]
 		public enum TileMode {
 			UNKNOWN,
-			ZFLIPZ_2X2
+			ZFLIPZ_2X2,
+			[Version (since = "1.18")]
+			LINEAR
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_TILE_TYPE_", type_id = "gst_video_tile_type_get_type ()")]
 		[GIR (name = "VideoTileType")]
 		public enum TileType {
 			INDEXED
 		}
-		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_TIME_CODE_FLAGS_", has_type_id = false)]
+		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_TIME_CODE_FLAGS_", type_id = "gst_video_time_code_flags_get_type ()")]
 		[Flags]
 		[GIR (name = "VideoTimeCodeFlags")]
 		[Version (since = "1.10")]
@@ -1316,7 +1457,12 @@ namespace Gst {
 			LOG100,
 			LOG316,
 			BT2020_12,
-			ADOBERGB
+			ADOBERGB,
+			BT2020_10,
+			SMPTE2084,
+			ARIB_STD_B67,
+			[Version (since = "1.18")]
+			BT601
 		}
 		[CCode (cheader_filename = "gst/video/video.h", cprefix = "GST_VIDEO_VBI_PARSER_RESULT_", type_id = "gst_video_vbi_parser_result_get_type ()")]
 		[GIR (name = "VideoVBIParserResult")]
@@ -1358,6 +1504,12 @@ namespace Gst {
 		public const string CAPS_FEATURE_META_GST_VIDEO_OVERLAY_COMPOSITION;
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT2020")]
 		public const string COLORIMETRY_BT2020;
+		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT2020_10")]
+		public const string COLORIMETRY_BT2020_10;
+		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT2100_HLG")]
+		public const string COLORIMETRY_BT2100_HLG;
+		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT2100_PQ")]
+		public const string COLORIMETRY_BT2100_PQ;
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT601")]
 		public const string COLORIMETRY_BT601;
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_COLORIMETRY_BT709")]
@@ -1458,9 +1610,6 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_META_TAG_VIDEO_STR")]
 		[Version (since = "1.2")]
 		public const string META_TAG_VIDEO_STR;
-		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_OVERLAY_COMPOSITION_BLEND_FORMATS")]
-		[Version (since = "1.2")]
-		public const string OVERLAY_COMPOSITION_BLEND_FORMATS;
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_RESAMPLER_OPT_CUBIC_B")]
 		public const string RESAMPLER_OPT_CUBIC_B;
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_RESAMPLER_OPT_CUBIC_C")]
@@ -1486,16 +1635,30 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/video/video.h", cname = "GST_VIDEO_TILE_Y_TILES_SHIFT")]
 		public const int TILE_Y_TILES_SHIFT;
 		[CCode (cheader_filename = "gst/video/video.h")]
+		public static GLib.Type afd_meta_api_get_type ();
+		[CCode (cheader_filename = "gst/video/video.h")]
+		public static unowned Gst.MetaInfo? afd_meta_get_info ();
+		[CCode (cheader_filename = "gst/video/video.h")]
 		public static GLib.Type affine_transformation_meta_api_get_type ();
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static unowned Gst.MetaInfo? affine_transformation_meta_get_info ();
 		[CCode (cheader_filename = "gst/video/video.h")]
+		public static GLib.Type bar_meta_api_get_type ();
+		[CCode (cheader_filename = "gst/video/video.h")]
+		public static unowned Gst.MetaInfo? bar_meta_get_info ();
+		[CCode (cheader_filename = "gst/video/video.h")]
 		public static bool blend (Gst.Video.Frame dest, Gst.Video.Frame src, int x, int y, float global_alpha);
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static void blend_scale_linear_RGBA (Gst.Video.Info src, Gst.Buffer src_buffer, int dest_height, int dest_width, out unowned Gst.Video.Info dest, out Gst.Buffer dest_buffer);
+		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_buffer_add_video_afd_meta")]
+		[Version (since = "1.18")]
+		public static unowned Gst.Video.AFDMeta? buffer_add_video_afd_meta (Gst.Buffer buffer, uint8 field, Gst.Video.AFDSpec spec, Gst.Video.AFDValue afd);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_buffer_add_video_affine_transformation_meta")]
 		[Version (since = "1.8")]
 		public static unowned Gst.Video.AffineTransformationMeta? buffer_add_video_affine_transformation_meta (Gst.Buffer buffer);
+		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_buffer_add_video_bar_meta")]
+		[Version (since = "1.18")]
+		public static unowned Gst.Video.BarMeta? buffer_add_video_bar_meta (Gst.Buffer buffer, uint8 field, bool is_letterbox, uint bar_data1, uint bar_data2);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_buffer_add_video_caption_meta")]
 		[Version (since = "1.16")]
 		public static unowned Gst.Video.CaptionMeta? buffer_add_video_caption_meta (Gst.Buffer buffer, Gst.Video.CaptionType caption_type, [CCode (array_length_cname = "size", array_length_pos = 3.1, array_length_type = "gsize")] uint8[] data);
@@ -1544,11 +1707,23 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static unowned string chroma_to_string (Gst.Video.ChromaSite site);
 		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static Gst.Video.ColorMatrix color_matrix_from_iso (uint value);
+		[CCode (cheader_filename = "gst/video/video.h")]
 		[Version (since = "1.6")]
 		public static bool color_matrix_get_Kr_Kb (Gst.Video.ColorMatrix matrix, out double Kr, out double Kb);
 		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static uint color_matrix_to_iso (Gst.Video.ColorMatrix matrix);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static Gst.Video.ColorPrimaries color_primaries_from_iso (uint value);
+		[CCode (cheader_filename = "gst/video/video.h")]
 		[Version (since = "1.6")]
 		public static unowned Gst.Video.ColorPrimariesInfo? color_primaries_get_info (Gst.Video.ColorPrimaries primaries);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static uint color_primaries_to_iso (Gst.Video.ColorPrimaries primaries);
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static void color_range_offsets (Gst.Video.ColorRange range, Gst.Video.FormatInfo info, [CCode (array_length = false)] out unowned int offset[4], [CCode (array_length = false)] out unowned int scale[4]);
 		[CCode (cheader_filename = "gst/video/video.h")]
@@ -1600,6 +1775,9 @@ namespace Gst {
 		public static uint32 format_to_fourcc (Gst.Video.Format format);
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static unowned string format_to_string (Gst.Video.Format format);
+		[CCode (array_length_pos = 0.1, array_length_type = "guint", cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static unowned Gst.Video.Format[] formats_raw ();
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static GLib.Type gl_texture_upload_meta_api_get_type ();
 		[CCode (cheader_filename = "gst/video/video.h")]
@@ -1615,6 +1793,15 @@ namespace Gst {
 		public static unowned string interlace_mode_to_string (Gst.Video.InterlaceMode mode);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_is_video_overlay_prepare_window_handle_message")]
 		public static bool is_video_overlay_prepare_window_handle_message (Gst.Message msg);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static Gst.Caps make_raw_caps ([CCode (array_length_cname = "len", array_length_pos = 1.1, array_length_type = "guint")] Gst.Video.Format[]? formats);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static Gst.Caps make_raw_caps_with_features ([CCode (array_length_cname = "len", array_length_pos = 1.5, array_length_type = "guint")] Gst.Video.Format[]? formats, owned Gst.CapsFeatures? features);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static bool mastering_display_info_from_string (out Gst.Video.MasteringDisplayInfo minfo, string mastering);
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static GLib.Type meta_api_get_type ();
 		[CCode (cheader_filename = "gst/video/video.h")]
@@ -1658,6 +1845,9 @@ namespace Gst {
 		public static bool navigation_event_parse_mouse_button_event (Gst.Event event, out int button, out double x, out double y);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_navigation_event_parse_mouse_move_event")]
 		public static bool navigation_event_parse_mouse_move_event (Gst.Event event, out double x, out double y);
+		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_navigation_event_parse_mouse_scroll_event")]
+		[Version (since = "1.18")]
+		public static bool navigation_event_parse_mouse_scroll_event (Gst.Event event, out double x, out double y, out double delta_x, out double delta_y);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_navigation_message_get_type")]
 		public static Gst.Video.NavigationMessageType navigation_message_get_type (Gst.Message message);
 		[CCode (cheader_filename = "gst/video/video.h", cname = "gst_navigation_message_new_angles_changed")]
@@ -1697,8 +1887,10 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static unowned Gst.MetaInfo? overlay_composition_meta_get_info ();
 		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.14")]
 		public static void overlay_install_properties (GLib.ObjectClass oclass, int last_prop_id);
 		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.14")]
 		public static bool overlay_set_property (GLib.Object object, int last_prop_id, uint property_id, GLib.Value value);
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static GLib.Type region_of_interest_meta_api_get_type ();
@@ -1711,5 +1903,14 @@ namespace Gst {
 		public static GLib.Type time_code_meta_api_get_type ();
 		[CCode (cheader_filename = "gst/video/video.h")]
 		public static unowned Gst.MetaInfo? time_code_meta_get_info ();
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static Gst.Video.TransferFunction transfer_function_from_iso (uint value);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static bool transfer_function_is_equivalent (Gst.Video.TransferFunction from_func, uint from_bpp, Gst.Video.TransferFunction to_func, uint to_bpp);
+		[CCode (cheader_filename = "gst/video/video.h")]
+		[Version (since = "1.18")]
+		public static uint transfer_function_to_iso (Gst.Video.TransferFunction func);
 	}
 }

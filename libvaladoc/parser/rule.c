@@ -23,12 +23,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_RULE_0_PROPERTY,
@@ -36,7 +35,6 @@ enum  {
 	VALADOC_RULE_NUM_PROPERTIES
 };
 static GParamSpec* valadoc_rule_properties[VALADOC_RULE_NUM_PROPERTIES];
-#define _g_free0(var) (var = (g_free (var), NULL))
 
 #define VALADOC_TYPE_SEQUENCE_RULE (valadoc_sequence_rule_get_type ())
 #define VALADOC_SEQUENCE_RULE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_SEQUENCE_RULE, ValadocSequenceRule))
@@ -78,6 +76,7 @@ typedef struct _ValadocManyRuleClass ValadocManyRuleClass;
 
 typedef struct _ValadocOptionalRule ValadocOptionalRule;
 typedef struct _ValadocOptionalRuleClass ValadocOptionalRuleClass;
+#define _g_free0(var) (var = (g_free (var), NULL))
 typedef struct _Block3Data Block3Data;
 typedef struct _Block4Data Block4Data;
 typedef struct _Block5Data Block5Data;
@@ -116,21 +115,20 @@ struct _Block5Data {
 	gpointer action_target;
 };
 
-
 static gint ValadocRule_private_offset;
 static gpointer valadoc_rule_parent_class = NULL;
 
 G_GNUC_INTERNAL ValadocSequenceRule* valadoc_sequence_rule_new (GObject** scheme,
-                                                int scheme_length1);
+                                                gint scheme_length1);
 G_GNUC_INTERNAL ValadocSequenceRule* valadoc_sequence_rule_construct (GType object_type,
                                                       GObject** scheme,
-                                                      int scheme_length1);
+                                                      gint scheme_length1);
 G_GNUC_INTERNAL GType valadoc_sequence_rule_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
 G_GNUC_INTERNAL ValadocOneOfRule* valadoc_one_of_rule_new (GObject** scheme,
-                                           int scheme_length1);
+                                           gint scheme_length1);
 G_GNUC_INTERNAL ValadocOneOfRule* valadoc_one_of_rule_construct (GType object_type,
                                                  GObject** scheme,
-                                                 int scheme_length1);
+                                                 gint scheme_length1);
 G_GNUC_INTERNAL GType valadoc_one_of_rule_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
 G_GNUC_INTERNAL ValadocManyRule* valadoc_many_rule_new (GObject* scheme);
 G_GNUC_INTERNAL ValadocManyRule* valadoc_many_rule_construct (GType object_type,
@@ -175,11 +173,11 @@ static gboolean valadoc_rule_real_would_reduce (ValadocRule* self,
 static gchar* valadoc_rule_real_to_string (ValadocRule* self,
                                     GObject* state);
 static void valadoc_rule_finalize (GObject * obj);
+static GType valadoc_rule_get_type_once (void);
 static void _vala_valadoc_rule_get_property (GObject * object,
                                       guint property_id,
                                       GValue * value,
                                       GParamSpec * pspec);
-
 
 static inline gpointer
 valadoc_rule_get_instance_private (ValadocRule* self)
@@ -187,48 +185,52 @@ valadoc_rule_get_instance_private (ValadocRule* self)
 	return G_STRUCT_MEMBER_P (self, ValadocRule_private_offset);
 }
 
+static GType
+valadoc_rule_forward_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_RULE_FORWARD_NONE, "VALADOC_RULE_FORWARD_NONE", "none"}, {VALADOC_RULE_FORWARD_PARENT, "VALADOC_RULE_FORWARD_PARENT", "parent"}, {VALADOC_RULE_FORWARD_CHILD, "VALADOC_RULE_FORWARD_CHILD", "child"}, {0, NULL, NULL}};
+	GType valadoc_rule_forward_type_id;
+	valadoc_rule_forward_type_id = g_enum_register_static ("ValadocRuleForward", values);
+	return valadoc_rule_forward_type_id;
+}
 
 GType
 valadoc_rule_forward_get_type (void)
 {
 	static volatile gsize valadoc_rule_forward_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_rule_forward_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_RULE_FORWARD_NONE, "VALADOC_RULE_FORWARD_NONE", "none"}, {VALADOC_RULE_FORWARD_PARENT, "VALADOC_RULE_FORWARD_PARENT", "parent"}, {VALADOC_RULE_FORWARD_CHILD, "VALADOC_RULE_FORWARD_CHILD", "child"}, {0, NULL, NULL}};
 		GType valadoc_rule_forward_type_id;
-		valadoc_rule_forward_type_id = g_enum_register_static ("ValadocRuleForward", values);
+		valadoc_rule_forward_type_id = valadoc_rule_forward_get_type_once ();
 		g_once_init_leave (&valadoc_rule_forward_type_id__volatile, valadoc_rule_forward_type_id);
 	}
 	return valadoc_rule_forward_type_id__volatile;
 }
 
-
 ValadocRule*
 valadoc_rule_seq (GObject** scheme,
-                  int scheme_length1)
+                  gint scheme_length1)
 {
-	ValadocRule* result = NULL;
 	ValadocSequenceRule* _tmp0_;
+	ValadocRule* result = NULL;
 	_tmp0_ = valadoc_sequence_rule_new (scheme, scheme_length1);
 	result = (ValadocRule*) _tmp0_;
 	return result;
 }
 
-
 ValadocRule*
 valadoc_rule_one_of (GObject** scheme,
-                     int scheme_length1)
+                     gint scheme_length1)
 {
-	ValadocRule* result = NULL;
 	ValadocOneOfRule* _tmp0_;
+	ValadocRule* result = NULL;
 	_tmp0_ = valadoc_one_of_rule_new (scheme, scheme_length1);
 	result = (ValadocRule*) _tmp0_;
 	return result;
 }
 
-
 ValadocRule*
 valadoc_rule_many (GObject** scheme,
-                   int scheme_length1)
+                   gint scheme_length1)
 {
 	ValadocRule* result = NULL;
 	if (scheme_length1 == 1) {
@@ -253,10 +255,9 @@ valadoc_rule_many (GObject** scheme,
 	}
 }
 
-
 ValadocRule*
 valadoc_rule_option (GObject** scheme,
-                     int scheme_length1)
+                     gint scheme_length1)
 {
 	ValadocRule* result = NULL;
 	if (scheme_length1 == 1) {
@@ -281,7 +282,6 @@ valadoc_rule_option (GObject** scheme,
 	}
 }
 
-
 ValadocRule*
 valadoc_rule_construct (GType object_type)
 {
@@ -290,6 +290,16 @@ valadoc_rule_construct (GType object_type)
 	return self;
 }
 
+const gchar*
+valadoc_rule_get_name (ValadocRule* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -297,14 +307,13 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocRule*
 valadoc_rule_set_name (ValadocRule* self,
                        const gchar* name)
 {
-	ValadocRule* result = NULL;
 	gchar* _tmp0_;
 	ValadocRule* _tmp1_;
+	ValadocRule* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = g_strdup (name);
@@ -315,14 +324,12 @@ valadoc_rule_set_name (ValadocRule* self,
 	return result;
 }
 
-
 static Block3Data*
 block3_data_ref (Block3Data* _data3_)
 {
 	g_atomic_int_inc (&_data3_->_ref_count_);
 	return _data3_;
 }
-
 
 static void
 block3_data_unref (void * _userdata_)
@@ -337,27 +344,25 @@ block3_data_unref (void * _userdata_)
 	}
 }
 
-
 static void
 __lambda5_ (Block3Data* _data3_,
             GError** error)
 {
 	ValadocRule* self;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = _data3_->self;
-	_data3_->action (_data3_->action_target, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	_data3_->action (_data3_->action_target, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 ___lambda5__valadoc_rule_action (gpointer self,
@@ -366,15 +371,14 @@ ___lambda5__valadoc_rule_action (gpointer self,
 	__lambda5_ (self, error);
 }
 
-
 ValadocRule*
 valadoc_rule_set_start (ValadocRule* self,
                         ValadocRuleAction action,
                         gpointer action_target)
 {
-	ValadocRule* result = NULL;
 	Block3Data* _data3_;
 	ValadocRule* _tmp0_;
+	ValadocRule* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_data3_ = g_slice_new0 (Block3Data);
 	_data3_->_ref_count_ = 1;
@@ -395,14 +399,12 @@ valadoc_rule_set_start (ValadocRule* self,
 	return result;
 }
 
-
 static Block4Data*
 block4_data_ref (Block4Data* _data4_)
 {
 	g_atomic_int_inc (&_data4_->_ref_count_);
 	return _data4_;
 }
-
 
 static void
 block4_data_unref (void * _userdata_)
@@ -417,27 +419,25 @@ block4_data_unref (void * _userdata_)
 	}
 }
 
-
 static void
 __lambda6_ (Block4Data* _data4_,
             GError** error)
 {
 	ValadocRule* self;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = _data4_->self;
-	_data4_->action (_data4_->action_target, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	_data4_->action (_data4_->action_target, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 ___lambda6__valadoc_rule_action (gpointer self,
@@ -446,15 +446,14 @@ ___lambda6__valadoc_rule_action (gpointer self,
 	__lambda6_ (self, error);
 }
 
-
 ValadocRule*
 valadoc_rule_set_reduce (ValadocRule* self,
                          ValadocRuleAction action,
                          gpointer action_target)
 {
-	ValadocRule* result = NULL;
 	Block4Data* _data4_;
 	ValadocRule* _tmp0_;
+	ValadocRule* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_data4_ = g_slice_new0 (Block4Data);
 	_data4_->_ref_count_ = 1;
@@ -475,14 +474,12 @@ valadoc_rule_set_reduce (ValadocRule* self,
 	return result;
 }
 
-
 static Block5Data*
 block5_data_ref (Block5Data* _data5_)
 {
 	g_atomic_int_inc (&_data5_->_ref_count_);
 	return _data5_;
 }
-
 
 static void
 block5_data_unref (void * _userdata_)
@@ -497,27 +494,25 @@ block5_data_unref (void * _userdata_)
 	}
 }
 
-
 static void
 __lambda7_ (Block5Data* _data5_,
             GError** error)
 {
 	ValadocRule* self;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = _data5_->self;
-	_data5_->action (_data5_->action_target, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	_data5_->action (_data5_->action_target, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 ___lambda7__valadoc_rule_action (gpointer self,
@@ -526,15 +521,14 @@ ___lambda7__valadoc_rule_action (gpointer self,
 	__lambda7_ (self, error);
 }
 
-
 ValadocRule*
 valadoc_rule_set_skip (ValadocRule* self,
                        ValadocRuleAction action,
                        gpointer action_target)
 {
-	ValadocRule* result = NULL;
 	Block5Data* _data5_;
 	ValadocRule* _tmp0_;
+	ValadocRule* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_data5_ = g_slice_new0 (Block5Data);
 	_data5_->_ref_count_ = 1;
@@ -555,7 +549,6 @@ valadoc_rule_set_skip (ValadocRule* self,
 	return result;
 }
 
-
 static gboolean
 valadoc_rule_real_is_optional (ValadocRule* self)
 {
@@ -564,14 +557,12 @@ valadoc_rule_real_is_optional (ValadocRule* self)
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_rule_is_optional (ValadocRule* self)
 {
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALADOC_RULE_GET_CLASS (self)->is_optional (self);
 }
-
 
 static gboolean
 valadoc_rule_real_starts_with_token (ValadocRule* self,
@@ -582,7 +573,6 @@ valadoc_rule_real_starts_with_token (ValadocRule* self,
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_rule_starts_with_token (ValadocRule* self,
                                 ValadocToken* token)
@@ -590,7 +580,6 @@ valadoc_rule_starts_with_token (ValadocRule* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALADOC_RULE_GET_CLASS (self)->starts_with_token (self, token);
 }
-
 
 static gboolean
 valadoc_rule_real_accept_token (ValadocRule* self,
@@ -604,7 +593,6 @@ valadoc_rule_real_accept_token (ValadocRule* self,
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_rule_accept_token (ValadocRule* self,
                            ValadocToken* token,
@@ -616,7 +604,6 @@ valadoc_rule_accept_token (ValadocRule* self,
 	return VALADOC_RULE_GET_CLASS (self)->accept_token (self, token, parser, forward, error);
 }
 
-
 static gboolean
 valadoc_rule_real_would_accept_token (ValadocRule* self,
                                       ValadocToken* token,
@@ -627,7 +614,6 @@ valadoc_rule_real_would_accept_token (ValadocRule* self,
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_rule_would_accept_token (ValadocRule* self,
                                  ValadocToken* token,
@@ -636,7 +622,6 @@ valadoc_rule_would_accept_token (ValadocRule* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALADOC_RULE_GET_CLASS (self)->would_accept_token (self, token, state);
 }
-
 
 static gboolean
 valadoc_rule_real_would_reduce (ValadocRule* self,
@@ -648,7 +633,6 @@ valadoc_rule_real_would_reduce (ValadocRule* self,
 	return _tmp0_;
 }
 
-
 gboolean
 valadoc_rule_would_reduce (ValadocRule* self,
                            ValadocToken* token,
@@ -658,7 +642,6 @@ valadoc_rule_would_reduce (ValadocRule* self,
 	return VALADOC_RULE_GET_CLASS (self)->would_reduce (self, token, state);
 }
 
-
 static gchar*
 valadoc_rule_real_to_string (ValadocRule* self,
                              GObject* state)
@@ -666,7 +649,6 @@ valadoc_rule_real_to_string (ValadocRule* self,
 	g_critical ("Type `%s' does not implement abstract method `valadoc_rule_to_string'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return NULL;
 }
-
 
 gchar*
 valadoc_rule_to_string (ValadocRule* self,
@@ -676,17 +658,16 @@ valadoc_rule_to_string (ValadocRule* self,
 	return VALADOC_RULE_GET_CLASS (self)->to_string (self, state);
 }
 
-
 gboolean
 valadoc_rule_is_optional_rule (ValadocRule* self,
                                GObject* scheme_element)
 {
-	gboolean result = FALSE;
 	ValadocRule* scheme_rule = NULL;
 	ValadocRule* _tmp0_;
 	ValadocRule* _tmp1_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (scheme_element, VALADOC_TYPE_RULE) ? ((ValadocRule*) scheme_element) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_IS_RULE (scheme_element) ? ((ValadocRule*) scheme_element) : NULL);
 	scheme_rule = _tmp0_;
 	_tmp1_ = scheme_rule;
 	if (_tmp1_ != NULL) {
@@ -701,22 +682,21 @@ valadoc_rule_is_optional_rule (ValadocRule* self,
 	return result;
 }
 
-
 gboolean
 valadoc_rule_has_start_token (ValadocRule* self,
                               GObject* scheme_element,
                               ValadocToken* token)
 {
-	gboolean result = FALSE;
 	ValadocTokenType* scheme_token_type = NULL;
 	ValadocTokenType* _tmp0_;
 	ValadocTokenType* _tmp1_;
 	ValadocRule* scheme_rule = NULL;
 	ValadocRule* _tmp3_;
 	ValadocRule* _tmp4_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (token != NULL, FALSE);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (scheme_element, VALADOC_TYPE_TOKEN_TYPE) ? ((ValadocTokenType*) scheme_element) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_IS_TOKEN_TYPE (scheme_element) ? ((ValadocTokenType*) scheme_element) : NULL);
 	scheme_token_type = _tmp0_;
 	_tmp1_ = scheme_token_type;
 	if (_tmp1_ != NULL) {
@@ -726,7 +706,7 @@ valadoc_rule_has_start_token (ValadocRule* self,
 		_g_object_unref0 (scheme_token_type);
 		return result;
 	}
-	_tmp3_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (scheme_element, VALADOC_TYPE_RULE) ? ((ValadocRule*) scheme_element) : NULL);
+	_tmp3_ = _g_object_ref0 (VALADOC_IS_RULE (scheme_element) ? ((ValadocRule*) scheme_element) : NULL);
 	scheme_rule = _tmp3_;
 	_tmp4_ = scheme_rule;
 	if (_tmp4_ != NULL) {
@@ -743,7 +723,6 @@ valadoc_rule_has_start_token (ValadocRule* self,
 	return result;
 }
 
-
 gboolean
 valadoc_rule_try_to_apply (ValadocRule* self,
                            GObject* scheme_element,
@@ -753,7 +732,6 @@ valadoc_rule_try_to_apply (ValadocRule* self,
                            GError** error)
 {
 	gboolean _vala_handled = FALSE;
-	gboolean result = FALSE;
 	ValadocTokenType* scheme_token_type = NULL;
 	ValadocTokenType* _tmp0_;
 	gboolean _tmp1_ = FALSE;
@@ -762,11 +740,12 @@ valadoc_rule_try_to_apply (ValadocRule* self,
 	ValadocRule* _tmp7_;
 	gboolean _tmp8_ = FALSE;
 	ValadocRule* _tmp9_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (token != NULL, FALSE);
 	g_return_val_if_fail (parser != NULL, FALSE);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (scheme_element, VALADOC_TYPE_TOKEN_TYPE) ? ((ValadocTokenType*) scheme_element) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_IS_TOKEN_TYPE (scheme_element) ? ((ValadocTokenType*) scheme_element) : NULL);
 	scheme_token_type = _tmp0_;
 	_tmp2_ = scheme_token_type;
 	if (_tmp2_ != NULL) {
@@ -779,18 +758,18 @@ valadoc_rule_try_to_apply (ValadocRule* self,
 	if (_tmp1_) {
 		ValadocTokenType* _tmp4_;
 		_tmp4_ = scheme_token_type;
-		valadoc_token_type_do_action (_tmp4_, token, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
+		valadoc_token_type_do_action (_tmp4_, token, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
 				gboolean _tmp5_ = FALSE;
-				g_propagate_error (error, _inner_error_);
+				g_propagate_error (error, _inner_error0_);
 				_g_object_unref0 (scheme_token_type);
 				return _tmp5_;
 			} else {
 				gboolean _tmp6_ = FALSE;
 				_g_object_unref0 (scheme_token_type);
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return _tmp6_;
 			}
 		}
@@ -802,7 +781,7 @@ valadoc_rule_try_to_apply (ValadocRule* self,
 		}
 		return result;
 	}
-	_tmp7_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (scheme_element, VALADOC_TYPE_RULE) ? ((ValadocRule*) scheme_element) : NULL);
+	_tmp7_ = _g_object_ref0 (VALADOC_IS_RULE (scheme_element) ? ((ValadocRule*) scheme_element) : NULL);
 	scheme_rule = _tmp7_;
 	_tmp9_ = scheme_rule;
 	if (_tmp9_ != NULL) {
@@ -835,38 +814,36 @@ valadoc_rule_try_to_apply (ValadocRule* self,
 	return result;
 }
 
-
 void
 valadoc_rule_do_start (ValadocRule* self,
                        ValadocParserCallback* parser,
                        GError** error)
 {
 	ValadocRuleAction _tmp0_;
-	void* _tmp0__target;
-	GError * _inner_error_ = NULL;
+	gpointer _tmp0__target;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (parser != NULL);
 	_tmp0_ = self->priv->_start_action;
 	_tmp0__target = self->priv->_start_action_target;
 	if (_tmp0_ != NULL) {
 		ValadocRuleAction _tmp1_;
-		void* _tmp1__target;
+		gpointer _tmp1__target;
 		_tmp1_ = self->priv->_start_action;
 		_tmp1__target = self->priv->_start_action_target;
-		_tmp1_ (_tmp1__target, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		_tmp1_ (_tmp1__target, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
-
 
 void
 valadoc_rule_do_reduce (ValadocRule* self,
@@ -874,25 +851,25 @@ valadoc_rule_do_reduce (ValadocRule* self,
                         GError** error)
 {
 	ValadocRuleAction _tmp0_;
-	void* _tmp0__target;
-	GError * _inner_error_ = NULL;
+	gpointer _tmp0__target;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (parser != NULL);
 	_tmp0_ = self->priv->_reduce_action;
 	_tmp0__target = self->priv->_reduce_action_target;
 	if (_tmp0_ != NULL) {
 		ValadocRuleAction _tmp1_;
-		void* _tmp1__target;
+		gpointer _tmp1__target;
 		_tmp1_ = self->priv->_reduce_action;
 		_tmp1__target = self->priv->_reduce_action_target;
-		_tmp1_ (_tmp1__target, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		_tmp1_ (_tmp1__target, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
@@ -900,53 +877,40 @@ valadoc_rule_do_reduce (ValadocRule* self,
 	valadoc_parser_callback_reduce (parser);
 }
 
-
 void
 valadoc_rule_do_skip (ValadocRule* self,
                       ValadocParserCallback* parser,
                       GError** error)
 {
 	ValadocRuleAction _tmp0_;
-	void* _tmp0__target;
-	GError * _inner_error_ = NULL;
+	gpointer _tmp0__target;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (parser != NULL);
 	_tmp0_ = self->priv->_skip_action;
 	_tmp0__target = self->priv->_skip_action_target;
 	if (_tmp0_ != NULL) {
 		ValadocRuleAction _tmp1_;
-		void* _tmp1__target;
+		gpointer _tmp1__target;
 		_tmp1_ = self->priv->_skip_action;
 		_tmp1__target = self->priv->_skip_action_target;
-		_tmp1_ (_tmp1__target, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		_tmp1_ (_tmp1__target, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
 
-
-const gchar*
-valadoc_rule_get_name (ValadocRule* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_rule_class_init (ValadocRuleClass * klass)
+valadoc_rule_class_init (ValadocRuleClass * klass,
+                         gpointer klass_data)
 {
 	valadoc_rule_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocRule_private_offset);
@@ -961,14 +925,13 @@ valadoc_rule_class_init (ValadocRuleClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_RULE_NAME_PROPERTY, valadoc_rule_properties[VALADOC_RULE_NAME_PROPERTY] = g_param_spec_string ("name", "name", "name", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_rule_instance_init (ValadocRule * self)
+valadoc_rule_instance_init (ValadocRule * self,
+                            gpointer klass)
 {
 	self->priv = valadoc_rule_get_instance_private (self);
 	self->priv->_name = NULL;
 }
-
 
 static void
 valadoc_rule_finalize (GObject * obj)
@@ -991,21 +954,27 @@ valadoc_rule_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_rule_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_rule_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocRule), 0, (GInstanceInitFunc) valadoc_rule_instance_init, NULL };
+	GType valadoc_rule_type_id;
+	valadoc_rule_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocRule", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValadocRule_private_offset = g_type_add_instance_private (valadoc_rule_type_id, sizeof (ValadocRulePrivate));
+	return valadoc_rule_type_id;
+}
 
 GType
 valadoc_rule_get_type (void)
 {
 	static volatile gsize valadoc_rule_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_rule_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocRule), 0, (GInstanceInitFunc) valadoc_rule_instance_init, NULL };
 		GType valadoc_rule_type_id;
-		valadoc_rule_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocRule", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValadocRule_private_offset = g_type_add_instance_private (valadoc_rule_type_id, sizeof (ValadocRulePrivate));
+		valadoc_rule_type_id = valadoc_rule_get_type_once ();
 		g_once_init_leave (&valadoc_rule_type_id__volatile, valadoc_rule_type_id);
 	}
 	return valadoc_rule_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_rule_get_property (GObject * object,
@@ -1024,6 +993,4 @@ _vala_valadoc_rule_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

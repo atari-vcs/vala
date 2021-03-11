@@ -24,17 +24,13 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valacodegen.h"
 #include <vala.h>
-
+#include <glib.h>
 
 struct _ValaEnumRegisterFunctionPrivate {
 	ValaEnum* _enum_reference;
 };
-
 
 static gint ValaEnumRegisterFunction_private_offset;
 static gpointer vala_enum_register_function_parent_class = NULL;
@@ -42,7 +38,7 @@ static gpointer vala_enum_register_function_parent_class = NULL;
 static ValaTypeSymbol* vala_enum_register_function_real_get_type_declaration (ValaTypeRegisterFunction* base);
 static ValaSymbolAccessibility vala_enum_register_function_real_get_accessibility (ValaTypeRegisterFunction* base);
 static void vala_enum_register_function_finalize (ValaTypeRegisterFunction * obj);
-
+static GType vala_enum_register_function_get_type_once (void);
 
 static inline gpointer
 vala_enum_register_function_get_instance_private (ValaEnumRegisterFunction* self)
@@ -50,6 +46,24 @@ vala_enum_register_function_get_instance_private (ValaEnumRegisterFunction* self
 	return G_STRUCT_MEMBER_P (self, ValaEnumRegisterFunction_private_offset);
 }
 
+ValaEnum*
+vala_enum_register_function_get_enum_reference (ValaEnumRegisterFunction* self)
+{
+	ValaEnum* result;
+	ValaEnum* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_enum_reference;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_enum_register_function_set_enum_reference (ValaEnumRegisterFunction* self,
+                                                ValaEnum* value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_enum_reference = value;
+}
 
 /**
  * Creates a new C function to register the specified enum at runtime.
@@ -68,13 +82,11 @@ vala_enum_register_function_construct (GType object_type,
 	return self;
 }
 
-
 ValaEnumRegisterFunction*
 vala_enum_register_function_new (ValaEnum* en)
 {
 	return vala_enum_register_function_construct (VALA_TYPE_ENUM_REGISTER_FUNCTION, en);
 }
-
 
 static gpointer
 _vala_code_node_ref0 (gpointer self)
@@ -82,14 +94,13 @@ _vala_code_node_ref0 (gpointer self)
 	return self ? vala_code_node_ref (self) : NULL;
 }
 
-
 static ValaTypeSymbol*
 vala_enum_register_function_real_get_type_declaration (ValaTypeRegisterFunction* base)
 {
 	ValaEnumRegisterFunction * self;
-	ValaTypeSymbol* result = NULL;
 	ValaEnum* _tmp0_;
 	ValaTypeSymbol* _tmp1_;
+	ValaTypeSymbol* result = NULL;
 	self = (ValaEnumRegisterFunction*) base;
 	_tmp0_ = self->priv->_enum_reference;
 	_tmp1_ = _vala_code_node_ref0 ((ValaTypeSymbol*) _tmp0_);
@@ -97,15 +108,14 @@ vala_enum_register_function_real_get_type_declaration (ValaTypeRegisterFunction*
 	return result;
 }
 
-
 static ValaSymbolAccessibility
 vala_enum_register_function_real_get_accessibility (ValaTypeRegisterFunction* base)
 {
 	ValaEnumRegisterFunction * self;
-	ValaSymbolAccessibility result = 0;
 	ValaEnum* _tmp0_;
 	ValaSymbolAccessibility _tmp1_;
 	ValaSymbolAccessibility _tmp2_;
+	ValaSymbolAccessibility result = 0;
 	self = (ValaEnumRegisterFunction*) base;
 	_tmp0_ = self->priv->_enum_reference;
 	_tmp1_ = vala_symbol_get_access ((ValaSymbol*) _tmp0_);
@@ -114,30 +124,9 @@ vala_enum_register_function_real_get_accessibility (ValaTypeRegisterFunction* ba
 	return result;
 }
 
-
-ValaEnum*
-vala_enum_register_function_get_enum_reference (ValaEnumRegisterFunction* self)
-{
-	ValaEnum* result;
-	ValaEnum* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_enum_reference;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_enum_register_function_set_enum_reference (ValaEnumRegisterFunction* self,
-                                                ValaEnum* value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_enum_reference = value;
-}
-
-
 static void
-vala_enum_register_function_class_init (ValaEnumRegisterFunctionClass * klass)
+vala_enum_register_function_class_init (ValaEnumRegisterFunctionClass * klass,
+                                        gpointer klass_data)
 {
 	vala_enum_register_function_parent_class = g_type_class_peek_parent (klass);
 	((ValaTypeRegisterFunctionClass *) klass)->finalize = vala_enum_register_function_finalize;
@@ -146,13 +135,12 @@ vala_enum_register_function_class_init (ValaEnumRegisterFunctionClass * klass)
 	((ValaTypeRegisterFunctionClass *) klass)->get_accessibility = (ValaSymbolAccessibility (*) (ValaTypeRegisterFunction*)) vala_enum_register_function_real_get_accessibility;
 }
 
-
 static void
-vala_enum_register_function_instance_init (ValaEnumRegisterFunction * self)
+vala_enum_register_function_instance_init (ValaEnumRegisterFunction * self,
+                                           gpointer klass)
 {
 	self->priv = vala_enum_register_function_get_instance_private (self);
 }
-
 
 static void
 vala_enum_register_function_finalize (ValaTypeRegisterFunction * obj)
@@ -162,23 +150,28 @@ vala_enum_register_function_finalize (ValaTypeRegisterFunction * obj)
 	VALA_TYPEREGISTER_FUNCTION_CLASS (vala_enum_register_function_parent_class)->finalize (obj);
 }
 
-
 /**
  * C function to register an enum at runtime.
  */
+static GType
+vala_enum_register_function_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaEnumRegisterFunctionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_enum_register_function_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaEnumRegisterFunction), 0, (GInstanceInitFunc) vala_enum_register_function_instance_init, NULL };
+	GType vala_enum_register_function_type_id;
+	vala_enum_register_function_type_id = g_type_register_static (VALA_TYPE_TYPEREGISTER_FUNCTION, "ValaEnumRegisterFunction", &g_define_type_info, 0);
+	ValaEnumRegisterFunction_private_offset = g_type_add_instance_private (vala_enum_register_function_type_id, sizeof (ValaEnumRegisterFunctionPrivate));
+	return vala_enum_register_function_type_id;
+}
+
 GType
 vala_enum_register_function_get_type (void)
 {
 	static volatile gsize vala_enum_register_function_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_enum_register_function_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaEnumRegisterFunctionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_enum_register_function_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaEnumRegisterFunction), 0, (GInstanceInitFunc) vala_enum_register_function_instance_init, NULL };
 		GType vala_enum_register_function_type_id;
-		vala_enum_register_function_type_id = g_type_register_static (VALA_TYPE_TYPEREGISTER_FUNCTION, "ValaEnumRegisterFunction", &g_define_type_info, 0);
-		ValaEnumRegisterFunction_private_offset = g_type_add_instance_private (vala_enum_register_function_type_id, sizeof (ValaEnumRegisterFunctionPrivate));
+		vala_enum_register_function_type_id = vala_enum_register_function_get_type_once ();
 		g_once_init_leave (&vala_enum_register_function_type_id__volatile, vala_enum_register_function_type_id);
 	}
 	return vala_enum_register_function_type_id__volatile;
 }
-
-
 

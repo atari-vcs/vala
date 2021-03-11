@@ -25,7 +25,9 @@
 using GLib;
 
 /**
- * Represents an array access expression e.g. "a[1,2]".
+ * Represents an array access expression.
+ *
+ * {{{ foo[1,2] }}}
  */
 public class Vala.ElementAccess : Expression {
 	/**
@@ -53,11 +55,11 @@ public class Vala.ElementAccess : Expression {
 		index.parent_node = this;
 	}
 
-	public List<Expression> get_indices () {
+	public unowned List<Expression> get_indices () {
 		return indices;
 	}
 
-	public ElementAccess (Expression container, SourceReference source_reference) {
+	public ElementAccess (Expression container, SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 		this.container = container;
 	}
@@ -120,6 +122,13 @@ public class Vala.ElementAccess : Expression {
 		return container.is_accessible (sym);
 	}
 
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		container.get_error_types (collection, source_reference);
+		foreach (Expression e in indices) {
+			e.get_error_types (collection, source_reference);
+		}
+	}
+
 	public override bool check (CodeContext context) {
 		if (checked) {
 			return !error;
@@ -146,7 +155,16 @@ public class Vala.ElementAccess : Expression {
 				Report.error (source_reference, "Element access with more than one dimension is not supported for signals");
 				return false;
 			}
-			get_indices ().get (0).target_type = context.analyzer.string_type.copy ();
+
+			var detail_expr = get_indices ().get (0);
+			detail_expr.target_type = context.analyzer.string_type.copy ();
+			detail_expr.check (context);
+
+			if (detail_expr.value_type is NullType || !detail_expr.value_type.compatible (context.analyzer.string_type)) {
+				error = true;
+				Report.error (detail_expr.source_reference, "only string details are supported");
+				return false;
+			}
 		}
 
 		foreach (Expression index in get_indices ()) {
@@ -155,16 +173,16 @@ public class Vala.ElementAccess : Expression {
 
 		bool index_int_type_check = true;
 
-		var pointer_type = container.value_type as PointerType;
+		unowned PointerType? pointer_type = container.value_type as PointerType;
 
 		/* assign a value_type when possible */
 		if (container.value_type is ArrayType) {
-			var array_type = (ArrayType) container.value_type;
+			unowned ArrayType array_type = (ArrayType) container.value_type;
 			value_type = array_type.element_type.copy ();
 			if (!lvalue) {
 				value_type.value_owned = false;
 			} else {
-				var ma = container as MemberAccess;
+				unowned MemberAccess? ma = container as MemberAccess;
 				if (context.profile == Profile.GOBJECT && ma != null && ma.symbol_reference is ArrayLengthField) {
 					// propagate lvalue for gobject length access
 					ma.inner.lvalue = true;
@@ -179,8 +197,10 @@ public class Vala.ElementAccess : Expression {
 			}
 
 			if (array_type.rank < get_indices ().size) {
+				error = true;
 				Report.error (source_reference, "%d extra indices for element access".printf (get_indices ().size - array_type.rank));
 			} else if (array_type.rank > get_indices ().size) {
+				error = true;
 				Report.error (source_reference, "%d missing indices for element access".printf (array_type.rank - get_indices ().size));
 			}
 		} else if (pointer_type != null && !pointer_type.base_type.is_reference_type_or_type_parameter ()) {
@@ -193,7 +213,7 @@ public class Vala.ElementAccess : Expression {
 		} else {
 			if (lvalue) {
 				var set_method = container.value_type.get_member ("set") as Method;
-				var assignment = parent_node as Assignment;
+				unowned Assignment? assignment = parent_node as Assignment;
 				if (set_method != null && set_method.return_type is VoidType && assignment != null) {
 					return !error;
 				}
@@ -213,6 +233,7 @@ public class Vala.ElementAccess : Expression {
 
 			error = true;
 			Report.error (source_reference, "The expression `%s' does not denote an array".printf (container.value_type.to_string ()));
+			return false;
 		}
 
 		if (index_int_type_check) {
@@ -230,6 +251,8 @@ public class Vala.ElementAccess : Expression {
 				}
 			}
 		}
+
+		value_type.check (context);
 
 		return !error;
 	}

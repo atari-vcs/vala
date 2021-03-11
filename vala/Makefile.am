@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"vala\" \
 	$(COVERAGE_CFLAGS) \
 	-I$(top_srcdir)/gee \
 	$(GLIB_CFLAGS) \
@@ -63,6 +64,8 @@ libvala_la_VALASOURCES = \
 	valadatatype.vala \
 	valadeclarationstatement.vala \
 	valadelegate.vala \
+	valadelegatedestroyfield.vala \
+	valadelegatetargetfield.vala \
 	valadelegatetype.vala \
 	valadeletestatement.vala \
 	valadestructor.vala \
@@ -87,6 +90,8 @@ libvala_la_VALASOURCES = \
 	valaforeachstatement.vala \
 	valaforstatement.vala \
 	valagirparser.vala \
+	valagenericdestroyfield.vala \
+	valagenericdupfield.vala \
 	valagenerictype.vala \
 	valagenieparser.vala \
 	valageniescanner.vala \
@@ -158,6 +163,7 @@ libvala_la_VALASOURCES = \
 	valatemplate.vala \
 	valathrowstatement.vala \
 	valatokentype.vala \
+	valatraversevisitor.vala \
 	valatrystatement.vala \
 	valatuple.vala \
 	valatypecheck.vala \
@@ -172,6 +178,7 @@ libvala_la_VALASOURCES = \
 	valausingdirective.vala \
 	valavaluetype.vala \
 	valavariable.vala \
+	valavartype.vala \
 	valaversion.vala \
 	valaversionattribute.vala \
 	valavoidtype.vala \
