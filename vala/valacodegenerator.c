@@ -23,26 +23,24 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-
+#include <glib.h>
 
 static gpointer vala_code_generator_parent_class = NULL;
 
 static void vala_code_generator_real_emit (ValaCodeGenerator* self,
                                     ValaCodeContext* context);
 static ValaTargetValue* vala_code_generator_real_load_local (ValaCodeGenerator* self,
-                                                      ValaLocalVariable* local);
+                                                      ValaLocalVariable* local,
+                                                      ValaExpression* expr);
 static void vala_code_generator_real_store_local (ValaCodeGenerator* self,
                                            ValaLocalVariable* local,
                                            ValaTargetValue* value,
                                            gboolean initializer,
                                            ValaSourceReference* source_reference);
 static ValaTargetValue* vala_code_generator_real_load_parameter (ValaCodeGenerator* self,
-                                                          ValaParameter* param);
+                                                          ValaParameter* param,
+                                                          ValaExpression* expr);
 static void vala_code_generator_real_store_parameter (ValaCodeGenerator* self,
                                                ValaParameter* param,
                                                ValaTargetValue* value,
@@ -50,13 +48,14 @@ static void vala_code_generator_real_store_parameter (ValaCodeGenerator* self,
                                                ValaSourceReference* source_reference);
 static ValaTargetValue* vala_code_generator_real_load_field (ValaCodeGenerator* self,
                                                       ValaField* field,
-                                                      ValaTargetValue* instance);
+                                                      ValaTargetValue* instance,
+                                                      ValaExpression* expr);
 static void vala_code_generator_real_store_field (ValaCodeGenerator* self,
                                            ValaField* field,
                                            ValaTargetValue* instance,
                                            ValaTargetValue* value,
                                            ValaSourceReference* source_reference);
-
+static GType vala_code_generator_get_type_once (void);
 
 /**
  * Generate and emit C code for the specified code context.
@@ -70,7 +69,6 @@ vala_code_generator_real_emit (ValaCodeGenerator* self,
 	g_return_if_fail (context != NULL);
 }
 
-
 void
 vala_code_generator_emit (ValaCodeGenerator* self,
                           ValaCodeContext* context)
@@ -79,24 +77,23 @@ vala_code_generator_emit (ValaCodeGenerator* self,
 	VALA_CODE_GENERATOR_GET_CLASS (self)->emit (self, context);
 }
 
-
 static ValaTargetValue*
 vala_code_generator_real_load_local (ValaCodeGenerator* self,
-                                     ValaLocalVariable* local)
+                                     ValaLocalVariable* local,
+                                     ValaExpression* expr)
 {
 	g_critical ("Type `%s' does not implement abstract method `vala_code_generator_load_local'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return NULL;
 }
 
-
 ValaTargetValue*
 vala_code_generator_load_local (ValaCodeGenerator* self,
-                                ValaLocalVariable* local)
+                                ValaLocalVariable* local,
+                                ValaExpression* expr)
 {
 	g_return_val_if_fail (self != NULL, NULL);
-	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_local (self, local);
+	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_local (self, local, expr);
 }
-
 
 static void
 vala_code_generator_real_store_local (ValaCodeGenerator* self,
@@ -109,7 +106,6 @@ vala_code_generator_real_store_local (ValaCodeGenerator* self,
 	return;
 }
 
-
 void
 vala_code_generator_store_local (ValaCodeGenerator* self,
                                  ValaLocalVariable* local,
@@ -121,24 +117,23 @@ vala_code_generator_store_local (ValaCodeGenerator* self,
 	VALA_CODE_GENERATOR_GET_CLASS (self)->store_local (self, local, value, initializer, source_reference);
 }
 
-
 static ValaTargetValue*
 vala_code_generator_real_load_parameter (ValaCodeGenerator* self,
-                                         ValaParameter* param)
+                                         ValaParameter* param,
+                                         ValaExpression* expr)
 {
 	g_critical ("Type `%s' does not implement abstract method `vala_code_generator_load_parameter'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return NULL;
 }
 
-
 ValaTargetValue*
 vala_code_generator_load_parameter (ValaCodeGenerator* self,
-                                    ValaParameter* param)
+                                    ValaParameter* param,
+                                    ValaExpression* expr)
 {
 	g_return_val_if_fail (self != NULL, NULL);
-	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_parameter (self, param);
+	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_parameter (self, param, expr);
 }
-
 
 static void
 vala_code_generator_real_store_parameter (ValaCodeGenerator* self,
@@ -151,7 +146,6 @@ vala_code_generator_real_store_parameter (ValaCodeGenerator* self,
 	return;
 }
 
-
 void
 vala_code_generator_store_parameter (ValaCodeGenerator* self,
                                      ValaParameter* param,
@@ -163,26 +157,25 @@ vala_code_generator_store_parameter (ValaCodeGenerator* self,
 	VALA_CODE_GENERATOR_GET_CLASS (self)->store_parameter (self, param, value, capturing_parameter, source_reference);
 }
 
-
 static ValaTargetValue*
 vala_code_generator_real_load_field (ValaCodeGenerator* self,
                                      ValaField* field,
-                                     ValaTargetValue* instance)
+                                     ValaTargetValue* instance,
+                                     ValaExpression* expr)
 {
 	g_critical ("Type `%s' does not implement abstract method `vala_code_generator_load_field'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return NULL;
 }
 
-
 ValaTargetValue*
 vala_code_generator_load_field (ValaCodeGenerator* self,
                                 ValaField* field,
-                                ValaTargetValue* instance)
+                                ValaTargetValue* instance,
+                                ValaExpression* expr)
 {
 	g_return_val_if_fail (self != NULL, NULL);
-	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_field (self, field, instance);
+	return VALA_CODE_GENERATOR_GET_CLASS (self)->load_field (self, field, instance, expr);
 }
-
 
 static void
 vala_code_generator_real_store_field (ValaCodeGenerator* self,
@@ -195,7 +188,6 @@ vala_code_generator_real_store_field (ValaCodeGenerator* self,
 	return;
 }
 
-
 void
 vala_code_generator_store_field (ValaCodeGenerator* self,
                                  ValaField* field,
@@ -207,7 +199,6 @@ vala_code_generator_store_field (ValaCodeGenerator* self,
 	VALA_CODE_GENERATOR_GET_CLASS (self)->store_field (self, field, instance, value, source_reference);
 }
 
-
 ValaCodeGenerator*
 vala_code_generator_construct (GType object_type)
 {
@@ -216,42 +207,47 @@ vala_code_generator_construct (GType object_type)
 	return self;
 }
 
-
 static void
-vala_code_generator_class_init (ValaCodeGeneratorClass * klass)
+vala_code_generator_class_init (ValaCodeGeneratorClass * klass,
+                                gpointer klass_data)
 {
 	vala_code_generator_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeGeneratorClass *) klass)->emit = (void (*) (ValaCodeGenerator*, ValaCodeContext*)) vala_code_generator_real_emit;
-	((ValaCodeGeneratorClass *) klass)->load_local = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaLocalVariable*)) vala_code_generator_real_load_local;
+	((ValaCodeGeneratorClass *) klass)->load_local = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaLocalVariable*, ValaExpression*)) vala_code_generator_real_load_local;
 	((ValaCodeGeneratorClass *) klass)->store_local = (void (*) (ValaCodeGenerator*, ValaLocalVariable*, ValaTargetValue*, gboolean, ValaSourceReference*)) vala_code_generator_real_store_local;
-	((ValaCodeGeneratorClass *) klass)->load_parameter = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaParameter*)) vala_code_generator_real_load_parameter;
+	((ValaCodeGeneratorClass *) klass)->load_parameter = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaParameter*, ValaExpression*)) vala_code_generator_real_load_parameter;
 	((ValaCodeGeneratorClass *) klass)->store_parameter = (void (*) (ValaCodeGenerator*, ValaParameter*, ValaTargetValue*, gboolean, ValaSourceReference*)) vala_code_generator_real_store_parameter;
-	((ValaCodeGeneratorClass *) klass)->load_field = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaField*, ValaTargetValue*)) vala_code_generator_real_load_field;
+	((ValaCodeGeneratorClass *) klass)->load_field = (ValaTargetValue* (*) (ValaCodeGenerator*, ValaField*, ValaTargetValue*, ValaExpression*)) vala_code_generator_real_load_field;
 	((ValaCodeGeneratorClass *) klass)->store_field = (void (*) (ValaCodeGenerator*, ValaField*, ValaTargetValue*, ValaTargetValue*, ValaSourceReference*)) vala_code_generator_real_store_field;
 }
 
-
 static void
-vala_code_generator_instance_init (ValaCodeGenerator * self)
+vala_code_generator_instance_init (ValaCodeGenerator * self,
+                                   gpointer klass)
 {
 }
-
 
 /**
  * Abstract code visitor generating code.
  */
+static GType
+vala_code_generator_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCodeGeneratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_code_generator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCodeGenerator), 0, (GInstanceInitFunc) vala_code_generator_instance_init, NULL };
+	GType vala_code_generator_type_id;
+	vala_code_generator_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValaCodeGenerator", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return vala_code_generator_type_id;
+}
+
 GType
 vala_code_generator_get_type (void)
 {
 	static volatile gsize vala_code_generator_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_code_generator_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCodeGeneratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_code_generator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCodeGenerator), 0, (GInstanceInitFunc) vala_code_generator_instance_init, NULL };
 		GType vala_code_generator_type_id;
-		vala_code_generator_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValaCodeGenerator", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+		vala_code_generator_type_id = vala_code_generator_get_type_once ();
 		g_once_init_leave (&vala_code_generator_type_id__volatile, vala_code_generator_type_id);
 	}
 	return vala_code_generator_type_id__volatile;
 }
-
-
 

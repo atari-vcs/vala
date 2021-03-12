@@ -23,13 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <vala.h>
+#include <glib-object.h>
 #include <valagee.h>
 #include <valadoc.h>
-
+#include <glib.h>
 
 #define VALADOC_API_TYPE_INITIALIZER_BUILDER (valadoc_api_initializer_builder_get_type ())
 #define VALADOC_API_INITIALIZER_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_API_TYPE_INITIALIZER_BUILDER, ValadocApiInitializerBuilder))
@@ -62,11 +60,11 @@ struct _ValadocApiInitializerBuilderPrivate {
 	ValadocApiSignatureBuilder* signature;
 };
 
-
 static gint ValadocApiInitializerBuilder_private_offset;
 static gpointer valadoc_api_initializer_builder_parent_class = NULL;
 
 G_GNUC_INTERNAL GType valadoc_api_initializer_builder_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocApiInitializerBuilder, vala_code_visitor_unref)
 static ValadocApiSymbol* valadoc_api_initializer_builder_resolve (ValadocApiInitializerBuilder* self,
                                                            ValaSymbol* symbol);
 static void valadoc_api_initializer_builder_write_node (ValadocApiInitializerBuilder* self,
@@ -161,7 +159,7 @@ static void valadoc_api_initializer_builder_real_visit_error_domain (ValaCodeVis
 static void valadoc_api_initializer_builder_real_visit_property (ValaCodeVisitor* base,
                                                           ValaProperty* prop);
 static void valadoc_api_initializer_builder_finalize (ValaCodeVisitor * obj);
-
+static GType valadoc_api_initializer_builder_get_type_once (void);
 
 static inline gpointer
 valadoc_api_initializer_builder_get_instance_private (ValadocApiInitializerBuilder* self)
@@ -169,14 +167,13 @@ valadoc_api_initializer_builder_get_instance_private (ValadocApiInitializerBuild
 	return G_STRUCT_MEMBER_P (self, ValadocApiInitializerBuilder_private_offset);
 }
 
-
 static ValadocApiSymbol*
 valadoc_api_initializer_builder_resolve (ValadocApiInitializerBuilder* self,
                                          ValaSymbol* symbol)
 {
-	ValadocApiSymbol* result = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
+	ValadocApiSymbol* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = self->priv->symbol_map;
@@ -184,7 +181,6 @@ valadoc_api_initializer_builder_resolve (ValadocApiInitializerBuilder* self,
 	result = (ValadocApiSymbol*) _tmp1_;
 	return result;
 }
-
 
 static void
 valadoc_api_initializer_builder_write_node (ValadocApiInitializerBuilder* self,
@@ -202,13 +198,11 @@ valadoc_api_initializer_builder_write_node (ValadocApiInitializerBuilder* self,
 	_g_object_unref0 (_tmp2_);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_api_initializer_builder_write_type (ValadocApiInitializerBuilder* self,
@@ -219,18 +213,19 @@ valadoc_api_initializer_builder_write_type (ValadocApiInitializerBuilder* self,
 	ValaList* type_args = NULL;
 	ValaList* _tmp5_;
 	ValaList* _tmp6_;
-	gint _tmp7_;
+	ValaList* _tmp7_;
 	gint _tmp8_;
-	gboolean _tmp32_;
-	gboolean _tmp33_;
+	gint _tmp9_;
+	gboolean _tmp30_;
+	gboolean _tmp31_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (vsymbol != NULL);
-	_tmp0_ = vala_data_type_get_data_type (vsymbol);
+	_tmp0_ = vala_data_type_get_type_symbol (vsymbol);
 	_tmp1_ = _tmp0_;
 	if (_tmp1_ != NULL) {
 		ValaTypeSymbol* _tmp2_;
 		ValaTypeSymbol* _tmp3_;
-		_tmp2_ = vala_data_type_get_data_type (vsymbol);
+		_tmp2_ = vala_data_type_get_type_symbol (vsymbol);
 		_tmp3_ = _tmp2_;
 		valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) _tmp3_);
 	} else {
@@ -239,100 +234,94 @@ valadoc_api_initializer_builder_write_type (ValadocApiInitializerBuilder* self,
 		valadoc_api_signature_builder_append_literal (_tmp4_, "null", TRUE);
 	}
 	_tmp5_ = vala_data_type_get_type_arguments (vsymbol);
-	type_args = _tmp5_;
-	_tmp6_ = type_args;
-	_tmp7_ = vala_collection_get_size ((ValaCollection*) _tmp6_);
-	_tmp8_ = _tmp7_;
-	if (_tmp8_ > 0) {
-		ValadocApiSignatureBuilder* _tmp9_;
+	_tmp6_ = _vala_iterable_ref0 (_tmp5_);
+	type_args = _tmp6_;
+	_tmp7_ = type_args;
+	_tmp8_ = vala_collection_get_size ((ValaCollection*) _tmp7_);
+	_tmp9_ = _tmp8_;
+	if (_tmp9_ > 0) {
+		ValadocApiSignatureBuilder* _tmp10_;
 		gboolean first = FALSE;
-		ValadocApiSignatureBuilder* _tmp31_;
-		_tmp9_ = self->priv->signature;
-		valadoc_api_signature_builder_append (_tmp9_, "<", TRUE);
+		ValadocApiSignatureBuilder* _tmp29_;
+		_tmp10_ = self->priv->signature;
+		valadoc_api_signature_builder_append (_tmp10_, "<", TRUE);
 		first = TRUE;
 		{
 			ValaList* _type_arg_list = NULL;
-			ValaList* _tmp10_;
 			ValaList* _tmp11_;
-			gint _type_arg_size = 0;
 			ValaList* _tmp12_;
-			gint _tmp13_;
+			gint _type_arg_size = 0;
+			ValaList* _tmp13_;
 			gint _tmp14_;
+			gint _tmp15_;
 			gint _type_arg_index = 0;
-			_tmp10_ = type_args;
-			_tmp11_ = _vala_iterable_ref0 (_tmp10_);
-			_type_arg_list = _tmp11_;
-			_tmp12_ = _type_arg_list;
-			_tmp13_ = vala_collection_get_size ((ValaCollection*) _tmp12_);
-			_tmp14_ = _tmp13_;
-			_type_arg_size = _tmp14_;
+			_tmp11_ = type_args;
+			_tmp12_ = _vala_iterable_ref0 (_tmp11_);
+			_type_arg_list = _tmp12_;
+			_tmp13_ = _type_arg_list;
+			_tmp14_ = vala_collection_get_size ((ValaCollection*) _tmp13_);
+			_tmp15_ = _tmp14_;
+			_type_arg_size = _tmp15_;
 			_type_arg_index = -1;
 			while (TRUE) {
-				gint _tmp15_;
 				gint _tmp16_;
 				gint _tmp17_;
 				ValaDataType* type_arg = NULL;
 				ValaList* _tmp18_;
-				gint _tmp19_;
-				gpointer _tmp20_;
-				gboolean _tmp21_;
-				ValaDataType* _tmp23_;
-				gboolean _tmp24_;
-				gboolean _tmp25_;
-				ValadocApiSignatureBuilder* _tmp27_;
-				ValaDataType* _tmp28_;
-				gchar* _tmp29_;
-				gchar* _tmp30_;
-				_tmp15_ = _type_arg_index;
-				_type_arg_index = _tmp15_ + 1;
+				gpointer _tmp19_;
+				ValaDataType* _tmp21_;
+				gboolean _tmp22_;
+				gboolean _tmp23_;
+				ValadocApiSignatureBuilder* _tmp25_;
+				ValaDataType* _tmp26_;
+				gchar* _tmp27_;
+				gchar* _tmp28_;
+				_type_arg_index = _type_arg_index + 1;
 				_tmp16_ = _type_arg_index;
 				_tmp17_ = _type_arg_size;
 				if (!(_tmp16_ < _tmp17_)) {
 					break;
 				}
 				_tmp18_ = _type_arg_list;
-				_tmp19_ = _type_arg_index;
-				_tmp20_ = vala_list_get (_tmp18_, _tmp19_);
-				type_arg = (ValaDataType*) _tmp20_;
-				_tmp21_ = first;
-				if (!_tmp21_) {
-					ValadocApiSignatureBuilder* _tmp22_;
-					_tmp22_ = self->priv->signature;
-					valadoc_api_signature_builder_append (_tmp22_, ",", TRUE);
+				_tmp19_ = vala_list_get (_tmp18_, _type_arg_index);
+				type_arg = (ValaDataType*) _tmp19_;
+				if (!first) {
+					ValadocApiSignatureBuilder* _tmp20_;
+					_tmp20_ = self->priv->signature;
+					valadoc_api_signature_builder_append (_tmp20_, ",", TRUE);
 				} else {
 					first = FALSE;
 				}
-				_tmp23_ = type_arg;
-				_tmp24_ = vala_data_type_get_value_owned (_tmp23_);
-				_tmp25_ = _tmp24_;
-				if (!_tmp25_) {
-					ValadocApiSignatureBuilder* _tmp26_;
-					_tmp26_ = self->priv->signature;
-					valadoc_api_signature_builder_append_keyword (_tmp26_, "weak", TRUE);
+				_tmp21_ = type_arg;
+				_tmp22_ = vala_data_type_get_value_owned (_tmp21_);
+				_tmp23_ = _tmp22_;
+				if (!_tmp23_) {
+					ValadocApiSignatureBuilder* _tmp24_;
+					_tmp24_ = self->priv->signature;
+					valadoc_api_signature_builder_append_keyword (_tmp24_, "weak", TRUE);
 				}
-				_tmp27_ = self->priv->signature;
-				_tmp28_ = type_arg;
-				_tmp29_ = vala_data_type_to_qualified_string (_tmp28_, NULL);
-				_tmp30_ = _tmp29_;
-				valadoc_api_signature_builder_append (_tmp27_, _tmp30_, TRUE);
-				_g_free0 (_tmp30_);
+				_tmp25_ = self->priv->signature;
+				_tmp26_ = type_arg;
+				_tmp27_ = vala_data_type_to_qualified_string (_tmp26_, NULL);
+				_tmp28_ = _tmp27_;
+				valadoc_api_signature_builder_append (_tmp25_, _tmp28_, TRUE);
+				_g_free0 (_tmp28_);
 				_vala_code_node_unref0 (type_arg);
 			}
 			_vala_iterable_unref0 (_type_arg_list);
 		}
-		_tmp31_ = self->priv->signature;
-		valadoc_api_signature_builder_append (_tmp31_, ">", TRUE);
+		_tmp29_ = self->priv->signature;
+		valadoc_api_signature_builder_append (_tmp29_, ">", TRUE);
 	}
-	_tmp32_ = vala_data_type_get_nullable (vsymbol);
-	_tmp33_ = _tmp32_;
-	if (_tmp33_) {
-		ValadocApiSignatureBuilder* _tmp34_;
-		_tmp34_ = self->priv->signature;
-		valadoc_api_signature_builder_append (_tmp34_, "?", TRUE);
+	_tmp30_ = vala_data_type_get_nullable (vsymbol);
+	_tmp31_ = _tmp30_;
+	if (_tmp31_) {
+		ValadocApiSignatureBuilder* _tmp32_;
+		_tmp32_ = self->priv->signature;
+		valadoc_api_signature_builder_append (_tmp32_, "?", TRUE);
 	}
 	_vala_iterable_unref0 (type_args);
 }
-
 
 /**
  * {@inheritDoc}
@@ -347,9 +336,9 @@ valadoc_api_initializer_builder_real_visit_array_creation_expression (ValaCodeVi
 	ValaDataType* _tmp2_;
 	ValadocApiSignatureBuilder* _tmp3_;
 	gboolean first = FALSE;
-	ValadocApiSignatureBuilder* _tmp17_;
-	ValaInitializerList* _tmp18_;
-	ValaInitializerList* _tmp19_;
+	ValadocApiSignatureBuilder* _tmp15_;
+	ValaInitializerList* _tmp16_;
+	ValaInitializerList* _tmp17_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = self->priv->signature;
@@ -363,68 +352,63 @@ valadoc_api_initializer_builder_real_visit_array_creation_expression (ValaCodeVi
 	{
 		ValaList* _size_list = NULL;
 		ValaList* _tmp4_;
-		gint _size_size = 0;
 		ValaList* _tmp5_;
-		gint _tmp6_;
+		gint _size_size = 0;
+		ValaList* _tmp6_;
 		gint _tmp7_;
+		gint _tmp8_;
 		gint _size_index = 0;
 		_tmp4_ = vala_array_creation_expression_get_sizes (expr);
-		_size_list = _tmp4_;
-		_tmp5_ = _size_list;
-		_tmp6_ = vala_collection_get_size ((ValaCollection*) _tmp5_);
-		_tmp7_ = _tmp6_;
-		_size_size = _tmp7_;
+		_tmp5_ = _vala_iterable_ref0 (_tmp4_);
+		_size_list = _tmp5_;
+		_tmp6_ = _size_list;
+		_tmp7_ = vala_collection_get_size ((ValaCollection*) _tmp6_);
+		_tmp8_ = _tmp7_;
+		_size_size = _tmp8_;
 		_size_index = -1;
 		while (TRUE) {
-			gint _tmp8_;
 			gint _tmp9_;
 			gint _tmp10_;
 			ValaExpression* size = NULL;
 			ValaList* _tmp11_;
-			gint _tmp12_;
-			gpointer _tmp13_;
-			gboolean _tmp14_;
-			ValaExpression* _tmp16_;
-			_tmp8_ = _size_index;
-			_size_index = _tmp8_ + 1;
+			gpointer _tmp12_;
+			ValaExpression* _tmp14_;
+			_size_index = _size_index + 1;
 			_tmp9_ = _size_index;
 			_tmp10_ = _size_size;
 			if (!(_tmp9_ < _tmp10_)) {
 				break;
 			}
 			_tmp11_ = _size_list;
-			_tmp12_ = _size_index;
-			_tmp13_ = vala_list_get (_tmp11_, _tmp12_);
-			size = (ValaExpression*) _tmp13_;
-			_tmp14_ = first;
-			if (!_tmp14_) {
-				ValadocApiSignatureBuilder* _tmp15_;
-				_tmp15_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp15_, ", ", FALSE);
+			_tmp12_ = vala_list_get (_tmp11_, _size_index);
+			size = (ValaExpression*) _tmp12_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp13_;
+				_tmp13_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp13_, ", ", FALSE);
 			}
-			_tmp16_ = size;
-			vala_code_node_accept ((ValaCodeNode*) _tmp16_, (ValaCodeVisitor*) self);
+			_tmp14_ = size;
+			vala_code_node_accept ((ValaCodeNode*) _tmp14_, (ValaCodeVisitor*) self);
 			first = FALSE;
 			_vala_code_node_unref0 (size);
 		}
 		_vala_iterable_unref0 (_size_list);
 	}
-	_tmp17_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp17_, "]", FALSE);
-	_tmp18_ = vala_array_creation_expression_get_initializer_list (expr);
-	_tmp19_ = _tmp18_;
-	if (_tmp19_ != NULL) {
-		ValadocApiSignatureBuilder* _tmp20_;
-		ValaInitializerList* _tmp21_;
-		ValaInitializerList* _tmp22_;
-		_tmp20_ = self->priv->signature;
-		valadoc_api_signature_builder_append (_tmp20_, " ", FALSE);
-		_tmp21_ = vala_array_creation_expression_get_initializer_list (expr);
-		_tmp22_ = _tmp21_;
-		vala_code_node_accept ((ValaCodeNode*) _tmp22_, (ValaCodeVisitor*) self);
+	_tmp15_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp15_, "]", FALSE);
+	_tmp16_ = vala_array_creation_expression_get_initializer_list (expr);
+	_tmp17_ = _tmp16_;
+	if (_tmp17_ != NULL) {
+		ValadocApiSignatureBuilder* _tmp18_;
+		ValaInitializerList* _tmp19_;
+		ValaInitializerList* _tmp20_;
+		_tmp18_ = self->priv->signature;
+		valadoc_api_signature_builder_append (_tmp18_, " ", FALSE);
+		_tmp19_ = vala_array_creation_expression_get_initializer_list (expr);
+		_tmp20_ = _tmp19_;
+		vala_code_node_accept ((ValaCodeNode*) _tmp20_, (ValaCodeVisitor*) self);
 	}
 }
-
 
 static gpointer
 _vala_map_ref0 (gpointer self)
@@ -432,13 +416,11 @@ _vala_map_ref0 (gpointer self)
 	return self ? vala_map_ref (self) : NULL;
 }
 
-
 static gpointer
 _valadoc_api_signature_builder_ref0 (gpointer self)
 {
 	return self ? valadoc_api_signature_builder_ref (self) : NULL;
 }
-
 
 G_GNUC_INTERNAL ValadocApiInitializerBuilder*
 valadoc_api_initializer_builder_construct (GType object_type,
@@ -460,14 +442,12 @@ valadoc_api_initializer_builder_construct (GType object_type,
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocApiInitializerBuilder*
 valadoc_api_initializer_builder_new (ValadocApiSignatureBuilder* signature,
                                      ValaHashMap* symbol_map)
 {
 	return valadoc_api_initializer_builder_construct (VALADOC_API_TYPE_INITIALIZER_BUILDER, signature, symbol_map);
 }
-
 
 /**
  * {@inheritDoc}
@@ -481,8 +461,9 @@ valadoc_api_initializer_builder_real_visit_binary_expression (ValaCodeVisitor* b
 	ValaExpression* _tmp1_;
 	ValaBinaryOperator _tmp2_;
 	ValaBinaryOperator _tmp3_;
-	ValaExpression* _tmp25_;
-	ValaExpression* _tmp26_;
+	ValadocApiSignatureBuilder* _tmp10_;
+	ValaExpression* _tmp11_;
+	ValaExpression* _tmp12_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = vala_binary_expression_get_left (expr);
@@ -490,160 +471,29 @@ valadoc_api_initializer_builder_real_visit_binary_expression (ValaCodeVisitor* b
 	vala_code_node_accept ((ValaCodeNode*) _tmp1_, (ValaCodeVisitor*) self);
 	_tmp2_ = vala_binary_expression_get_operator (expr);
 	_tmp3_ = _tmp2_;
-	switch (_tmp3_) {
-		case VALA_BINARY_OPERATOR_PLUS:
-		{
-			ValadocApiSignatureBuilder* _tmp4_;
-			_tmp4_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp4_, "+ ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_MINUS:
-		{
-			ValadocApiSignatureBuilder* _tmp5_;
-			_tmp5_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp5_, "- ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_MUL:
-		{
-			ValadocApiSignatureBuilder* _tmp6_;
-			_tmp6_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp6_, "* ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_DIV:
-		{
-			ValadocApiSignatureBuilder* _tmp7_;
-			_tmp7_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp7_, "/ ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_MOD:
-		{
-			ValadocApiSignatureBuilder* _tmp8_;
-			_tmp8_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp8_, "% ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_SHIFT_LEFT:
-		{
-			ValadocApiSignatureBuilder* _tmp9_;
-			_tmp9_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp9_, "<< ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_SHIFT_RIGHT:
-		{
-			ValadocApiSignatureBuilder* _tmp10_;
-			_tmp10_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp10_, ">> ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_LESS_THAN:
-		{
-			ValadocApiSignatureBuilder* _tmp11_;
-			_tmp11_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp11_, "< ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_GREATER_THAN:
-		{
-			ValadocApiSignatureBuilder* _tmp12_;
-			_tmp12_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp12_, "> ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_LESS_THAN_OR_EQUAL:
-		{
-			ValadocApiSignatureBuilder* _tmp13_;
-			_tmp13_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp13_, "<= ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_GREATER_THAN_OR_EQUAL:
-		{
-			ValadocApiSignatureBuilder* _tmp14_;
-			_tmp14_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp14_, ">= ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_EQUALITY:
-		{
-			ValadocApiSignatureBuilder* _tmp15_;
-			_tmp15_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp15_, "== ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_INEQUALITY:
-		{
-			ValadocApiSignatureBuilder* _tmp16_;
-			_tmp16_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp16_, "!= ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_BITWISE_AND:
-		{
-			ValadocApiSignatureBuilder* _tmp17_;
-			_tmp17_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp17_, "& ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_BITWISE_OR:
-		{
-			ValadocApiSignatureBuilder* _tmp18_;
-			_tmp18_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp18_, "| ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_BITWISE_XOR:
-		{
-			ValadocApiSignatureBuilder* _tmp19_;
-			_tmp19_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp19_, "^ ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_AND:
-		{
-			ValadocApiSignatureBuilder* _tmp20_;
-			_tmp20_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp20_, "&& ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_OR:
-		{
-			ValadocApiSignatureBuilder* _tmp21_;
-			_tmp21_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp21_, "|| ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_IN:
-		{
-			ValadocApiSignatureBuilder* _tmp22_;
-			ValadocApiSignatureBuilder* _tmp23_;
-			_tmp22_ = self->priv->signature;
-			valadoc_api_signature_builder_append_keyword (_tmp22_, "in", TRUE);
-			_tmp23_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp23_, " ", TRUE);
-			break;
-		}
-		case VALA_BINARY_OPERATOR_COALESCE:
-		{
-			ValadocApiSignatureBuilder* _tmp24_;
-			_tmp24_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp24_, "?? ", TRUE);
-			break;
-		}
-		default:
-		{
-			g_assert_not_reached ();
-		}
+	if (_tmp3_ == VALA_BINARY_OPERATOR_IN) {
+		ValadocApiSignatureBuilder* _tmp4_;
+		const gchar* _tmp5_;
+		_tmp4_ = self->priv->signature;
+		_tmp5_ = vala_binary_operator_to_string (VALA_BINARY_OPERATOR_IN);
+		valadoc_api_signature_builder_append_keyword (_tmp4_, _tmp5_, TRUE);
+	} else {
+		ValadocApiSignatureBuilder* _tmp6_;
+		ValaBinaryOperator _tmp7_;
+		ValaBinaryOperator _tmp8_;
+		const gchar* _tmp9_;
+		_tmp6_ = self->priv->signature;
+		_tmp7_ = vala_binary_expression_get_operator (expr);
+		_tmp8_ = _tmp7_;
+		_tmp9_ = vala_binary_operator_to_string (_tmp8_);
+		valadoc_api_signature_builder_append (_tmp6_, _tmp9_, TRUE);
 	}
-	_tmp25_ = vala_binary_expression_get_right (expr);
-	_tmp26_ = _tmp25_;
-	vala_code_node_accept ((ValaCodeNode*) _tmp26_, (ValaCodeVisitor*) self);
+	_tmp10_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp10_, " ", TRUE);
+	_tmp11_ = vala_binary_expression_get_right (expr);
+	_tmp12_ = _tmp11_;
+	vala_code_node_accept ((ValaCodeNode*) _tmp12_, (ValaCodeVisitor*) self);
 }
-
 
 /**
  * {@inheritDoc}
@@ -653,81 +503,49 @@ valadoc_api_initializer_builder_real_visit_unary_expression (ValaCodeVisitor* ba
                                                              ValaUnaryExpression* expr)
 {
 	ValadocApiInitializerBuilder * self;
-	ValaUnaryOperator _tmp0_;
+	gboolean _tmp0_ = FALSE;
 	ValaUnaryOperator _tmp1_;
-	ValaExpression* _tmp10_;
-	ValaExpression* _tmp11_;
+	ValaUnaryOperator _tmp2_;
+	ValaExpression* _tmp13_;
+	ValaExpression* _tmp14_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
-	_tmp0_ = vala_unary_expression_get_operator (expr);
-	_tmp1_ = _tmp0_;
-	switch (_tmp1_) {
-		case VALA_UNARY_OPERATOR_PLUS:
-		{
-			ValadocApiSignatureBuilder* _tmp2_;
-			_tmp2_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp2_, "+", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_MINUS:
-		{
-			ValadocApiSignatureBuilder* _tmp3_;
-			_tmp3_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp3_, "-", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_LOGICAL_NEGATION:
-		{
-			ValadocApiSignatureBuilder* _tmp4_;
-			_tmp4_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp4_, "!", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_BITWISE_COMPLEMENT:
-		{
-			ValadocApiSignatureBuilder* _tmp5_;
-			_tmp5_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp5_, "~", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_INCREMENT:
-		{
-			ValadocApiSignatureBuilder* _tmp6_;
-			_tmp6_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp6_, "++", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_DECREMENT:
-		{
-			ValadocApiSignatureBuilder* _tmp7_;
-			_tmp7_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp7_, "--", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_REF:
-		{
-			ValadocApiSignatureBuilder* _tmp8_;
-			_tmp8_ = self->priv->signature;
-			valadoc_api_signature_builder_append_keyword (_tmp8_, "ref", TRUE);
-			break;
-		}
-		case VALA_UNARY_OPERATOR_OUT:
-		{
-			ValadocApiSignatureBuilder* _tmp9_;
-			_tmp9_ = self->priv->signature;
-			valadoc_api_signature_builder_append_keyword (_tmp9_, "out", TRUE);
-			break;
-		}
-		default:
-		{
-			g_assert_not_reached ();
-		}
+	_tmp1_ = vala_unary_expression_get_operator (expr);
+	_tmp2_ = _tmp1_;
+	if (_tmp2_ == VALA_UNARY_OPERATOR_REF) {
+		_tmp0_ = TRUE;
+	} else {
+		ValaUnaryOperator _tmp3_;
+		ValaUnaryOperator _tmp4_;
+		_tmp3_ = vala_unary_expression_get_operator (expr);
+		_tmp4_ = _tmp3_;
+		_tmp0_ = _tmp4_ == VALA_UNARY_OPERATOR_OUT;
 	}
-	_tmp10_ = vala_unary_expression_get_inner (expr);
-	_tmp11_ = _tmp10_;
-	vala_code_node_accept ((ValaCodeNode*) _tmp11_, (ValaCodeVisitor*) self);
+	if (_tmp0_) {
+		ValadocApiSignatureBuilder* _tmp5_;
+		ValaUnaryOperator _tmp6_;
+		ValaUnaryOperator _tmp7_;
+		const gchar* _tmp8_;
+		_tmp5_ = self->priv->signature;
+		_tmp6_ = vala_unary_expression_get_operator (expr);
+		_tmp7_ = _tmp6_;
+		_tmp8_ = vala_unary_operator_to_string (_tmp7_);
+		valadoc_api_signature_builder_append_keyword (_tmp5_, _tmp8_, TRUE);
+	} else {
+		ValadocApiSignatureBuilder* _tmp9_;
+		ValaUnaryOperator _tmp10_;
+		ValaUnaryOperator _tmp11_;
+		const gchar* _tmp12_;
+		_tmp9_ = self->priv->signature;
+		_tmp10_ = vala_unary_expression_get_operator (expr);
+		_tmp11_ = _tmp10_;
+		_tmp12_ = vala_unary_operator_to_string (_tmp11_);
+		valadoc_api_signature_builder_append (_tmp9_, _tmp12_, TRUE);
+	}
+	_tmp13_ = vala_unary_expression_get_inner (expr);
+	_tmp14_ = _tmp13_;
+	vala_code_node_accept ((ValaCodeNode*) _tmp14_, (ValaCodeVisitor*) self);
 }
-
 
 /**
  * {@inheritDoc}
@@ -739,105 +557,26 @@ valadoc_api_initializer_builder_real_visit_assignment (ValaCodeVisitor* base,
 	ValadocApiInitializerBuilder * self;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
-	ValaAssignmentOperator _tmp2_;
+	ValadocApiSignatureBuilder* _tmp2_;
 	ValaAssignmentOperator _tmp3_;
-	ValaExpression* _tmp15_;
-	ValaExpression* _tmp16_;
+	ValaAssignmentOperator _tmp4_;
+	const gchar* _tmp5_;
+	ValaExpression* _tmp6_;
+	ValaExpression* _tmp7_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (a != NULL);
 	_tmp0_ = vala_assignment_get_left (a);
 	_tmp1_ = _tmp0_;
 	vala_code_node_accept ((ValaCodeNode*) _tmp1_, (ValaCodeVisitor*) self);
-	_tmp2_ = vala_assignment_get_operator (a);
-	_tmp3_ = _tmp2_;
-	switch (_tmp3_) {
-		case VALA_ASSIGNMENT_OPERATOR_SIMPLE:
-		{
-			ValadocApiSignatureBuilder* _tmp4_;
-			_tmp4_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp4_, "=", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_BITWISE_OR:
-		{
-			ValadocApiSignatureBuilder* _tmp5_;
-			_tmp5_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp5_, "|", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_BITWISE_AND:
-		{
-			ValadocApiSignatureBuilder* _tmp6_;
-			_tmp6_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp6_, "&", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_BITWISE_XOR:
-		{
-			ValadocApiSignatureBuilder* _tmp7_;
-			_tmp7_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp7_, "^", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_ADD:
-		{
-			ValadocApiSignatureBuilder* _tmp8_;
-			_tmp8_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp8_, "+", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_SUB:
-		{
-			ValadocApiSignatureBuilder* _tmp9_;
-			_tmp9_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp9_, "-", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_MUL:
-		{
-			ValadocApiSignatureBuilder* _tmp10_;
-			_tmp10_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp10_, "*", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_DIV:
-		{
-			ValadocApiSignatureBuilder* _tmp11_;
-			_tmp11_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp11_, "/", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_PERCENT:
-		{
-			ValadocApiSignatureBuilder* _tmp12_;
-			_tmp12_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp12_, "%", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_SHIFT_LEFT:
-		{
-			ValadocApiSignatureBuilder* _tmp13_;
-			_tmp13_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp13_, "<<", TRUE);
-			break;
-		}
-		case VALA_ASSIGNMENT_OPERATOR_SHIFT_RIGHT:
-		{
-			ValadocApiSignatureBuilder* _tmp14_;
-			_tmp14_ = self->priv->signature;
-			valadoc_api_signature_builder_append (_tmp14_, ">>", TRUE);
-			break;
-		}
-		default:
-		{
-			g_assert_not_reached ();
-		}
-	}
-	_tmp15_ = vala_assignment_get_right (a);
-	_tmp16_ = _tmp15_;
-	vala_code_node_accept ((ValaCodeNode*) _tmp16_, (ValaCodeVisitor*) self);
+	_tmp2_ = self->priv->signature;
+	_tmp3_ = vala_assignment_get_operator (a);
+	_tmp4_ = _tmp3_;
+	_tmp5_ = vala_assignment_operator_to_string (_tmp4_);
+	valadoc_api_signature_builder_append (_tmp2_, _tmp5_, TRUE);
+	_tmp6_ = vala_assignment_get_right (a);
+	_tmp7_ = _tmp6_;
+	vala_code_node_accept ((ValaCodeNode*) _tmp7_, (ValaCodeVisitor*) self);
 }
-
 
 /**
  * {@inheritDoc}
@@ -902,7 +641,6 @@ valadoc_api_initializer_builder_real_visit_cast_expression (ValaCodeVisitor* bas
 	}
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -913,7 +651,7 @@ valadoc_api_initializer_builder_real_visit_initializer_list (ValaCodeVisitor* ba
 	ValadocApiInitializerBuilder * self;
 	ValadocApiSignatureBuilder* _tmp0_;
 	gboolean first = FALSE;
-	ValadocApiSignatureBuilder* _tmp14_;
+	ValadocApiSignatureBuilder* _tmp12_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (list != NULL);
 	_tmp0_ = self->priv->signature;
@@ -922,56 +660,51 @@ valadoc_api_initializer_builder_real_visit_initializer_list (ValaCodeVisitor* ba
 	{
 		ValaList* _initializer_list = NULL;
 		ValaList* _tmp1_;
-		gint _initializer_size = 0;
 		ValaList* _tmp2_;
-		gint _tmp3_;
+		gint _initializer_size = 0;
+		ValaList* _tmp3_;
 		gint _tmp4_;
+		gint _tmp5_;
 		gint _initializer_index = 0;
 		_tmp1_ = vala_initializer_list_get_initializers (list);
-		_initializer_list = _tmp1_;
-		_tmp2_ = _initializer_list;
-		_tmp3_ = vala_collection_get_size ((ValaCollection*) _tmp2_);
-		_tmp4_ = _tmp3_;
-		_initializer_size = _tmp4_;
+		_tmp2_ = _vala_iterable_ref0 (_tmp1_);
+		_initializer_list = _tmp2_;
+		_tmp3_ = _initializer_list;
+		_tmp4_ = vala_collection_get_size ((ValaCollection*) _tmp3_);
+		_tmp5_ = _tmp4_;
+		_initializer_size = _tmp5_;
 		_initializer_index = -1;
 		while (TRUE) {
-			gint _tmp5_;
 			gint _tmp6_;
 			gint _tmp7_;
 			ValaExpression* initializer = NULL;
 			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			gboolean _tmp11_;
-			ValaExpression* _tmp13_;
-			_tmp5_ = _initializer_index;
-			_initializer_index = _tmp5_ + 1;
+			gpointer _tmp9_;
+			ValaExpression* _tmp11_;
+			_initializer_index = _initializer_index + 1;
 			_tmp6_ = _initializer_index;
 			_tmp7_ = _initializer_size;
 			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
 			_tmp8_ = _initializer_list;
-			_tmp9_ = _initializer_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			initializer = (ValaExpression*) _tmp10_;
-			_tmp11_ = first;
-			if (!_tmp11_) {
-				ValadocApiSignatureBuilder* _tmp12_;
-				_tmp12_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp12_, ", ", FALSE);
+			_tmp9_ = vala_list_get (_tmp8_, _initializer_index);
+			initializer = (ValaExpression*) _tmp9_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp10_;
+				_tmp10_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp10_, ", ", FALSE);
 			}
 			first = FALSE;
-			_tmp13_ = initializer;
-			vala_code_node_accept ((ValaCodeNode*) _tmp13_, (ValaCodeVisitor*) self);
+			_tmp11_ = initializer;
+			vala_code_node_accept ((ValaCodeNode*) _tmp11_, (ValaCodeVisitor*) self);
 			_vala_code_node_unref0 (initializer);
 		}
 		_vala_iterable_unref0 (_initializer_list);
 	}
-	_tmp14_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp14_, "}", FALSE);
+	_tmp12_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp12_, "}", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1004,7 +737,6 @@ valadoc_api_initializer_builder_real_visit_member_access (ValaCodeVisitor* base,
 	}
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1017,7 +749,7 @@ valadoc_api_initializer_builder_real_visit_element_access (ValaCodeVisitor* base
 	ValaExpression* _tmp1_;
 	ValadocApiSignatureBuilder* _tmp2_;
 	gboolean first = FALSE;
-	ValadocApiSignatureBuilder* _tmp16_;
+	ValadocApiSignatureBuilder* _tmp14_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = vala_element_access_get_container (expr);
@@ -1029,56 +761,51 @@ valadoc_api_initializer_builder_real_visit_element_access (ValaCodeVisitor* base
 	{
 		ValaList* _index_list = NULL;
 		ValaList* _tmp3_;
-		gint _index_size = 0;
 		ValaList* _tmp4_;
-		gint _tmp5_;
+		gint _index_size = 0;
+		ValaList* _tmp5_;
 		gint _tmp6_;
+		gint _tmp7_;
 		gint _index_index = 0;
 		_tmp3_ = vala_element_access_get_indices (expr);
-		_index_list = _tmp3_;
-		_tmp4_ = _index_list;
-		_tmp5_ = vala_collection_get_size ((ValaCollection*) _tmp4_);
-		_tmp6_ = _tmp5_;
-		_index_size = _tmp6_;
+		_tmp4_ = _vala_iterable_ref0 (_tmp3_);
+		_index_list = _tmp4_;
+		_tmp5_ = _index_list;
+		_tmp6_ = vala_collection_get_size ((ValaCollection*) _tmp5_);
+		_tmp7_ = _tmp6_;
+		_index_size = _tmp7_;
 		_index_index = -1;
 		while (TRUE) {
-			gint _tmp7_;
 			gint _tmp8_;
 			gint _tmp9_;
 			ValaExpression* index = NULL;
 			ValaList* _tmp10_;
-			gint _tmp11_;
-			gpointer _tmp12_;
-			gboolean _tmp13_;
-			ValaExpression* _tmp15_;
-			_tmp7_ = _index_index;
-			_index_index = _tmp7_ + 1;
+			gpointer _tmp11_;
+			ValaExpression* _tmp13_;
+			_index_index = _index_index + 1;
 			_tmp8_ = _index_index;
 			_tmp9_ = _index_size;
 			if (!(_tmp8_ < _tmp9_)) {
 				break;
 			}
 			_tmp10_ = _index_list;
-			_tmp11_ = _index_index;
-			_tmp12_ = vala_list_get (_tmp10_, _tmp11_);
-			index = (ValaExpression*) _tmp12_;
-			_tmp13_ = first;
-			if (!_tmp13_) {
-				ValadocApiSignatureBuilder* _tmp14_;
-				_tmp14_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp14_, ", ", FALSE);
+			_tmp11_ = vala_list_get (_tmp10_, _index_index);
+			index = (ValaExpression*) _tmp11_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp12_;
+				_tmp12_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp12_, ", ", FALSE);
 			}
 			first = FALSE;
-			_tmp15_ = index;
-			vala_code_node_accept ((ValaCodeNode*) _tmp15_, (ValaCodeVisitor*) self);
+			_tmp13_ = index;
+			vala_code_node_accept ((ValaCodeNode*) _tmp13_, (ValaCodeVisitor*) self);
 			_vala_code_node_unref0 (index);
 		}
 		_vala_iterable_unref0 (_index_list);
 	}
-	_tmp16_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp16_, "]", FALSE);
+	_tmp14_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp14_, "]", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1100,7 +827,6 @@ valadoc_api_initializer_builder_real_visit_pointer_indirection (ValaCodeVisitor*
 	vala_code_node_accept ((ValaCodeNode*) _tmp2_, (ValaCodeVisitor*) self);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1120,7 +846,6 @@ valadoc_api_initializer_builder_real_visit_addressof_expression (ValaCodeVisitor
 	_tmp2_ = _tmp1_;
 	vala_code_node_accept ((ValaCodeNode*) _tmp2_, (ValaCodeVisitor*) self);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1145,7 +870,6 @@ valadoc_api_initializer_builder_real_visit_reference_transfer_expression (ValaCo
 	_tmp4_ = _tmp3_;
 	vala_code_node_accept ((ValaCodeNode*) _tmp4_, (ValaCodeVisitor*) self);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1172,7 +896,6 @@ valadoc_api_initializer_builder_real_visit_type_check (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_type (self, _tmp4_);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1187,7 +910,7 @@ valadoc_api_initializer_builder_real_visit_method_call (ValaCodeVisitor* base,
 	ValaSymbol* _tmp3_;
 	ValadocApiSignatureBuilder* _tmp4_;
 	gboolean first = FALSE;
-	ValadocApiSignatureBuilder* _tmp18_;
+	ValadocApiSignatureBuilder* _tmp16_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = vala_method_call_get_call (expr);
@@ -1201,56 +924,51 @@ valadoc_api_initializer_builder_real_visit_method_call (ValaCodeVisitor* base,
 	{
 		ValaList* _literal_list = NULL;
 		ValaList* _tmp5_;
-		gint _literal_size = 0;
 		ValaList* _tmp6_;
-		gint _tmp7_;
+		gint _literal_size = 0;
+		ValaList* _tmp7_;
 		gint _tmp8_;
+		gint _tmp9_;
 		gint _literal_index = 0;
 		_tmp5_ = vala_method_call_get_argument_list (expr);
-		_literal_list = _tmp5_;
-		_tmp6_ = _literal_list;
-		_tmp7_ = vala_collection_get_size ((ValaCollection*) _tmp6_);
-		_tmp8_ = _tmp7_;
-		_literal_size = _tmp8_;
+		_tmp6_ = _vala_iterable_ref0 (_tmp5_);
+		_literal_list = _tmp6_;
+		_tmp7_ = _literal_list;
+		_tmp8_ = vala_collection_get_size ((ValaCollection*) _tmp7_);
+		_tmp9_ = _tmp8_;
+		_literal_size = _tmp9_;
 		_literal_index = -1;
 		while (TRUE) {
-			gint _tmp9_;
 			gint _tmp10_;
 			gint _tmp11_;
 			ValaExpression* literal = NULL;
 			ValaList* _tmp12_;
-			gint _tmp13_;
-			gpointer _tmp14_;
-			gboolean _tmp15_;
-			ValaExpression* _tmp17_;
-			_tmp9_ = _literal_index;
-			_literal_index = _tmp9_ + 1;
+			gpointer _tmp13_;
+			ValaExpression* _tmp15_;
+			_literal_index = _literal_index + 1;
 			_tmp10_ = _literal_index;
 			_tmp11_ = _literal_size;
 			if (!(_tmp10_ < _tmp11_)) {
 				break;
 			}
 			_tmp12_ = _literal_list;
-			_tmp13_ = _literal_index;
-			_tmp14_ = vala_list_get (_tmp12_, _tmp13_);
-			literal = (ValaExpression*) _tmp14_;
-			_tmp15_ = first;
-			if (!_tmp15_) {
-				ValadocApiSignatureBuilder* _tmp16_;
-				_tmp16_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp16_, ", ", FALSE);
+			_tmp13_ = vala_list_get (_tmp12_, _literal_index);
+			literal = (ValaExpression*) _tmp13_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp14_;
+				_tmp14_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp14_, ", ", FALSE);
 			}
-			_tmp17_ = literal;
-			vala_code_node_accept ((ValaCodeNode*) _tmp17_, (ValaCodeVisitor*) self);
+			_tmp15_ = literal;
+			vala_code_node_accept ((ValaCodeNode*) _tmp15_, (ValaCodeVisitor*) self);
 			first = FALSE;
 			_vala_code_node_unref0 (literal);
 		}
 		_vala_iterable_unref0 (_literal_list);
 	}
-	_tmp18_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp18_, ")", FALSE);
+	_tmp16_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp16_, ")", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1288,7 +1006,6 @@ valadoc_api_initializer_builder_real_visit_slice_expression (ValaCodeVisitor* ba
 	valadoc_api_signature_builder_append (_tmp8_, "]", FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1303,7 +1020,6 @@ valadoc_api_initializer_builder_real_visit_base_access (ValaCodeVisitor* base,
 	_tmp0_ = self->priv->signature;
 	valadoc_api_signature_builder_append_keyword (_tmp0_, "base", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1335,7 +1051,6 @@ valadoc_api_initializer_builder_real_visit_postfix_expression (ValaCodeVisitor* 
 	}
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1353,7 +1068,7 @@ valadoc_api_initializer_builder_real_visit_object_creation_expression (ValaCodeV
 	ValadocApiSymbol* _tmp7_;
 	ValadocApiSignatureBuilder* _tmp8_;
 	gboolean first = FALSE;
-	ValadocApiSignatureBuilder* _tmp22_;
+	ValadocApiSignatureBuilder* _tmp20_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = vala_object_creation_expression_get_struct_creation (expr);
@@ -1376,56 +1091,51 @@ valadoc_api_initializer_builder_real_visit_object_creation_expression (ValaCodeV
 	{
 		ValaList* _arg_list = NULL;
 		ValaList* _tmp9_;
-		gint _arg_size = 0;
 		ValaList* _tmp10_;
-		gint _tmp11_;
+		gint _arg_size = 0;
+		ValaList* _tmp11_;
 		gint _tmp12_;
+		gint _tmp13_;
 		gint _arg_index = 0;
 		_tmp9_ = vala_object_creation_expression_get_argument_list (expr);
-		_arg_list = _tmp9_;
-		_tmp10_ = _arg_list;
-		_tmp11_ = vala_collection_get_size ((ValaCollection*) _tmp10_);
-		_tmp12_ = _tmp11_;
-		_arg_size = _tmp12_;
+		_tmp10_ = _vala_iterable_ref0 (_tmp9_);
+		_arg_list = _tmp10_;
+		_tmp11_ = _arg_list;
+		_tmp12_ = vala_collection_get_size ((ValaCollection*) _tmp11_);
+		_tmp13_ = _tmp12_;
+		_arg_size = _tmp13_;
 		_arg_index = -1;
 		while (TRUE) {
-			gint _tmp13_;
 			gint _tmp14_;
 			gint _tmp15_;
 			ValaExpression* arg = NULL;
 			ValaList* _tmp16_;
-			gint _tmp17_;
-			gpointer _tmp18_;
-			gboolean _tmp19_;
-			ValaExpression* _tmp21_;
-			_tmp13_ = _arg_index;
-			_arg_index = _tmp13_ + 1;
+			gpointer _tmp17_;
+			ValaExpression* _tmp19_;
+			_arg_index = _arg_index + 1;
 			_tmp14_ = _arg_index;
 			_tmp15_ = _arg_size;
 			if (!(_tmp14_ < _tmp15_)) {
 				break;
 			}
 			_tmp16_ = _arg_list;
-			_tmp17_ = _arg_index;
-			_tmp18_ = vala_list_get (_tmp16_, _tmp17_);
-			arg = (ValaExpression*) _tmp18_;
-			_tmp19_ = first;
-			if (!_tmp19_) {
-				ValadocApiSignatureBuilder* _tmp20_;
-				_tmp20_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp20_, ", ", FALSE);
+			_tmp17_ = vala_list_get (_tmp16_, _arg_index);
+			arg = (ValaExpression*) _tmp17_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp18_;
+				_tmp18_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp18_, ", ", FALSE);
 			}
-			_tmp21_ = arg;
-			vala_code_node_accept ((ValaCodeNode*) _tmp21_, (ValaCodeVisitor*) self);
+			_tmp19_ = arg;
+			vala_code_node_accept ((ValaCodeNode*) _tmp19_, (ValaCodeVisitor*) self);
 			first = FALSE;
 			_vala_code_node_unref0 (arg);
 		}
 		_vala_iterable_unref0 (_arg_list);
 	}
-	_tmp22_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp22_, ")", FALSE);
+	_tmp20_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp20_, ")", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1452,7 +1162,6 @@ valadoc_api_initializer_builder_real_visit_sizeof_expression (ValaCodeVisitor* b
 	valadoc_api_signature_builder_append (_tmp4_, ")", FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1478,7 +1187,6 @@ valadoc_api_initializer_builder_real_visit_typeof_expression (ValaCodeVisitor* b
 	valadoc_api_signature_builder_append (_tmp4_, ")", FALSE);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1489,9 +1197,9 @@ valadoc_api_initializer_builder_real_visit_lambda_expression (ValaCodeVisitor* b
 	ValadocApiInitializerBuilder * self;
 	ValadocApiSignatureBuilder* _tmp0_;
 	gboolean first = FALSE;
+	ValadocApiSignatureBuilder* _tmp15_;
+	ValadocApiSignatureBuilder* _tmp16_;
 	ValadocApiSignatureBuilder* _tmp17_;
-	ValadocApiSignatureBuilder* _tmp18_;
-	ValadocApiSignatureBuilder* _tmp19_;
 	self = (ValadocApiInitializerBuilder*) base;
 	g_return_if_fail (expr != NULL);
 	_tmp0_ = self->priv->signature;
@@ -1500,66 +1208,61 @@ valadoc_api_initializer_builder_real_visit_lambda_expression (ValaCodeVisitor* b
 	{
 		ValaList* _param_list = NULL;
 		ValaList* _tmp1_;
-		gint _param_size = 0;
 		ValaList* _tmp2_;
-		gint _tmp3_;
+		gint _param_size = 0;
+		ValaList* _tmp3_;
 		gint _tmp4_;
+		gint _tmp5_;
 		gint _param_index = 0;
 		_tmp1_ = vala_lambda_expression_get_parameters (expr);
-		_param_list = _tmp1_;
-		_tmp2_ = _param_list;
-		_tmp3_ = vala_collection_get_size ((ValaCollection*) _tmp2_);
-		_tmp4_ = _tmp3_;
-		_param_size = _tmp4_;
+		_tmp2_ = _vala_iterable_ref0 (_tmp1_);
+		_param_list = _tmp2_;
+		_tmp3_ = _param_list;
+		_tmp4_ = vala_collection_get_size ((ValaCollection*) _tmp3_);
+		_tmp5_ = _tmp4_;
+		_param_size = _tmp5_;
 		_param_index = -1;
 		while (TRUE) {
-			gint _tmp5_;
 			gint _tmp6_;
 			gint _tmp7_;
 			ValaParameter* param = NULL;
 			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			gboolean _tmp11_;
-			ValadocApiSignatureBuilder* _tmp13_;
-			ValaParameter* _tmp14_;
-			const gchar* _tmp15_;
-			const gchar* _tmp16_;
-			_tmp5_ = _param_index;
-			_param_index = _tmp5_ + 1;
+			gpointer _tmp9_;
+			ValadocApiSignatureBuilder* _tmp11_;
+			ValaParameter* _tmp12_;
+			const gchar* _tmp13_;
+			const gchar* _tmp14_;
+			_param_index = _param_index + 1;
 			_tmp6_ = _param_index;
 			_tmp7_ = _param_size;
 			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
 			_tmp8_ = _param_list;
-			_tmp9_ = _param_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			param = (ValaParameter*) _tmp10_;
-			_tmp11_ = first;
-			if (!_tmp11_) {
-				ValadocApiSignatureBuilder* _tmp12_;
-				_tmp12_ = self->priv->signature;
-				valadoc_api_signature_builder_append (_tmp12_, ", ", FALSE);
+			_tmp9_ = vala_list_get (_tmp8_, _param_index);
+			param = (ValaParameter*) _tmp9_;
+			if (!first) {
+				ValadocApiSignatureBuilder* _tmp10_;
+				_tmp10_ = self->priv->signature;
+				valadoc_api_signature_builder_append (_tmp10_, ", ", FALSE);
 			}
-			_tmp13_ = self->priv->signature;
-			_tmp14_ = param;
-			_tmp15_ = vala_symbol_get_name ((ValaSymbol*) _tmp14_);
-			_tmp16_ = _tmp15_;
-			valadoc_api_signature_builder_append (_tmp13_, _tmp16_, FALSE);
+			_tmp11_ = self->priv->signature;
+			_tmp12_ = param;
+			_tmp13_ = vala_symbol_get_name ((ValaSymbol*) _tmp12_);
+			_tmp14_ = _tmp13_;
+			valadoc_api_signature_builder_append (_tmp11_, _tmp14_, FALSE);
 			first = FALSE;
 			_vala_code_node_unref0 (param);
 		}
 		_vala_iterable_unref0 (_param_list);
 	}
+	_tmp15_ = self->priv->signature;
+	valadoc_api_signature_builder_append (_tmp15_, ") => {", FALSE);
+	_tmp16_ = self->priv->signature;
+	valadoc_api_signature_builder_append_highlighted (_tmp16_, " [...] ", FALSE);
 	_tmp17_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp17_, ") => {", FALSE);
-	_tmp18_ = self->priv->signature;
-	valadoc_api_signature_builder_append_highlighted (_tmp18_, " [...] ", FALSE);
-	_tmp19_ = self->priv->signature;
-	valadoc_api_signature_builder_append (_tmp19_, "}", FALSE);
+	valadoc_api_signature_builder_append (_tmp17_, "}", FALSE);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1581,7 +1284,6 @@ valadoc_api_initializer_builder_real_visit_boolean_literal (ValaCodeVisitor* bas
 	_g_free0 (_tmp2_);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1601,7 +1303,6 @@ valadoc_api_initializer_builder_real_visit_character_literal (ValaCodeVisitor* b
 	valadoc_api_signature_builder_append_literal (_tmp0_, _tmp2_, FALSE);
 	_g_free0 (_tmp2_);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1623,7 +1324,6 @@ valadoc_api_initializer_builder_real_visit_integer_literal (ValaCodeVisitor* bas
 	_g_free0 (_tmp2_);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1643,7 +1343,6 @@ valadoc_api_initializer_builder_real_visit_real_literal (ValaCodeVisitor* base,
 	valadoc_api_signature_builder_append_literal (_tmp0_, _tmp2_, FALSE);
 	_g_free0 (_tmp2_);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1665,7 +1364,6 @@ valadoc_api_initializer_builder_real_visit_regex_literal (ValaCodeVisitor* base,
 	_g_free0 (_tmp2_);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1685,7 +1383,6 @@ valadoc_api_initializer_builder_real_visit_string_literal (ValaCodeVisitor* base
 	valadoc_api_signature_builder_append_literal (_tmp0_, _tmp2_, FALSE);
 	_g_free0 (_tmp2_);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1707,7 +1404,6 @@ valadoc_api_initializer_builder_real_visit_null_literal (ValaCodeVisitor* base,
 	_g_free0 (_tmp2_);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1720,7 +1416,6 @@ valadoc_api_initializer_builder_real_visit_field (ValaCodeVisitor* base,
 	g_return_if_fail (field != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) field);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1735,7 +1430,6 @@ valadoc_api_initializer_builder_real_visit_constant (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) constant);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1748,7 +1442,6 @@ valadoc_api_initializer_builder_real_visit_enum_value (ValaCodeVisitor* base,
 	g_return_if_fail (ev != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) ev);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1763,7 +1456,6 @@ valadoc_api_initializer_builder_real_visit_error_code (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) ec);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1776,7 +1468,6 @@ valadoc_api_initializer_builder_real_visit_delegate (ValaCodeVisitor* base,
 	g_return_if_fail (d != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) d);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1791,7 +1482,6 @@ valadoc_api_initializer_builder_real_visit_method (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) m);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1804,7 +1494,6 @@ valadoc_api_initializer_builder_real_visit_creation_method (ValaCodeVisitor* bas
 	g_return_if_fail (m != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) m);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1819,7 +1508,6 @@ valadoc_api_initializer_builder_real_visit_signal (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) sig);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1832,7 +1520,6 @@ valadoc_api_initializer_builder_real_visit_class (ValaCodeVisitor* base,
 	g_return_if_fail (c != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) c);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1847,7 +1534,6 @@ valadoc_api_initializer_builder_real_visit_struct (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) s);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1860,7 +1546,6 @@ valadoc_api_initializer_builder_real_visit_interface (ValaCodeVisitor* base,
 	g_return_if_fail (i != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) i);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1875,7 +1560,6 @@ valadoc_api_initializer_builder_real_visit_enum (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) en);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -1888,7 +1572,6 @@ valadoc_api_initializer_builder_real_visit_error_domain (ValaCodeVisitor* base,
 	g_return_if_fail (ed != NULL);
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) ed);
 }
-
 
 /**
  * {@inheritDoc}
@@ -1903,9 +1586,9 @@ valadoc_api_initializer_builder_real_visit_property (ValaCodeVisitor* base,
 	valadoc_api_initializer_builder_write_node (self, (ValaSymbol*) prop);
 }
 
-
 static void
-valadoc_api_initializer_builder_class_init (ValadocApiInitializerBuilderClass * klass)
+valadoc_api_initializer_builder_class_init (ValadocApiInitializerBuilderClass * klass,
+                                            gpointer klass_data)
 {
 	valadoc_api_initializer_builder_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeVisitorClass *) klass)->finalize = valadoc_api_initializer_builder_finalize;
@@ -1953,13 +1636,12 @@ valadoc_api_initializer_builder_class_init (ValadocApiInitializerBuilderClass * 
 	((ValaCodeVisitorClass *) klass)->visit_property = (void (*) (ValaCodeVisitor*, ValaProperty*)) valadoc_api_initializer_builder_real_visit_property;
 }
 
-
 static void
-valadoc_api_initializer_builder_instance_init (ValadocApiInitializerBuilder * self)
+valadoc_api_initializer_builder_instance_init (ValadocApiInitializerBuilder * self,
+                                               gpointer klass)
 {
 	self->priv = valadoc_api_initializer_builder_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_initializer_builder_finalize (ValaCodeVisitor * obj)
@@ -1971,20 +1653,25 @@ valadoc_api_initializer_builder_finalize (ValaCodeVisitor * obj)
 	VALA_CODE_VISITOR_CLASS (valadoc_api_initializer_builder_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_api_initializer_builder_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiInitializerBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_initializer_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiInitializerBuilder), 0, (GInstanceInitFunc) valadoc_api_initializer_builder_instance_init, NULL };
+	GType valadoc_api_initializer_builder_type_id;
+	valadoc_api_initializer_builder_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValadocApiInitializerBuilder", &g_define_type_info, 0);
+	ValadocApiInitializerBuilder_private_offset = g_type_add_instance_private (valadoc_api_initializer_builder_type_id, sizeof (ValadocApiInitializerBuilderPrivate));
+	return valadoc_api_initializer_builder_type_id;
+}
 
 G_GNUC_INTERNAL GType
 valadoc_api_initializer_builder_get_type (void)
 {
 	static volatile gsize valadoc_api_initializer_builder_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_initializer_builder_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiInitializerBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_initializer_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiInitializerBuilder), 0, (GInstanceInitFunc) valadoc_api_initializer_builder_instance_init, NULL };
 		GType valadoc_api_initializer_builder_type_id;
-		valadoc_api_initializer_builder_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValadocApiInitializerBuilder", &g_define_type_info, 0);
-		ValadocApiInitializerBuilder_private_offset = g_type_add_instance_private (valadoc_api_initializer_builder_type_id, sizeof (ValadocApiInitializerBuilderPrivate));
+		valadoc_api_initializer_builder_type_id = valadoc_api_initializer_builder_get_type_once ();
 		g_once_init_leave (&valadoc_api_initializer_builder_type_id__volatile, valadoc_api_initializer_builder_type_id);
 	}
 	return valadoc_api_initializer_builder_type_id__volatile;
 }
-
-
 

@@ -23,16 +23,15 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
-#define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
+#define _g_free0(var) (var = (g_free (var), NULL))
 
 struct _ValaCatchClausePrivate {
 	gchar* _variable_name;
@@ -41,7 +40,6 @@ struct _ValaCatchClausePrivate {
 	ValaBlock* _body;
 	ValaLocalVariable* _error_variable;
 };
-
 
 static gint ValaCatchClause_private_offset;
 static gpointer vala_catch_clause_parent_class = NULL;
@@ -60,7 +58,7 @@ static void vala_catch_clause_real_emit (ValaCodeNode* base,
 static void vala_catch_clause_real_get_defined_variables (ValaCodeNode* base,
                                                    ValaCollection* collection);
 static void vala_catch_clause_finalize (ValaCodeNode * obj);
-
+static GType vala_catch_clause_get_type_once (void);
 
 static inline gpointer
 vala_catch_clause_get_instance_private (ValaCatchClause* self)
@@ -68,6 +66,134 @@ vala_catch_clause_get_instance_private (ValaCatchClause* self)
 	return G_STRUCT_MEMBER_P (self, ValaCatchClause_private_offset);
 }
 
+ValaDataType*
+vala_catch_clause_get_error_type (ValaCatchClause* self)
+{
+	ValaDataType* result;
+	ValaDataType* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_data_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_catch_clause_set_error_type (ValaCatchClause* self,
+                                  ValaDataType* value)
+{
+	ValaDataType* _tmp0_;
+	ValaDataType* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_data_type);
+	self->priv->_data_type = _tmp0_;
+	_tmp1_ = self->priv->_data_type;
+	if (_tmp1_ != NULL) {
+		ValaDataType* _tmp2_;
+		_tmp2_ = self->priv->_data_type;
+		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
+	}
+}
+
+const gchar*
+vala_catch_clause_get_variable_name (ValaCatchClause* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_variable_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_catch_clause_set_variable_name (ValaCatchClause* self,
+                                     const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_variable_name);
+	self->priv->_variable_name = _tmp0_;
+}
+
+ValaBlock*
+vala_catch_clause_get_body (ValaCatchClause* self)
+{
+	ValaBlock* result;
+	ValaBlock* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_body;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_catch_clause_set_body (ValaCatchClause* self,
+                            ValaBlock* value)
+{
+	ValaBlock* _tmp0_;
+	ValaBlock* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_body);
+	self->priv->_body = _tmp0_;
+	_tmp1_ = self->priv->_body;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaLocalVariable*
+vala_catch_clause_get_error_variable (ValaCatchClause* self)
+{
+	ValaLocalVariable* result;
+	ValaLocalVariable* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_error_variable;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_catch_clause_set_error_variable (ValaCatchClause* self,
+                                      ValaLocalVariable* value)
+{
+	ValaLocalVariable* _tmp0_;
+	ValaLocalVariable* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_error_variable);
+	self->priv->_error_variable = _tmp0_;
+	_tmp1_ = self->priv->_error_variable;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+const gchar*
+vala_catch_clause_get_clabel_name (ValaCatchClause* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_clabel_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_catch_clause_set_clabel_name (ValaCatchClause* self,
+                                   const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_clabel_name);
+	self->priv->_clabel_name = _tmp0_;
+}
 
 /**
  * Creates a new catch
@@ -95,7 +221,6 @@ vala_catch_clause_construct (GType object_type,
 	return self;
 }
 
-
 ValaCatchClause*
 vala_catch_clause_new (ValaDataType* error_type,
                        const gchar* variable_name,
@@ -104,7 +229,6 @@ vala_catch_clause_new (ValaDataType* error_type,
 {
 	return vala_catch_clause_construct (VALA_TYPE_CATCH_CLAUSE, error_type, variable_name, body, source_reference);
 }
-
 
 static void
 vala_catch_clause_real_accept (ValaCodeNode* base,
@@ -115,7 +239,6 @@ vala_catch_clause_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_catch_clause (visitor, self);
 }
-
 
 static void
 vala_catch_clause_real_accept_children (ValaCodeNode* base,
@@ -142,7 +265,6 @@ vala_catch_clause_real_accept_children (ValaCodeNode* base,
 	vala_code_node_accept ((ValaCodeNode*) _tmp5_, visitor);
 }
 
-
 static void
 vala_catch_clause_real_replace_type (ValaCodeNode* base,
                                      ValaDataType* old_type,
@@ -161,13 +283,11 @@ vala_catch_clause_real_replace_type (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_catch_clause_real_check (ValaCodeNode* base,
                               ValaCodeContext* context)
 {
 	ValaCatchClause * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaProfile _tmp4_;
@@ -180,6 +300,7 @@ vala_catch_clause_real_check (ValaCodeNode* base,
 	ValaBlock* _tmp50_;
 	gboolean _tmp51_;
 	gboolean _tmp52_;
+	gboolean result = FALSE;
 	self = (ValaCatchClause*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -213,7 +334,7 @@ vala_catch_clause_real_check (ValaCodeNode* base,
 		const gchar* _tmp20_;
 		_tmp10_ = vala_catch_clause_get_error_type (self);
 		_tmp11_ = _tmp10_;
-		if (!G_TYPE_CHECK_INSTANCE_TYPE (_tmp11_, VALA_TYPE_ERROR_TYPE)) {
+		if (!VALA_IS_ERROR_TYPE (_tmp11_)) {
 			ValaSourceReference* _tmp12_;
 			ValaSourceReference* _tmp13_;
 			ValaDataType* _tmp14_;
@@ -312,7 +433,6 @@ vala_catch_clause_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_catch_clause_real_emit (ValaCodeNode* base,
                              ValaCodeGenerator* codegen)
@@ -334,7 +454,6 @@ vala_catch_clause_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_catch_clause ((ValaCodeVisitor*) codegen, self);
 }
 
-
 static void
 vala_catch_clause_real_get_defined_variables (ValaCodeNode* base,
                                               ValaCollection* collection)
@@ -355,149 +474,9 @@ vala_catch_clause_real_get_defined_variables (ValaCodeNode* base,
 	}
 }
 
-
-ValaDataType*
-vala_catch_clause_get_error_type (ValaCatchClause* self)
-{
-	ValaDataType* result;
-	ValaDataType* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_data_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_catch_clause_set_error_type (ValaCatchClause* self,
-                                  ValaDataType* value)
-{
-	ValaDataType* _tmp0_;
-	ValaDataType* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_data_type);
-	self->priv->_data_type = _tmp0_;
-	_tmp1_ = self->priv->_data_type;
-	if (_tmp1_ != NULL) {
-		ValaDataType* _tmp2_;
-		_tmp2_ = self->priv->_data_type;
-		vala_code_node_set_parent_node ((ValaCodeNode*) _tmp2_, (ValaCodeNode*) self);
-	}
-}
-
-
-const gchar*
-vala_catch_clause_get_variable_name (ValaCatchClause* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_variable_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_catch_clause_set_variable_name (ValaCatchClause* self,
-                                     const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_variable_name);
-	self->priv->_variable_name = _tmp0_;
-}
-
-
-ValaBlock*
-vala_catch_clause_get_body (ValaCatchClause* self)
-{
-	ValaBlock* result;
-	ValaBlock* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_body;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_catch_clause_set_body (ValaCatchClause* self,
-                            ValaBlock* value)
-{
-	ValaBlock* _tmp0_;
-	ValaBlock* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_body);
-	self->priv->_body = _tmp0_;
-	_tmp1_ = self->priv->_body;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaLocalVariable*
-vala_catch_clause_get_error_variable (ValaCatchClause* self)
-{
-	ValaLocalVariable* result;
-	ValaLocalVariable* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_error_variable;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_catch_clause_set_error_variable (ValaCatchClause* self,
-                                      ValaLocalVariable* value)
-{
-	ValaLocalVariable* _tmp0_;
-	ValaLocalVariable* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_error_variable);
-	self->priv->_error_variable = _tmp0_;
-	_tmp1_ = self->priv->_error_variable;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-const gchar*
-vala_catch_clause_get_clabel_name (ValaCatchClause* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_clabel_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_catch_clause_set_clabel_name (ValaCatchClause* self,
-                                   const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_clabel_name);
-	self->priv->_clabel_name = _tmp0_;
-}
-
-
 static void
-vala_catch_clause_class_init (ValaCatchClauseClass * klass)
+vala_catch_clause_class_init (ValaCatchClauseClass * klass,
+                              gpointer klass_data)
 {
 	vala_catch_clause_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_catch_clause_finalize;
@@ -510,13 +489,12 @@ vala_catch_clause_class_init (ValaCatchClauseClass * klass)
 	((ValaCodeNodeClass *) klass)->get_defined_variables = (void (*) (ValaCodeNode*, ValaCollection*)) vala_catch_clause_real_get_defined_variables;
 }
 
-
 static void
-vala_catch_clause_instance_init (ValaCatchClause * self)
+vala_catch_clause_instance_init (ValaCatchClause * self,
+                                 gpointer klass)
 {
 	self->priv = vala_catch_clause_get_instance_private (self);
 }
-
 
 static void
 vala_catch_clause_finalize (ValaCodeNode * obj)
@@ -531,23 +509,28 @@ vala_catch_clause_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_catch_clause_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a catch clause in a try statement in the source code.
  */
+static GType
+vala_catch_clause_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCatchClauseClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_catch_clause_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCatchClause), 0, (GInstanceInitFunc) vala_catch_clause_instance_init, NULL };
+	GType vala_catch_clause_type_id;
+	vala_catch_clause_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaCatchClause", &g_define_type_info, 0);
+	ValaCatchClause_private_offset = g_type_add_instance_private (vala_catch_clause_type_id, sizeof (ValaCatchClausePrivate));
+	return vala_catch_clause_type_id;
+}
+
 GType
 vala_catch_clause_get_type (void)
 {
 	static volatile gsize vala_catch_clause_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_catch_clause_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCatchClauseClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_catch_clause_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCatchClause), 0, (GInstanceInitFunc) vala_catch_clause_instance_init, NULL };
 		GType vala_catch_clause_type_id;
-		vala_catch_clause_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaCatchClause", &g_define_type_info, 0);
-		ValaCatchClause_private_offset = g_type_add_instance_private (vala_catch_clause_type_id, sizeof (ValaCatchClausePrivate));
+		vala_catch_clause_type_id = vala_catch_clause_get_type_once ();
 		g_once_init_leave (&vala_catch_clause_type_id__volatile, vala_catch_clause_type_id);
 	}
 	return vala_catch_clause_type_id__volatile;
 }
-
-
 

@@ -23,13 +23,12 @@
  *  Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
 #include <gobject/gvaluecollector.h>
 
@@ -47,19 +46,17 @@ struct _ValadocImporterParamSpecInternalIdRegistrar {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValadocImporterInternalIdRegistrar_private_offset;
 static gpointer valadoc_importer_internal_id_registrar_parent_class = NULL;
 
 static void valadoc_importer_internal_id_registrar_finalize (ValadocImporterInternalIdRegistrar * obj);
-
+static GType valadoc_importer_internal_id_registrar_get_type_once (void);
 
 static inline gpointer
 valadoc_importer_internal_id_registrar_get_instance_private (ValadocImporterInternalIdRegistrar* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocImporterInternalIdRegistrar_private_offset);
 }
-
 
 ValadocImporterInternalIdRegistrar*
 valadoc_importer_internal_id_registrar_construct (GType object_type)
@@ -89,13 +86,11 @@ valadoc_importer_internal_id_registrar_construct (GType object_type)
 	return self;
 }
 
-
 ValadocImporterInternalIdRegistrar*
 valadoc_importer_internal_id_registrar_new (void)
 {
 	return valadoc_importer_internal_id_registrar_construct (VALADOC_IMPORTER_TYPE_INTERNAL_ID_REGISTRAR);
 }
-
 
 void
 valadoc_importer_internal_id_registrar_register_symbol (ValadocImporterInternalIdRegistrar* self,
@@ -110,14 +105,13 @@ valadoc_importer_internal_id_registrar_register_symbol (ValadocImporterInternalI
 	vala_map_set ((ValaMap*) _tmp0_, id, symbol);
 }
 
-
 gchar*
 valadoc_importer_internal_id_registrar_map_url_id (ValadocImporterInternalIdRegistrar* self,
                                                    const gchar* id)
 {
-	gchar* result = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (id != NULL, NULL);
 	_tmp0_ = self->priv->map;
@@ -126,14 +120,13 @@ valadoc_importer_internal_id_registrar_map_url_id (ValadocImporterInternalIdRegi
 	return result;
 }
 
-
 ValadocApiNode*
 valadoc_importer_internal_id_registrar_map_symbol_id (ValadocImporterInternalIdRegistrar* self,
                                                       const gchar* id)
 {
-	ValadocApiNode* result = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
+	ValadocApiNode* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (id != NULL, NULL);
 	_tmp0_ = self->priv->symbol_map;
@@ -141,7 +134,6 @@ valadoc_importer_internal_id_registrar_map_symbol_id (ValadocImporterInternalIdR
 	result = (ValadocApiNode*) _tmp1_;
 	return result;
 }
-
 
 void
 valadoc_importer_internal_id_registrar_read_index_sgml_file (ValadocImporterInternalIdRegistrar* self,
@@ -290,13 +282,11 @@ valadoc_importer_internal_id_registrar_read_index_sgml_file (ValadocImporterInte
 	_g_free0 (_tmp0_);
 }
 
-
 static void
 valadoc_importer_value_internal_id_registrar_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_importer_value_internal_id_registrar_free_value (GValue* value)
@@ -305,7 +295,6 @@ valadoc_importer_value_internal_id_registrar_free_value (GValue* value)
 		valadoc_importer_internal_id_registrar_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_importer_value_internal_id_registrar_copy_value (const GValue* src_value,
@@ -318,13 +307,11 @@ valadoc_importer_value_internal_id_registrar_copy_value (const GValue* src_value
 	}
 }
 
-
 static gpointer
 valadoc_importer_value_internal_id_registrar_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_importer_value_internal_id_registrar_collect_value (GValue* value,
@@ -347,7 +334,6 @@ valadoc_importer_value_internal_id_registrar_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_importer_value_internal_id_registrar_lcopy_value (const GValue* value,
                                                           guint n_collect_values,
@@ -369,7 +355,6 @@ valadoc_importer_value_internal_id_registrar_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_importer_param_spec_internal_id_registrar (const gchar* name,
                                                    const gchar* nick,
@@ -384,14 +369,12 @@ valadoc_importer_param_spec_internal_id_registrar (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_importer_value_get_internal_id_registrar (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_IMPORTER_TYPE_INTERNAL_ID_REGISTRAR), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_importer_value_set_internal_id_registrar (GValue* value,
@@ -413,7 +396,6 @@ valadoc_importer_value_set_internal_id_registrar (GValue* value,
 	}
 }
 
-
 void
 valadoc_importer_value_take_internal_id_registrar (GValue* value,
                                                    gpointer v_object)
@@ -433,23 +415,22 @@ valadoc_importer_value_take_internal_id_registrar (GValue* value,
 	}
 }
 
-
 static void
-valadoc_importer_internal_id_registrar_class_init (ValadocImporterInternalIdRegistrarClass * klass)
+valadoc_importer_internal_id_registrar_class_init (ValadocImporterInternalIdRegistrarClass * klass,
+                                                   gpointer klass_data)
 {
 	valadoc_importer_internal_id_registrar_parent_class = g_type_class_peek_parent (klass);
 	((ValadocImporterInternalIdRegistrarClass *) klass)->finalize = valadoc_importer_internal_id_registrar_finalize;
 	g_type_class_adjust_private_offset (klass, &ValadocImporterInternalIdRegistrar_private_offset);
 }
 
-
 static void
-valadoc_importer_internal_id_registrar_instance_init (ValadocImporterInternalIdRegistrar * self)
+valadoc_importer_internal_id_registrar_instance_init (ValadocImporterInternalIdRegistrar * self,
+                                                      gpointer klass)
 {
 	self->priv = valadoc_importer_internal_id_registrar_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_importer_internal_id_registrar_finalize (ValadocImporterInternalIdRegistrar * obj)
@@ -461,23 +442,29 @@ valadoc_importer_internal_id_registrar_finalize (ValadocImporterInternalIdRegist
 	_vala_map_unref0 (self->priv->map);
 }
 
+static GType
+valadoc_importer_internal_id_registrar_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_importer_value_internal_id_registrar_init, valadoc_importer_value_internal_id_registrar_free_value, valadoc_importer_value_internal_id_registrar_copy_value, valadoc_importer_value_internal_id_registrar_peek_pointer, "p", valadoc_importer_value_internal_id_registrar_collect_value, "p", valadoc_importer_value_internal_id_registrar_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterInternalIdRegistrarClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_internal_id_registrar_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterInternalIdRegistrar), 0, (GInstanceInitFunc) valadoc_importer_internal_id_registrar_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_importer_internal_id_registrar_type_id;
+	valadoc_importer_internal_id_registrar_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocImporterInternalIdRegistrar", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocImporterInternalIdRegistrar_private_offset = g_type_add_instance_private (valadoc_importer_internal_id_registrar_type_id, sizeof (ValadocImporterInternalIdRegistrarPrivate));
+	return valadoc_importer_internal_id_registrar_type_id;
+}
 
 GType
 valadoc_importer_internal_id_registrar_get_type (void)
 {
 	static volatile gsize valadoc_importer_internal_id_registrar_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_importer_internal_id_registrar_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_importer_value_internal_id_registrar_init, valadoc_importer_value_internal_id_registrar_free_value, valadoc_importer_value_internal_id_registrar_copy_value, valadoc_importer_value_internal_id_registrar_peek_pointer, "p", valadoc_importer_value_internal_id_registrar_collect_value, "p", valadoc_importer_value_internal_id_registrar_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterInternalIdRegistrarClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_internal_id_registrar_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterInternalIdRegistrar), 0, (GInstanceInitFunc) valadoc_importer_internal_id_registrar_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_importer_internal_id_registrar_type_id;
-		valadoc_importer_internal_id_registrar_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocImporterInternalIdRegistrar", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocImporterInternalIdRegistrar_private_offset = g_type_add_instance_private (valadoc_importer_internal_id_registrar_type_id, sizeof (ValadocImporterInternalIdRegistrarPrivate));
+		valadoc_importer_internal_id_registrar_type_id = valadoc_importer_internal_id_registrar_get_type_once ();
 		g_once_init_leave (&valadoc_importer_internal_id_registrar_type_id__volatile, valadoc_importer_internal_id_registrar_type_id);
 	}
 	return valadoc_importer_internal_id_registrar_type_id__volatile;
 }
-
 
 gpointer
 valadoc_importer_internal_id_registrar_ref (gpointer instance)
@@ -487,7 +474,6 @@ valadoc_importer_internal_id_registrar_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_importer_internal_id_registrar_unref (gpointer instance)
@@ -499,6 +485,4 @@ valadoc_importer_internal_id_registrar_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

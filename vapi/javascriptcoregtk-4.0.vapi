@@ -151,19 +151,81 @@ namespace JS {
 }
 [CCode (cprefix = "JSC", gir_namespace = "JavaScriptCore", gir_version = "4.0", lower_case_cprefix = "jsc_")]
 namespace JSC {
+	namespace Options {
+		[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_OPTIONS_USE_DFG")]
+		[Version (since = "2.24")]
+		public const string USE_DFG;
+		[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_OPTIONS_USE_FTL")]
+		[Version (since = "2.24")]
+		public const string USE_FTL;
+		[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_OPTIONS_USE_JIT")]
+		[Version (since = "2.24")]
+		public const string USE_JIT;
+		[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_OPTIONS_USE_LLINT")]
+		[Version (since = "2.24")]
+		public const string USE_LLINT;
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static void @foreach (JSC.OptionsFunc function);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_boolean (string option, out bool value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_double (string option, out double value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_int (string option, out int value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static GLib.OptionGroup get_option_group ();
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_range_string (string option, out string value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_size (string option, out size_t value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_string (string option, out string value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool get_uint (string option, out uint value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_boolean (string option, bool value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_double (string option, double value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_int (string option, int value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_range_string (string option, string value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_size (string option, size_t value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_string (string option, string value);
+		[CCode (cheader_filename = "jsc/jsc.h")]
+		[Version (since = "2.24")]
+		public static bool set_uint (string option, uint value);
+	}
 	[CCode (cheader_filename = "jsc/jsc.h", type_id = "jsc_class_get_type ()")]
 	public class Class : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Class ();
-		public JSC.Value add_constructor_variadic (string? name, GLib.Callback callback, void* user_data, GLib.DestroyNotify? destroy_notify, GLib.Type return_type);
-		public JSC.Value add_constructorv (string? name, GLib.Callback callback, void* user_data, GLib.DestroyNotify? destroy_notify, GLib.Type return_type, [CCode (array_length_cname = "n_parameters", array_length_pos = 5.5, array_length_type = "guint")] GLib.Type[]? parameter_types);
-		public void add_method_variadic (string name, GLib.Callback callback, void* user_data, GLib.DestroyNotify? destroy_notify, GLib.Type return_type);
-		public void add_methodv (string name, GLib.Callback callback, void* user_data, GLib.DestroyNotify? destroy_notify, GLib.Type return_type, [CCode (array_length_cname = "n_parameters", array_length_pos = 5.5, array_length_type = "guint")] GLib.Type[]? parameter_types);
+		[CCode (cname = "jsc_class_add_constructor_variadic")]
+		public JSC.Value add_constructor (string? name, [CCode (delegate_target_pos = 2.33333, destroy_notify_pos = 2.66667, type = "GCallback")] owned JSC.ClassConstructorCb callback, GLib.Type return_type);
+		[CCode (cname = "jsc_class_add_method_variadic")]
+		public void add_method (string name, [CCode (delegate_target_pos = 2.33333, destroy_notify_pos = 2.66667, type = "GCallback")] owned JSC.ClassMethodCb callback, GLib.Type return_type);
 		public void add_property (string name, GLib.Type property_type, [CCode (scope = "async")] GLib.Callback? getter, GLib.Callback? setter, void* user_data, GLib.DestroyNotify? destroy_notify);
 		public unowned string get_name ();
 		public unowned JSC.Class get_parent ();
 		[NoAccessorMethod]
-		public JSC.Context context { owned get; construct; }
+		public JSC.Context context { construct; }
 		public string name { get; construct; }
 		public JSC.Class parent { get; construct; }
 	}
@@ -218,6 +280,9 @@ namespace JSC {
 		[CCode (has_construct_function = false)]
 		public Value.boolean (JSC.Context context, bool value);
 		public JSC.Value constructor_callv ([CCode (array_length_cname = "n_parameters", array_length_pos = 0.5, array_length_type = "guint")] JSC.Value[]? parameters);
+		[CCode (has_construct_function = false)]
+		[Version (since = "2.28")]
+		public Value.from_json (JSC.Context context, global::string json);
 		public JSC.Value function_callv ([CCode (array_length_cname = "n_parameters", array_length_pos = 0.5, array_length_type = "guint")] JSC.Value[]? parameters);
 		[CCode (has_construct_function = false)]
 		public Value.function_variadic (JSC.Context context, global::string? name, GLib.Callback callback, void* user_data, GLib.DestroyNotify? destroy_notify, GLib.Type return_type);
@@ -238,7 +303,7 @@ namespace JSC {
 		[CCode (has_construct_function = false)]
 		public Value.number (JSC.Context context, double number);
 		[CCode (has_construct_function = false)]
-		public Value.object (JSC.Context context, void* instance, JSC.Class? jsc_class);
+		public Value.object (JSC.Context context, owned void* instance, JSC.Class? jsc_class);
 		public void object_define_property_accessor (global::string property_name, JSC.ValuePropertyFlags flags, GLib.Type property_type, [CCode (scope = "async")] GLib.Callback? getter, GLib.Callback? setter, void* user_data, GLib.DestroyNotify? destroy_notify);
 		public void object_define_property_data (global::string property_name, JSC.ValuePropertyFlags flags, JSC.Value? property_value);
 		public bool object_delete_property (global::string name);
@@ -258,6 +323,8 @@ namespace JSC {
 		public bool to_boolean ();
 		public double to_double ();
 		public int32 to_int32 ();
+		[Version (since = "2.28")]
+		public global::string to_json (uint indent);
 		public global::string to_string ();
 		public GLib.Bytes to_string_as_bytes ();
 		[CCode (has_construct_function = false)]
@@ -300,6 +367,17 @@ namespace JSC {
 		OUT_OF_MEMORY_ERROR,
 		STACK_OVERFLOW_ERROR
 	}
+	[CCode (cheader_filename = "jsc/jsc.h", cprefix = "JSC_OPTION_", has_type_id = false)]
+	[Version (since = "2.24")]
+	public enum OptionType {
+		BOOLEAN,
+		INT,
+		UINT,
+		SIZE,
+		DOUBLE,
+		STRING,
+		RANGE_STRING
+	}
 	[CCode (cheader_filename = "jsc/jsc.h", cprefix = "JSC_VALUE_PROPERTY_", has_type_id = false)]
 	[Flags]
 	public enum ValuePropertyFlags {
@@ -307,6 +385,8 @@ namespace JSC {
 		ENUMERABLE,
 		WRITABLE
 	}
+	[CCode (cheader_filename = "jsc/jsc.h", cname = "GCallback", instance_pos = 1.9)]
+	public delegate T ClassConstructorCb<T> (GLib.GenericArray<JSC.Value> values);
 	[CCode (cheader_filename = "jsc/jsc.h", has_target = false)]
 	public delegate bool ClassDeletePropertyFunction (JSC.Class jsc_class, JSC.Context context, void* instance, string name);
 	[CCode (array_length = false, array_null_terminated = true, cheader_filename = "jsc/jsc.h", has_target = false)]
@@ -315,10 +395,15 @@ namespace JSC {
 	public delegate JSC.Value? ClassGetPropertyFunction (JSC.Class jsc_class, JSC.Context context, void* instance, string name);
 	[CCode (cheader_filename = "jsc/jsc.h", has_target = false)]
 	public delegate bool ClassHasPropertyFunction (JSC.Class jsc_class, JSC.Context context, void* instance, string name);
+	[CCode (cheader_filename = "jsc/jsc.h", cname = "GCallback", instance_pos = 2.9)]
+	public delegate T ClassMethodCb<T> (JSC.Class instance, GLib.GenericArray<JSC.Value> values);
 	[CCode (cheader_filename = "jsc/jsc.h", has_target = false)]
 	public delegate bool ClassSetPropertyFunction (JSC.Class jsc_class, JSC.Context context, void* instance, string name, JSC.Value value);
 	[CCode (cheader_filename = "jsc/jsc.h", instance_pos = 2.9)]
 	public delegate void ExceptionHandler (JSC.Context context, JSC.Exception exception);
+	[CCode (cheader_filename = "jsc/jsc.h", instance_pos = 3.9)]
+	[Version (since = "2.24")]
+	public delegate bool OptionsFunc (string option, JSC.OptionType type, string? description);
 	[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_MAJOR_VERSION")]
 	public const int MAJOR_VERSION;
 	[CCode (cheader_filename = "jsc/jsc.h", cname = "JSC_MICRO_VERSION")]

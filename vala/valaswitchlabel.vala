@@ -39,7 +39,6 @@ public class Vala.SwitchLabel : CodeNode {
 
 	public weak SwitchSection section {
 		get { return (SwitchSection) parent_node; }
-		set { parent_node = value; }
 	}
 
 	private Expression _expression;
@@ -90,8 +89,8 @@ public class Vala.SwitchLabel : CodeNode {
 
 			// enum-type inference
 			var condition_target_type = switch_statement.expression.target_type;
-			if (expression.symbol_reference == null && condition_target_type != null && condition_target_type.data_type is Enum) {
-				var enum_type = (Enum) condition_target_type.data_type;
+			if (expression.symbol_reference == null && condition_target_type != null && condition_target_type.type_symbol is Enum) {
+				var enum_type = (Enum) condition_target_type.type_symbol;
 				foreach (var val in enum_type.get_values ()) {
 					if (expression.to_string () == val.name) {
 						expression.target_type = condition_target_type.copy ();

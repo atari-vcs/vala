@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
@@ -41,30 +39,17 @@ struct _ValaParamSpecTargetValue {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaTargetValue_private_offset;
 static gpointer vala_target_value_parent_class = NULL;
 
 static void vala_target_value_finalize (ValaTargetValue * obj);
-
+static GType vala_target_value_get_type_once (void);
 
 static inline gpointer
 vala_target_value_get_instance_private (ValaTargetValue* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaTargetValue_private_offset);
 }
-
-
-ValaTargetValue*
-vala_target_value_construct (GType object_type,
-                             ValaDataType* value_type)
-{
-	ValaTargetValue* self = NULL;
-	self = (ValaTargetValue*) g_type_create_instance (object_type);
-	vala_target_value_set_value_type (self, value_type);
-	return self;
-}
-
 
 ValaDataType*
 vala_target_value_get_value_type (ValaTargetValue* self)
@@ -77,13 +62,11 @@ vala_target_value_get_value_type (ValaTargetValue* self)
 	return result;
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
-
 
 void
 vala_target_value_set_value_type (ValaTargetValue* self,
@@ -96,7 +79,6 @@ vala_target_value_set_value_type (ValaTargetValue* self,
 	self->priv->_value_type = _tmp0_;
 }
 
-
 ValaDataType*
 vala_target_value_get_actual_value_type (ValaTargetValue* self)
 {
@@ -107,7 +89,6 @@ vala_target_value_get_actual_value_type (ValaTargetValue* self)
 	result = _tmp0_;
 	return result;
 }
-
 
 void
 vala_target_value_set_actual_value_type (ValaTargetValue* self,
@@ -120,13 +101,21 @@ vala_target_value_set_actual_value_type (ValaTargetValue* self,
 	self->priv->_actual_value_type = _tmp0_;
 }
 
+ValaTargetValue*
+vala_target_value_construct (GType object_type,
+                             ValaDataType* value_type)
+{
+	ValaTargetValue* self = NULL;
+	self = (ValaTargetValue*) g_type_create_instance (object_type);
+	vala_target_value_set_value_type (self, value_type);
+	return self;
+}
 
 static void
 vala_value_target_value_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_target_value_free_value (GValue* value)
@@ -135,7 +124,6 @@ vala_value_target_value_free_value (GValue* value)
 		vala_target_value_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_target_value_copy_value (const GValue* src_value,
@@ -148,13 +136,11 @@ vala_value_target_value_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_target_value_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_target_value_collect_value (GValue* value,
@@ -177,7 +163,6 @@ vala_value_target_value_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_target_value_lcopy_value (const GValue* value,
                                      guint n_collect_values,
@@ -199,7 +184,6 @@ vala_value_target_value_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_target_value (const gchar* name,
                               const gchar* nick,
@@ -214,14 +198,12 @@ vala_param_spec_target_value (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_target_value (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_TARGET_VALUE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_target_value (GValue* value,
@@ -243,7 +225,6 @@ vala_value_set_target_value (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_target_value (GValue* value,
                               gpointer v_object)
@@ -263,23 +244,22 @@ vala_value_take_target_value (GValue* value,
 	}
 }
 
-
 static void
-vala_target_value_class_init (ValaTargetValueClass * klass)
+vala_target_value_class_init (ValaTargetValueClass * klass,
+                              gpointer klass_data)
 {
 	vala_target_value_parent_class = g_type_class_peek_parent (klass);
 	((ValaTargetValueClass *) klass)->finalize = vala_target_value_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaTargetValue_private_offset);
 }
 
-
 static void
-vala_target_value_instance_init (ValaTargetValue * self)
+vala_target_value_instance_init (ValaTargetValue * self,
+                                 gpointer klass)
 {
 	self->priv = vala_target_value_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_target_value_finalize (ValaTargetValue * obj)
@@ -291,23 +271,29 @@ vala_target_value_finalize (ValaTargetValue * obj)
 	_vala_code_node_unref0 (self->priv->_actual_value_type);
 }
 
+static GType
+vala_target_value_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_target_value_init, vala_value_target_value_free_value, vala_value_target_value_copy_value, vala_value_target_value_peek_pointer, "p", vala_value_target_value_collect_value, "p", vala_value_target_value_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaTargetValueClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_target_value_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTargetValue), 0, (GInstanceInitFunc) vala_target_value_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_target_value_type_id;
+	vala_target_value_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaTargetValue", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
+	ValaTargetValue_private_offset = g_type_add_instance_private (vala_target_value_type_id, sizeof (ValaTargetValuePrivate));
+	return vala_target_value_type_id;
+}
 
 GType
 vala_target_value_get_type (void)
 {
 	static volatile gsize vala_target_value_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_target_value_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_target_value_init, vala_value_target_value_free_value, vala_value_target_value_copy_value, vala_value_target_value_peek_pointer, "p", vala_value_target_value_collect_value, "p", vala_value_target_value_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaTargetValueClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_target_value_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTargetValue), 0, (GInstanceInitFunc) vala_target_value_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_target_value_type_id;
-		vala_target_value_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaTargetValue", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
-		ValaTargetValue_private_offset = g_type_add_instance_private (vala_target_value_type_id, sizeof (ValaTargetValuePrivate));
+		vala_target_value_type_id = vala_target_value_get_type_once ();
 		g_once_init_leave (&vala_target_value_type_id__volatile, vala_target_value_type_id);
 	}
 	return vala_target_value_type_id__volatile;
 }
-
 
 gpointer
 vala_target_value_ref (gpointer instance)
@@ -317,7 +303,6 @@ vala_target_value_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_target_value_unref (gpointer instance)
@@ -329,6 +314,4 @@ vala_target_value_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

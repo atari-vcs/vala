@@ -3,7 +3,7 @@
 
 /* htmlrenderer.vala
  *
- * Copyright (C) 2008-20014 Florian Brosch, Didier Villevalois
+ * Copyright (C) 2008-2014 Florian Brosch, Didier Villevalois
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,13 +23,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_HTML_HTML_RENDERER_0_PROPERTY,
@@ -41,7 +40,6 @@ static GParamSpec* valadoc_html_html_renderer_properties[VALADOC_HTML_HTML_RENDE
 typedef void (*ValadocHtmlHtmlRendererWrite) (gpointer user_data);
 typedef void (*ValadocHtmlHtmlRendererTagletWrite) (ValadocContentTaglet* taglet, gpointer user_data);
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
-
 
 static gpointer valadoc_html_html_renderer_parent_class = NULL;
 
@@ -70,71 +68,71 @@ static void valadoc_html_html_renderer_write_taglets (ValadocHtmlHtmlRenderer* s
                                                gpointer write_target);
 static void valadoc_html_html_renderer_real_visit_comment (ValadocContentContentVisitor* base,
                                                     ValadocContentComment* element);
+static void __lambda139_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda139__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda140_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda140__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda141_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda141__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda142_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda142__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda143_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda142_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda143__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda142__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
-static gint __lambda144_ (ValadocHtmlHtmlRenderer* self,
+static gint __lambda143_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* _a,
                    ValadocContentTaglet* _b);
-static gint ___lambda144__gcompare_data_func (gconstpointer a,
+static gint ___lambda143__gcompare_data_func (gconstpointer a,
                                        gconstpointer b,
                                        gpointer self);
+static void __lambda144_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda144__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda145_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda145__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda146_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda146__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda147_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda147__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda148_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda147_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda148__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda147__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
+static void __lambda148_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda148__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda149_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda149__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda150_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda150__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda151_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda151__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda152_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda151_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda152__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda151__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
+static void __lambda152_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda152__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda153_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda153__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda154_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda154__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda155_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda155__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda156_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda155_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda156__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda155__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
+static void __lambda156_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda156__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda157_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda157__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda158_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda158__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda159_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda159__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda160_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda159_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda160__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda159__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
+static void __lambda160_ (ValadocHtmlHtmlRenderer* self);
+static void ___lambda160__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda161_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda161__valadoc_html_html_renderer_write (gpointer self);
 static void __lambda162_ (ValadocHtmlHtmlRenderer* self);
 static void ___lambda162__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda163_ (ValadocHtmlHtmlRenderer* self);
-static void ___lambda163__valadoc_html_html_renderer_write (gpointer self);
-static void __lambda164_ (ValadocHtmlHtmlRenderer* self,
+static void __lambda163_ (ValadocHtmlHtmlRenderer* self,
                    ValadocContentTaglet* taglet);
-static void ___lambda164__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+static void ___lambda163__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                             gpointer self);
 static void valadoc_html_html_renderer_real_visit_embedded (ValadocContentContentVisitor* base,
                                                      ValadocContentEmbedded* element);
@@ -178,6 +176,7 @@ static void valadoc_html_html_renderer_real_visit_text (ValadocContentContentVis
 static void valadoc_html_html_renderer_write_string (ValadocHtmlHtmlRenderer* self,
                                               const gchar* content);
 static void valadoc_html_html_renderer_finalize (GObject * obj);
+static GType valadoc_html_html_renderer_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -185,13 +184,11 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocHtmlHtmlRenderer*
 valadoc_html_html_renderer_construct (GType object_type,
@@ -219,7 +216,6 @@ valadoc_html_html_renderer_construct (GType object_type,
 	return self;
 }
 
-
 ValadocHtmlHtmlRenderer*
 valadoc_html_html_renderer_new (ValadocSettings* settings,
                                 ValadocHtmlLinkHelper* linker,
@@ -227,7 +223,6 @@ valadoc_html_html_renderer_new (ValadocSettings* settings,
 {
 	return valadoc_html_html_renderer_construct (VALADOC_HTML_TYPE_HTML_RENDERER, settings, linker, cssresolver);
 }
-
 
 void
 valadoc_html_html_renderer_set_container (ValadocHtmlHtmlRenderer* self,
@@ -240,7 +235,6 @@ valadoc_html_html_renderer_set_container (ValadocHtmlHtmlRenderer* self,
 	self->_container = _tmp0_;
 }
 
-
 void
 valadoc_html_html_renderer_set_owner (ValadocHtmlHtmlRenderer* self,
                                       ValadocDocumentation* owner)
@@ -252,7 +246,6 @@ valadoc_html_html_renderer_set_owner (ValadocHtmlHtmlRenderer* self,
 	self->_owner = _tmp0_;
 }
 
-
 void
 valadoc_html_html_renderer_set_writer (ValadocHtmlHtmlRenderer* self,
                                        ValadocHtmlMarkupWriter* writer)
@@ -261,7 +254,6 @@ valadoc_html_html_renderer_set_writer (ValadocHtmlHtmlRenderer* self,
 	g_return_if_fail (writer != NULL);
 	self->writer = writer;
 }
-
 
 static void
 valadoc_html_html_renderer_real_render (ValadocContentContentRenderer* base,
@@ -273,7 +265,6 @@ valadoc_html_html_renderer_real_render (ValadocContentContentRenderer* base,
 	valadoc_content_content_element_accept (element, (ValadocContentContentVisitor*) self);
 }
 
-
 static void
 valadoc_html_html_renderer_real_render_children (ValadocContentContentRenderer* base,
                                                  ValadocContentContentElement* element)
@@ -284,16 +275,15 @@ valadoc_html_html_renderer_real_render_children (ValadocContentContentRenderer* 
 	valadoc_content_content_element_accept_children (element, (ValadocContentContentVisitor*) self);
 }
 
-
 static gchar*
 valadoc_html_html_renderer_get_url (ValadocHtmlHtmlRenderer* self,
                                     ValadocDocumentation* symbol)
 {
-	gchar* result = NULL;
 	ValadocHtmlLinkHelper* _tmp0_;
 	ValadocDocumentation* _tmp1_;
 	ValadocSettings* _tmp2_;
 	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = self->linker;
@@ -303,7 +293,6 @@ valadoc_html_html_renderer_get_url (ValadocHtmlHtmlRenderer* self,
 	result = _tmp3_;
 	return result;
 }
-
 
 static void
 valadoc_html_html_renderer_write_unresolved_symbol_link (ValadocHtmlHtmlRenderer* self,
@@ -331,7 +320,7 @@ valadoc_html_html_renderer_write_unresolved_symbol_link (ValadocHtmlHtmlRenderer
 		ValadocHtmlMarkupWriter* _tmp6_;
 		ValadocHtmlMarkupWriter* _tmp7_;
 		_tmp5_ = self->writer;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "code", NULL, 0);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "code", NULL, (gint) 0);
 		_tmp6_ = self->writer;
 		valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp6_, given_symbol_name);
 		_tmp7_ = self->writer;
@@ -340,13 +329,12 @@ valadoc_html_html_renderer_write_unresolved_symbol_link (ValadocHtmlHtmlRenderer
 		ValadocHtmlMarkupWriter* _tmp8_;
 		ValadocHtmlMarkupWriter* _tmp9_;
 		_tmp8_ = self->writer;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp8_, "i", NULL, 0);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp8_, "i", NULL, (gint) 0);
 		valadoc_content_content_element_accept_children ((ValadocContentContentElement*) label_owner, (ValadocContentContentVisitor*) self);
 		_tmp9_ = self->writer;
 		valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp9_, "i");
 	}
 }
-
 
 static void
 valadoc_html_html_renderer_write_resolved_symbol_link (ValadocHtmlHtmlRenderer* self,
@@ -392,12 +380,12 @@ valadoc_html_html_renderer_write_resolved_symbol_link (ValadocHtmlHtmlRenderer* 
 	_tmp4_ = g_strdup (_tmp0_);
 	symbol_name = _tmp4_;
 	_tmp7_ = self->_container;
-	if (symbol == _tmp7_) {
+	if (G_TYPE_CHECK_INSTANCE_CAST (symbol, VALADOC_TYPE_DOCUMENTATION, ValadocDocumentation) == _tmp7_) {
 		_tmp6_ = TRUE;
 	} else {
 		ValadocDocumentation* _tmp8_;
 		_tmp8_ = self->_owner;
-		_tmp6_ = symbol == _tmp8_;
+		_tmp6_ = G_TYPE_CHECK_INSTANCE_CAST (symbol, VALADOC_TYPE_DOCUMENTATION, ValadocDocumentation) == _tmp8_;
 	}
 	if (_tmp6_) {
 		_g_free0 (_tmp5_);
@@ -440,7 +428,7 @@ valadoc_html_html_renderer_write_resolved_symbol_link (ValadocHtmlHtmlRenderer* 
 		_tmp21_[3] = _tmp20_;
 		_tmp22_ = _tmp21_;
 		_tmp22__length1 = 4;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp14_, "a", _tmp22_, 4);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp14_, "a", _tmp22_, (gint) 4);
 		_tmp22_ = (_vala_array_free (_tmp22_, _tmp22__length1, (GDestroyNotify) g_free), NULL);
 		_tmp23_ = g_strdup ("a");
 		_g_free0 (end_tag_name);
@@ -463,7 +451,7 @@ valadoc_html_html_renderer_write_resolved_symbol_link (ValadocHtmlHtmlRenderer* 
 		_tmp28_[1] = _tmp27_;
 		_tmp29_ = _tmp28_;
 		_tmp29__length1 = 2;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp24_, "span", _tmp29_, 2);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp24_, "span", _tmp29_, (gint) 2);
 		_tmp29_ = (_vala_array_free (_tmp29_, _tmp29__length1, (GDestroyNotify) g_free), NULL);
 		_tmp30_ = g_strdup ("span");
 		_g_free0 (end_tag_name);
@@ -502,13 +490,11 @@ valadoc_html_html_renderer_write_resolved_symbol_link (ValadocHtmlHtmlRenderer* 
 	_g_free0 (_tmp0_);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_html_html_renderer_write_taglets (ValadocHtmlHtmlRenderer* self,
@@ -550,30 +536,24 @@ valadoc_html_html_renderer_write_taglets (ValadocHtmlHtmlRenderer* self,
 			while (TRUE) {
 				gint _tmp6_;
 				gint _tmp7_;
-				gint _tmp8_;
 				ValadocContentTaglet* taglet = NULL;
-				ValaList* _tmp9_;
-				gint _tmp10_;
-				gpointer _tmp11_;
-				gboolean _tmp12_;
-				ValadocContentTaglet* _tmp13_;
+				ValaList* _tmp8_;
+				gpointer _tmp9_;
+				ValadocContentTaglet* _tmp10_;
+				_taglet_index = _taglet_index + 1;
 				_tmp6_ = _taglet_index;
-				_taglet_index = _tmp6_ + 1;
-				_tmp7_ = _taglet_index;
-				_tmp8_ = _taglet_size;
-				if (!(_tmp7_ < _tmp8_)) {
+				_tmp7_ = _taglet_size;
+				if (!(_tmp6_ < _tmp7_)) {
 					break;
 				}
-				_tmp9_ = _taglet_list;
-				_tmp10_ = _taglet_index;
-				_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-				taglet = (ValadocContentTaglet*) _tmp11_;
-				_tmp12_ = first;
-				if (!_tmp12_) {
+				_tmp8_ = _taglet_list;
+				_tmp9_ = vala_list_get (_tmp8_, _taglet_index);
+				taglet = (ValadocContentTaglet*) _tmp9_;
+				if (!first) {
 					separator (separator_target);
 				}
-				_tmp13_ = taglet;
-				write (_tmp13_, write_target);
+				_tmp10_ = taglet;
+				write (_tmp10_, write_target);
 				first = FALSE;
 				_g_object_unref0 (taglet);
 			}
@@ -583,9 +563,8 @@ valadoc_html_html_renderer_write_taglets (ValadocHtmlHtmlRenderer* self,
 	}
 }
 
-
 static void
-__lambda140_ (ValadocHtmlHtmlRenderer* self)
+__lambda139_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -604,14 +583,27 @@ __lambda140_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "p", _tmp4_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "p", _tmp4_, (gint) 2);
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
 	_tmp5_ = self->writer;
-	_tmp6_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "b", NULL, 0);
+	_tmp6_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "b", NULL, (gint) 0);
 	_tmp7_ = valadoc_markup_writer_text (_tmp6_, "Deprecated: ");
 	valadoc_markup_writer_end_tag (_tmp7_, "b");
 }
 
+static void
+___lambda139__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda139_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda140_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
+}
 
 static void
 ___lambda140__valadoc_html_html_renderer_write (gpointer self)
@@ -619,15 +611,10 @@ ___lambda140__valadoc_html_html_renderer_write (gpointer self)
 	__lambda140_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda141_ (ValadocHtmlHtmlRenderer* self)
 {
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
 }
-
 
 static void
 ___lambda141__valadoc_html_html_renderer_write (gpointer self)
@@ -635,48 +622,31 @@ ___lambda141__valadoc_html_html_renderer_write (gpointer self)
 	__lambda141_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda142_ (ValadocHtmlHtmlRenderer* self)
-{
-}
-
-
-static void
-___lambda142__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda142_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda143_ (ValadocHtmlHtmlRenderer* self,
+__lambda142_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsDeprecated* deprecated = NULL;
 	ValadocTagletsDeprecated* _tmp0_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_DEPRECATED) ? ((ValadocTagletsDeprecated*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_DEPRECATED (taglet) ? ((ValadocTagletsDeprecated*) taglet) : NULL);
 	deprecated = _tmp0_;
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) deprecated, (ValadocContentContentVisitor*) self);
 	_g_object_unref0 (deprecated);
 }
 
-
 static void
-___lambda143__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda142__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda143_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda142_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
 
-
 static gint
-__lambda144_ (ValadocHtmlHtmlRenderer* self,
+__lambda143_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* _a,
               ValadocContentTaglet* _b)
 {
-	gint result = 0;
 	ValadocTagletsParam* a = NULL;
 	ValadocTagletsParam* _tmp0_;
 	ValadocTagletsParam* b = NULL;
@@ -685,23 +655,24 @@ __lambda144_ (ValadocHtmlHtmlRenderer* self,
 	ValadocTagletsParam* _tmp3_;
 	gint _tmp4_;
 	gint _tmp5_;
-	ValadocTagletsParam* _tmp22_;
+	ValadocTagletsParam* _tmp21_;
+	gint _tmp22_;
 	gint _tmp23_;
-	gint _tmp24_;
-	ValadocTagletsParam* _tmp25_;
+	ValadocTagletsParam* _tmp24_;
+	gint _tmp25_;
 	gint _tmp26_;
-	gint _tmp27_;
-	ValadocTagletsParam* _tmp28_;
+	ValadocTagletsParam* _tmp27_;
+	gint _tmp28_;
 	gint _tmp29_;
-	gint _tmp30_;
-	ValadocTagletsParam* _tmp31_;
+	ValadocTagletsParam* _tmp30_;
+	gint _tmp31_;
 	gint _tmp32_;
-	gint _tmp33_;
+	gint result = 0;
 	g_return_val_if_fail (_a != NULL, 0);
 	g_return_val_if_fail (_b != NULL, 0);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_a, VALADOC_TAGLETS_TYPE_PARAM) ? ((ValadocTagletsParam*) _a) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_PARAM (_a) ? ((ValadocTagletsParam*) _a) : NULL);
 	a = _tmp0_;
-	_tmp1_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_b, VALADOC_TAGLETS_TYPE_PARAM) ? ((ValadocTagletsParam*) _b) : NULL);
+	_tmp1_ = _g_object_ref0 (VALADOC_TAGLETS_IS_PARAM (_b) ? ((ValadocTagletsParam*) _b) : NULL);
 	b = _tmp1_;
 	_tmp3_ = a;
 	_tmp4_ = valadoc_taglets_param_get_position (_tmp3_);
@@ -725,13 +696,12 @@ __lambda144_ (ValadocHtmlHtmlRenderer* self,
 		ValadocTagletsParam* _tmp12_;
 		const gchar* _tmp13_;
 		const gchar* _tmp14_;
-		gint _tmp15_;
-		ValadocTagletsParam* _tmp16_;
+		ValadocTagletsParam* _tmp15_;
+		const gchar* _tmp16_;
 		const gchar* _tmp17_;
-		const gchar* _tmp18_;
-		ValadocTagletsParam* _tmp19_;
+		ValadocTagletsParam* _tmp18_;
+		const gchar* _tmp19_;
 		const gchar* _tmp20_;
-		const gchar* _tmp21_;
 		_tmp9_ = a;
 		_tmp10_ = valadoc_taglets_param_get_parameter_name (_tmp9_);
 		_tmp11_ = _tmp10_;
@@ -739,26 +709,25 @@ __lambda144_ (ValadocHtmlHtmlRenderer* self,
 		_tmp13_ = valadoc_taglets_param_get_parameter_name (_tmp12_);
 		_tmp14_ = _tmp13_;
 		cmp = g_ascii_strcasecmp (_tmp11_, _tmp14_);
-		_tmp15_ = cmp;
-		if (_tmp15_ == 0) {
+		if (cmp == 0) {
 			result = 0;
 			_g_object_unref0 (b);
 			_g_object_unref0 (a);
 			return result;
 		}
-		_tmp16_ = a;
-		_tmp17_ = valadoc_taglets_param_get_parameter_name (_tmp16_);
-		_tmp18_ = _tmp17_;
-		if (g_strcmp0 (_tmp18_, "...") == 0) {
+		_tmp15_ = a;
+		_tmp16_ = valadoc_taglets_param_get_parameter_name (_tmp15_);
+		_tmp17_ = _tmp16_;
+		if (g_strcmp0 (_tmp17_, "...") == 0) {
 			result = 1;
 			_g_object_unref0 (b);
 			_g_object_unref0 (a);
 			return result;
 		}
-		_tmp19_ = b;
-		_tmp20_ = valadoc_taglets_param_get_parameter_name (_tmp19_);
-		_tmp21_ = _tmp20_;
-		if (g_strcmp0 (_tmp21_, "...") == 0) {
+		_tmp18_ = b;
+		_tmp19_ = valadoc_taglets_param_get_parameter_name (_tmp18_);
+		_tmp20_ = _tmp19_;
+		if (g_strcmp0 (_tmp20_, "...") == 0) {
 			result = -1;
 			_g_object_unref0 (b);
 			_g_object_unref0 (a);
@@ -769,50 +738,48 @@ __lambda144_ (ValadocHtmlHtmlRenderer* self,
 		_g_object_unref0 (a);
 		return result;
 	}
-	_tmp22_ = a;
-	_tmp23_ = valadoc_taglets_param_get_position (_tmp22_);
-	_tmp24_ = _tmp23_;
-	if (_tmp24_ < 0) {
+	_tmp21_ = a;
+	_tmp22_ = valadoc_taglets_param_get_position (_tmp21_);
+	_tmp23_ = _tmp22_;
+	if (_tmp23_ < 0) {
 		result = 1;
 		_g_object_unref0 (b);
 		_g_object_unref0 (a);
 		return result;
 	}
-	_tmp25_ = b;
-	_tmp26_ = valadoc_taglets_param_get_position (_tmp25_);
-	_tmp27_ = _tmp26_;
-	if (_tmp27_ < 0) {
+	_tmp24_ = b;
+	_tmp25_ = valadoc_taglets_param_get_position (_tmp24_);
+	_tmp26_ = _tmp25_;
+	if (_tmp26_ < 0) {
 		result = -1;
 		_g_object_unref0 (b);
 		_g_object_unref0 (a);
 		return result;
 	}
-	_tmp28_ = a;
-	_tmp29_ = valadoc_taglets_param_get_position (_tmp28_);
-	_tmp30_ = _tmp29_;
-	_tmp31_ = b;
-	_tmp32_ = valadoc_taglets_param_get_position (_tmp31_);
-	_tmp33_ = _tmp32_;
-	result = _tmp30_ - _tmp33_;
+	_tmp27_ = a;
+	_tmp28_ = valadoc_taglets_param_get_position (_tmp27_);
+	_tmp29_ = _tmp28_;
+	_tmp30_ = b;
+	_tmp31_ = valadoc_taglets_param_get_position (_tmp30_);
+	_tmp32_ = _tmp31_;
+	result = _tmp29_ - _tmp32_;
 	_g_object_unref0 (b);
 	_g_object_unref0 (a);
 	return result;
 }
 
-
 static gint
-___lambda144__gcompare_data_func (gconstpointer a,
+___lambda143__gcompare_data_func (gconstpointer a,
                                   gconstpointer b,
                                   gpointer self)
 {
 	gint result;
-	result = __lambda144_ ((ValadocHtmlHtmlRenderer*) self, (ValadocContentTaglet*) a, (ValadocContentTaglet*) b);
+	result = __lambda143_ ((ValadocHtmlHtmlRenderer*) self, (ValadocContentTaglet*) a, (ValadocContentTaglet*) b);
 	return result;
 }
 
-
 static void
-__lambda145_ (ValadocHtmlHtmlRenderer* self)
+__lambda144_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -836,7 +803,7 @@ __lambda145_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, 2);
+	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, (gint) 2);
 	_tmp6_ = valadoc_markup_writer_text (_tmp5_, "Parameters:");
 	valadoc_markup_writer_end_tag (_tmp6_, "h2");
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
@@ -848,10 +815,23 @@ __lambda145_ (ValadocHtmlHtmlRenderer* self)
 	_tmp10_[1] = _tmp9_;
 	_tmp11_ = _tmp10_;
 	_tmp11__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, (gint) 2);
 	_tmp11_ = (_vala_array_free (_tmp11_, _tmp11__length1, (GDestroyNotify) g_free), NULL);
 }
 
+static void
+___lambda144__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda144_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda145_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
+}
 
 static void
 ___lambda145__valadoc_html_html_renderer_write (gpointer self)
@@ -859,15 +839,10 @@ ___lambda145__valadoc_html_html_renderer_write (gpointer self)
 	__lambda145_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda146_ (ValadocHtmlHtmlRenderer* self)
 {
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
 }
-
 
 static void
 ___lambda146__valadoc_html_html_renderer_write (gpointer self)
@@ -875,22 +850,8 @@ ___lambda146__valadoc_html_html_renderer_write (gpointer self)
 	__lambda146_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda147_ (ValadocHtmlHtmlRenderer* self)
-{
-}
-
-
-static void
-___lambda147__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda147_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda148_ (ValadocHtmlHtmlRenderer* self,
+__lambda147_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsParam* param = NULL;
@@ -921,7 +882,7 @@ __lambda148_ (ValadocHtmlHtmlRenderer* self,
 	ValadocHtmlMarkupWriter* _tmp25_;
 	ValadocHtmlMarkupWriter* _tmp26_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_PARAM) ? ((ValadocTagletsParam*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_PARAM (taglet) ? ((ValadocTagletsParam*) taglet) : NULL);
 	param = _tmp0_;
 	unknown_parameter_css = NULL;
 	unknown_parameter_css_length1 = 0;
@@ -957,7 +918,7 @@ __lambda148_ (ValadocHtmlHtmlRenderer* self,
 	_tmp11_ = self->writer;
 	_tmp12_ = unknown_parameter_css;
 	_tmp12__length1 = unknown_parameter_css_length1;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp11_, "tr", _tmp12_, _tmp12__length1);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp11_, "tr", _tmp12_, (gint) _tmp12__length1);
 	_tmp13_ = self->writer;
 	_tmp14_ = g_strdup ("class");
 	_tmp15_ = g_strdup ("main_parameter_table_name");
@@ -966,7 +927,7 @@ __lambda148_ (ValadocHtmlHtmlRenderer* self,
 	_tmp16_[1] = _tmp15_;
 	_tmp17_ = _tmp16_;
 	_tmp17__length1 = 2;
-	_tmp18_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp13_, "td", _tmp17_, 2);
+	_tmp18_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp13_, "td", _tmp17_, (gint) 2);
 	_tmp19_ = param;
 	_tmp20_ = valadoc_taglets_param_get_parameter_name (_tmp19_);
 	_tmp21_ = _tmp20_;
@@ -974,7 +935,7 @@ __lambda148_ (ValadocHtmlHtmlRenderer* self,
 	valadoc_markup_writer_end_tag (_tmp22_, "td");
 	_tmp17_ = (_vala_array_free (_tmp17_, _tmp17__length1, (GDestroyNotify) g_free), NULL);
 	_tmp23_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp23_, "td", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp23_, "td", NULL, (gint) 0);
 	_tmp24_ = param;
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) _tmp24_, (ValadocContentContentVisitor*) self);
 	_tmp25_ = self->writer;
@@ -985,17 +946,15 @@ __lambda148_ (ValadocHtmlHtmlRenderer* self,
 	_g_object_unref0 (param);
 }
 
-
 static void
-___lambda148__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda147__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda148_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda147_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
 
-
 static void
-__lambda149_ (ValadocHtmlHtmlRenderer* self)
+__lambda148_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -1019,7 +978,7 @@ __lambda149_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, 2);
+	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, (gint) 2);
 	_tmp6_ = valadoc_markup_writer_text (_tmp5_, "Returns:");
 	valadoc_markup_writer_end_tag (_tmp6_, "h2");
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
@@ -1031,10 +990,23 @@ __lambda149_ (ValadocHtmlHtmlRenderer* self)
 	_tmp10_[1] = _tmp9_;
 	_tmp11_ = _tmp10_;
 	_tmp11__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, (gint) 2);
 	_tmp11_ = (_vala_array_free (_tmp11_, _tmp11__length1, (GDestroyNotify) g_free), NULL);
 }
 
+static void
+___lambda148__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda148_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda149_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
+}
 
 static void
 ___lambda149__valadoc_html_html_renderer_write (gpointer self)
@@ -1042,15 +1014,10 @@ ___lambda149__valadoc_html_html_renderer_write (gpointer self)
 	__lambda149_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda150_ (ValadocHtmlHtmlRenderer* self)
 {
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
 }
-
 
 static void
 ___lambda150__valadoc_html_html_renderer_write (gpointer self)
@@ -1058,22 +1025,8 @@ ___lambda150__valadoc_html_html_renderer_write (gpointer self)
 	__lambda150_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda151_ (ValadocHtmlHtmlRenderer* self)
-{
-}
-
-
-static void
-___lambda151__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda151_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda152_ (ValadocHtmlHtmlRenderer* self,
+__lambda151_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsReturn* param = NULL;
@@ -1083,12 +1036,12 @@ __lambda152_ (ValadocHtmlHtmlRenderer* self,
 	ValadocHtmlMarkupWriter* _tmp3_;
 	ValadocHtmlMarkupWriter* _tmp4_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_RETURN) ? ((ValadocTagletsReturn*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_RETURN (taglet) ? ((ValadocTagletsReturn*) taglet) : NULL);
 	param = _tmp0_;
 	_tmp1_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "tr", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "tr", NULL, (gint) 0);
 	_tmp2_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "td", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "td", NULL, (gint) 0);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) param, (ValadocContentContentVisitor*) self);
 	_tmp3_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp3_, "td");
@@ -1097,17 +1050,15 @@ __lambda152_ (ValadocHtmlHtmlRenderer* self,
 	_g_object_unref0 (param);
 }
 
-
 static void
-___lambda152__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda151__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda152_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda151_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
 
-
 static void
-__lambda153_ (ValadocHtmlHtmlRenderer* self)
+__lambda152_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -1131,7 +1082,7 @@ __lambda153_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, 2);
+	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, (gint) 2);
 	_tmp6_ = valadoc_markup_writer_text (_tmp5_, "Exceptions:");
 	valadoc_markup_writer_end_tag (_tmp6_, "h2");
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
@@ -1143,10 +1094,23 @@ __lambda153_ (ValadocHtmlHtmlRenderer* self)
 	_tmp10_[1] = _tmp9_;
 	_tmp11_ = _tmp10_;
 	_tmp11__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "table", _tmp11_, (gint) 2);
 	_tmp11_ = (_vala_array_free (_tmp11_, _tmp11__length1, (GDestroyNotify) g_free), NULL);
 }
 
+static void
+___lambda152__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda152_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda153_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
+}
 
 static void
 ___lambda153__valadoc_html_html_renderer_write (gpointer self)
@@ -1154,15 +1118,10 @@ ___lambda153__valadoc_html_html_renderer_write (gpointer self)
 	__lambda153_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda154_ (ValadocHtmlHtmlRenderer* self)
 {
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "table");
 }
-
 
 static void
 ___lambda154__valadoc_html_html_renderer_write (gpointer self)
@@ -1170,22 +1129,8 @@ ___lambda154__valadoc_html_html_renderer_write (gpointer self)
 	__lambda154_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda155_ (ValadocHtmlHtmlRenderer* self)
-{
-}
-
-
-static void
-___lambda155__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda155_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda156_ (ValadocHtmlHtmlRenderer* self,
+__lambda155_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsThrows* exception = NULL;
@@ -1205,10 +1150,10 @@ __lambda156_ (ValadocHtmlHtmlRenderer* self,
 	ValadocHtmlMarkupWriter* _tmp12_;
 	ValadocHtmlMarkupWriter* _tmp13_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_THROWS) ? ((ValadocTagletsThrows*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_THROWS (taglet) ? ((ValadocTagletsThrows*) taglet) : NULL);
 	exception = _tmp0_;
 	_tmp1_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "tr", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "tr", NULL, (gint) 0);
 	_tmp2_ = self->writer;
 	_tmp3_ = g_strdup ("class");
 	_tmp4_ = g_strdup ("main_parameter_table_name");
@@ -1217,14 +1162,14 @@ __lambda156_ (ValadocHtmlHtmlRenderer* self,
 	_tmp5_[1] = _tmp4_;
 	_tmp6_ = _tmp5_;
 	_tmp6__length1 = 2;
-	_tmp7_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "td", _tmp6_, 2);
+	_tmp7_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "td", _tmp6_, (gint) 2);
 	_tmp8_ = valadoc_taglets_throws_get_error_domain_name (exception);
 	_tmp9_ = _tmp8_;
 	_tmp10_ = valadoc_markup_writer_text (_tmp7_, _tmp9_);
 	valadoc_markup_writer_end_tag (_tmp10_, "td");
 	_tmp6_ = (_vala_array_free (_tmp6_, _tmp6__length1, (GDestroyNotify) g_free), NULL);
 	_tmp11_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp11_, "td", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp11_, "td", NULL, (gint) 0);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) exception, (ValadocContentContentVisitor*) self);
 	_tmp12_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp12_, "td");
@@ -1233,17 +1178,15 @@ __lambda156_ (ValadocHtmlHtmlRenderer* self,
 	_g_object_unref0 (exception);
 }
 
-
 static void
-___lambda156__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda155__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda156_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda155_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
 
-
 static void
-__lambda157_ (ValadocHtmlHtmlRenderer* self)
+__lambda156_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -1262,14 +1205,27 @@ __lambda157_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, 2);
+	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, (gint) 2);
 	_tmp6_ = valadoc_markup_writer_text (_tmp5_, "Since:");
 	valadoc_markup_writer_end_tag (_tmp6_, "h2");
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
 	_tmp7_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", NULL, (gint) 0);
 }
 
+static void
+___lambda156__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda156_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda157_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
+}
 
 static void
 ___lambda157__valadoc_html_html_renderer_write (gpointer self)
@@ -1277,15 +1233,10 @@ ___lambda157__valadoc_html_html_renderer_write (gpointer self)
 	__lambda157_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda158_ (ValadocHtmlHtmlRenderer* self)
 {
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
 }
-
 
 static void
 ___lambda158__valadoc_html_html_renderer_write (gpointer self)
@@ -1293,22 +1244,8 @@ ___lambda158__valadoc_html_html_renderer_write (gpointer self)
 	__lambda158_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda159_ (ValadocHtmlHtmlRenderer* self)
-{
-}
-
-
-static void
-___lambda159__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda159_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda160_ (ValadocHtmlHtmlRenderer* self,
+__lambda159_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsSince* since = NULL;
@@ -1317,7 +1254,7 @@ __lambda160_ (ValadocHtmlHtmlRenderer* self,
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_SINCE) ? ((ValadocTagletsSince*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_SINCE (taglet) ? ((ValadocTagletsSince*) taglet) : NULL);
 	since = _tmp0_;
 	_tmp1_ = self->writer;
 	_tmp2_ = valadoc_taglets_since_get_version (since);
@@ -1326,17 +1263,15 @@ __lambda160_ (ValadocHtmlHtmlRenderer* self,
 	_g_object_unref0 (since);
 }
 
-
 static void
-___lambda160__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda159__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda160_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda159_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
 
-
 static void
-__lambda161_ (ValadocHtmlHtmlRenderer* self)
+__lambda160_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	gchar* _tmp1_;
@@ -1355,14 +1290,27 @@ __lambda161_ (ValadocHtmlHtmlRenderer* self)
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, 2);
+	_tmp5_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "h2", _tmp4_, (gint) 2);
 	_tmp6_ = valadoc_markup_writer_text (_tmp5_, "See also:");
 	valadoc_markup_writer_end_tag (_tmp6_, "h2");
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
 	_tmp7_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", NULL, (gint) 0);
 }
 
+static void
+___lambda160__valadoc_html_html_renderer_write (gpointer self)
+{
+	__lambda160_ ((ValadocHtmlHtmlRenderer*) self);
+}
+
+static void
+__lambda161_ (ValadocHtmlHtmlRenderer* self)
+{
+	ValadocHtmlMarkupWriter* _tmp0_;
+	_tmp0_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
+}
 
 static void
 ___lambda161__valadoc_html_html_renderer_write (gpointer self)
@@ -1370,15 +1318,13 @@ ___lambda161__valadoc_html_html_renderer_write (gpointer self)
 	__lambda161_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
 __lambda162_ (ValadocHtmlHtmlRenderer* self)
 {
 	ValadocHtmlMarkupWriter* _tmp0_;
 	_tmp0_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp0_, "p");
+	valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp0_, ", ");
 }
-
 
 static void
 ___lambda162__valadoc_html_html_renderer_write (gpointer self)
@@ -1386,25 +1332,8 @@ ___lambda162__valadoc_html_html_renderer_write (gpointer self)
 	__lambda162_ ((ValadocHtmlHtmlRenderer*) self);
 }
 
-
 static void
-__lambda163_ (ValadocHtmlHtmlRenderer* self)
-{
-	ValadocHtmlMarkupWriter* _tmp0_;
-	_tmp0_ = self->writer;
-	valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp0_, ", ");
-}
-
-
-static void
-___lambda163__valadoc_html_html_renderer_write (gpointer self)
-{
-	__lambda163_ ((ValadocHtmlHtmlRenderer*) self);
-}
-
-
-static void
-__lambda164_ (ValadocHtmlHtmlRenderer* self,
+__lambda163_ (ValadocHtmlHtmlRenderer* self,
               ValadocContentTaglet* taglet)
 {
 	ValadocTagletsSee* see = NULL;
@@ -1413,7 +1342,7 @@ __lambda164_ (ValadocHtmlHtmlRenderer* self,
 	ValadocApiNode* _tmp2_;
 	ValadocApiNode* _tmp3_;
 	g_return_if_fail (taglet != NULL);
-	_tmp0_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_SEE) ? ((ValadocTagletsSee*) taglet) : NULL);
+	_tmp0_ = _g_object_ref0 (VALADOC_TAGLETS_IS_SEE (taglet) ? ((ValadocTagletsSee*) taglet) : NULL);
 	see = _tmp0_;
 	_tmp1_ = see;
 	_tmp2_ = valadoc_taglets_see_get_symbol (_tmp1_);
@@ -1444,14 +1373,12 @@ __lambda164_ (ValadocHtmlHtmlRenderer* self,
 	_g_object_unref0 (see);
 }
 
-
 static void
-___lambda164__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
+___lambda163__valadoc_html_html_renderer_taglet_write (ValadocContentTaglet* taglet,
                                                        gpointer self)
 {
-	__lambda164_ ((ValadocHtmlHtmlRenderer*) self, taglet);
+	__lambda163_ ((ValadocHtmlHtmlRenderer*) self, taglet);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_comment (ValadocContentContentVisitor* base,
@@ -1485,43 +1412,42 @@ valadoc_html_html_renderer_real_visit_comment (ValadocContentContentVisitor* bas
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp1_;
 	_tmp2_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda140__valadoc_html_html_renderer_write, self, ___lambda141__valadoc_html_html_renderer_write, self, ___lambda142__valadoc_html_html_renderer_write, self, _tmp2_, ___lambda143__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda139__valadoc_html_html_renderer_write, self, ___lambda140__valadoc_html_html_renderer_write, self, ___lambda141__valadoc_html_html_renderer_write, self, _tmp2_, ___lambda142__valadoc_html_html_renderer_taglet_write, self);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp3_ = self->_container;
 	_tmp4_ = valadoc_content_comment_find_taglets (element, G_TYPE_CHECK_INSTANCE_CAST (_tmp3_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_TAGLETS_TYPE_PARAM);
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp4_;
 	_tmp5_ = taglets;
-	vala_list_sort (_tmp5_, ___lambda144__gcompare_data_func, g_object_ref (self), g_object_unref);
+	vala_list_sort (_tmp5_, ___lambda143__gcompare_data_func, g_object_ref (self), g_object_unref);
 	_tmp6_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda145__valadoc_html_html_renderer_write, self, ___lambda146__valadoc_html_html_renderer_write, self, ___lambda147__valadoc_html_html_renderer_write, self, _tmp6_, ___lambda148__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda144__valadoc_html_html_renderer_write, self, ___lambda145__valadoc_html_html_renderer_write, self, ___lambda146__valadoc_html_html_renderer_write, self, _tmp6_, ___lambda147__valadoc_html_html_renderer_taglet_write, self);
 	_tmp7_ = self->_container;
 	_tmp8_ = valadoc_content_comment_find_taglets (element, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_TAGLETS_TYPE_RETURN);
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp8_;
 	_tmp9_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda149__valadoc_html_html_renderer_write, self, ___lambda150__valadoc_html_html_renderer_write, self, ___lambda151__valadoc_html_html_renderer_write, self, _tmp9_, ___lambda152__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda148__valadoc_html_html_renderer_write, self, ___lambda149__valadoc_html_html_renderer_write, self, ___lambda150__valadoc_html_html_renderer_write, self, _tmp9_, ___lambda151__valadoc_html_html_renderer_taglet_write, self);
 	_tmp10_ = self->_container;
 	_tmp11_ = valadoc_content_comment_find_taglets (element, G_TYPE_CHECK_INSTANCE_CAST (_tmp10_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_TAGLETS_TYPE_THROWS);
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp11_;
 	_tmp12_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda153__valadoc_html_html_renderer_write, self, ___lambda154__valadoc_html_html_renderer_write, self, ___lambda155__valadoc_html_html_renderer_write, self, _tmp12_, ___lambda156__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda152__valadoc_html_html_renderer_write, self, ___lambda153__valadoc_html_html_renderer_write, self, ___lambda154__valadoc_html_html_renderer_write, self, _tmp12_, ___lambda155__valadoc_html_html_renderer_taglet_write, self);
 	_tmp13_ = self->_container;
 	_tmp14_ = valadoc_content_comment_find_taglets (element, G_TYPE_CHECK_INSTANCE_CAST (_tmp13_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_TAGLETS_TYPE_SINCE);
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp14_;
 	_tmp15_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda157__valadoc_html_html_renderer_write, self, ___lambda158__valadoc_html_html_renderer_write, self, ___lambda159__valadoc_html_html_renderer_write, self, _tmp15_, ___lambda160__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda156__valadoc_html_html_renderer_write, self, ___lambda157__valadoc_html_html_renderer_write, self, ___lambda158__valadoc_html_html_renderer_write, self, _tmp15_, ___lambda159__valadoc_html_html_renderer_taglet_write, self);
 	_tmp16_ = self->_container;
 	_tmp17_ = valadoc_content_comment_find_taglets (element, G_TYPE_CHECK_INSTANCE_CAST (_tmp16_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_TAGLETS_TYPE_SEE);
 	_vala_iterable_unref0 (taglets);
 	taglets = _tmp17_;
 	_tmp18_ = taglets;
-	valadoc_html_html_renderer_write_taglets (self, ___lambda161__valadoc_html_html_renderer_write, self, ___lambda162__valadoc_html_html_renderer_write, self, ___lambda163__valadoc_html_html_renderer_write, self, _tmp18_, ___lambda164__valadoc_html_html_renderer_taglet_write, self);
+	valadoc_html_html_renderer_write_taglets (self, ___lambda160__valadoc_html_html_renderer_write, self, ___lambda161__valadoc_html_html_renderer_write, self, ___lambda162__valadoc_html_html_renderer_write, self, _tmp18_, ___lambda163__valadoc_html_html_renderer_taglet_write, self);
 	_vala_iterable_unref0 (taglets);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_embedded (ValadocContentContentVisitor* base,
@@ -1613,7 +1539,6 @@ valadoc_html_html_renderer_real_visit_embedded (ValadocContentContentVisitor* ba
 	_g_free0 (caption);
 }
 
-
 static void
 valadoc_html_html_renderer_real_visit_headline (ValadocContentContentVisitor* base,
                                                 ValadocContentHeadline* element)
@@ -1636,7 +1561,7 @@ valadoc_html_html_renderer_real_visit_headline (ValadocContentContentVisitor* ba
 	_tmp2_ = _tmp1_;
 	_tmp3_ = g_strdup_printf ("h%d", _tmp2_);
 	_tmp4_ = _tmp3_;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, _tmp4_, NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, _tmp4_, NULL, (gint) 0);
 	_g_free0 (_tmp4_);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp5_ = self->writer;
@@ -1648,15 +1573,14 @@ valadoc_html_html_renderer_real_visit_headline (ValadocContentContentVisitor* ba
 	_g_free0 (_tmp9_);
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -1671,17 +1595,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -1698,37 +1620,29 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gint
 string_last_index_of_char (const gchar* self,
                            gunichar c,
                            gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -1743,7 +1657,6 @@ string_last_index_of_char (const gchar* self,
 		return result;
 	}
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_wiki_link (ValadocContentContentVisitor* base,
@@ -1781,7 +1694,7 @@ valadoc_html_html_renderer_real_visit_wiki_link (ValadocContentContentVisitor* b
 		_tmp7_[1] = _tmp6_;
 		_tmp8_ = _tmp7_;
 		_tmp8__length1 = 2;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "a", _tmp8_, 2);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "a", _tmp8_, (gint) 2);
 		_tmp8_ = (_vala_array_free (_tmp8_, _tmp8__length1, (GDestroyNotify) g_free), NULL);
 	}
 	_tmp9_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) element);
@@ -1816,7 +1729,6 @@ valadoc_html_html_renderer_real_visit_wiki_link (ValadocContentContentVisitor* b
 		valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp22_, "a");
 	}
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_link (ValadocContentContentVisitor* base,
@@ -1866,7 +1778,7 @@ valadoc_html_html_renderer_real_visit_link (ValadocContentContentVisitor* base,
 		_tmp12_[3] = _tmp11_;
 		_tmp13_ = _tmp12_;
 		_tmp13__length1 = 4;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "a", _tmp13_, 4);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "a", _tmp13_, (gint) 4);
 		_tmp13_ = (_vala_array_free (_tmp13_, _tmp13__length1, (GDestroyNotify) g_free), NULL);
 	} else {
 		ValadocHtmlMarkupWriter* _tmp14_;
@@ -1887,7 +1799,7 @@ valadoc_html_html_renderer_real_visit_link (ValadocContentContentVisitor* base,
 		_tmp19_[1] = _tmp18_;
 		_tmp20_ = _tmp19_;
 		_tmp20__length1 = 2;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp14_, "a", _tmp20_, 2);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp14_, "a", _tmp20_, (gint) 2);
 		_tmp20_ = (_vala_array_free (_tmp20_, _tmp20__length1, (GDestroyNotify) g_free), NULL);
 	}
 	_tmp21_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) element);
@@ -1908,7 +1820,6 @@ valadoc_html_html_renderer_real_visit_link (ValadocContentContentVisitor* base,
 	_tmp28_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp28_, "a");
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_symbol_link (ValadocContentContentVisitor* base,
@@ -1939,7 +1850,6 @@ valadoc_html_html_renderer_real_visit_symbol_link (ValadocContentContentVisitor*
 		valadoc_html_html_renderer_write_resolved_symbol_link (self, _tmp5_, _tmp7_, (ValadocContentInlineContent*) element);
 	}
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_list (ValadocContentContentVisitor* base,
@@ -2078,7 +1988,7 @@ valadoc_html_html_renderer_real_visit_list (ValadocContentContentVisitor* base,
 	_tmp24_[3] = _tmp23_;
 	_tmp25_ = _tmp24_;
 	_tmp25__length1 = 4;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp16_, _tmp17_, _tmp25_, 4);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp16_, _tmp17_, _tmp25_, (gint) 4);
 	_tmp25_ = (_vala_array_free (_tmp25_, _tmp25__length1, (GDestroyNotify) g_free), NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp26_ = self->writer;
@@ -2088,7 +1998,6 @@ valadoc_html_html_renderer_real_visit_list (ValadocContentContentVisitor* base,
 	_g_free0 (bullet_type);
 	_g_free0 (list_type);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_list_item (ValadocContentContentVisitor* base,
@@ -2104,11 +2013,11 @@ valadoc_html_html_renderer_real_visit_list_item (ValadocContentContentVisitor* b
 	ValadocContentParagraph* first_para = NULL;
 	ValadocContentParagraph* _tmp11_;
 	ValadocContentParagraph* _tmp12_;
-	ValadocHtmlMarkupWriter* _tmp28_;
+	ValadocHtmlMarkupWriter* _tmp25_;
 	self = (ValadocHtmlHtmlRenderer*) base;
 	g_return_if_fail (element != NULL);
 	_tmp0_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "li", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "li", NULL, (gint) 0);
 	_tmp2_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) element);
 	_tmp3_ = _tmp2_;
 	_tmp4_ = vala_collection_get_size ((ValaCollection*) _tmp3_);
@@ -2123,7 +2032,7 @@ valadoc_html_html_renderer_real_visit_list_item (ValadocContentContentVisitor* b
 		_tmp7_ = _tmp6_;
 		_tmp8_ = vala_list_get (_tmp7_, 0);
 		_tmp9_ = (ValadocContentBlock*) _tmp8_;
-		_tmp10_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp9_, VALADOC_CONTENT_TYPE_PARAGRAPH) ? ((ValadocContentParagraph*) _tmp9_) : NULL;
+		_tmp10_ = VALADOC_CONTENT_IS_PARAGRAPH (_tmp9_) ? ((ValadocContentParagraph*) _tmp9_) : NULL;
 		if (_tmp10_ == NULL) {
 			_g_object_unref0 (_tmp9_);
 		}
@@ -2164,28 +2073,22 @@ valadoc_html_html_renderer_real_visit_list_item (ValadocContentContentVisitor* b
 			while (TRUE) {
 				gint _tmp20_;
 				gint _tmp21_;
-				gint _tmp22_;
 				ValadocContentBlock* item = NULL;
-				ValaList* _tmp23_;
-				gint _tmp24_;
-				gpointer _tmp25_;
-				gboolean _tmp26_;
+				ValaList* _tmp22_;
+				gpointer _tmp23_;
+				_item_index = _item_index + 1;
 				_tmp20_ = _item_index;
-				_item_index = _tmp20_ + 1;
-				_tmp21_ = _item_index;
-				_tmp22_ = _item_size;
-				if (!(_tmp21_ < _tmp22_)) {
+				_tmp21_ = _item_size;
+				if (!(_tmp20_ < _tmp21_)) {
 					break;
 				}
-				_tmp23_ = _item_list;
-				_tmp24_ = _item_index;
-				_tmp25_ = vala_list_get (_tmp23_, _tmp24_);
-				item = (ValadocContentBlock*) _tmp25_;
-				_tmp26_ = first_entry;
-				if (!_tmp26_) {
-					ValadocContentBlock* _tmp27_;
-					_tmp27_ = item;
-					valadoc_content_content_element_accept ((ValadocContentContentElement*) _tmp27_, (ValadocContentContentVisitor*) self);
+				_tmp22_ = _item_list;
+				_tmp23_ = vala_list_get (_tmp22_, _item_index);
+				item = (ValadocContentBlock*) _tmp23_;
+				if (!first_entry) {
+					ValadocContentBlock* _tmp24_;
+					_tmp24_ = item;
+					valadoc_content_content_element_accept ((ValadocContentContentElement*) _tmp24_, (ValadocContentContentVisitor*) self);
 				}
 				first_entry = FALSE;
 				_g_object_unref0 (item);
@@ -2195,12 +2098,11 @@ valadoc_html_html_renderer_real_visit_list_item (ValadocContentContentVisitor* b
 	} else {
 		valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	}
-	_tmp28_ = self->writer;
-	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp28_, "li");
+	_tmp25_ = self->writer;
+	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp25_, "li");
 	_g_object_unref0 (first_para);
 	_g_object_unref0 (_tmp1_);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_page (ValadocContentContentVisitor* base,
@@ -2211,7 +2113,6 @@ valadoc_html_html_renderer_real_visit_page (ValadocContentContentVisitor* base,
 	g_return_if_fail (element != NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_paragraph (ValadocContentContentVisitor* base,
@@ -2242,7 +2143,7 @@ valadoc_html_html_renderer_real_visit_paragraph (ValadocContentContentVisitor* b
 			_tmp5_[1] = _tmp4_;
 			_tmp6_ = _tmp5_;
 			_tmp6__length1 = 2;
-			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "p", _tmp6_, 2);
+			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp2_, "p", _tmp6_, (gint) 2);
 			_tmp6_ = (_vala_array_free (_tmp6_, _tmp6__length1, (GDestroyNotify) g_free), NULL);
 			break;
 		}
@@ -2262,7 +2163,7 @@ valadoc_html_html_renderer_real_visit_paragraph (ValadocContentContentVisitor* b
 			_tmp10_[1] = _tmp9_;
 			_tmp11_ = _tmp10_;
 			_tmp11__length1 = 2;
-			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", _tmp11_, 2);
+			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp7_, "p", _tmp11_, (gint) 2);
 			_tmp11_ = (_vala_array_free (_tmp11_, _tmp11__length1, (GDestroyNotify) g_free), NULL);
 			break;
 		}
@@ -2270,7 +2171,7 @@ valadoc_html_html_renderer_real_visit_paragraph (ValadocContentContentVisitor* b
 		{
 			ValadocHtmlMarkupWriter* _tmp12_;
 			_tmp12_ = self->writer;
-			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp12_, "p", NULL, 0);
+			valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp12_, "p", NULL, (gint) 0);
 			break;
 		}
 	}
@@ -2278,7 +2179,6 @@ valadoc_html_html_renderer_real_visit_paragraph (ValadocContentContentVisitor* b
 	_tmp13_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp13_, "p");
 }
-
 
 static void
 valadoc_html_html_renderer_visit_notification_block (ValadocHtmlHtmlRenderer* self,
@@ -2319,7 +2219,7 @@ valadoc_html_html_renderer_visit_notification_block (ValadocHtmlHtmlRenderer* se
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "div", _tmp4_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "div", _tmp4_, (gint) 2);
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
 	_tmp5_ = self->writer;
 	_tmp6_ = g_strdup ("class");
@@ -2329,7 +2229,7 @@ valadoc_html_html_renderer_visit_notification_block (ValadocHtmlHtmlRenderer* se
 	_tmp8_[1] = _tmp7_;
 	_tmp9_ = _tmp8_;
 	_tmp9__length1 = 2;
-	_tmp10_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "span", _tmp9_, 2);
+	_tmp10_ = valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp5_, "span", _tmp9_, (gint) 2);
 	_tmp11_ = valadoc_markup_writer_text (_tmp10_, headline);
 	_tmp12_ = valadoc_markup_writer_end_tag (_tmp11_, "span");
 	valadoc_markup_writer_text (_tmp12_, " ");
@@ -2342,7 +2242,7 @@ valadoc_html_html_renderer_visit_notification_block (ValadocHtmlHtmlRenderer* se
 	_tmp16_[1] = _tmp15_;
 	_tmp17_ = _tmp16_;
 	_tmp17__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp13_, "div", _tmp17_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp13_, "div", _tmp17_, (gint) 2);
 	_tmp17_ = (_vala_array_free (_tmp17_, _tmp17__length1, (GDestroyNotify) g_free), NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp18_ = self->writer;
@@ -2350,7 +2250,6 @@ valadoc_html_html_renderer_visit_notification_block (ValadocHtmlHtmlRenderer* se
 	_tmp19_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp19_, "div");
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_warning (ValadocContentContentVisitor* base,
@@ -2362,7 +2261,6 @@ valadoc_html_html_renderer_real_visit_warning (ValadocContentContentVisitor* bas
 	valadoc_html_html_renderer_visit_notification_block (self, (ValadocContentBlockContent*) element, "Warning:");
 }
 
-
 static void
 valadoc_html_html_renderer_real_visit_note (ValadocContentContentVisitor* base,
                                             ValadocContentNote* element)
@@ -2372,7 +2270,6 @@ valadoc_html_html_renderer_real_visit_note (ValadocContentContentVisitor* base,
 	g_return_if_fail (element != NULL);
 	valadoc_html_html_renderer_visit_notification_block (self, (ValadocContentBlockContent*) element, "Note:");
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_run (ValadocContentContentVisitor* base,
@@ -2588,6 +2485,10 @@ valadoc_html_html_renderer_real_visit_run (ValadocContentContentVisitor* base,
 			css_type = _tmp32_;
 			break;
 		}
+		case VALADOC_CONTENT_RUN_STYLE_NONE:
+		{
+			break;
+		}
 		default:
 		break;
 	}
@@ -2611,7 +2512,7 @@ valadoc_html_html_renderer_real_visit_run (ValadocContentContentVisitor* base,
 		_tmp39_[1] = _tmp38_;
 		_tmp40_ = _tmp39_;
 		_tmp40__length1 = 2;
-		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp34_, _tmp35_, _tmp40_, 2);
+		valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp34_, _tmp35_, _tmp40_, (gint) 2);
 		_tmp40_ = (_vala_array_free (_tmp40_, _tmp40__length1, (GDestroyNotify) g_free), NULL);
 	}
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
@@ -2626,7 +2527,6 @@ valadoc_html_html_renderer_real_visit_run (ValadocContentContentVisitor* base,
 	_g_free0 (css_type);
 	_g_free0 (tag);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_source_code (ValadocContentContentVisitor* base,
@@ -2654,7 +2554,7 @@ valadoc_html_html_renderer_real_visit_source_code (ValadocContentContentVisitor*
 	_tmp4_[1] = _tmp3_;
 	_tmp5_ = _tmp4_;
 	_tmp5__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "pre", _tmp5_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp1_, "pre", _tmp5_, (gint) 2);
 	_tmp5_ = (_vala_array_free (_tmp5_, _tmp5__length1, (GDestroyNotify) g_free), NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp6_ = self->writer;
@@ -2662,7 +2562,6 @@ valadoc_html_html_renderer_real_visit_source_code (ValadocContentContentVisitor*
 	_tmp7_ = self->writer;
 	valadoc_markup_writer_set_wrap ((ValadocMarkupWriter*) _tmp7_, TRUE);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_table (ValadocContentContentVisitor* base,
@@ -2686,13 +2585,12 @@ valadoc_html_html_renderer_real_visit_table (ValadocContentContentVisitor* base,
 	_tmp3_[1] = _tmp2_;
 	_tmp4_ = _tmp3_;
 	_tmp4__length1 = 2;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "table", _tmp4_, 2);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "table", _tmp4_, (gint) 2);
 	_tmp4_ = (_vala_array_free (_tmp4_, _tmp4__length1, (GDestroyNotify) g_free), NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp5_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp5_, "table");
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_table_cell (ValadocContentContentVisitor* base,
@@ -2804,14 +2702,13 @@ valadoc_html_html_renderer_real_visit_table_cell (ValadocContentContentVisitor* 
 	_tmp37_[7] = _tmp36_;
 	_tmp38_ = _tmp37_;
 	_tmp38__length1 = 8;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp23_, "td", _tmp38_, 8);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp23_, "td", _tmp38_, (gint) 8);
 	_tmp38_ = (_vala_array_free (_tmp38_, _tmp38__length1, (GDestroyNotify) g_free), NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp39_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp39_, "td");
 	_g_free0 (style);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_table_row (ValadocContentContentVisitor* base,
@@ -2823,12 +2720,11 @@ valadoc_html_html_renderer_real_visit_table_row (ValadocContentContentVisitor* b
 	self = (ValadocHtmlHtmlRenderer*) base;
 	g_return_if_fail (element != NULL);
 	_tmp0_ = self->writer;
-	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "tr", NULL, 0);
+	valadoc_markup_writer_start_tag ((ValadocMarkupWriter*) _tmp0_, "tr", NULL, (gint) 0);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) element, (ValadocContentContentVisitor*) self);
 	_tmp1_ = self->writer;
 	valadoc_markup_writer_end_tag ((ValadocMarkupWriter*) _tmp1_, "tr");
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_taglet (ValadocContentContentVisitor* base,
@@ -2838,7 +2734,6 @@ valadoc_html_html_renderer_real_visit_taglet (ValadocContentContentVisitor* base
 	self = (ValadocHtmlHtmlRenderer*) base;
 	g_return_if_fail (element != NULL);
 }
-
 
 static void
 valadoc_html_html_renderer_real_visit_text (ValadocContentContentVisitor* base,
@@ -2854,19 +2749,17 @@ valadoc_html_html_renderer_real_visit_text (ValadocContentContentVisitor* base,
 	valadoc_html_html_renderer_write_string (self, _tmp1_);
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static void
 valadoc_html_html_renderer_write_string (ValadocHtmlHtmlRenderer* self,
@@ -2875,12 +2768,9 @@ valadoc_html_html_renderer_write_string (ValadocHtmlHtmlRenderer* self,
 	gunichar chr = 0U;
 	glong lpos = 0L;
 	gint i = 0;
-	ValadocHtmlMarkupWriter* _tmp37_;
-	glong _tmp38_;
-	gint _tmp39_;
-	glong _tmp40_;
-	gchar* _tmp41_;
-	gchar* _tmp42_;
+	ValadocHtmlMarkupWriter* _tmp18_;
+	gchar* _tmp19_;
+	gchar* _tmp20_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (content != NULL);
 	chr = (gunichar) string_get (content, (glong) 0);
@@ -2891,117 +2781,79 @@ valadoc_html_html_renderer_write_string (ValadocHtmlHtmlRenderer* self,
 		i = 0;
 		_tmp0_ = TRUE;
 		while (TRUE) {
-			gunichar _tmp3_;
-			gunichar _tmp4_;
 			if (!_tmp0_) {
 				gint _tmp1_;
-				gint _tmp2_;
 				_tmp1_ = i;
 				i = _tmp1_ + 1;
-				_tmp2_ = i;
-				chr = (gunichar) string_get (content, (glong) _tmp2_);
+				chr = (gunichar) string_get (content, (glong) i);
 			}
 			_tmp0_ = FALSE;
-			_tmp3_ = chr;
-			if (!(_tmp3_ != ((gunichar) '\0'))) {
+			if (!(chr != ((gunichar) '\0'))) {
 				break;
 			}
-			_tmp4_ = chr;
-			switch (_tmp4_) {
+			switch (chr) {
 				case '\n':
 				{
+					ValadocHtmlMarkupWriter* _tmp2_;
+					gchar* _tmp3_;
+					gchar* _tmp4_;
 					ValadocHtmlMarkupWriter* _tmp5_;
-					glong _tmp6_;
-					gint _tmp7_;
-					glong _tmp8_;
-					gchar* _tmp9_;
-					gchar* _tmp10_;
-					ValadocHtmlMarkupWriter* _tmp11_;
-					gint _tmp12_;
+					_tmp2_ = self->writer;
+					_tmp3_ = string_substring (content, lpos, i - lpos);
+					_tmp4_ = _tmp3_;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp2_, _tmp4_);
+					_g_free0 (_tmp4_);
 					_tmp5_ = self->writer;
-					_tmp6_ = lpos;
-					_tmp7_ = i;
-					_tmp8_ = lpos;
-					_tmp9_ = string_substring (content, _tmp6_, _tmp7_ - _tmp8_);
-					_tmp10_ = _tmp9_;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp5_, _tmp10_);
-					_g_free0 (_tmp10_);
-					_tmp11_ = self->writer;
-					valadoc_markup_writer_simple_tag ((ValadocMarkupWriter*) _tmp11_, "br", NULL, 0);
-					_tmp12_ = i;
-					lpos = (glong) (_tmp12_ + 1);
+					valadoc_markup_writer_simple_tag ((ValadocMarkupWriter*) _tmp5_, "br", NULL, (gint) 0);
+					lpos = (glong) (i + 1);
 					break;
 				}
 				case '<':
 				{
-					ValadocHtmlMarkupWriter* _tmp13_;
-					glong _tmp14_;
-					gint _tmp15_;
-					glong _tmp16_;
-					gchar* _tmp17_;
-					gchar* _tmp18_;
-					ValadocHtmlMarkupWriter* _tmp19_;
-					gint _tmp20_;
-					_tmp13_ = self->writer;
-					_tmp14_ = lpos;
-					_tmp15_ = i;
-					_tmp16_ = lpos;
-					_tmp17_ = string_substring (content, _tmp14_, _tmp15_ - _tmp16_);
-					_tmp18_ = _tmp17_;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp13_, _tmp18_);
-					_g_free0 (_tmp18_);
-					_tmp19_ = self->writer;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp19_, "&lt;");
-					_tmp20_ = i;
-					lpos = (glong) (_tmp20_ + 1);
+					ValadocHtmlMarkupWriter* _tmp6_;
+					gchar* _tmp7_;
+					gchar* _tmp8_;
+					ValadocHtmlMarkupWriter* _tmp9_;
+					_tmp6_ = self->writer;
+					_tmp7_ = string_substring (content, lpos, i - lpos);
+					_tmp8_ = _tmp7_;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp6_, _tmp8_);
+					_g_free0 (_tmp8_);
+					_tmp9_ = self->writer;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp9_, "&lt;");
+					lpos = (glong) (i + 1);
 					break;
 				}
 				case '>':
 				{
-					ValadocHtmlMarkupWriter* _tmp21_;
-					glong _tmp22_;
-					gint _tmp23_;
-					glong _tmp24_;
-					gchar* _tmp25_;
-					gchar* _tmp26_;
-					ValadocHtmlMarkupWriter* _tmp27_;
-					gint _tmp28_;
-					_tmp21_ = self->writer;
-					_tmp22_ = lpos;
-					_tmp23_ = i;
-					_tmp24_ = lpos;
-					_tmp25_ = string_substring (content, _tmp22_, _tmp23_ - _tmp24_);
-					_tmp26_ = _tmp25_;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp21_, _tmp26_);
-					_g_free0 (_tmp26_);
-					_tmp27_ = self->writer;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp27_, "&gt;");
-					_tmp28_ = i;
-					lpos = (glong) (_tmp28_ + 1);
+					ValadocHtmlMarkupWriter* _tmp10_;
+					gchar* _tmp11_;
+					gchar* _tmp12_;
+					ValadocHtmlMarkupWriter* _tmp13_;
+					_tmp10_ = self->writer;
+					_tmp11_ = string_substring (content, lpos, i - lpos);
+					_tmp12_ = _tmp11_;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp10_, _tmp12_);
+					_g_free0 (_tmp12_);
+					_tmp13_ = self->writer;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp13_, "&gt;");
+					lpos = (glong) (i + 1);
 					break;
 				}
 				case '&':
 				{
-					ValadocHtmlMarkupWriter* _tmp29_;
-					glong _tmp30_;
-					gint _tmp31_;
-					glong _tmp32_;
-					gchar* _tmp33_;
-					gchar* _tmp34_;
-					ValadocHtmlMarkupWriter* _tmp35_;
-					gint _tmp36_;
-					_tmp29_ = self->writer;
-					_tmp30_ = lpos;
-					_tmp31_ = i;
-					_tmp32_ = lpos;
-					_tmp33_ = string_substring (content, _tmp30_, _tmp31_ - _tmp32_);
-					_tmp34_ = _tmp33_;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp29_, _tmp34_);
-					_g_free0 (_tmp34_);
-					_tmp35_ = self->writer;
-					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp35_, "&amp;");
-					_tmp36_ = i;
-					lpos = (glong) (_tmp36_ + 1);
+					ValadocHtmlMarkupWriter* _tmp14_;
+					gchar* _tmp15_;
+					gchar* _tmp16_;
+					ValadocHtmlMarkupWriter* _tmp17_;
+					_tmp14_ = self->writer;
+					_tmp15_ = string_substring (content, lpos, i - lpos);
+					_tmp16_ = _tmp15_;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp14_, _tmp16_);
+					_g_free0 (_tmp16_);
+					_tmp17_ = self->writer;
+					valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp17_, "&amp;");
+					lpos = (glong) (i + 1);
 					break;
 				}
 				default:
@@ -3009,19 +2861,16 @@ valadoc_html_html_renderer_write_string (ValadocHtmlHtmlRenderer* self,
 			}
 		}
 	}
-	_tmp37_ = self->writer;
-	_tmp38_ = lpos;
-	_tmp39_ = i;
-	_tmp40_ = lpos;
-	_tmp41_ = string_substring (content, _tmp38_, _tmp39_ - _tmp40_);
-	_tmp42_ = _tmp41_;
-	valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp37_, _tmp42_);
-	_g_free0 (_tmp42_);
+	_tmp18_ = self->writer;
+	_tmp19_ = string_substring (content, lpos, i - lpos);
+	_tmp20_ = _tmp19_;
+	valadoc_markup_writer_text ((ValadocMarkupWriter*) _tmp18_, _tmp20_);
+	_g_free0 (_tmp20_);
 }
 
-
 static void
-valadoc_html_html_renderer_class_init (ValadocHtmlHtmlRendererClass * klass)
+valadoc_html_html_renderer_class_init (ValadocHtmlHtmlRendererClass * klass,
+                                       gpointer klass_data)
 {
 	valadoc_html_html_renderer_parent_class = g_type_class_peek_parent (klass);
 	((ValadocContentContentRendererClass *) klass)->render = (void (*) (ValadocContentContentRenderer*, ValadocContentContentElement*)) valadoc_html_html_renderer_real_render;
@@ -3048,12 +2897,11 @@ valadoc_html_html_renderer_class_init (ValadocHtmlHtmlRendererClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_html_html_renderer_finalize;
 }
 
-
 static void
-valadoc_html_html_renderer_instance_init (ValadocHtmlHtmlRenderer * self)
+valadoc_html_html_renderer_instance_init (ValadocHtmlHtmlRenderer * self,
+                                          gpointer klass)
 {
 }
-
 
 static void
 valadoc_html_html_renderer_finalize (GObject * obj)
@@ -3068,20 +2916,26 @@ valadoc_html_html_renderer_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_html_html_renderer_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_html_html_renderer_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlHtmlRendererClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_html_renderer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlHtmlRenderer), 0, (GInstanceInitFunc) valadoc_html_html_renderer_instance_init, NULL };
+	GType valadoc_html_html_renderer_type_id;
+	valadoc_html_html_renderer_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_RENDERER, "ValadocHtmlHtmlRenderer", &g_define_type_info, 0);
+	return valadoc_html_html_renderer_type_id;
+}
 
 GType
 valadoc_html_html_renderer_get_type (void)
 {
 	static volatile gsize valadoc_html_html_renderer_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_html_html_renderer_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlHtmlRendererClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_html_renderer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlHtmlRenderer), 0, (GInstanceInitFunc) valadoc_html_html_renderer_instance_init, NULL };
 		GType valadoc_html_html_renderer_type_id;
-		valadoc_html_html_renderer_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_RENDERER, "ValadocHtmlHtmlRenderer", &g_define_type_info, 0);
+		valadoc_html_html_renderer_type_id = valadoc_html_html_renderer_get_type_once ();
 		g_once_init_leave (&valadoc_html_html_renderer_type_id__volatile, valadoc_html_html_renderer_type_id);
 	}
 	return valadoc_html_html_renderer_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -3089,7 +2943,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -3097,7 +2951,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -3107,6 +2960,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

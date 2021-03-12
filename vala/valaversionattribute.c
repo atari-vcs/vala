@@ -23,12 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-#include <stdlib.h>
+#include <glib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_free0(var) ((var == NULL) ? NULL : (var = (g_free (var), NULL)))
@@ -45,12 +43,12 @@ struct _ValaParamSpecVersionAttribute {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaVersionAttribute_private_offset;
 static gpointer vala_version_attribute_parent_class = NULL;
 
 static gboolean* _bool_dup (gboolean* self);
 static void vala_version_attribute_finalize (ValaVersionAttribute * obj);
+static GType vala_version_attribute_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -59,13 +57,11 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 vala_version_attribute_get_instance_private (ValaVersionAttribute* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaVersionAttribute_private_offset);
 }
-
 
 /**
  * Constructs a new VersionAttribute.
@@ -85,13 +81,277 @@ vala_version_attribute_construct (GType object_type,
 	return self;
 }
 
-
 ValaVersionAttribute*
 vala_version_attribute_new (ValaSymbol* symbol)
 {
 	return vala_version_attribute_construct (VALA_TYPE_VERSION_ATTRIBUTE, symbol);
 }
 
+static gboolean*
+_bool_dup (gboolean* self)
+{
+	gboolean* dup;
+	dup = g_new0 (gboolean, 1);
+	memcpy (dup, self, sizeof (gboolean));
+	return dup;
+}
+
+static gpointer
+__bool_dup0 (gpointer self)
+{
+	return self ? _bool_dup (self) : NULL;
+}
+
+gboolean
+vala_version_attribute_get_deprecated (ValaVersionAttribute* self)
+{
+	gboolean result;
+	gboolean* _tmp0_;
+	gboolean* _tmp14_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = self->priv->_deprecated;
+	if (_tmp0_ == NULL) {
+		gboolean _tmp1_ = FALSE;
+		gboolean _tmp2_ = FALSE;
+		gboolean _tmp3_ = FALSE;
+		ValaSymbol* _tmp4_;
+		gboolean* _tmp13_;
+		_tmp4_ = self->priv->symbol;
+		if (vala_code_node_get_attribute_bool ((ValaCodeNode*) _tmp4_, "Version", "deprecated", FALSE)) {
+			_tmp3_ = TRUE;
+		} else {
+			ValaSymbol* _tmp5_;
+			gchar* _tmp6_;
+			gchar* _tmp7_;
+			_tmp5_ = self->priv->symbol;
+			_tmp6_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp5_, "Version", "deprecated_since", NULL);
+			_tmp7_ = _tmp6_;
+			_tmp3_ = _tmp7_ != NULL;
+			_g_free0 (_tmp7_);
+		}
+		if (_tmp3_) {
+			_tmp2_ = TRUE;
+		} else {
+			ValaSymbol* _tmp8_;
+			gchar* _tmp9_;
+			gchar* _tmp10_;
+			_tmp8_ = self->priv->symbol;
+			_tmp9_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp8_, "Version", "replacement", NULL);
+			_tmp10_ = _tmp9_;
+			_tmp2_ = _tmp10_ != NULL;
+			_g_free0 (_tmp10_);
+		}
+		if (_tmp2_) {
+			_tmp1_ = TRUE;
+		} else {
+			ValaSymbol* _tmp11_;
+			ValaAttribute* _tmp12_;
+			_tmp11_ = self->priv->symbol;
+			_tmp12_ = vala_code_node_get_attribute ((ValaCodeNode*) _tmp11_, "Deprecated");
+			_tmp1_ = _tmp12_ != NULL;
+		}
+		_tmp13_ = __bool_dup0 (&_tmp1_);
+		_g_free0 (self->priv->_deprecated);
+		self->priv->_deprecated = _tmp13_;
+	}
+	_tmp14_ = self->priv->_deprecated;
+	result = *_tmp14_;
+	return result;
+}
+
+void
+vala_version_attribute_set_deprecated (ValaVersionAttribute* self,
+                                       gboolean value)
+{
+	gboolean* _tmp0_;
+	ValaSymbol* _tmp1_;
+	gboolean* _tmp2_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = __bool_dup0 (&value);
+	_g_free0 (self->priv->_deprecated);
+	self->priv->_deprecated = _tmp0_;
+	_tmp1_ = self->priv->symbol;
+	_tmp2_ = self->priv->_deprecated;
+	vala_code_node_set_attribute_bool ((ValaCodeNode*) _tmp1_, "Version", "deprecated", *_tmp2_, NULL);
+}
+
+gchar*
+vala_version_attribute_get_deprecated_since (ValaVersionAttribute* self)
+{
+	gchar* result;
+	gchar* _tmp0_ = NULL;
+	ValaSymbol* _tmp1_;
+	gchar* _tmp2_;
+	gchar* _tmp5_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp1_ = self->priv->symbol;
+	_tmp2_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp1_, "Version", "deprecated_since", NULL);
+	_tmp0_ = _tmp2_;
+	if (_tmp0_ == NULL) {
+		ValaSymbol* _tmp3_;
+		gchar* _tmp4_;
+		_tmp3_ = self->priv->symbol;
+		_tmp4_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp3_, "Deprecated", "since", NULL);
+		_g_free0 (_tmp0_);
+		_tmp0_ = _tmp4_;
+	}
+	_tmp5_ = _tmp0_;
+	_tmp0_ = NULL;
+	result = _tmp5_;
+	_g_free0 (_tmp0_);
+	return result;
+}
+
+void
+vala_version_attribute_set_deprecated_since (ValaVersionAttribute* self,
+                                             const gchar* value)
+{
+	ValaSymbol* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = self->priv->symbol;
+	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "deprecated_since", value, NULL);
+}
+
+gchar*
+vala_version_attribute_get_replacement (ValaVersionAttribute* self)
+{
+	gchar* result;
+	gchar* _tmp0_ = NULL;
+	ValaSymbol* _tmp1_;
+	gchar* _tmp2_;
+	gchar* _tmp5_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp1_ = self->priv->symbol;
+	_tmp2_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp1_, "Version", "replacement", NULL);
+	_tmp0_ = _tmp2_;
+	if (_tmp0_ == NULL) {
+		ValaSymbol* _tmp3_;
+		gchar* _tmp4_;
+		_tmp3_ = self->priv->symbol;
+		_tmp4_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp3_, "Deprecated", "replacement", NULL);
+		_g_free0 (_tmp0_);
+		_tmp0_ = _tmp4_;
+	}
+	_tmp5_ = _tmp0_;
+	_tmp0_ = NULL;
+	result = _tmp5_;
+	_g_free0 (_tmp0_);
+	return result;
+}
+
+void
+vala_version_attribute_set_replacement (ValaVersionAttribute* self,
+                                        const gchar* value)
+{
+	ValaSymbol* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = self->priv->symbol;
+	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "replacement", value, NULL);
+}
+
+gboolean
+vala_version_attribute_get_experimental (ValaVersionAttribute* self)
+{
+	gboolean result;
+	gboolean* _tmp0_;
+	gboolean* _tmp10_;
+	g_return_val_if_fail (self != NULL, FALSE);
+	_tmp0_ = self->priv->_experimental;
+	if (_tmp0_ == NULL) {
+		gboolean _tmp1_ = FALSE;
+		gboolean _tmp2_ = FALSE;
+		ValaSymbol* _tmp3_;
+		gboolean* _tmp9_;
+		_tmp3_ = self->priv->symbol;
+		if (vala_code_node_get_attribute_bool ((ValaCodeNode*) _tmp3_, "Version", "experimental", FALSE)) {
+			_tmp2_ = TRUE;
+		} else {
+			ValaSymbol* _tmp4_;
+			gchar* _tmp5_;
+			gchar* _tmp6_;
+			_tmp4_ = self->priv->symbol;
+			_tmp5_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp4_, "Version", "experimental_until", NULL);
+			_tmp6_ = _tmp5_;
+			_tmp2_ = _tmp6_ != NULL;
+			_g_free0 (_tmp6_);
+		}
+		if (_tmp2_) {
+			_tmp1_ = TRUE;
+		} else {
+			ValaSymbol* _tmp7_;
+			ValaAttribute* _tmp8_;
+			_tmp7_ = self->priv->symbol;
+			_tmp8_ = vala_code_node_get_attribute ((ValaCodeNode*) _tmp7_, "Experimental");
+			_tmp1_ = _tmp8_ != NULL;
+		}
+		_tmp9_ = __bool_dup0 (&_tmp1_);
+		_g_free0 (self->priv->_experimental);
+		self->priv->_experimental = _tmp9_;
+	}
+	_tmp10_ = self->priv->_experimental;
+	result = *_tmp10_;
+	return result;
+}
+
+void
+vala_version_attribute_set_experimental (ValaVersionAttribute* self,
+                                         gboolean value)
+{
+	gboolean* _tmp0_;
+	ValaSymbol* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = __bool_dup0 (&value);
+	_g_free0 (self->priv->_experimental);
+	self->priv->_experimental = _tmp0_;
+	_tmp1_ = self->priv->symbol;
+	vala_code_node_set_attribute_bool ((ValaCodeNode*) _tmp1_, "Version", "experimental", value, NULL);
+}
+
+gchar*
+vala_version_attribute_get_experimental_until (ValaVersionAttribute* self)
+{
+	gchar* result;
+	ValaSymbol* _tmp0_;
+	gchar* _tmp1_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->symbol;
+	_tmp1_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "experimental_until", NULL);
+	result = _tmp1_;
+	return result;
+}
+
+void
+vala_version_attribute_set_experimental_until (ValaVersionAttribute* self,
+                                               const gchar* value)
+{
+	ValaSymbol* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = self->priv->symbol;
+	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "experimental_until", value, NULL);
+}
+
+gchar*
+vala_version_attribute_get_since (ValaVersionAttribute* self)
+{
+	gchar* result;
+	ValaSymbol* _tmp0_;
+	gchar* _tmp1_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->symbol;
+	_tmp1_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "since", NULL);
+	result = _tmp1_;
+	return result;
+}
+
+void
+vala_version_attribute_set_since (ValaVersionAttribute* self,
+                                  const gchar* value)
+{
+	ValaSymbol* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = self->priv->symbol;
+	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "since", value, NULL);
+}
 
 /**
  * Check to see if the symbol is experimental, deprecated or not available
@@ -102,59 +362,50 @@ string_slice (const gchar* self,
               glong start,
               glong end)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gint _tmp0_;
 	gint _tmp1_;
-	gboolean _tmp4_ = FALSE;
-	gboolean _tmp6_ = FALSE;
-	gchar* _tmp8_;
+	gboolean _tmp2_ = FALSE;
+	gboolean _tmp3_ = FALSE;
+	gchar* _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = strlen (self);
 	_tmp1_ = _tmp0_;
 	string_length = (glong) _tmp1_;
 	if (start < ((glong) 0)) {
-		glong _tmp2_;
-		_tmp2_ = string_length;
-		start = _tmp2_ + start;
+		start = string_length + start;
 	}
 	if (end < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		end = _tmp3_ + end;
+		end = string_length + end;
 	}
 	if (start >= ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		_tmp4_ = start <= _tmp5_;
+		_tmp2_ = start <= string_length;
 	} else {
-		_tmp4_ = FALSE;
+		_tmp2_ = FALSE;
 	}
-	g_return_val_if_fail (_tmp4_, NULL);
+	g_return_val_if_fail (_tmp2_, NULL);
 	if (end >= ((glong) 0)) {
-		glong _tmp7_;
-		_tmp7_ = string_length;
-		_tmp6_ = end <= _tmp7_;
+		_tmp3_ = end <= string_length;
 	} else {
-		_tmp6_ = FALSE;
+		_tmp3_ = FALSE;
 	}
-	g_return_val_if_fail (_tmp6_, NULL);
+	g_return_val_if_fail (_tmp3_, NULL);
 	g_return_val_if_fail (start <= end, NULL);
-	_tmp8_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
-	result = _tmp8_;
+	_tmp4_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
+	result = _tmp4_;
 	return result;
 }
-
 
 static gint
 string_last_index_of_char (const gchar* self,
                            gunichar c,
                            gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -170,12 +421,10 @@ string_last_index_of_char (const gchar* self,
 	}
 }
 
-
 gboolean
 vala_version_attribute_check (ValaVersionAttribute* self,
                               ValaSourceReference* source_ref)
 {
-	gboolean result = FALSE;
 	gboolean _result_ = FALSE;
 	gboolean _tmp0_ = FALSE;
 	ValaSymbol* _tmp1_;
@@ -189,6 +438,7 @@ vala_version_attribute_check (ValaVersionAttribute* self,
 	ValaSymbol* _tmp107_;
 	gboolean _tmp108_;
 	gboolean _tmp109_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_result_ = FALSE;
 	_tmp1_ = self->priv->symbol;
@@ -334,7 +584,7 @@ vala_version_attribute_check (ValaVersionAttribute* self,
 			_tmp50_ = self->priv->symbol;
 			_tmp51_ = vala_symbol_get_full_name (_tmp50_);
 			_tmp52_ = _tmp51_;
-			_tmp53_ = g_strdup_printf ("%s %s%s", _tmp52_, _tmp30_, _tmp40_);
+			_tmp53_ = g_strdup_printf ("`%s' %s%s", _tmp52_, _tmp30_, _tmp40_);
 			_tmp54_ = _tmp53_;
 			vala_report_deprecated (source_ref, _tmp54_);
 			_g_free0 (_tmp54_);
@@ -465,7 +715,7 @@ vala_version_attribute_check (ValaVersionAttribute* self,
 			_tmp101_ = vala_version_attribute_get_since (self);
 			_tmp102_ = _tmp101_;
 			_tmp103_ = _tmp102_;
-			_tmp104_ = g_strdup_printf ("%s is not available in %s %s. Use %s >= %s", _tmp97_, _tmp98_, _tmp99_, _tmp100_, _tmp103_);
+			_tmp104_ = g_strdup_printf ("`%s' is not available in %s %s. Use %s >= %s", _tmp97_, _tmp98_, _tmp99_, _tmp100_, _tmp103_);
 			_tmp105_ = _tmp104_;
 			vala_report_error (source_ref, _tmp105_);
 			_g_free0 (_tmp105_);
@@ -570,7 +820,7 @@ vala_version_attribute_check (ValaVersionAttribute* self,
 				_tmp138_ = self->priv->symbol;
 				_tmp139_ = vala_symbol_get_full_name (_tmp138_);
 				_tmp140_ = _tmp139_;
-				_tmp141_ = g_strdup_printf ("%s is experimental%s", _tmp140_, _tmp133_);
+				_tmp141_ = g_strdup_printf ("`%s' is experimental%s", _tmp140_, _tmp133_);
 				_tmp142_ = _tmp141_;
 				vala_report_experimental (source_ref, _tmp142_);
 				_g_free0 (_tmp142_);
@@ -586,7 +836,6 @@ vala_version_attribute_check (ValaVersionAttribute* self,
 	return result;
 }
 
-
 /**
  * A simple version comparison function.
  *
@@ -599,7 +848,6 @@ gint
 vala_version_attribute_cmp_versions (const gchar* v1str,
                                      const gchar* v2str)
 {
-	gint result = 0;
 	gchar** v1arr = NULL;
 	gchar** _tmp0_;
 	gchar** _tmp1_;
@@ -611,16 +859,15 @@ vala_version_attribute_cmp_versions (const gchar* v1str,
 	gint v2arr_length1;
 	gint _v2arr_size_;
 	gint i = 0;
-	gboolean _tmp25_ = FALSE;
-	gchar** _tmp26_;
-	gint _tmp26__length1;
-	gint _tmp27_;
-	const gchar* _tmp28_;
-	gboolean _tmp32_ = FALSE;
-	gchar** _tmp33_;
-	gint _tmp33__length1;
-	gint _tmp34_;
-	const gchar* _tmp35_;
+	gboolean _tmp15_ = FALSE;
+	gchar** _tmp16_;
+	gint _tmp16__length1;
+	const gchar* _tmp17_;
+	gboolean _tmp20_ = FALSE;
+	gchar** _tmp21_;
+	gint _tmp21__length1;
+	const gchar* _tmp22_;
+	gint result = 0;
 	g_return_val_if_fail (v1str != NULL, 0);
 	g_return_val_if_fail (v2str != NULL, 0);
 	_tmp1_ = _tmp0_ = g_strsplit (v1str, ".", 0);
@@ -636,129 +883,103 @@ vala_version_attribute_cmp_versions (const gchar* v1str,
 		gboolean _tmp4_ = FALSE;
 		gchar** _tmp5_;
 		gint _tmp5__length1;
-		gint _tmp6_;
-		const gchar* _tmp7_;
+		const gchar* _tmp6_;
 		gint v1num = 0;
+		gchar** _tmp9_;
+		gint _tmp9__length1;
+		const gchar* _tmp10_;
+		gint v2num = 0;
 		gchar** _tmp11_;
 		gint _tmp11__length1;
-		gint _tmp12_;
-		const gchar* _tmp13_;
-		gint v2num = 0;
-		gchar** _tmp14_;
-		gint _tmp14__length1;
-		gint _tmp15_;
-		const gchar* _tmp16_;
-		gboolean _tmp17_ = FALSE;
-		gint _tmp18_;
-		gint _tmp20_;
-		gint _tmp21_;
-		gint _tmp22_;
-		gint _tmp23_;
-		gint _tmp24_;
+		const gchar* _tmp12_;
+		gboolean _tmp13_ = FALSE;
+		gint _tmp14_;
 		_tmp5_ = v1arr;
 		_tmp5__length1 = v1arr_length1;
-		_tmp6_ = i;
-		_tmp7_ = _tmp5_[_tmp6_];
-		if (_tmp7_ != NULL) {
-			gchar** _tmp8_;
-			gint _tmp8__length1;
-			gint _tmp9_;
-			const gchar* _tmp10_;
-			_tmp8_ = v2arr;
-			_tmp8__length1 = v2arr_length1;
-			_tmp9_ = i;
-			_tmp10_ = _tmp8_[_tmp9_];
-			_tmp4_ = _tmp10_ != NULL;
+		_tmp6_ = _tmp5_[i];
+		if (_tmp6_ != NULL) {
+			gchar** _tmp7_;
+			gint _tmp7__length1;
+			const gchar* _tmp8_;
+			_tmp7_ = v2arr;
+			_tmp7__length1 = v2arr_length1;
+			_tmp8_ = _tmp7_[i];
+			_tmp4_ = _tmp8_ != NULL;
 		} else {
 			_tmp4_ = FALSE;
 		}
 		if (!_tmp4_) {
 			break;
 		}
-		_tmp11_ = v1arr;
-		_tmp11__length1 = v1arr_length1;
-		_tmp12_ = i;
-		_tmp13_ = _tmp11_[_tmp12_];
-		v1num = atoi (_tmp13_);
-		_tmp14_ = v2arr;
-		_tmp14__length1 = v2arr_length1;
-		_tmp15_ = i;
-		_tmp16_ = _tmp14_[_tmp15_];
-		v2num = atoi (_tmp16_);
-		_tmp18_ = v1num;
-		if (_tmp18_ < 0) {
-			_tmp17_ = TRUE;
+		_tmp9_ = v1arr;
+		_tmp9__length1 = v1arr_length1;
+		_tmp10_ = _tmp9_[i];
+		v1num = atoi (_tmp10_);
+		_tmp11_ = v2arr;
+		_tmp11__length1 = v2arr_length1;
+		_tmp12_ = _tmp11_[i];
+		v2num = atoi (_tmp12_);
+		if (v1num < 0) {
+			_tmp13_ = TRUE;
 		} else {
-			gint _tmp19_;
-			_tmp19_ = v2num;
-			_tmp17_ = _tmp19_ < 0;
+			_tmp13_ = v2num < 0;
 		}
-		if (_tmp17_) {
+		if (_tmp13_) {
 			result = 0;
 			v2arr = (_vala_array_free (v2arr, v2arr_length1, (GDestroyNotify) g_free), NULL);
 			v1arr = (_vala_array_free (v1arr, v1arr_length1, (GDestroyNotify) g_free), NULL);
 			return result;
 		}
-		_tmp20_ = v1num;
-		_tmp21_ = v2num;
-		if (_tmp20_ > _tmp21_) {
+		if (v1num > v2num) {
 			result = 1;
 			v2arr = (_vala_array_free (v2arr, v2arr_length1, (GDestroyNotify) g_free), NULL);
 			v1arr = (_vala_array_free (v1arr, v1arr_length1, (GDestroyNotify) g_free), NULL);
 			return result;
 		}
-		_tmp22_ = v1num;
-		_tmp23_ = v2num;
-		if (_tmp22_ < _tmp23_) {
+		if (v1num < v2num) {
 			result = -1;
 			v2arr = (_vala_array_free (v2arr, v2arr_length1, (GDestroyNotify) g_free), NULL);
 			v1arr = (_vala_array_free (v1arr, v1arr_length1, (GDestroyNotify) g_free), NULL);
 			return result;
 		}
-		_tmp24_ = i;
-		i = _tmp24_ + 1;
+		_tmp14_ = i;
+		i = _tmp14_ + 1;
 	}
-	_tmp26_ = v1arr;
-	_tmp26__length1 = v1arr_length1;
-	_tmp27_ = i;
-	_tmp28_ = _tmp26_[_tmp27_];
-	if (_tmp28_ != NULL) {
-		gchar** _tmp29_;
-		gint _tmp29__length1;
-		gint _tmp30_;
-		const gchar* _tmp31_;
-		_tmp29_ = v2arr;
-		_tmp29__length1 = v2arr_length1;
-		_tmp30_ = i;
-		_tmp31_ = _tmp29_[_tmp30_];
-		_tmp25_ = _tmp31_ == NULL;
+	_tmp16_ = v1arr;
+	_tmp16__length1 = v1arr_length1;
+	_tmp17_ = _tmp16_[i];
+	if (_tmp17_ != NULL) {
+		gchar** _tmp18_;
+		gint _tmp18__length1;
+		const gchar* _tmp19_;
+		_tmp18_ = v2arr;
+		_tmp18__length1 = v2arr_length1;
+		_tmp19_ = _tmp18_[i];
+		_tmp15_ = _tmp19_ == NULL;
 	} else {
-		_tmp25_ = FALSE;
+		_tmp15_ = FALSE;
 	}
-	if (_tmp25_) {
+	if (_tmp15_) {
 		result = 1;
 		v2arr = (_vala_array_free (v2arr, v2arr_length1, (GDestroyNotify) g_free), NULL);
 		v1arr = (_vala_array_free (v1arr, v1arr_length1, (GDestroyNotify) g_free), NULL);
 		return result;
 	}
-	_tmp33_ = v1arr;
-	_tmp33__length1 = v1arr_length1;
-	_tmp34_ = i;
-	_tmp35_ = _tmp33_[_tmp34_];
-	if (_tmp35_ == NULL) {
-		gchar** _tmp36_;
-		gint _tmp36__length1;
-		gint _tmp37_;
-		const gchar* _tmp38_;
-		_tmp36_ = v2arr;
-		_tmp36__length1 = v2arr_length1;
-		_tmp37_ = i;
-		_tmp38_ = _tmp36_[_tmp37_];
-		_tmp32_ = _tmp38_ != NULL;
+	_tmp21_ = v1arr;
+	_tmp21__length1 = v1arr_length1;
+	_tmp22_ = _tmp21_[i];
+	if (_tmp22_ == NULL) {
+		gchar** _tmp23_;
+		gint _tmp23__length1;
+		const gchar* _tmp24_;
+		_tmp23_ = v2arr;
+		_tmp23__length1 = v2arr_length1;
+		_tmp24_ = _tmp23_[i];
+		_tmp20_ = _tmp24_ != NULL;
 	} else {
-		_tmp32_ = FALSE;
+		_tmp20_ = FALSE;
 	}
-	if (_tmp32_) {
+	if (_tmp20_) {
 		result = -1;
 		v2arr = (_vala_array_free (v2arr, v2arr_length1, (GDestroyNotify) g_free), NULL);
 		v1arr = (_vala_array_free (v1arr, v1arr_length1, (GDestroyNotify) g_free), NULL);
@@ -770,293 +991,11 @@ vala_version_attribute_cmp_versions (const gchar* v1str,
 	return result;
 }
 
-
-static gboolean*
-_bool_dup (gboolean* self)
-{
-	gboolean* dup;
-	dup = g_new0 (gboolean, 1);
-	memcpy (dup, self, sizeof (gboolean));
-	return dup;
-}
-
-
-static gpointer
-__bool_dup0 (gpointer self)
-{
-	return self ? _bool_dup (self) : NULL;
-}
-
-
-gboolean
-vala_version_attribute_get_deprecated (ValaVersionAttribute* self)
-{
-	gboolean result;
-	gboolean* _tmp0_;
-	gboolean* _tmp14_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_deprecated;
-	if (_tmp0_ == NULL) {
-		gboolean _tmp1_ = FALSE;
-		gboolean _tmp2_ = FALSE;
-		gboolean _tmp3_ = FALSE;
-		ValaSymbol* _tmp4_;
-		gboolean* _tmp13_;
-		_tmp4_ = self->priv->symbol;
-		if (vala_code_node_get_attribute_bool ((ValaCodeNode*) _tmp4_, "Version", "deprecated", FALSE)) {
-			_tmp3_ = TRUE;
-		} else {
-			ValaSymbol* _tmp5_;
-			gchar* _tmp6_;
-			gchar* _tmp7_;
-			_tmp5_ = self->priv->symbol;
-			_tmp6_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp5_, "Version", "deprecated_since", NULL);
-			_tmp7_ = _tmp6_;
-			_tmp3_ = _tmp7_ != NULL;
-			_g_free0 (_tmp7_);
-		}
-		if (_tmp3_) {
-			_tmp2_ = TRUE;
-		} else {
-			ValaSymbol* _tmp8_;
-			gchar* _tmp9_;
-			gchar* _tmp10_;
-			_tmp8_ = self->priv->symbol;
-			_tmp9_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp8_, "Version", "replacement", NULL);
-			_tmp10_ = _tmp9_;
-			_tmp2_ = _tmp10_ != NULL;
-			_g_free0 (_tmp10_);
-		}
-		if (_tmp2_) {
-			_tmp1_ = TRUE;
-		} else {
-			ValaSymbol* _tmp11_;
-			ValaAttribute* _tmp12_;
-			_tmp11_ = self->priv->symbol;
-			_tmp12_ = vala_code_node_get_attribute ((ValaCodeNode*) _tmp11_, "Deprecated");
-			_tmp1_ = _tmp12_ != NULL;
-		}
-		_tmp13_ = __bool_dup0 (&_tmp1_);
-		_g_free0 (self->priv->_deprecated);
-		self->priv->_deprecated = _tmp13_;
-	}
-	_tmp14_ = self->priv->_deprecated;
-	result = *_tmp14_;
-	return result;
-}
-
-
-void
-vala_version_attribute_set_deprecated (ValaVersionAttribute* self,
-                                       gboolean value)
-{
-	gboolean* _tmp0_;
-	ValaSymbol* _tmp1_;
-	gboolean* _tmp2_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = __bool_dup0 (&value);
-	_g_free0 (self->priv->_deprecated);
-	self->priv->_deprecated = _tmp0_;
-	_tmp1_ = self->priv->symbol;
-	_tmp2_ = self->priv->_deprecated;
-	vala_code_node_set_attribute_bool ((ValaCodeNode*) _tmp1_, "Version", "deprecated", *_tmp2_, NULL);
-}
-
-
-gchar*
-vala_version_attribute_get_deprecated_since (ValaVersionAttribute* self)
-{
-	gchar* result;
-	gchar* _tmp0_ = NULL;
-	ValaSymbol* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp5_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp1_ = self->priv->symbol;
-	_tmp2_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp1_, "Version", "deprecated_since", NULL);
-	_tmp0_ = _tmp2_;
-	if (_tmp0_ == NULL) {
-		ValaSymbol* _tmp3_;
-		gchar* _tmp4_;
-		_tmp3_ = self->priv->symbol;
-		_tmp4_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp3_, "Deprecated", "since", NULL);
-		_g_free0 (_tmp0_);
-		_tmp0_ = _tmp4_;
-	}
-	_tmp5_ = _tmp0_;
-	_tmp0_ = NULL;
-	result = _tmp5_;
-	_g_free0 (_tmp0_);
-	return result;
-}
-
-
-void
-vala_version_attribute_set_deprecated_since (ValaVersionAttribute* self,
-                                             const gchar* value)
-{
-	ValaSymbol* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = self->priv->symbol;
-	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "deprecated_since", value, NULL);
-}
-
-
-gchar*
-vala_version_attribute_get_replacement (ValaVersionAttribute* self)
-{
-	gchar* result;
-	gchar* _tmp0_ = NULL;
-	ValaSymbol* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp5_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp1_ = self->priv->symbol;
-	_tmp2_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp1_, "Version", "replacement", NULL);
-	_tmp0_ = _tmp2_;
-	if (_tmp0_ == NULL) {
-		ValaSymbol* _tmp3_;
-		gchar* _tmp4_;
-		_tmp3_ = self->priv->symbol;
-		_tmp4_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp3_, "Deprecated", "replacement", NULL);
-		_g_free0 (_tmp0_);
-		_tmp0_ = _tmp4_;
-	}
-	_tmp5_ = _tmp0_;
-	_tmp0_ = NULL;
-	result = _tmp5_;
-	_g_free0 (_tmp0_);
-	return result;
-}
-
-
-void
-vala_version_attribute_set_replacement (ValaVersionAttribute* self,
-                                        const gchar* value)
-{
-	ValaSymbol* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = self->priv->symbol;
-	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "replacement", value, NULL);
-}
-
-
-gboolean
-vala_version_attribute_get_experimental (ValaVersionAttribute* self)
-{
-	gboolean result;
-	gboolean* _tmp0_;
-	gboolean* _tmp10_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_experimental;
-	if (_tmp0_ == NULL) {
-		gboolean _tmp1_ = FALSE;
-		gboolean _tmp2_ = FALSE;
-		ValaSymbol* _tmp3_;
-		gboolean* _tmp9_;
-		_tmp3_ = self->priv->symbol;
-		if (vala_code_node_get_attribute_bool ((ValaCodeNode*) _tmp3_, "Version", "experimental", FALSE)) {
-			_tmp2_ = TRUE;
-		} else {
-			ValaSymbol* _tmp4_;
-			gchar* _tmp5_;
-			gchar* _tmp6_;
-			_tmp4_ = self->priv->symbol;
-			_tmp5_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp4_, "Version", "experimental_until", NULL);
-			_tmp6_ = _tmp5_;
-			_tmp2_ = _tmp6_ != NULL;
-			_g_free0 (_tmp6_);
-		}
-		if (_tmp2_) {
-			_tmp1_ = TRUE;
-		} else {
-			ValaSymbol* _tmp7_;
-			ValaAttribute* _tmp8_;
-			_tmp7_ = self->priv->symbol;
-			_tmp8_ = vala_code_node_get_attribute ((ValaCodeNode*) _tmp7_, "Experimental");
-			_tmp1_ = _tmp8_ != NULL;
-		}
-		_tmp9_ = __bool_dup0 (&_tmp1_);
-		_g_free0 (self->priv->_experimental);
-		self->priv->_experimental = _tmp9_;
-	}
-	_tmp10_ = self->priv->_experimental;
-	result = *_tmp10_;
-	return result;
-}
-
-
-void
-vala_version_attribute_set_experimental (ValaVersionAttribute* self,
-                                         gboolean value)
-{
-	gboolean* _tmp0_;
-	ValaSymbol* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = __bool_dup0 (&value);
-	_g_free0 (self->priv->_experimental);
-	self->priv->_experimental = _tmp0_;
-	_tmp1_ = self->priv->symbol;
-	vala_code_node_set_attribute_bool ((ValaCodeNode*) _tmp1_, "Version", "experimental", value, NULL);
-}
-
-
-gchar*
-vala_version_attribute_get_experimental_until (ValaVersionAttribute* self)
-{
-	gchar* result;
-	ValaSymbol* _tmp0_;
-	gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->symbol;
-	_tmp1_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "experimental_until", NULL);
-	result = _tmp1_;
-	return result;
-}
-
-
-void
-vala_version_attribute_set_experimental_until (ValaVersionAttribute* self,
-                                               const gchar* value)
-{
-	ValaSymbol* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = self->priv->symbol;
-	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "experimental_until", value, NULL);
-}
-
-
-gchar*
-vala_version_attribute_get_since (ValaVersionAttribute* self)
-{
-	gchar* result;
-	ValaSymbol* _tmp0_;
-	gchar* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->symbol;
-	_tmp1_ = vala_code_node_get_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "since", NULL);
-	result = _tmp1_;
-	return result;
-}
-
-
-void
-vala_version_attribute_set_since (ValaVersionAttribute* self,
-                                  const gchar* value)
-{
-	ValaSymbol* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = self->priv->symbol;
-	vala_code_node_set_attribute_string ((ValaCodeNode*) _tmp0_, "Version", "since", value, NULL);
-}
-
-
 static void
 vala_value_version_attribute_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_version_attribute_free_value (GValue* value)
@@ -1065,7 +1004,6 @@ vala_value_version_attribute_free_value (GValue* value)
 		vala_version_attribute_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_version_attribute_copy_value (const GValue* src_value,
@@ -1078,13 +1016,11 @@ vala_value_version_attribute_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_version_attribute_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_version_attribute_collect_value (GValue* value,
@@ -1107,7 +1043,6 @@ vala_value_version_attribute_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_version_attribute_lcopy_value (const GValue* value,
                                           guint n_collect_values,
@@ -1129,7 +1064,6 @@ vala_value_version_attribute_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_version_attribute (const gchar* name,
                                    const gchar* nick,
@@ -1144,14 +1078,12 @@ vala_param_spec_version_attribute (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_version_attribute (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_VERSION_ATTRIBUTE), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_version_attribute (GValue* value,
@@ -1173,7 +1105,6 @@ vala_value_set_version_attribute (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_version_attribute (GValue* value,
                                    gpointer v_object)
@@ -1193,23 +1124,22 @@ vala_value_take_version_attribute (GValue* value,
 	}
 }
 
-
 static void
-vala_version_attribute_class_init (ValaVersionAttributeClass * klass)
+vala_version_attribute_class_init (ValaVersionAttributeClass * klass,
+                                   gpointer klass_data)
 {
 	vala_version_attribute_parent_class = g_type_class_peek_parent (klass);
 	((ValaVersionAttributeClass *) klass)->finalize = vala_version_attribute_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaVersionAttribute_private_offset);
 }
 
-
 static void
-vala_version_attribute_instance_init (ValaVersionAttribute * self)
+vala_version_attribute_instance_init (ValaVersionAttribute * self,
+                                      gpointer klass)
 {
 	self->priv = vala_version_attribute_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_version_attribute_finalize (ValaVersionAttribute * obj)
@@ -1221,26 +1151,32 @@ vala_version_attribute_finalize (ValaVersionAttribute * obj)
 	_g_free0 (self->priv->_experimental);
 }
 
-
 /**
  * Represents a [Version] attribute
  */
+static GType
+vala_version_attribute_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_version_attribute_init, vala_value_version_attribute_free_value, vala_value_version_attribute_copy_value, vala_value_version_attribute_peek_pointer, "p", vala_value_version_attribute_collect_value, "p", vala_value_version_attribute_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaVersionAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_version_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVersionAttribute), 0, (GInstanceInitFunc) vala_version_attribute_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_version_attribute_type_id;
+	vala_version_attribute_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaVersionAttribute", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaVersionAttribute_private_offset = g_type_add_instance_private (vala_version_attribute_type_id, sizeof (ValaVersionAttributePrivate));
+	return vala_version_attribute_type_id;
+}
+
 GType
 vala_version_attribute_get_type (void)
 {
 	static volatile gsize vala_version_attribute_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_version_attribute_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_version_attribute_init, vala_value_version_attribute_free_value, vala_value_version_attribute_copy_value, vala_value_version_attribute_peek_pointer, "p", vala_value_version_attribute_collect_value, "p", vala_value_version_attribute_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaVersionAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_version_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaVersionAttribute), 0, (GInstanceInitFunc) vala_version_attribute_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_version_attribute_type_id;
-		vala_version_attribute_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaVersionAttribute", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaVersionAttribute_private_offset = g_type_add_instance_private (vala_version_attribute_type_id, sizeof (ValaVersionAttributePrivate));
+		vala_version_attribute_type_id = vala_version_attribute_get_type_once ();
 		g_once_init_leave (&vala_version_attribute_type_id__volatile, vala_version_attribute_type_id);
 	}
 	return vala_version_attribute_type_id__volatile;
 }
-
 
 gpointer
 vala_version_attribute_ref (gpointer instance)
@@ -1250,7 +1186,6 @@ vala_version_attribute_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_version_attribute_unref (gpointer instance)
@@ -1263,14 +1198,13 @@ vala_version_attribute_unref (gpointer instance)
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1278,7 +1212,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1289,11 +1222,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1302,6 +1234,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

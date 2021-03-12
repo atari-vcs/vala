@@ -23,12 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
 #include <valacodegen.h>
 
@@ -46,7 +44,6 @@ struct _ValadocApiEnumPrivate {
 	gchar* type_id;
 };
 
-
 static gint ValadocApiEnum_private_offset;
 static gpointer valadoc_api_enum_parent_class = NULL;
 
@@ -54,11 +51,11 @@ static void valadoc_api_enum_real_accept (ValadocApiNode* base,
                                    ValadocApiVisitor* visitor);
 static ValadocContentInline* valadoc_api_enum_real_build_signature (ValadocApiItem* base);
 static void valadoc_api_enum_finalize (GObject * obj);
+static GType valadoc_api_enum_get_type_once (void);
 static void _vala_valadoc_api_enum_get_property (GObject * object,
                                           guint property_id,
                                           GValue * value,
                                           GParamSpec * pspec);
-
 
 static inline gpointer
 valadoc_api_enum_get_instance_private (ValadocApiEnum* self)
@@ -66,17 +63,13 @@ valadoc_api_enum_get_instance_private (ValadocApiEnum* self)
 	return G_STRUCT_MEMBER_P (self, ValadocApiEnum_private_offset);
 }
 
-
 ValadocApiEnum*
 valadoc_api_enum_construct (GType object_type,
                             ValadocApiNode* parent,
                             ValadocApiSourceFile* file,
                             const gchar* name,
-                            ValadocApiSymbolAccessibility accessibility,
+                            ValaSymbolAccessibility accessibility,
                             ValadocApiSourceComment* comment,
-                            const gchar* cname,
-                            const gchar* type_macro_name,
-                            const gchar* type_function_name,
                             ValaEnum* data)
 {
 	ValadocApiEnum * self = NULL;
@@ -86,8 +79,8 @@ valadoc_api_enum_construct (GType object_type,
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiEnum*) valadoc_api_typesymbol_construct (object_type, parent, file, name, accessibility, comment, type_macro_name, NULL, NULL, type_function_name, FALSE, (ValaTypeSymbol*) data);
-	_tmp0_ = g_strdup (cname);
+	self = (ValadocApiEnum*) valadoc_api_typesymbol_construct (object_type, parent, file, name, accessibility, comment, FALSE, (ValaTypeSymbol*) data);
+	_tmp0_ = vala_get_ccode_name ((ValaCodeNode*) data);
 	_g_free0 (self->priv->cname);
 	self->priv->cname = _tmp0_;
 	_tmp1_ = vala_get_ccode_type_id ((ValaCodeNode*) data);
@@ -96,21 +89,16 @@ valadoc_api_enum_construct (GType object_type,
 	return self;
 }
 
-
 ValadocApiEnum*
 valadoc_api_enum_new (ValadocApiNode* parent,
                       ValadocApiSourceFile* file,
                       const gchar* name,
-                      ValadocApiSymbolAccessibility accessibility,
+                      ValaSymbolAccessibility accessibility,
                       ValadocApiSourceComment* comment,
-                      const gchar* cname,
-                      const gchar* type_macro_name,
-                      const gchar* type_function_name,
                       ValaEnum* data)
 {
-	return valadoc_api_enum_construct (VALADOC_API_TYPE_ENUM, parent, file, name, accessibility, comment, cname, type_macro_name, type_function_name, data);
+	return valadoc_api_enum_construct (VALADOC_API_TYPE_ENUM, parent, file, name, accessibility, comment, data);
 }
-
 
 /**
  * Returns the name of this enum as it is used in C.
@@ -118,9 +106,9 @@ valadoc_api_enum_new (ValadocApiNode* parent,
 gchar*
 valadoc_api_enum_get_cname (ValadocApiEnum* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->cname;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -128,16 +116,15 @@ valadoc_api_enum_get_cname (ValadocApiEnum* self)
 	return result;
 }
 
-
 /**
  * Returns the C symbol representing the runtime type id for this data type.
  */
 gchar*
 valadoc_api_enum_get_type_id (ValadocApiEnum* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->type_id;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -145,6 +132,15 @@ valadoc_api_enum_get_type_id (ValadocApiEnum* self)
 	return result;
 }
 
+static ValadocApiNodeType
+valadoc_api_enum_real_get_node_type (ValadocApiNode* base)
+{
+	ValadocApiNodeType result;
+	ValadocApiEnum* self;
+	self = (ValadocApiEnum*) base;
+	result = VALADOC_API_NODE_TYPE_ENUM;
+	return result;
+}
 
 /**
  * {@inheritDoc}
@@ -159,7 +155,6 @@ valadoc_api_enum_real_accept (ValadocApiNode* base,
 	valadoc_api_visitor_visit_enum (visitor, self);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -167,23 +162,23 @@ static ValadocContentInline*
 valadoc_api_enum_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiEnum * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp1_;
-	ValadocApiSymbolAccessibility _tmp2_;
-	ValadocApiSymbolAccessibility _tmp3_;
+	ValaSymbolAccessibility _tmp2_;
+	ValaSymbolAccessibility _tmp3_;
 	const gchar* _tmp4_;
 	ValadocApiSignatureBuilder* _tmp5_;
 	ValadocApiSignatureBuilder* _tmp6_;
 	ValadocApiSignatureBuilder* _tmp7_;
 	ValadocContentRun* _tmp8_;
 	ValadocContentInline* _tmp9_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiEnum*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	_tmp1_ = _tmp0_;
 	_tmp2_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_api_symbol_accessibility_to_string (_tmp3_);
+	_tmp4_ = vala_symbol_accessibility_to_string (_tmp3_);
 	_tmp5_ = valadoc_api_signature_builder_append_keyword (_tmp1_, _tmp4_, TRUE);
 	_tmp6_ = valadoc_api_signature_builder_append_keyword (_tmp5_, "enum", TRUE);
 	_tmp7_ = valadoc_api_signature_builder_append_symbol (_tmp6_, (ValadocApiNode*) self, TRUE);
@@ -194,20 +189,9 @@ valadoc_api_enum_real_build_signature (ValadocApiItem* base)
 	return result;
 }
 
-
-static ValadocApiNodeType
-valadoc_api_enum_real_get_node_type (ValadocApiNode* base)
-{
-	ValadocApiNodeType result;
-	ValadocApiEnum* self;
-	self = (ValadocApiEnum*) base;
-	result = VALADOC_API_NODE_TYPE_ENUM;
-	return result;
-}
-
-
 static void
-valadoc_api_enum_class_init (ValadocApiEnumClass * klass)
+valadoc_api_enum_class_init (ValadocApiEnumClass * klass,
+                             gpointer klass_data)
 {
 	valadoc_api_enum_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiEnum_private_offset);
@@ -222,13 +206,12 @@ valadoc_api_enum_class_init (ValadocApiEnumClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_ENUM_NODE_TYPE_PROPERTY, valadoc_api_enum_properties[VALADOC_API_ENUM_NODE_TYPE_PROPERTY] = g_param_spec_enum ("node-type", "node-type", "node-type", VALADOC_API_TYPE_NODE_TYPE, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_enum_instance_init (ValadocApiEnum * self)
+valadoc_api_enum_instance_init (ValadocApiEnum * self,
+                                gpointer klass)
 {
 	self->priv = valadoc_api_enum_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_enum_finalize (GObject * obj)
@@ -240,24 +223,30 @@ valadoc_api_enum_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_enum_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an enum declaration.
  */
+static GType
+valadoc_api_enum_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiEnumClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_enum_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiEnum), 0, (GInstanceInitFunc) valadoc_api_enum_instance_init, NULL };
+	GType valadoc_api_enum_type_id;
+	valadoc_api_enum_type_id = g_type_register_static (VALADOC_API_TYPE_TYPESYMBOL, "ValadocApiEnum", &g_define_type_info, 0);
+	ValadocApiEnum_private_offset = g_type_add_instance_private (valadoc_api_enum_type_id, sizeof (ValadocApiEnumPrivate));
+	return valadoc_api_enum_type_id;
+}
+
 GType
 valadoc_api_enum_get_type (void)
 {
 	static volatile gsize valadoc_api_enum_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_enum_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiEnumClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_enum_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiEnum), 0, (GInstanceInitFunc) valadoc_api_enum_instance_init, NULL };
 		GType valadoc_api_enum_type_id;
-		valadoc_api_enum_type_id = g_type_register_static (VALADOC_API_TYPE_TYPESYMBOL, "ValadocApiEnum", &g_define_type_info, 0);
-		ValadocApiEnum_private_offset = g_type_add_instance_private (valadoc_api_enum_type_id, sizeof (ValadocApiEnumPrivate));
+		valadoc_api_enum_type_id = valadoc_api_enum_get_type_once ();
 		g_once_init_leave (&valadoc_api_enum_type_id__volatile, valadoc_api_enum_type_id);
 	}
 	return valadoc_api_enum_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_enum_get_property (GObject * object,
@@ -276,6 +265,4 @@ _vala_valadoc_api_enum_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

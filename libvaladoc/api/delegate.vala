@@ -39,13 +39,13 @@ public class Valadoc.Api.Delegate : TypeSymbol, Callable {
 	}
 
 
-	public Delegate (Node parent, SourceFile file, string name, SymbolAccessibility accessibility,
-					 SourceComment? comment, string? cname, bool is_static, Vala.Delegate data)
+	public Delegate (Node parent, SourceFile file, string name, Vala.SymbolAccessibility accessibility,
+					 SourceComment? comment, Vala.Delegate data)
 	{
-		base (parent, file, name, accessibility, comment, null, null, null, null, false, data);
+		base (parent, file, name, accessibility, comment, false, data);
 
-		this.is_static = is_static;
-		this.cname = cname;
+		this.is_static = !data.has_target;
+		this.cname = Vala.get_ccode_name (data);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Valadoc.Api.Delegate : TypeSymbol, Callable {
 		signature.append_content (return_type.signature);
 		signature.append_symbol (this);
 
-		var type_parameters = get_children_by_type (NodeType.TYPE_PARAMETER);
+		var type_parameters = get_children_by_type (NodeType.TYPE_PARAMETER, false);
 		if (type_parameters.size > 0) {
 			signature.append ("<", false);
 			bool first = true;

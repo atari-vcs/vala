@@ -36,7 +36,7 @@ public static void test_enum_global (Api.Enum? en, Api.Package pkg, Api.Namespac
 	assert (en.is_basic_type == false);
 	// (.Symbol check)
 	assert (en.is_deprecated == false);
-	assert (en.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (en.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (en.get_full_name () == "TestEnumGlobal");
 	assert (en.get_filename () == "api-test.data.vapi");
@@ -64,7 +64,7 @@ public static void test_enum_global (Api.Enum? en, Api.Package pkg, Api.Namespac
 			assert (enval.get_cname () == "TEST_ENUM_GLOBAL_ENVAL1");
 			// (.Symbol check)
 			assert (enval.is_deprecated == false);
-			assert (enval.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (enval.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (enval.get_full_name () == "TestEnumGlobal.ENVAL1");
 			assert (enval.get_filename () == "api-test.data.vapi");
@@ -81,7 +81,7 @@ public static void test_enum_global (Api.Enum? en, Api.Package pkg, Api.Namespac
 			assert (enval.get_cname () == "TEST_ENUM_GLOBAL_ENVAL2");
 			// (.Symbol check)
 			assert (enval.is_deprecated == false);
-			assert (enval.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (enval.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (enval.get_full_name () == "TestEnumGlobal.ENVAL2");
 			assert (enval.get_filename () == "api-test.data.vapi");
@@ -122,7 +122,7 @@ public static void test_enum_global (Api.Enum? en, Api.Package pkg, Api.Namespac
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestEnumGlobal.method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -153,7 +153,7 @@ public static void test_enum_global (Api.Enum? en, Api.Package pkg, Api.Namespac
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestEnumGlobal.static_method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -197,7 +197,7 @@ public static void test_erroromain_global (Api.ErrorDomain? err, Api.Package pkg
 	assert (err.is_basic_type == false);
 	// (.Symbol check)
 	assert (err.is_deprecated == false);
-	assert (err.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (err.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (err.get_full_name () == "TestErrDomGlobal");
 	assert (err.get_filename () == "api-test.data.vapi");
@@ -223,7 +223,7 @@ public static void test_erroromain_global (Api.ErrorDomain? err, Api.Package pkg
 			assert (errc.get_cname () == "TEST_ERR_DOM_GLOBAL_ERROR1");
 			// (.Symbol check)
 			assert (errc.is_deprecated == false);
-			assert (errc.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (errc.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (errc.get_full_name () == "TestErrDomGlobal.ERROR1");
 			assert (errc.get_filename () == "api-test.data.vapi");
@@ -238,7 +238,7 @@ public static void test_erroromain_global (Api.ErrorDomain? err, Api.Package pkg
 			assert (errc.get_cname () == "TEST_ERR_DOM_GLOBAL_ERROR2");
 			// (.Symbol check)
 			assert (errc.is_deprecated == false);
-			assert (errc.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (errc.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (errc.get_full_name () == "TestErrDomGlobal.ERROR2");
 			assert (errc.get_filename () == "api-test.data.vapi");
@@ -257,42 +257,10 @@ public static void test_erroromain_global (Api.ErrorDomain? err, Api.Package pkg
 	assert (errc2 == true);
 
 
-
-	Vala.List<Api.Node> methods = err.get_children_by_type (Api.NodeType.METHOD, false);
-	assert (methods.size == 1);
+	Vala.List<Api.Node> methods = err.get_children_by_type (Api.NodeType.STATIC_METHOD, false);
+	assert (methods.size == 2);
 
 	Api.Method method = methods.get (0) as Api.Method;
-	assert (method != null);
-
-	// (.Method check)
-	assert (method.get_cname () == "test_err_dom_global_method");
-	//assert (method.get_dbus_name () == null);
-	//assert (method.get_dbus_result_name () == null);
-	//assert (method.is_dbus_visible == false);
-	assert (method.base_method == null);
-	assert (method.is_yields == false);
-	assert (method.is_abstract == false);
-	assert (method.is_virtual == false);
-	assert (method.is_override == false);
-	assert (method.is_static == false);
-	assert (method.is_constructor == false);
-	assert (method.is_inline == false);
-	// (.Symbol check)
-	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
-	// (.Node)
-	assert (method.get_full_name () == "TestErrDomGlobal.method");
-	assert (method.get_filename () == "api-test.data.vapi");
-	assert (method.name == "method");
-	assert (method.nspace == global_ns);
-	assert (method.package == pkg);
-
-
-
-	methods = err.get_children_by_type (Api.NodeType.STATIC_METHOD, false);
-	assert (methods.size == 1);
-
-	method = methods.get (0) as Api.Method;
 	assert (method != null);
 
 	// (.Method check)
@@ -310,7 +278,7 @@ public static void test_erroromain_global (Api.ErrorDomain? err, Api.Package pkg
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestErrDomGlobal.static_method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -364,7 +332,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (cl.is_fundamental == true);
 	// (.Symbol check)
 	assert (cl.is_deprecated == false);
-	assert (cl.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (cl.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (property.getter.get_full_name () == "TestClassGlobal.property_3");
 	assert (cl.get_full_name () == "TestClassGlobal");
@@ -395,7 +363,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestClassGlobal.method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -426,7 +394,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestClassGlobal.static_method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -461,7 +429,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 				assert (method.is_inline == false);
 				// (.Symbol check)
 				assert (method.is_deprecated == false);
-				assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+				assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 				// (.Node)
 				assert (method.get_full_name () == "TestClassGlobal.TestClassGlobal");
 				assert (method.get_filename () == "api-test.data.vapi");
@@ -487,7 +455,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 				assert (method.is_inline == false);
 				// (.Symbol check)
 				assert (method.is_deprecated == false);
-				assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+				assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 				// (.Node)
 				assert (method.get_full_name () == "TestClassGlobal.TestClassGlobal.named");
 				assert (method.get_filename () == "api-test.data.vapi");
@@ -529,7 +497,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestClassGlobal.property_1");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -544,7 +512,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestClassGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -559,7 +527,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestClassGlobal.property_2");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -581,7 +549,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestClassGlobal.property_2");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -595,7 +563,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestClassGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -618,7 +586,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestClassGlobal.property_3");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -632,7 +600,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (property.getter.is_owned == true);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestClassGlobal.property_3");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -641,13 +609,13 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 
 
 			assert (property.setter.get_cname () == "test_class_global_set_property_3");
-			assert (property.setter.is_construct == true);
+			assert (property.setter.is_construct == false);
 			assert (property.setter.is_get == false);
 			assert (property.setter.is_set == true);
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestClassGlobal.property_3");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -679,7 +647,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (del.is_static == false);
 	// (.Symbol check)
 	assert (del.is_deprecated == false);
-	assert (del.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (del.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (property.getter.get_full_name () == "TestClassGlobal.property_3");
 	assert (del.get_filename () == "api-test.data.vapi");
@@ -701,7 +669,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	//assert (sig.is_static == false);
 	// (.Symbol check)
 	assert (sig.is_deprecated == false);
-	assert (sig.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (sig.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (sig.get_full_name () == "TestClassGlobal.property_3");
 	assert (sig.get_filename () == "api-test.data.vapi");
@@ -719,7 +687,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (constant.get_cname () == "TEST_CLASS_GLOBAL_constant");
 	// (.Symbol check)
 	assert (constant.is_deprecated == false);
-	assert (constant.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (constant.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (constant.get_full_name () == "TestClassGlobal.constant");
 	assert (constant.get_filename () == "api-test.data.vapi");
@@ -744,7 +712,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (field.is_volatile == false);
 			// (.Symbol check)
 			assert (field.is_deprecated == false);
-			assert (field.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (field.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (field.get_full_name () == "TestClassGlobal.field1");
 			assert (field.get_filename () == "api-test.data.vapi");
@@ -761,7 +729,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 			assert (field.is_volatile == false);
 			// (.Symbol check)
 			assert (field.is_deprecated == false);
-			assert (field.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (field.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (field.get_full_name () == "TestClassGlobal.field2");
 			assert (field.get_filename () == "api-test.data.vapi");
@@ -789,7 +757,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (subcl.base_type == null);
 	// (.Symbol check)
 	assert (subcl.is_deprecated == false);
-	assert (subcl.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (subcl.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (subcl.get_full_name () == "TestClassGlobal.InnerClass");
 	assert (subcl.get_filename () == "api-test.data.vapi");
@@ -811,7 +779,7 @@ public static void test_class_global (Api.Class? cl, Api.Package pkg, Api.Namesp
 	assert (substru.get_type_id () == "TEST_CLASS_GLOBAL_TYPE_INNER_STRUCT");
 	// (.Symbol check)
 	assert (substru.is_deprecated == false);
-	assert (substru.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (substru.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (substru.get_full_name () == "TestClassGlobal.InnerStruct");
 	assert (substru.get_filename () == "api-test.data.vapi");
@@ -849,7 +817,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	assert (iface.get_dbus_name () == null);
 	// (.Symbol check)
 	assert (iface.is_deprecated == false);
-	assert (iface.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (iface.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (iface.get_full_name () == "TestInterfaceGlobal");
 	assert (iface.get_filename () == "api-test.data.vapi");
@@ -879,7 +847,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestInterfaceGlobal.method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -910,7 +878,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestInterfaceGlobal.static_method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -941,7 +909,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestInterfaceGlobal.property_1");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -956,7 +924,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -971,7 +939,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -993,7 +961,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -1007,7 +975,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -1030,7 +998,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestInterfaceGlobal.property_3");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -1044,7 +1012,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 			assert (property.getter.is_owned == true);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_3");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -1053,13 +1021,13 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 
 
 			assert (property.setter.get_cname () == "test_interface_global_set_property_3");
-			assert (property.setter.is_construct == true);
+			assert (property.setter.is_construct == false);
 			assert (property.setter.is_get == false);
 			assert (property.setter.is_set == true);
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_3");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -1092,7 +1060,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	assert (del.is_static == false);
 	// (.Symbol check)
 	assert (del.is_deprecated == false);
-	assert (del.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (del.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (del.get_full_name () == "TestClassGlobal.property_3");
 	assert (del.get_filename () == "api-test.data.vapi");
@@ -1114,7 +1082,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	//assert (sig.is_static == false);
 	// (.Symbol check)
 	assert (sig.is_deprecated == false);
-	assert (sig.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (sig.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (sig.get_full_name () == "TestClassGlobal.property_3");
 	assert (sig.get_filename () == "api-test.data.vapi");
@@ -1132,7 +1100,7 @@ public static void test_interface_global (Api.Interface? iface, Api.Package pkg,
 	assert (constant.get_cname () == "TEST_INTERFACE_GLOBAL_constant");
 	// (.Symbol check)
 	assert (constant.is_deprecated == false);
-	assert (constant.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (constant.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (constant.get_full_name () == "TestInterfaceGlobal.constant");
 	assert (constant.get_filename () == "api-test.data.vapi");
@@ -1172,7 +1140,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 	assert (stru.get_type_id () == "TYPE_TEST_STRUCT_GLOBAL");
 	// (.Symbol check)
 	assert (stru.is_deprecated == false);
-	assert (stru.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (stru.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	//assert (property.getter.get_full_name () == "TestClassGlobal.property_3");
 	assert (stru.get_full_name () == "TestStructGlobal");
@@ -1203,7 +1171,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestStructGlobal.method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -1234,7 +1202,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "TestStructGlobal.static_method");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -1269,7 +1237,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 				assert (method.is_inline == false);
 				// (.Symbol check)
 				assert (method.is_deprecated == false);
-				assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+				assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 				// (.Node)
 				assert (method.get_full_name () == "TestStructGlobal.TestStructGlobal");
 				assert (method.get_filename () == "api-test.data.vapi");
@@ -1295,7 +1263,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 				assert (method.is_inline == false);
 				// (.Symbol check)
 				assert (method.is_deprecated == false);
-				assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+				assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 				// (.Node)
 				assert (method.get_full_name () == "TestStructGlobal.TestStructGlobal.named");
 				assert (method.get_filename () == "api-test.data.vapi");
@@ -1324,7 +1292,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 	assert (constant.get_cname () == "TEST_STRUCT_GLOBAL_constant");
 	// (.Symbol check)
 	assert (constant.is_deprecated == false);
-	assert (constant.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (constant.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (constant.get_full_name () == "TestStructGlobal.constant");
 	assert (constant.get_filename () == "api-test.data.vapi");
@@ -1350,7 +1318,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (field.is_volatile == false);
 			// (.Symbol check)
 			assert (field.is_deprecated == false);
-			assert (field.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (field.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (field.get_full_name () == "TestStructGlobal.field1");
 			assert (field.get_filename () == "api-test.data.vapi");
@@ -1367,7 +1335,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (field.is_volatile == false);
 			// (.Symbol check)
 			assert (field.is_deprecated == false);
-			assert (field.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (field.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (field.get_full_name () == "TestStructGlobal.field2");
 			assert (field.get_filename () == "api-test.data.vapi");
@@ -1408,7 +1376,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestStructGlobal.property_1");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -1423,7 +1391,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -1438,7 +1406,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -1460,7 +1428,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestStructGlobal.property_2");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -1474,7 +1442,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.getter.is_owned == false);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_2");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -1496,7 +1464,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.base_property == null);
 			// (.Symbol check)
 			assert (property.is_deprecated == false);
-			assert (property.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (property.get_full_name () == "TestStructGlobal.property_3");
 			assert (property.get_filename () == "api-test.data.vapi");
@@ -1510,7 +1478,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.getter.is_owned == true);
 			// (.Symbol check)
 			assert (property.getter.is_deprecated == false);
-			assert (property.getter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.getter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_3");
 			assert (property.getter.get_filename () == "api-test.data.vapi");
@@ -1525,7 +1493,7 @@ public static void test_struct_global (Api.Struct? stru, Api.Package pkg, Api.Na
 			assert (property.setter.is_owned == false);
 			// (.Symbol check)
 			assert (property.setter.is_deprecated == false);
-			assert (property.setter.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (property.setter.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			//assert (property.getter.get_full_name () == "TestInterfaceGlobal.property_3");
 			assert (property.setter.get_filename () == "api-test.data.vapi");
@@ -1573,7 +1541,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 	bool func1 = false;
 	bool func2 = false;
 	bool func3 = false;
+	bool func3a = false;
 	bool func4 = false;
+	bool func4a = false;
 	bool func5 = false;
 	bool func6 = false;
 	bool func7 = false;
@@ -1626,9 +1596,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_2":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1637,7 +1607,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_2.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1649,7 +1619,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1662,9 +1631,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_3":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == true);
@@ -1673,7 +1642,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_3.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1685,7 +1654,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1695,12 +1663,47 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			func3 = true;
 			break;
 
+		case "test_function_param_3a":
+			assert (params.size == 1);
+
+			Api.Parameter param = params.get (0) as Api.Parameter;
+			assert (param != null);
+			// (.Parameter)
+			assert (param.default_value == null);
+			assert (param.is_out == false);
+			assert (param.is_ref == true);
+			assert (param.has_default_value == false);
+			assert (param.parameter_type != null);
+			assert (param.ellipsis == false);
+			// (.Symbol check)
+			assert (param.is_deprecated == false);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
+			// (.Node)
+			assert (param.get_full_name () == "ParamTest.test_function_param_3a.a");
+			assert (param.get_filename () == "api-test.data.vapi");
+			assert (param.nspace == ns);
+			assert (param.package == pkg);
+			assert (param.name == "a");
+			// param type:
+			assert (param.parameter_type.data_type != null);
+			assert (param.parameter_type.data_type is Api.Class);
+			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "string");
+			assert (param.parameter_type.get_type_arguments ().size == 0);
+			assert (param.parameter_type.is_owned == false);
+			assert (param.parameter_type.is_unowned == true);
+			assert (param.parameter_type.is_weak == false);
+			assert (param.parameter_type.is_dynamic == false);
+			assert (param.parameter_type.is_nullable == true);
+
+			func3a = true;
+			break;
+
 		case "test_function_param_4":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == true);
 			assert (param.is_ref == false);
@@ -1709,7 +1712,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_4.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1721,7 +1724,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1731,12 +1733,47 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			func4 = true;
 			break;
 
+		case "test_function_param_4a":
+			assert (params.size == 1);
+
+			Api.Parameter param = params.get (0) as Api.Parameter;
+			assert (param != null);
+			// (.Parameter)
+			assert (param.default_value == null);
+			assert (param.is_out == true);
+			assert (param.is_ref == false);
+			assert (param.has_default_value == false);
+			assert (param.parameter_type != null);
+			assert (param.ellipsis == false);
+			// (.Symbol check)
+			assert (param.is_deprecated == false);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
+			// (.Node)
+			assert (param.get_full_name () == "ParamTest.test_function_param_4a.a");
+			assert (param.get_filename () == "api-test.data.vapi");
+			assert (param.nspace == ns);
+			assert (param.package == pkg);
+			assert (param.name == "a");
+			// param type:
+			assert (param.parameter_type.data_type != null);
+			assert (param.parameter_type.data_type is Api.Class);
+			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "string");
+			assert (param.parameter_type.get_type_arguments ().size == 0);
+			assert (param.parameter_type.is_owned == false);
+			assert (param.parameter_type.is_unowned == true);
+			assert (param.parameter_type.is_weak == false);
+			assert (param.parameter_type.is_dynamic == false);
+			assert (param.parameter_type.is_nullable == true);
+
+			func4a = true;
+			break;
+
 		case "test_function_param_5":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1745,7 +1782,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_5.o");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1757,7 +1794,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Class);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "GLib.Object");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == true);
 			assert (param.parameter_type.is_owned == true);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1770,9 +1806,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_6":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1781,7 +1817,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_6.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1793,7 +1829,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1806,9 +1841,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_7":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1817,7 +1852,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == true);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == null);
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1833,9 +1868,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_8":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value != null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1844,7 +1879,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_8.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1856,7 +1891,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1869,9 +1903,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_9":
 			assert (params.size == 7);
 
-			Api.FormalParameter? param = params.get (0) as Api.FormalParameter;
+			Api.Parameter? param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1880,7 +1914,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1892,7 +1926,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1901,9 +1934,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (1) as Api.FormalParameter;
+			param = params.get (1) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == true);
@@ -1912,7 +1945,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.b");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1924,7 +1957,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1933,9 +1965,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (2) as Api.FormalParameter;
+			param = params.get (2) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == true);
 			assert (param.is_ref == false);
@@ -1944,7 +1976,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.c");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1956,7 +1988,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1965,9 +1996,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (3) as Api.FormalParameter;
+			param = params.get (3) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -1976,7 +2007,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.d");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -1988,7 +2019,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Class);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "GLib.Object");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == true);
 			assert (param.parameter_type.is_owned == true);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -1997,9 +2027,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (4) as Api.FormalParameter;
+			param = params.get (4) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2008,7 +2038,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.e");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2020,7 +2050,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2029,9 +2058,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (5) as Api.FormalParameter;
+			param = params.get (5) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value != null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2040,7 +2069,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_9.f");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2052,7 +2081,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.parameter_type.data_type is Api.Struct);
 			assert (((Api.Symbol) param.parameter_type.data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2061,9 +2089,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 
 
 
-			param = params.get (6) as Api.FormalParameter;
+			param = params.get (6) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2072,7 +2100,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == true);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == null);
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2088,9 +2116,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_10":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2099,7 +2127,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_10.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2113,7 +2141,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Pointer) param.parameter_type.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Pointer) param.parameter_type.data_type).data_type).data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2126,9 +2153,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_11":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2137,7 +2164,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_11.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2152,7 +2179,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Pointer) ((Api.Pointer) param.parameter_type.data_type).data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Pointer) ((Api.Pointer) param.parameter_type.data_type).data_type).data_type).data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2165,9 +2191,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_12":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2176,7 +2202,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_12.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2191,7 +2217,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) param.parameter_type.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) param.parameter_type.data_type).data_type).data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2204,9 +2229,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_13":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2215,7 +2240,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_13.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2230,7 +2255,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) param.parameter_type.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) param.parameter_type.data_type).data_type).data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2243,9 +2267,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_param_14":
 			assert (params.size == 1);
 
-			Api.FormalParameter param = params.get (0) as Api.FormalParameter;
+			Api.Parameter param = params.get (0) as Api.Parameter;
 			assert (param != null);
-			// (.FormalParameter)
+			// (.Parameter)
 			assert (param.default_value == null);
 			assert (param.is_out == false);
 			assert (param.is_ref == false);
@@ -2254,7 +2278,7 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (param.ellipsis == false);
 			// (.Symbol check)
 			assert (param.is_deprecated == false);
-			assert (param.accessibility == Api.SymbolAccessibility.PUBLIC);
+			assert (param.accessibility == Vala.SymbolAccessibility.PUBLIC);
 			// (.Node)
 			assert (param.get_full_name () == "ParamTest.test_function_param_14.a");
 			assert (param.get_filename () == "api-test.data.vapi");
@@ -2271,7 +2295,6 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) ((Api.Array) param.parameter_type.data_type).data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) ((Api.Array) param.parameter_type.data_type).data_type).data_type).data_type).get_full_name () == "int");
 			assert (param.parameter_type.get_type_arguments ().size == 0);
-			assert (param.parameter_type.pass_ownership == false);
 			assert (param.parameter_type.is_owned == false);
 			assert (param.parameter_type.is_unowned == false);
 			assert (param.parameter_type.is_weak == false);
@@ -2289,7 +2312,9 @@ public static void param_test (Api.Namespace ns, Api.Package pkg) {
 	assert (func1 == true);
 	assert (func2 == true);
 	assert (func3 == true);
+	assert (func3a == true);
 	assert (func4 == true);
+	assert (func4a == true);
 	assert (func5 == true);
 	assert (func6 == true);
 	assert (func7 == true);
@@ -2379,7 +2404,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 		case "test_function_1":
 			assert (ret.data_type == null);
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2393,7 +2417,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (ret.data_type is Api.Struct);
 			assert (((Api.Struct) ret.data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2407,7 +2430,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (ret.data_type is Api.Struct);
 			assert (((Api.Struct) ret.data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2421,7 +2443,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (ret.data_type is Api.Class);
 			assert (((Api.Class) ret.data_type).get_full_name () == "string");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == true);
 			assert (ret.is_weak == false);
@@ -2437,7 +2458,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Pointer) ret.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Pointer) ret.data_type).data_type).data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2454,7 +2474,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Pointer) ((Api.Pointer) ret.data_type).data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Pointer) ((Api.Pointer) ret.data_type).data_type).data_type).data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2470,7 +2489,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) ret.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) ret.data_type).data_type).data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2487,7 +2505,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) ret.data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) ret.data_type).data_type).data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2506,7 +2523,6 @@ public static void return_test (Api.Namespace ns, Api.Package pkg) {
 			assert (((Api.TypeReference) ((Api.Array) ((Api.Array) ret.data_type).data_type).data_type).data_type is Api.Struct);
 			assert (((Api.Struct) ((Api.TypeReference) ((Api.Array) ((Api.Array) ret.data_type).data_type).data_type).data_type).get_full_name () == "int");
 			assert (ret.get_type_arguments ().size == 0);
-			assert (ret.pass_ownership == false);
 			assert (ret.is_owned == false);
 			assert (ret.is_unowned == false);
 			assert (ret.is_weak == false);
@@ -2579,6 +2595,11 @@ public static void version_test (Api.Namespace ns, Api.Package pkg) {
 		Api.TypeReference? ret = m.return_type;
 		assert (ret != null);
 
+		Api.Attribute? dattr = m.get_attribute ("Deprecated");
+		Api.Attribute? vattr = m.get_attribute ("Version");
+		Vala.Attribute? attr_deprecated = (dattr != null ? dattr.data as Vala.Attribute : null);
+		Vala.Attribute? attr_version = (vattr != null ? vattr.data as Vala.Attribute : null);
+
 		switch (m.name) {
 		case "test_function_1":
 			assert (m.get_attribute ("Deprecated") != null);
@@ -2588,8 +2609,8 @@ public static void version_test (Api.Namespace ns, Api.Package pkg) {
 			break;
 
 		case "test_function_2":
-			assert (m.get_attribute ("Deprecated").get_argument ("since").get_value_as_string () == "\"1.0\"");
-			assert (m.get_attribute ("Deprecated").get_argument ("replacement").get_value_as_string () == "\"test_function_4\"");
+			assert (attr_deprecated.get_string ("since") == "1.0");
+			assert (attr_deprecated.get_string ("replacement") == "test_function_4");
 			assert (m.is_deprecated == true);
 
 			func2 = true;
@@ -2602,45 +2623,45 @@ public static void version_test (Api.Namespace ns, Api.Package pkg) {
 			break;
 
 		case "test_function_4":
-			assert (m.get_attribute ("Version").get_argument ("since").get_value_as_string () == "\"2.0\"");
+			assert (attr_version.get_string ("since") == "2.0");
 			assert (m.is_deprecated == false);
 
 			func4 = true;
 			break;
 
 		case "test_function_5":
-			assert (m.get_attribute ("Version").get_argument ("deprecated").get_value_as_boolean () == true);
+			assert (attr_version.get_bool ("deprecated") == true);
 			assert (m.is_deprecated == true);
 
 			func5 = true;
 			break;
 
 		case "test_function_6":
-			assert (m.get_attribute ("Version").get_argument ("deprecated").get_value_as_boolean () == true);
-			assert (m.get_attribute ("Version").get_argument ("deprecated_since").get_value_as_string () == "\"2.0\"");
-			assert (m.get_attribute ("Version").get_argument ("replacement").get_value_as_string () == "\"test_function_4\"");
-			assert (m.get_attribute ("Version").get_argument ("since").get_value_as_string () == "\"1.0\"");
+			assert (attr_version.get_bool ("deprecated") == true);
+			assert (attr_version.get_string ("deprecated_since") == "2.0");
+			assert (attr_version.get_string ("replacement") == "test_function_4");
+			assert (attr_version.get_string ("since") == "1.0");
 			assert (m.is_deprecated == true);
 
 			func6 = true;
 			break;
 
 		case "test_function_7":
-			assert (m.get_attribute ("Version").get_argument ("deprecated_since").get_value_as_string () == "\"2.0\"");
+			assert (attr_version.get_string ("deprecated_since") == "2.0");
 			assert (m.is_deprecated == true);
 
 			func7 = true;
 			break;
 
 		case "test_function_8":
-			assert (m.get_attribute ("Version").get_argument ("deprecated").get_value_as_boolean () == false);
+			assert (attr_version.get_bool ("deprecated") == false);
 			assert (m.is_deprecated == false);
 
 			func8 = true;
 			break;
 
 		case "test_function_9":
-			//assert (m.get_attribute ("Version").get_argument ("experimental").get_value_as_boolean () == true);
+			//assert (attr_version.get_bool ("experimental") == true);
 
 			func9 = true;
 			break;
@@ -2683,7 +2704,7 @@ public static void test_global_ns (Api.Namespace global_ns, Api.Package pkg) {
 	assert (method.is_inline == false);
 	// (.Symbol check)
 	assert (method.is_deprecated == false);
-	assert (method.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (method.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (method.get_full_name () == "test_function_global");
 	assert (method.get_filename () == "api-test.data.vapi");
@@ -2705,7 +2726,7 @@ public static void test_global_ns (Api.Namespace global_ns, Api.Package pkg) {
 	assert (del.is_basic_type == false);
 	// (.Symbol check)
 	assert (del.is_deprecated == false);
-	assert (del.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (del.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (del.get_full_name () == "test_delegate_global");
 	assert (del.get_filename () == "api-test.data.vapi");
@@ -2726,7 +2747,7 @@ public static void test_global_ns (Api.Namespace global_ns, Api.Package pkg) {
 	assert (field.is_volatile == false);
 	// (.Symbol check)
 	assert (field.is_deprecated == false);
-	assert (field.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (field.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (field.get_full_name () == "test_field_global");
 	assert (field.get_filename () == "api-test.data.vapi");
@@ -2745,7 +2766,7 @@ public static void test_global_ns (Api.Namespace global_ns, Api.Package pkg) {
 	assert (constant.get_cname () == "test_const_global");
 	// (.Symbol check)
 	assert (constant.is_deprecated == false);
-	assert (constant.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (constant.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	// (.Node)
 	assert (constant.get_full_name () == "test_const_global");
 	assert (constant.get_filename () == "api-test.data.vapi");
@@ -2853,7 +2874,7 @@ public static void test_package_out (Api.Package pkg) {
 	assert (global_ns.get_full_name () == null);
 	assert (global_ns.is_deprecated == false);
 	assert (global_ns.get_attributes ().size == 0);
-	assert (global_ns.accessibility == Api.SymbolAccessibility.PUBLIC);
+	assert (global_ns.accessibility == Vala.SymbolAccessibility.PUBLIC);
 	assert (global_ns.package == pkg);
 	//assert (global_ns.nspace == null);
 
@@ -2879,14 +2900,15 @@ public static void test_driver () {
 	settings.pkg_name = "out";
 	settings.path = "out";
 
+	var context = new Vala.CodeContext ();
+	Vala.CodeContext.push (context);
 
-	var driver = new Valadoc.Drivers.Driver ();
-	assert (driver != null);
-
-
-	Api.Tree? doctree = driver.build (settings, reporter);
+	TreeBuilder builder = new TreeBuilder ();
+	Api.Tree? doctree = builder.build (settings, reporter);
 	assert (reporter.errors == 0);
 	assert (doctree != null);
+	SymbolResolver resolver = new SymbolResolver (builder);
+	doctree.accept (resolver);
 
 
 	bool tmp = doctree.create_tree ();
@@ -2925,6 +2947,8 @@ public static void test_driver () {
 	assert (glib == true);
 	assert (gobj == true);
 	assert (test == true);
+
+	Vala.CodeContext.pop ();
 }
 
 

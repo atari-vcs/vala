@@ -24,14 +24,13 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gstdio.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CONTENT_SOURCE_CODE_0_PROPERTY,
@@ -51,11 +50,12 @@ struct _ValadocContentSourceCodePrivate {
 	ValadocContentSourceCodeLanguage _language;
 };
 
-
 static gint ValadocContentSourceCode_private_offset;
 static gpointer valadoc_content_source_code_parent_class = NULL;
 static ValadocContentInlineIface * valadoc_content_source_code_valadoc_content_inline_parent_iface = NULL;
 
+static void valadoc_content_source_code_set_highlighted_code (ValadocContentSourceCode* self,
+                                                       ValadocContentRun* value);
 G_GNUC_INTERNAL ValadocContentSourceCode* valadoc_content_source_code_new (void);
 G_GNUC_INTERNAL ValadocContentSourceCode* valadoc_content_source_code_construct (GType object_type);
 static gchar* valadoc_content_source_code_get_path (ValadocContentSourceCode* self,
@@ -78,8 +78,6 @@ static void valadoc_content_source_code_real_check (ValadocContentContentElement
                                              const gchar* file_path,
                                              ValadocErrorReporter* reporter,
                                              ValadocSettings* settings);
-static void valadoc_content_source_code_set_highlighted_code (ValadocContentSourceCode* self,
-                                                       ValadocContentRun* value);
 G_GNUC_INTERNAL ValadocContentRun* valadoc_content_run_new (ValadocContentRunStyle style);
 G_GNUC_INTERNAL ValadocContentRun* valadoc_content_run_construct (GType object_type,
                                                   ValadocContentRunStyle style);
@@ -96,6 +94,7 @@ static ValadocContentContentElement* valadoc_content_source_code_real_copy (Vala
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_source_code_finalize (GObject * obj);
+static GType valadoc_content_source_code_get_type_once (void);
 static void _vala_valadoc_content_source_code_get_property (GObject * object,
                                                      guint property_id,
                                                      GValue * value,
@@ -112,23 +111,21 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 valadoc_content_source_code_get_instance_private (ValadocContentSourceCode* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentSourceCode_private_offset);
 }
 
-
 static gint
 string_last_index_of (const gchar* self,
                       const gchar* needle,
                       gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (needle != NULL, 0);
 	_tmp0_ = g_strrstr (((gchar*) self) + start_index, (gchar*) needle);
@@ -145,15 +142,14 @@ string_last_index_of (const gchar* self,
 	}
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -168,17 +164,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -195,60 +189,46 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 ValadocContentSourceCodeLanguage
 valadoc_content_source_code_language_from_path (const gchar* path)
 {
-	ValadocContentSourceCodeLanguage result = 0;
 	gint pos = 0;
-	gint _tmp0_;
 	gchar* ext = NULL;
-	gint _tmp1_;
-	gchar* _tmp2_;
-	const gchar* _tmp3_;
+	gchar* _tmp0_;
+	const gchar* _tmp1_;
+	ValadocContentSourceCodeLanguage result = 0;
 	g_return_val_if_fail (path != NULL, 0);
 	pos = string_last_index_of (path, ".", 0);
-	_tmp0_ = pos;
-	if (_tmp0_ < 0) {
+	if (pos < 0) {
 		result = VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_UNKNOWN;
 		return result;
 	}
-	_tmp1_ = pos;
-	_tmp2_ = string_substring (path, (glong) (_tmp1_ + 1), (glong) -1);
-	ext = _tmp2_;
-	_tmp3_ = ext;
-	result = valadoc_content_source_code_language_from_string (_tmp3_, TRUE);
+	_tmp0_ = string_substring (path, (glong) (pos + 1), (glong) -1);
+	ext = _tmp0_;
+	_tmp1_ = ext;
+	result = valadoc_content_source_code_language_from_string (_tmp1_, TRUE);
 	_g_free0 (ext);
 	return result;
 }
-
 
 ValadocContentSourceCodeLanguage
 valadoc_content_source_code_language_from_string (const gchar* str,
                                                   gboolean is_extension)
 {
-	ValadocContentSourceCodeLanguage result = 0;
 	const gchar* _tmp0_;
 	GQuark _tmp2_ = 0U;
 	static GQuark _tmp1_label0 = 0;
@@ -257,6 +237,7 @@ valadoc_content_source_code_language_from_string (const gchar* str,
 	static GQuark _tmp1_label3 = 0;
 	static GQuark _tmp1_label4 = 0;
 	static GQuark _tmp1_label5 = 0;
+	ValadocContentSourceCodeLanguage result = 0;
 	g_return_val_if_fail (str != NULL, 0);
 	_tmp0_ = str;
 	_tmp2_ = (NULL == _tmp0_) ? 0 : g_quark_from_string (_tmp0_);
@@ -309,7 +290,6 @@ valadoc_content_source_code_language_from_string (const gchar* str,
 	return result;
 }
 
-
 const gchar*
 valadoc_content_source_code_language_to_string (ValadocContentSourceCodeLanguage self)
 {
@@ -341,20 +321,110 @@ valadoc_content_source_code_language_to_string (ValadocContentSourceCodeLanguage
 	g_assert_not_reached ();
 }
 
+static GType
+valadoc_content_source_code_language_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_UNKNOWN, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_UNKNOWN", "unknown"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_GENIE, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_GENIE", "genie"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_VALA, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_VALA", "vala"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_XML, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_XML", "xml"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_C, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_C", "c"}, {0, NULL, NULL}};
+	GType valadoc_content_source_code_language_type_id;
+	valadoc_content_source_code_language_type_id = g_enum_register_static ("ValadocContentSourceCodeLanguage", values);
+	return valadoc_content_source_code_language_type_id;
+}
 
 GType
 valadoc_content_source_code_language_get_type (void)
 {
 	static volatile gsize valadoc_content_source_code_language_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_source_code_language_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_UNKNOWN, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_UNKNOWN", "unknown"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_GENIE, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_GENIE", "genie"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_VALA, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_VALA", "vala"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_XML, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_XML", "xml"}, {VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_C, "VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_C", "c"}, {0, NULL, NULL}};
 		GType valadoc_content_source_code_language_type_id;
-		valadoc_content_source_code_language_type_id = g_enum_register_static ("ValadocContentSourceCodeLanguage", values);
+		valadoc_content_source_code_language_type_id = valadoc_content_source_code_language_get_type_once ();
 		g_once_init_leave (&valadoc_content_source_code_language_type_id__volatile, valadoc_content_source_code_language_type_id);
 	}
 	return valadoc_content_source_code_language_type_id__volatile;
 }
 
+const gchar*
+valadoc_content_source_code_get_code (ValadocContentSourceCode* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_code;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_content_source_code_set_code (ValadocContentSourceCode* self,
+                                      const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_source_code_get_code (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_code);
+		self->priv->_code = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_CODE_PROPERTY]);
+	}
+}
+
+ValadocContentRun*
+valadoc_content_source_code_get_highlighted_code (ValadocContentSourceCode* self)
+{
+	ValadocContentRun* result;
+	ValadocContentRun* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_highlighted_code;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+static void
+valadoc_content_source_code_set_highlighted_code (ValadocContentSourceCode* self,
+                                                  ValadocContentRun* value)
+{
+	ValadocContentRun* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_source_code_get_highlighted_code (self);
+	if (old_value != value) {
+		ValadocContentRun* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_highlighted_code);
+		self->priv->_highlighted_code = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_HIGHLIGHTED_CODE_PROPERTY]);
+	}
+}
+
+ValadocContentSourceCodeLanguage
+valadoc_content_source_code_get_language (ValadocContentSourceCode* self)
+{
+	ValadocContentSourceCodeLanguage result;
+	ValadocContentSourceCodeLanguage _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_language;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_content_source_code_set_language (ValadocContentSourceCode* self,
+                                          ValadocContentSourceCodeLanguage value)
+{
+	ValadocContentSourceCodeLanguage old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_source_code_get_language (self);
+	if (old_value != value) {
+		self->priv->_language = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentSourceCode*
 valadoc_content_source_code_construct (GType object_type)
@@ -365,13 +435,11 @@ valadoc_content_source_code_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentSourceCode*
 valadoc_content_source_code_new (void)
 {
 	return valadoc_content_source_code_construct (VALADOC_CONTENT_TYPE_SOURCE_CODE);
 }
-
 
 static gchar*
 valadoc_content_source_code_get_path (ValadocContentSourceCode* self,
@@ -380,8 +448,8 @@ valadoc_content_source_code_get_path (ValadocContentSourceCode* self,
                                       const gchar* source_file_path,
                                       ValadocErrorReporter* reporter)
 {
-	gchar* result = NULL;
 	gchar* _tmp18_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (path != NULL, NULL);
 	g_return_val_if_fail (container != NULL, NULL);
@@ -421,7 +489,7 @@ valadoc_content_source_code_get_path (ValadocContentSourceCode* self,
 		gchar* _tmp15_;
 		gchar* _tmp16_;
 		const gchar* _tmp17_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PACKAGE)) {
+		if (VALADOC_API_IS_PACKAGE (container)) {
 			gchar* _tmp7_;
 			_tmp7_ = g_strdup ("");
 			_g_free0 (_tmp6_);
@@ -459,7 +527,6 @@ valadoc_content_source_code_get_path (ValadocContentSourceCode* self,
 	return result;
 }
 
-
 static void
 valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
                                               const gchar* _path,
@@ -470,7 +537,7 @@ valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
 	gchar* path = NULL;
 	gchar* _tmp0_;
 	const gchar* _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (_path != NULL);
 	g_return_if_fail (container != NULL);
@@ -492,18 +559,17 @@ valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
 		gchar* _tmp6_;
 		content = NULL;
 		_tmp2_ = path;
-		g_file_get_contents (_tmp2_, &_tmp3_, NULL, &_inner_error_);
+		g_file_get_contents (_tmp2_, &_tmp3_, NULL, &_inner_error0_);
 		_g_free0 (content);
 		content = _tmp3_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_free0 (content);
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch19_g_file_error;
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
-			_g_free0 (content);
 			_g_free0 (path);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 		_tmp4_ = path;
@@ -515,8 +581,8 @@ valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
 		_g_free0 (_tmp6_);
 		_g_free0 (content);
 	}
-	goto __finally19;
-	__catch19_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
 		GError* err = NULL;
 		gchar* _tmp7_ = NULL;
@@ -528,9 +594,9 @@ valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
 		const gchar* _tmp16_;
 		GError* _tmp17_;
 		const gchar* _tmp18_;
-		err = _inner_error_;
-		_inner_error_ = NULL;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PACKAGE)) {
+		err = _inner_error0_;
+		_inner_error0_ = NULL;
+		if (VALADOC_API_IS_PACKAGE (container)) {
 			gchar* _tmp8_;
 			_tmp8_ = g_strdup ("");
 			_g_free0 (_tmp7_);
@@ -560,29 +626,27 @@ valadoc_content_source_code_load_source_code (ValadocContentSourceCode* self,
 		_g_free0 (_tmp7_);
 		_g_error_free0 (err);
 	}
-	__finally19:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		_g_free0 (path);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
 	_g_free0 (path);
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static inline gboolean
 valadoc_content_source_code_is_empty_string (ValadocContentSourceCode* self,
@@ -598,20 +662,16 @@ valadoc_content_source_code_is_empty_string (ValadocContentSourceCode* self,
 			gboolean _tmp0_ = FALSE;
 			_tmp0_ = TRUE;
 			while (TRUE) {
-				gint _tmp2_;
-				gint _tmp3_;
 				if (!_tmp0_) {
 					gint _tmp1_;
 					_tmp1_ = i;
 					i = _tmp1_ + 1;
 				}
 				_tmp0_ = FALSE;
-				_tmp2_ = i;
-				if (!(string_get (line, (glong) _tmp2_) != '\0')) {
+				if (!(string_get (line, (glong) i) != '\0')) {
 					break;
 				}
-				_tmp3_ = i;
-				if (g_ascii_isspace (string_get (line, (glong) _tmp3_)) == FALSE) {
+				if (g_ascii_isspace (string_get (line, (glong) i)) == FALSE) {
 					result = FALSE;
 					return result;
 				}
@@ -622,14 +682,13 @@ valadoc_content_source_code_is_empty_string (ValadocContentSourceCode* self,
 	return result;
 }
 
-
 static gchar*
 _vala_g_strjoinv (const gchar* separator,
                   gchar** str_array,
-                  int str_array_length1)
+                  gint str_array_length1)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
+	gchar* result = NULL;
 	if (separator == NULL) {
 		separator = "";
 	}
@@ -655,20 +714,15 @@ _vala_g_strjoinv (const gchar* separator,
 	if (_tmp0_) {
 		gint i = 0;
 		gsize len = 0UL;
-		gint _tmp20_;
-		gint _tmp22_;
-		gsize _tmp23_;
-		gint _tmp24_;
-		gint _tmp25_;
-		gint _tmp26_;
+		gint _tmp16_;
+		gint _tmp17_;
 		const gchar* res = NULL;
-		gsize _tmp27_;
-		void* _tmp28_;
+		void* _tmp18_;
 		void* ptr = NULL;
-		const gchar* _tmp29_;
-		const gchar* _tmp30_;
-		void* _tmp31_;
-		const gchar* _tmp44_;
+		const gchar* _tmp19_;
+		const gchar* _tmp20_;
+		void* _tmp21_;
+		const gchar* _tmp31_;
 		len = (gsize) 1;
 		{
 			gboolean _tmp4_ = FALSE;
@@ -677,10 +731,8 @@ _vala_g_strjoinv (const gchar* separator,
 			while (TRUE) {
 				gboolean _tmp6_ = FALSE;
 				gboolean _tmp7_ = FALSE;
-				gint _tmp12_ = 0;
-				gint _tmp13_;
-				const gchar* _tmp14_;
-				gsize _tmp19_;
+				gint _tmp10_ = 0;
+				const gchar* _tmp11_;
 				if (!_tmp4_) {
 					gint _tmp5_;
 					_tmp5_ = i;
@@ -688,140 +740,120 @@ _vala_g_strjoinv (const gchar* separator,
 				}
 				_tmp4_ = FALSE;
 				if (str_array_length1 != -1) {
-					gint _tmp8_;
-					_tmp8_ = i;
-					_tmp7_ = _tmp8_ < str_array_length1;
+					_tmp7_ = i < str_array_length1;
 				} else {
 					_tmp7_ = FALSE;
 				}
 				if (_tmp7_) {
 					_tmp6_ = TRUE;
 				} else {
-					gboolean _tmp9_ = FALSE;
+					gboolean _tmp8_ = FALSE;
 					if (str_array_length1 == -1) {
-						gint _tmp10_;
-						const gchar* _tmp11_;
-						_tmp10_ = i;
-						_tmp11_ = str_array[_tmp10_];
-						_tmp9_ = _tmp11_ != NULL;
+						const gchar* _tmp9_;
+						_tmp9_ = str_array[i];
+						_tmp8_ = _tmp9_ != NULL;
 					} else {
-						_tmp9_ = FALSE;
+						_tmp8_ = FALSE;
 					}
-					_tmp6_ = _tmp9_;
+					_tmp6_ = _tmp8_;
 				}
 				if (!_tmp6_) {
 					break;
 				}
-				_tmp13_ = i;
-				_tmp14_ = str_array[_tmp13_];
-				if (_tmp14_ != NULL) {
-					gint _tmp15_;
-					const gchar* _tmp16_;
-					gint _tmp17_;
-					gint _tmp18_;
-					_tmp15_ = i;
-					_tmp16_ = str_array[_tmp15_];
-					_tmp17_ = strlen ((const gchar*) _tmp16_);
-					_tmp18_ = _tmp17_;
-					_tmp12_ = _tmp18_;
+				_tmp11_ = str_array[i];
+				if (_tmp11_ != NULL) {
+					const gchar* _tmp12_;
+					gint _tmp13_;
+					gint _tmp14_;
+					_tmp12_ = str_array[i];
+					_tmp13_ = strlen ((const gchar*) _tmp12_);
+					_tmp14_ = _tmp13_;
+					_tmp10_ = _tmp14_;
 				} else {
-					_tmp12_ = 0;
+					_tmp10_ = 0;
 				}
-				_tmp19_ = len;
-				len = _tmp19_ + _tmp12_;
+				len += (gsize) _tmp10_;
 			}
 		}
-		_tmp20_ = i;
-		if (_tmp20_ == 0) {
-			gchar* _tmp21_;
-			_tmp21_ = g_strdup ("");
-			result = _tmp21_;
+		if (i == 0) {
+			gchar* _tmp15_;
+			_tmp15_ = g_strdup ("");
+			result = _tmp15_;
 			return result;
 		}
-		_tmp22_ = i;
-		str_array_length1 = _tmp22_;
-		_tmp23_ = len;
-		_tmp24_ = strlen ((const gchar*) separator);
-		_tmp25_ = _tmp24_;
-		_tmp26_ = i;
-		len = _tmp23_ + (_tmp25_ * (_tmp26_ - 1));
-		_tmp27_ = len;
-		_tmp28_ = g_malloc (_tmp27_);
-		res = _tmp28_;
-		_tmp29_ = res;
-		_tmp30_ = str_array[0];
-		_tmp31_ = g_stpcpy ((void*) _tmp29_, (const gchar*) _tmp30_);
-		ptr = _tmp31_;
+		str_array_length1 = i;
+		_tmp16_ = strlen ((const gchar*) separator);
+		_tmp17_ = _tmp16_;
+		len += (gsize) (_tmp17_ * (i - 1));
+		_tmp18_ = g_malloc (len);
+		res = _tmp18_;
+		_tmp19_ = res;
+		_tmp20_ = str_array[0];
+		_tmp21_ = g_stpcpy ((void*) _tmp19_, (const gchar*) _tmp20_);
+		ptr = _tmp21_;
 		{
-			gboolean _tmp32_ = FALSE;
+			gboolean _tmp22_ = FALSE;
 			i = 1;
-			_tmp32_ = TRUE;
+			_tmp22_ = TRUE;
 			while (TRUE) {
-				gint _tmp34_;
-				void* _tmp35_;
-				void* _tmp36_;
-				const gchar* _tmp37_ = NULL;
-				gint _tmp38_;
-				const gchar* _tmp39_;
-				void* _tmp42_;
-				void* _tmp43_;
-				if (!_tmp32_) {
-					gint _tmp33_;
-					_tmp33_ = i;
-					i = _tmp33_ + 1;
+				void* _tmp24_;
+				void* _tmp25_;
+				const gchar* _tmp26_ = NULL;
+				const gchar* _tmp27_;
+				void* _tmp29_;
+				void* _tmp30_;
+				if (!_tmp22_) {
+					gint _tmp23_;
+					_tmp23_ = i;
+					i = _tmp23_ + 1;
 				}
-				_tmp32_ = FALSE;
-				_tmp34_ = i;
-				if (!(_tmp34_ < str_array_length1)) {
+				_tmp22_ = FALSE;
+				if (!(i < str_array_length1)) {
 					break;
 				}
-				_tmp35_ = ptr;
-				_tmp36_ = g_stpcpy (_tmp35_, (const gchar*) separator);
-				ptr = _tmp36_;
-				_tmp38_ = i;
-				_tmp39_ = str_array[_tmp38_];
-				if (_tmp39_ != NULL) {
-					gint _tmp40_;
-					const gchar* _tmp41_;
-					_tmp40_ = i;
-					_tmp41_ = str_array[_tmp40_];
-					_tmp37_ = (const gchar*) _tmp41_;
+				_tmp24_ = ptr;
+				_tmp25_ = g_stpcpy (_tmp24_, (const gchar*) separator);
+				ptr = _tmp25_;
+				_tmp27_ = str_array[i];
+				if (_tmp27_ != NULL) {
+					const gchar* _tmp28_;
+					_tmp28_ = str_array[i];
+					_tmp26_ = (const gchar*) _tmp28_;
 				} else {
-					_tmp37_ = "";
+					_tmp26_ = "";
 				}
-				_tmp42_ = ptr;
-				_tmp43_ = g_stpcpy (_tmp42_, _tmp37_);
-				ptr = _tmp43_;
+				_tmp29_ = ptr;
+				_tmp30_ = g_stpcpy (_tmp29_, _tmp26_);
+				ptr = _tmp30_;
 			}
 		}
-		_tmp44_ = res;
+		_tmp31_ = res;
 		res = NULL;
-		result = (gchar*) _tmp44_;
+		result = (gchar*) _tmp31_;
 		return result;
 	} else {
-		gchar* _tmp45_;
-		_tmp45_ = g_strdup ("");
-		result = _tmp45_;
+		gchar* _tmp32_;
+		_tmp32_ = g_strdup ("");
+		result = _tmp32_;
 		return result;
 	}
 }
-
 
 static gchar*
 valadoc_content_source_code_strip_code (ValadocContentSourceCode* self,
                                         const gchar* code)
 {
-	gchar* result = NULL;
 	gchar** lines = NULL;
 	gchar** _tmp0_;
 	gchar** _tmp1_;
 	gint lines_length1;
 	gint _lines_size_;
 	const gchar** _lines = NULL;
-	gchar** _tmp12_;
-	gint _tmp12__length1;
-	const gchar** _tmp24_;
-	gchar* _tmp25_;
+	gchar** _tmp9_;
+	gint _tmp9__length1;
+	const gchar** _tmp18_;
+	gchar* _tmp19_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (code != NULL, NULL);
 	_tmp1_ = _tmp0_ = g_strsplit (code, "\n", 0);
@@ -840,116 +872,100 @@ valadoc_content_source_code_strip_code (ValadocContentSourceCode* self,
 			_tmp3_ = TRUE;
 			while (TRUE) {
 				gboolean _tmp5_ = FALSE;
-				gint _tmp6_;
-				gchar** _tmp10_;
-				gint _tmp10__length1;
-				gint _tmp11_;
+				gchar** _tmp8_;
+				gint _tmp8__length1;
 				if (!_tmp3_) {
 					gint _tmp4_;
 					_tmp4_ = i;
 					i = _tmp4_ - 1;
 				}
 				_tmp3_ = FALSE;
-				_tmp6_ = i;
-				if (_tmp6_ >= 0) {
-					gchar** _tmp7_;
-					gint _tmp7__length1;
-					gint _tmp8_;
-					const gchar* _tmp9_;
-					_tmp7_ = lines;
-					_tmp7__length1 = lines_length1;
-					_tmp8_ = i;
-					_tmp9_ = _tmp7_[_tmp8_];
-					_tmp5_ = valadoc_content_source_code_is_empty_string (self, _tmp9_);
+				if (i >= 0) {
+					gchar** _tmp6_;
+					gint _tmp6__length1;
+					const gchar* _tmp7_;
+					_tmp6_ = lines;
+					_tmp6__length1 = lines_length1;
+					_tmp7_ = _tmp6_[i];
+					_tmp5_ = valadoc_content_source_code_is_empty_string (self, _tmp7_);
 				} else {
 					_tmp5_ = FALSE;
 				}
 				if (!_tmp5_) {
 					break;
 				}
-				_tmp10_ = lines;
-				_tmp10__length1 = lines_length1;
-				_tmp11_ = i;
-				_g_free0 (_tmp10_[_tmp11_]);
-				_tmp10_[_tmp11_] = NULL;
+				_tmp8_ = lines;
+				_tmp8__length1 = lines_length1;
+				_g_free0 (_tmp8_[i]);
+				_tmp8_[i] = NULL;
 			}
 		}
 	}
-	_tmp12_ = lines;
-	_tmp12__length1 = lines_length1;
-	_lines = _tmp12_;
+	_tmp9_ = lines;
+	_tmp9__length1 = lines_length1;
+	_lines = _tmp9_;
 	{
 		gint i = 0;
 		i = 0;
 		{
-			gboolean _tmp13_ = FALSE;
-			_tmp13_ = TRUE;
+			gboolean _tmp10_ = FALSE;
+			_tmp10_ = TRUE;
 			while (TRUE) {
-				gboolean _tmp15_ = FALSE;
-				gchar** _tmp16_;
-				gint _tmp16__length1;
-				gint _tmp17_;
-				const gchar* _tmp18_;
-				gchar** _tmp22_;
-				gint _tmp22__length1;
-				gint _tmp23_;
-				if (!_tmp13_) {
-					gint _tmp14_;
-					_tmp14_ = i;
-					i = _tmp14_ + 1;
+				gboolean _tmp12_ = FALSE;
+				gchar** _tmp13_;
+				gint _tmp13__length1;
+				const gchar* _tmp14_;
+				gchar** _tmp17_;
+				gint _tmp17__length1;
+				if (!_tmp10_) {
+					gint _tmp11_;
+					_tmp11_ = i;
+					i = _tmp11_ + 1;
 				}
-				_tmp13_ = FALSE;
-				_tmp16_ = lines;
-				_tmp16__length1 = lines_length1;
-				_tmp17_ = i;
-				_tmp18_ = _tmp16_[_tmp17_];
-				if (_tmp18_ != NULL) {
-					gchar** _tmp19_;
-					gint _tmp19__length1;
-					gint _tmp20_;
-					const gchar* _tmp21_;
-					_tmp19_ = lines;
-					_tmp19__length1 = lines_length1;
-					_tmp20_ = i;
-					_tmp21_ = _tmp19_[_tmp20_];
-					_tmp15_ = valadoc_content_source_code_is_empty_string (self, _tmp21_);
+				_tmp10_ = FALSE;
+				_tmp13_ = lines;
+				_tmp13__length1 = lines_length1;
+				_tmp14_ = _tmp13_[i];
+				if (_tmp14_ != NULL) {
+					gchar** _tmp15_;
+					gint _tmp15__length1;
+					const gchar* _tmp16_;
+					_tmp15_ = lines;
+					_tmp15__length1 = lines_length1;
+					_tmp16_ = _tmp15_[i];
+					_tmp12_ = valadoc_content_source_code_is_empty_string (self, _tmp16_);
 				} else {
-					_tmp15_ = FALSE;
+					_tmp12_ = FALSE;
 				}
-				if (!_tmp15_) {
+				if (!_tmp12_) {
 					break;
 				}
-				_tmp22_ = lines;
-				_tmp22__length1 = lines_length1;
-				_tmp23_ = i;
-				_lines = &_tmp22_[_tmp23_ + 1];
+				_tmp17_ = lines;
+				_tmp17__length1 = lines_length1;
+				_lines = &_tmp17_[i + 1];
 			}
 		}
 	}
-	_tmp24_ = _lines;
-	_tmp25_ = _vala_g_strjoinv ("\n", (gchar**) _tmp24_, -1);
-	result = _tmp25_;
+	_tmp18_ = _lines;
+	_tmp19_ = _vala_g_strjoinv ("\n", (gchar**) _tmp18_, (gint) -1);
+	result = _tmp19_;
 	lines = (_vala_array_free (lines, lines_length1, (GDestroyNotify) g_free), NULL);
 	return result;
 }
 
-
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
-
 
 static void
 valadoc_content_source_code_real_check (ValadocContentContentElement* base,
@@ -1053,7 +1069,7 @@ valadoc_content_source_code_real_check (ValadocContentContentElement* base,
 				ValadocContentSourceCodeLanguage _tmp28_;
 				_tmp20_ = start;
 				_tmp21_ = g_strstrip (_tmp20_);
-				_tmp22_ = g_utf8_strdown (_tmp21_, (gssize) -1);
+				_tmp22_ = g_ascii_strdown (_tmp21_, (gssize) -1);
 				name = _tmp22_;
 				_tmp23_ = name;
 				self->priv->_language = valadoc_content_source_code_language_from_string (_tmp23_, FALSE);
@@ -1081,7 +1097,7 @@ valadoc_content_source_code_real_check (ValadocContentContentElement* base,
 					gchar* _tmp37_;
 					gchar* _tmp38_;
 					const gchar* _tmp39_;
-					if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PACKAGE)) {
+					if (VALADOC_API_IS_PACKAGE (container)) {
 						gchar* _tmp31_;
 						_tmp31_ = g_strdup ("");
 						_g_free0 (_tmp30_);
@@ -1190,7 +1206,6 @@ valadoc_content_source_code_real_check (ValadocContentContentElement* base,
 	splitted = (_vala_array_free (splitted, splitted_length1, (GDestroyNotify) g_free), NULL);
 }
 
-
 static void
 valadoc_content_source_code_real_accept (ValadocContentContentElement* base,
                                          ValadocContentContentVisitor* visitor)
@@ -1200,7 +1215,6 @@ valadoc_content_source_code_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_source_code (visitor, self);
 }
-
 
 static void
 valadoc_content_source_code_real_accept_children (ValadocContentContentElement* base,
@@ -1218,7 +1232,6 @@ valadoc_content_source_code_real_accept_children (ValadocContentContentElement* 
 	}
 }
 
-
 static gboolean
 valadoc_content_source_code_real_is_empty (ValadocContentContentElement* base)
 {
@@ -1229,17 +1242,16 @@ valadoc_content_source_code_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_source_code_real_copy (ValadocContentContentElement* base,
                                        ValadocContentContentElement* new_parent)
 {
 	ValadocContentSourceCode * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentSourceCode* source_code = NULL;
 	ValadocContentSourceCode* _tmp0_;
 	ValadocContentSourceCodeLanguage _tmp1_;
 	const gchar* _tmp2_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentSourceCode*) base;
 	_tmp0_ = valadoc_content_source_code_new ();
 	source_code = _tmp0_;
@@ -1252,94 +1264,9 @@ valadoc_content_source_code_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-const gchar*
-valadoc_content_source_code_get_code (ValadocContentSourceCode* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_code;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_source_code_set_code (ValadocContentSourceCode* self,
-                                      const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_content_source_code_get_code (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_code);
-		self->priv->_code = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_CODE_PROPERTY]);
-	}
-}
-
-
-ValadocContentRun*
-valadoc_content_source_code_get_highlighted_code (ValadocContentSourceCode* self)
-{
-	ValadocContentRun* result;
-	ValadocContentRun* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_highlighted_code;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
 static void
-valadoc_content_source_code_set_highlighted_code (ValadocContentSourceCode* self,
-                                                  ValadocContentRun* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_source_code_get_highlighted_code (self) != value) {
-		ValadocContentRun* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_highlighted_code);
-		self->priv->_highlighted_code = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_HIGHLIGHTED_CODE_PROPERTY]);
-	}
-}
-
-
-ValadocContentSourceCodeLanguage
-valadoc_content_source_code_get_language (ValadocContentSourceCode* self)
-{
-	ValadocContentSourceCodeLanguage result;
-	ValadocContentSourceCodeLanguage _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_language;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_source_code_set_language (ValadocContentSourceCode* self,
-                                          ValadocContentSourceCodeLanguage value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_source_code_get_language (self) != value) {
-		self->priv->_language = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_content_source_code_class_init (ValadocContentSourceCodeClass * klass)
+valadoc_content_source_code_class_init (ValadocContentSourceCodeClass * klass,
+                                        gpointer klass_data)
 {
 	valadoc_content_source_code_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentSourceCode_private_offset);
@@ -1356,20 +1283,19 @@ valadoc_content_source_code_class_init (ValadocContentSourceCodeClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_PROPERTY, valadoc_content_source_code_properties[VALADOC_CONTENT_SOURCE_CODE_LANGUAGE_PROPERTY] = g_param_spec_enum ("language", "language", "language", VALADOC_CONTENT_SOURCE_CODE_TYPE_LANGUAGE, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_source_code_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface)
+valadoc_content_source_code_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface,
+                                                                   gpointer iface_data)
 {
 	valadoc_content_source_code_valadoc_content_inline_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_source_code_instance_init (ValadocContentSourceCode * self)
+valadoc_content_source_code_instance_init (ValadocContentSourceCode * self,
+                                           gpointer klass)
 {
 	self->priv = valadoc_content_source_code_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_source_code_finalize (GObject * obj)
@@ -1381,23 +1307,29 @@ valadoc_content_source_code_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_source_code_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_source_code_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentSourceCodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_source_code_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentSourceCode), 0, (GInstanceInitFunc) valadoc_content_source_code_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_source_code_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_source_code_type_id;
+	valadoc_content_source_code_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentSourceCode", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_source_code_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
+	ValadocContentSourceCode_private_offset = g_type_add_instance_private (valadoc_content_source_code_type_id, sizeof (ValadocContentSourceCodePrivate));
+	return valadoc_content_source_code_type_id;
+}
 
 GType
 valadoc_content_source_code_get_type (void)
 {
 	static volatile gsize valadoc_content_source_code_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_source_code_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentSourceCodeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_source_code_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentSourceCode), 0, (GInstanceInitFunc) valadoc_content_source_code_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_source_code_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_source_code_type_id;
-		valadoc_content_source_code_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentSourceCode", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_source_code_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
-		ValadocContentSourceCode_private_offset = g_type_add_instance_private (valadoc_content_source_code_type_id, sizeof (ValadocContentSourceCodePrivate));
+		valadoc_content_source_code_type_id = valadoc_content_source_code_get_type_once ();
 		g_once_init_leave (&valadoc_content_source_code_type_id__volatile, valadoc_content_source_code_type_id);
 	}
 	return valadoc_content_source_code_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_source_code_get_property (GObject * object,
@@ -1423,7 +1355,6 @@ _vala_valadoc_content_source_code_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_source_code_set_property (GObject * object,
                                                 guint property_id,
@@ -1448,14 +1379,13 @@ _vala_valadoc_content_source_code_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1463,7 +1393,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1474,11 +1403,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1487,6 +1415,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

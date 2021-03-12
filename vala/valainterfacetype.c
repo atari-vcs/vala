@@ -23,33 +23,31 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
-struct _ValaInterfaceTypePrivate {
-	ValaInterface* _interface_symbol;
-};
-
-
-static gint ValaInterfaceType_private_offset;
 static gpointer vala_interface_type_parent_class = NULL;
 
 static ValaDataType* vala_interface_type_real_copy (ValaDataType* base);
-static void vala_interface_type_finalize (ValaCodeNode * obj);
+static GType vala_interface_type_get_type_once (void);
 
-
-static inline gpointer
-vala_interface_type_get_instance_private (ValaInterfaceType* self)
+ValaInterface*
+vala_interface_type_get_interface_symbol (ValaInterfaceType* self)
 {
-	return G_STRUCT_MEMBER_P (self, ValaInterfaceType_private_offset);
+	ValaInterface* result;
+	ValaSymbol* _tmp0_;
+	ValaSymbol* _tmp1_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = vala_data_type_get_symbol ((ValaDataType*) self);
+	_tmp1_ = _tmp0_;
+	result = G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_INTERFACE, ValaInterface);
+	return result;
 }
-
 
 ValaInterfaceType*
 vala_interface_type_construct (GType object_type,
@@ -57,11 +55,9 @@ vala_interface_type_construct (GType object_type,
 {
 	ValaInterfaceType* self = NULL;
 	g_return_val_if_fail (interface_symbol != NULL, NULL);
-	self = (ValaInterfaceType*) vala_reference_type_construct (object_type);
-	vala_interface_type_set_interface_symbol (self, interface_symbol);
+	self = (ValaInterfaceType*) vala_reference_type_construct (object_type, (ValaSymbol*) interface_symbol);
 	return self;
 }
-
 
 ValaInterfaceType*
 vala_interface_type_new (ValaInterface* interface_symbol)
@@ -69,91 +65,96 @@ vala_interface_type_new (ValaInterface* interface_symbol)
 	return vala_interface_type_construct (VALA_TYPE_INTERFACE_TYPE, interface_symbol);
 }
 
+static gpointer
+_vala_iterable_ref0 (gpointer self)
+{
+	return self ? vala_iterable_ref (self) : NULL;
+}
 
 static ValaDataType*
 vala_interface_type_real_copy (ValaDataType* base)
 {
 	ValaInterfaceType * self;
-	ValaDataType* result = NULL;
 	ValaInterfaceType* _result_ = NULL;
 	ValaInterface* _tmp0_;
-	ValaInterfaceType* _tmp1_;
+	ValaInterface* _tmp1_;
 	ValaInterfaceType* _tmp2_;
-	ValaSourceReference* _tmp3_;
+	ValaInterfaceType* _tmp3_;
 	ValaSourceReference* _tmp4_;
-	ValaInterfaceType* _tmp5_;
-	gboolean _tmp6_;
+	ValaSourceReference* _tmp5_;
+	ValaInterfaceType* _tmp6_;
 	gboolean _tmp7_;
-	ValaInterfaceType* _tmp8_;
-	gboolean _tmp9_;
+	gboolean _tmp8_;
+	ValaInterfaceType* _tmp9_;
 	gboolean _tmp10_;
-	ValaInterfaceType* _tmp11_;
-	gboolean _tmp12_;
+	gboolean _tmp11_;
+	ValaInterfaceType* _tmp12_;
 	gboolean _tmp13_;
-	ValaInterfaceType* _tmp14_;
-	gboolean _tmp15_;
+	gboolean _tmp14_;
+	ValaInterfaceType* _tmp15_;
 	gboolean _tmp16_;
+	gboolean _tmp17_;
+	ValaDataType* result = NULL;
 	self = (ValaInterfaceType*) base;
-	_tmp0_ = self->priv->_interface_symbol;
-	_tmp1_ = vala_interface_type_new (_tmp0_);
-	_result_ = _tmp1_;
-	_tmp2_ = _result_;
-	_tmp3_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-	_tmp4_ = _tmp3_;
-	vala_code_node_set_source_reference ((ValaCodeNode*) _tmp2_, _tmp4_);
-	_tmp5_ = _result_;
-	_tmp6_ = vala_data_type_get_value_owned ((ValaDataType*) self);
-	_tmp7_ = _tmp6_;
-	vala_data_type_set_value_owned ((ValaDataType*) _tmp5_, _tmp7_);
-	_tmp8_ = _result_;
-	_tmp9_ = vala_data_type_get_nullable ((ValaDataType*) self);
-	_tmp10_ = _tmp9_;
-	vala_data_type_set_nullable ((ValaDataType*) _tmp8_, _tmp10_);
-	_tmp11_ = _result_;
-	_tmp12_ = vala_data_type_get_is_dynamic ((ValaDataType*) self);
-	_tmp13_ = _tmp12_;
-	vala_data_type_set_is_dynamic ((ValaDataType*) _tmp11_, _tmp13_);
-	_tmp14_ = _result_;
-	_tmp15_ = vala_data_type_get_floating_reference ((ValaDataType*) self);
-	_tmp16_ = _tmp15_;
-	vala_data_type_set_floating_reference ((ValaDataType*) _tmp14_, _tmp16_);
+	_tmp0_ = vala_interface_type_get_interface_symbol (self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_interface_type_new (_tmp1_);
+	_result_ = _tmp2_;
+	_tmp3_ = _result_;
+	_tmp4_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+	_tmp5_ = _tmp4_;
+	vala_code_node_set_source_reference ((ValaCodeNode*) _tmp3_, _tmp5_);
+	_tmp6_ = _result_;
+	_tmp7_ = vala_data_type_get_value_owned ((ValaDataType*) self);
+	_tmp8_ = _tmp7_;
+	vala_data_type_set_value_owned ((ValaDataType*) _tmp6_, _tmp8_);
+	_tmp9_ = _result_;
+	_tmp10_ = vala_data_type_get_nullable ((ValaDataType*) self);
+	_tmp11_ = _tmp10_;
+	vala_data_type_set_nullable ((ValaDataType*) _tmp9_, _tmp11_);
+	_tmp12_ = _result_;
+	_tmp13_ = vala_data_type_get_is_dynamic ((ValaDataType*) self);
+	_tmp14_ = _tmp13_;
+	vala_data_type_set_is_dynamic ((ValaDataType*) _tmp12_, _tmp14_);
+	_tmp15_ = _result_;
+	_tmp16_ = vala_data_type_get_floating_reference ((ValaDataType*) self);
+	_tmp17_ = _tmp16_;
+	vala_data_type_set_floating_reference ((ValaDataType*) _tmp15_, _tmp17_);
 	{
 		ValaList* _arg_list = NULL;
-		ValaList* _tmp17_;
-		gint _arg_size = 0;
 		ValaList* _tmp18_;
-		gint _tmp19_;
-		gint _tmp20_;
+		ValaList* _tmp19_;
+		gint _arg_size = 0;
+		ValaList* _tmp20_;
+		gint _tmp21_;
+		gint _tmp22_;
 		gint _arg_index = 0;
-		_tmp17_ = vala_data_type_get_type_arguments ((ValaDataType*) self);
-		_arg_list = _tmp17_;
-		_tmp18_ = _arg_list;
-		_tmp19_ = vala_collection_get_size ((ValaCollection*) _tmp18_);
-		_tmp20_ = _tmp19_;
-		_arg_size = _tmp20_;
+		_tmp18_ = vala_data_type_get_type_arguments ((ValaDataType*) self);
+		_tmp19_ = _vala_iterable_ref0 (_tmp18_);
+		_arg_list = _tmp19_;
+		_tmp20_ = _arg_list;
+		_tmp21_ = vala_collection_get_size ((ValaCollection*) _tmp20_);
+		_tmp22_ = _tmp21_;
+		_arg_size = _tmp22_;
 		_arg_index = -1;
 		while (TRUE) {
-			gint _tmp21_;
-			gint _tmp22_;
 			gint _tmp23_;
+			gint _tmp24_;
 			ValaDataType* arg = NULL;
-			ValaList* _tmp24_;
-			gint _tmp25_;
+			ValaList* _tmp25_;
 			gpointer _tmp26_;
 			ValaInterfaceType* _tmp27_;
 			ValaDataType* _tmp28_;
 			ValaDataType* _tmp29_;
 			ValaDataType* _tmp30_;
-			_tmp21_ = _arg_index;
-			_arg_index = _tmp21_ + 1;
-			_tmp22_ = _arg_index;
-			_tmp23_ = _arg_size;
-			if (!(_tmp22_ < _tmp23_)) {
+			_arg_index = _arg_index + 1;
+			_tmp23_ = _arg_index;
+			_tmp24_ = _arg_size;
+			if (!(_tmp23_ < _tmp24_)) {
 				break;
 			}
-			_tmp24_ = _arg_list;
-			_tmp25_ = _arg_index;
-			_tmp26_ = vala_list_get (_tmp24_, _tmp25_);
+			_tmp25_ = _arg_list;
+			_tmp26_ = vala_list_get (_tmp25_, _arg_index);
 			arg = (ValaDataType*) _tmp26_;
 			_tmp27_ = _result_;
 			_tmp28_ = arg;
@@ -169,70 +170,41 @@ vala_interface_type_real_copy (ValaDataType* base)
 	return result;
 }
 
-
-ValaInterface*
-vala_interface_type_get_interface_symbol (ValaInterfaceType* self)
-{
-	ValaInterface* result;
-	ValaInterface* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_interface_symbol;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_interface_type_set_interface_symbol (ValaInterfaceType* self,
-                                          ValaInterface* value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_interface_symbol = value;
-}
-
-
 static void
-vala_interface_type_class_init (ValaInterfaceTypeClass * klass)
+vala_interface_type_class_init (ValaInterfaceTypeClass * klass,
+                                gpointer klass_data)
 {
 	vala_interface_type_parent_class = g_type_class_peek_parent (klass);
-	((ValaCodeNodeClass *) klass)->finalize = vala_interface_type_finalize;
-	g_type_class_adjust_private_offset (klass, &ValaInterfaceType_private_offset);
 	((ValaDataTypeClass *) klass)->copy = (ValaDataType* (*) (ValaDataType*)) vala_interface_type_real_copy;
 }
 
-
 static void
-vala_interface_type_instance_init (ValaInterfaceType * self)
+vala_interface_type_instance_init (ValaInterfaceType * self,
+                                   gpointer klass)
 {
-	self->priv = vala_interface_type_get_instance_private (self);
 }
-
-
-static void
-vala_interface_type_finalize (ValaCodeNode * obj)
-{
-	ValaInterfaceType * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALA_TYPE_INTERFACE_TYPE, ValaInterfaceType);
-	VALA_CODE_NODE_CLASS (vala_interface_type_parent_class)->finalize (obj);
-}
-
 
 /**
  * An interface type.
  */
+static GType
+vala_interface_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaInterfaceTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_interface_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaInterfaceType), 0, (GInstanceInitFunc) vala_interface_type_instance_init, NULL };
+	GType vala_interface_type_type_id;
+	vala_interface_type_type_id = g_type_register_static (VALA_TYPE_REFERENCE_TYPE, "ValaInterfaceType", &g_define_type_info, 0);
+	return vala_interface_type_type_id;
+}
+
 GType
 vala_interface_type_get_type (void)
 {
 	static volatile gsize vala_interface_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_interface_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaInterfaceTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_interface_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaInterfaceType), 0, (GInstanceInitFunc) vala_interface_type_instance_init, NULL };
 		GType vala_interface_type_type_id;
-		vala_interface_type_type_id = g_type_register_static (VALA_TYPE_REFERENCE_TYPE, "ValaInterfaceType", &g_define_type_info, 0);
-		ValaInterfaceType_private_offset = g_type_add_instance_private (vala_interface_type_type_id, sizeof (ValaInterfaceTypePrivate));
+		vala_interface_type_type_id = vala_interface_type_get_type_once ();
 		g_once_init_leave (&vala_interface_type_type_id__volatile, vala_interface_type_type_id);
 	}
 	return vala_interface_type_type_id__volatile;
 }
-
-
 

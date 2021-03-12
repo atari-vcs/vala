@@ -23,15 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-
 
 static gpointer vala_null_literal_parent_class = NULL;
 
@@ -43,7 +40,7 @@ static gboolean vala_null_literal_real_check (ValaCodeNode* base,
                                        ValaCodeContext* context);
 static void vala_null_literal_real_emit (ValaCodeNode* base,
                                   ValaCodeGenerator* codegen);
-
+static GType vala_null_literal_get_type_once (void);
 
 /**
  * Creates a new null literal.
@@ -61,13 +58,11 @@ vala_null_literal_construct (GType object_type,
 	return self;
 }
 
-
 ValaNullLiteral*
 vala_null_literal_new (ValaSourceReference* source)
 {
 	return vala_null_literal_construct (VALA_TYPE_NULL_LITERAL, source);
 }
-
 
 static void
 vala_null_literal_real_accept (ValaCodeNode* base,
@@ -80,19 +75,17 @@ vala_null_literal_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
 
-
 static gchar*
 vala_null_literal_real_to_string (ValaCodeNode* base)
 {
 	ValaNullLiteral * self;
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	self = (ValaNullLiteral*) base;
 	_tmp0_ = g_strdup ("null");
 	result = _tmp0_;
 	return result;
 }
-
 
 static gboolean
 vala_null_literal_real_is_pure (ValaExpression* base)
@@ -104,13 +97,11 @@ vala_null_literal_real_is_pure (ValaExpression* base)
 	return result;
 }
 
-
 static gboolean
 vala_null_literal_real_check (ValaCodeNode* base,
                               ValaCodeContext* context)
 {
 	ValaNullLiteral * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaSourceReference* _tmp4_;
@@ -119,6 +110,7 @@ vala_null_literal_real_check (ValaCodeNode* base,
 	ValaNullType* _tmp7_;
 	gboolean _tmp8_;
 	gboolean _tmp9_;
+	gboolean result = FALSE;
 	self = (ValaNullLiteral*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -144,7 +136,6 @@ vala_null_literal_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_null_literal_real_emit (ValaCodeNode* base,
                              ValaCodeGenerator* codegen)
@@ -156,9 +147,9 @@ vala_null_literal_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
 static void
-vala_null_literal_class_init (ValaNullLiteralClass * klass)
+vala_null_literal_class_init (ValaNullLiteralClass * klass,
+                              gpointer klass_data)
 {
 	vala_null_literal_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_null_literal_real_accept;
@@ -168,28 +159,33 @@ vala_null_literal_class_init (ValaNullLiteralClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_null_literal_real_emit;
 }
 
-
 static void
-vala_null_literal_instance_init (ValaNullLiteral * self)
+vala_null_literal_instance_init (ValaNullLiteral * self,
+                                 gpointer klass)
 {
 }
-
 
 /**
  * Represents a literal `null` in the source code.
  */
+static GType
+vala_null_literal_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaNullLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_null_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNullLiteral), 0, (GInstanceInitFunc) vala_null_literal_instance_init, NULL };
+	GType vala_null_literal_type_id;
+	vala_null_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaNullLiteral", &g_define_type_info, 0);
+	return vala_null_literal_type_id;
+}
+
 GType
 vala_null_literal_get_type (void)
 {
 	static volatile gsize vala_null_literal_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_null_literal_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaNullLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_null_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNullLiteral), 0, (GInstanceInitFunc) vala_null_literal_instance_init, NULL };
 		GType vala_null_literal_type_id;
-		vala_null_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaNullLiteral", &g_define_type_info, 0);
+		vala_null_literal_type_id = vala_null_literal_get_type_once ();
 		g_once_init_leave (&vala_null_literal_type_id__volatile, vala_null_literal_type_id);
 	}
 	return vala_null_literal_type_id__volatile;
 }
-
-
 

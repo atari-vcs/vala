@@ -24,14 +24,14 @@
 using GLib;
 
 public class Vala.GErrorModule : CCodeDelegateModule {
-	private int current_try_id = 0;
-	private int next_try_id = 0;
 	private bool is_in_catch = false;
 
 	public override void generate_error_domain_declaration (ErrorDomain edomain, CCodeFile decl_space) {
 		if (add_symbol_declaration (decl_space, edomain, get_ccode_name (edomain))) {
 			return;
 		}
+
+		generate_type_declaration (gquark_type, decl_space);
 
 		var cenum = new CCodeEnum (get_ccode_name (edomain));
 
@@ -51,7 +51,7 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 		var error_domain_define = new CCodeMacroReplacement (get_ccode_upper_case_name (edomain), quark_fun_name + " ()");
 		decl_space.add_type_definition (error_domain_define);
 
-		var cquark_fun = new CCodeFunction (quark_fun_name, get_ccode_name (gquark_type.data_type));
+		var cquark_fun = new CCodeFunction (quark_fun_name, get_ccode_name (gquark_type.type_symbol));
 
 		decl_space.add_function_declaration (cquark_fun);
 	}
@@ -70,9 +70,11 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 			generate_error_domain_declaration (edomain, internal_header_file);
 		}
 
+		edomain.accept_children (this);
+
 		string quark_fun_name = get_ccode_lower_case_prefix (edomain) + "quark";
 
-		var cquark_fun = new CCodeFunction (quark_fun_name, get_ccode_name (gquark_type.data_type));
+		var cquark_fun = new CCodeFunction (quark_fun_name, get_ccode_name (gquark_type.type_symbol));
 		push_function (cquark_fun);
 
 		var cquark_call = new CCodeFunctionCall (new CCodeIdentifier ("g_quark_from_static_string"));
@@ -87,7 +89,7 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 	public override void visit_throw_statement (ThrowStatement stmt) {
 		// method will fail
 		current_method_inner_error = true;
-		ccode.add_assignment (get_variable_cexpression ("_inner_error_"), get_cvalue (stmt.error_expression));
+		ccode.add_assignment (get_inner_error_cexpression (), get_cvalue (stmt.error_expression));
 
 		add_simple_check (stmt, true);
 	}
@@ -100,7 +102,10 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 		ccode.add_expression (cpropagate);
 
 		// free local variables
-		append_local_free (current_symbol, false);
+		append_local_free (current_symbol);
+
+		// free possibly already assigned out-parameter
+		append_out_param_free (current_method);
 
 		if (current_method is CreationMethod && current_method.parent_symbol is Class) {
 			var cl = (Class) current_method.parent_symbol;
@@ -113,9 +118,18 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 		}
 	}
 
-	void uncaught_error_statement (CCodeExpression inner_error, bool unexpected = false) {
+	void uncaught_error_statement (CCodeExpression inner_error, bool unexpected = false, CodeNode? start_at = null) {
 		// free local variables
-		append_local_free (current_symbol, false);
+		if (start_at is TryStatement) {
+			append_local_free (start_at.parent_node as Block);
+		} else {
+			append_local_free (current_symbol);
+		}
+
+		// free possibly already assigned out-parameter
+		append_out_param_free (current_method);
+
+		cfile.add_include ("glib.h");
 
 		var ccritical = new CCodeFunctionCall (new CCodeIdentifier ("g_critical"));
 		ccritical.add_argument (new CCodeConstant (unexpected ? "\"file %s: line %d: unexpected error: %s (%s, %d)\"" : "\"file %s: line %d: uncaught error: %s (%s, %d)\""));
@@ -168,13 +182,11 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 	public override void add_simple_check (CodeNode node, bool always_fails = false) {
 		current_method_inner_error = true;
 
-		var inner_error = get_variable_cexpression ("_inner_error_");
-
 		if (always_fails) {
 			// inner_error is always set, avoid unnecessary if statement
 			// eliminates C warnings
 		} else {
-			var ccond = new CCodeBinaryExpression (CCodeBinaryOperator.INEQUALITY, inner_error, new CCodeConstant ("NULL"));
+			var ccond = new CCodeBinaryExpression (CCodeBinaryOperator.INEQUALITY, get_inner_error_cexpression (), new CCodeConstant ("NULL"));
 			var unlikely = new CCodeFunctionCall (new CCodeIdentifier ("G_UNLIKELY"));
 			unlikely.add_argument (ccond);
 			ccode.open_if (unlikely);
@@ -185,15 +197,13 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 
 			// free local variables
 			if (is_in_catch) {
-				append_local_free (current_symbol, false, current_catch);
+				append_local_free (current_symbol, null, current_catch);
 			} else {
-				append_local_free (current_symbol, false, current_try);
+				append_local_free (current_symbol, null, current_try);
 			}
 
 			var error_types = new ArrayList<DataType> ();
-			foreach (DataType node_error_type in node.get_error_types ()) {
-				error_types.add (node_error_type);
-			}
+			node.get_error_types (error_types);
 
 			bool has_general_catch_clause = false;
 
@@ -222,16 +232,16 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 						if (catch_type.error_code != null) {
 							/* catch clause specifies a specific error code */
 							var error_match = new CCodeFunctionCall (new CCodeIdentifier ("g_error_matches"));
-							error_match.add_argument (inner_error);
-							error_match.add_argument (new CCodeIdentifier (get_ccode_upper_case_name (catch_type.data_type)));
+							error_match.add_argument (get_inner_error_cexpression ());
+							error_match.add_argument (new CCodeIdentifier (get_ccode_upper_case_name (catch_type.type_symbol)));
 							error_match.add_argument (new CCodeIdentifier (get_ccode_name (catch_type.error_code)));
 
 							ccode.open_if (error_match);
 						} else {
 							/* catch clause specifies a full error domain */
 							var ccond = new CCodeBinaryExpression (CCodeBinaryOperator.EQUALITY,
-									new CCodeMemberAccess.pointer (inner_error, "domain"), new CCodeIdentifier
-									(get_ccode_upper_case_name (clause.error_type.data_type)));
+									new CCodeMemberAccess.pointer (get_inner_error_cexpression (), "domain"), new CCodeIdentifier
+									(get_ccode_upper_case_name (clause.error_type.type_symbol)));
 
 							ccode.open_if (ccond);
 						}
@@ -256,13 +266,15 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 				// as jump out of finally block is not supported
 			} else {
 				// should never happen with correct bindings
-				uncaught_error_statement (inner_error, true);
+				uncaught_error_statement (get_inner_error_cexpression (), true, current_try);
 			}
-		} else if (current_method != null && current_method.get_error_types ().size > 0) {
+		} else if (current_method != null && current_method.tree_can_fail) {
 			// current method can fail, propagate error
 			CCodeBinaryExpression ccond = null;
 
-			foreach (DataType error_type in current_method.get_error_types ()) {
+			var error_types = new ArrayList<DataType> ();
+			current_method.get_error_types (error_types);
+			foreach (DataType error_type in error_types) {
 				// If GLib.Error is allowed we propagate everything
 				if (error_type.equals (gerror_type)) {
 					ccond = null;
@@ -271,7 +283,7 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 
 				// Check the allowed error domains to propagate
 				var domain_check = new CCodeBinaryExpression (CCodeBinaryOperator.EQUALITY, new CCodeMemberAccess.pointer
-					(inner_error, "domain"), new CCodeIdentifier (get_ccode_upper_case_name (error_type.data_type)));
+					(get_inner_error_cexpression (), "domain"), new CCodeIdentifier (get_ccode_upper_case_name (error_type.type_symbol)));
 				if (ccond == null) {
 					ccond = domain_check;
 				} else {
@@ -281,16 +293,16 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 
 			if (ccond != null) {
 				ccode.open_if (ccond);
-				return_with_exception (inner_error);
+				return_with_exception (get_inner_error_cexpression ());
 
 				ccode.add_else ();
-				uncaught_error_statement (inner_error);
+				uncaught_error_statement (get_inner_error_cexpression ());
 				ccode.close ();
 			} else {
-				return_with_exception (inner_error);
+				return_with_exception (get_inner_error_cexpression ());
 			}
 		} else {
-			uncaught_error_statement (inner_error);
+			uncaught_error_statement (get_inner_error_cexpression ());
 		}
 
 		if (!always_fails) {
@@ -330,7 +342,11 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 
 		ccode.add_label ("__finally%d".printf (this_try_id));
 		if (stmt.finally_body != null) {
+			// use a dedicated inner_error variable, if there
+			// is some error handling happening in finally-block
+			current_inner_error_id++;
 			stmt.finally_body.emit (this);
+			current_inner_error_id--;
 		}
 
 		// check for errors not handled by this try statement
@@ -350,16 +366,20 @@ public class Vala.GErrorModule : CCodeDelegateModule {
 
 		ccode.open_block ();
 
-		if (clause.error_variable != null) {
+		if (clause.error_variable != null && clause.error_variable.used) {
 			visit_local_variable (clause.error_variable);
-			ccode.add_assignment (get_variable_cexpression (get_local_cname (clause.error_variable)), get_variable_cexpression ("_inner_error_"));
+			ccode.add_assignment (get_variable_cexpression (get_local_cname (clause.error_variable)), get_inner_error_cexpression ());
+			ccode.add_assignment (get_inner_error_cexpression (), new CCodeConstant ("NULL"));
 		} else {
+			if (clause.error_variable != null) {
+				clause.error_variable.unreachable = true;
+			}
 			// error object is not used within catch statement, clear it
+			cfile.add_include ("glib.h");
 			var cclear = new CCodeFunctionCall (new CCodeIdentifier ("g_clear_error"));
-			cclear.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, get_variable_cexpression ("_inner_error_")));
+			cclear.add_argument (new CCodeUnaryExpression (CCodeUnaryOperator.ADDRESS_OF, get_inner_error_cexpression ()));
 			ccode.add_expression (cclear);
 		}
-		ccode.add_assignment (get_variable_cexpression ("_inner_error_"), new CCodeConstant ("NULL"));
 
 		clause.body.emit (this);
 

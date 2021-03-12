@@ -23,11 +23,10 @@
  * 	Rico Tzschichholz <ricotz@ubuntu.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,7 +37,6 @@ struct _ValaCCodeGGnucSectionPrivate {
 	ValaGGnucSectionType _section_type;
 };
 
-
 static gint ValaCCodeGGnucSection_private_offset;
 static gpointer vala_ccode_ggnuc_section_parent_class = NULL;
 
@@ -47,7 +45,7 @@ static void vala_ccode_ggnuc_section_real_write (ValaCCodeNode* base,
 static void vala_ccode_ggnuc_section_real_write_declaration (ValaCCodeNode* base,
                                                       ValaCCodeWriter* writer);
 static void vala_ccode_ggnuc_section_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_ggnuc_section_get_type_once (void);
 
 static inline gpointer
 vala_ccode_ggnuc_section_get_instance_private (ValaCCodeGGnucSection* self)
@@ -55,6 +53,24 @@ vala_ccode_ggnuc_section_get_instance_private (ValaCCodeGGnucSection* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeGGnucSection_private_offset);
 }
 
+ValaGGnucSectionType
+vala_ccode_ggnuc_section_get_section_type (ValaCCodeGGnucSection* self)
+{
+	ValaGGnucSectionType result;
+	ValaGGnucSectionType _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_section_type;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_ggnuc_section_set_section_type (ValaCCodeGGnucSection* self,
+                                           ValaGGnucSectionType value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_section_type = value;
+}
 
 ValaCCodeGGnucSection*
 vala_ccode_ggnuc_section_construct (GType object_type,
@@ -66,13 +82,11 @@ vala_ccode_ggnuc_section_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeGGnucSection*
 vala_ccode_ggnuc_section_new (ValaGGnucSectionType t)
 {
 	return vala_ccode_ggnuc_section_construct (VALA_TYPE_CCODE_GGNUC_SECTION, t);
 }
-
 
 static void
 vala_ccode_ggnuc_section_real_write (ValaCCodeNode* base,
@@ -81,8 +95,8 @@ vala_ccode_ggnuc_section_real_write (ValaCCodeNode* base,
 	ValaCCodeGGnucSection * self;
 	ValaGGnucSectionType _tmp0_;
 	const gchar* _tmp1_;
-	ValaGGnucSectionType _tmp13_;
-	const gchar* _tmp14_;
+	ValaGGnucSectionType _tmp11_;
+	const gchar* _tmp12_;
 	self = (ValaCCodeGGnucSection*) base;
 	g_return_if_fail (writer != NULL);
 	vala_ccode_writer_write_string (writer, "G_GNUC_BEGIN_");
@@ -108,36 +122,31 @@ vala_ccode_ggnuc_section_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValaCCodeNode* node = NULL;
-			ValaList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			ValaCCodeNode* _tmp12_;
+			ValaList* _tmp8_;
+			gpointer _tmp9_;
+			ValaCCodeNode* _tmp10_;
+			_node_index = _node_index + 1;
 			_tmp6_ = _node_index;
-			_node_index = _tmp6_ + 1;
-			_tmp7_ = _node_index;
-			_tmp8_ = _node_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _node_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _node_list;
-			_tmp10_ = _node_index;
-			_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-			node = (ValaCCodeNode*) _tmp11_;
-			_tmp12_ = node;
-			vala_ccode_node_write_combined (_tmp12_, writer);
+			_tmp8_ = _node_list;
+			_tmp9_ = vala_list_get (_tmp8_, _node_index);
+			node = (ValaCCodeNode*) _tmp9_;
+			_tmp10_ = node;
+			vala_ccode_node_write_combined (_tmp10_, writer);
 			_vala_ccode_node_unref0 (node);
 		}
 		_vala_iterable_unref0 (_node_list);
 	}
 	vala_ccode_writer_write_string (writer, "G_GNUC_END_");
-	_tmp13_ = self->priv->_section_type;
-	_tmp14_ = vala_ggnuc_section_type_to_string (_tmp13_);
-	vala_ccode_writer_write_string (writer, _tmp14_);
+	_tmp11_ = self->priv->_section_type;
+	_tmp12_ = vala_ggnuc_section_type_to_string (_tmp11_);
+	vala_ccode_writer_write_string (writer, _tmp12_);
 	vala_ccode_writer_write_newline (writer);
 }
-
 
 static void
 vala_ccode_ggnuc_section_real_write_declaration (ValaCCodeNode* base,
@@ -148,30 +157,9 @@ vala_ccode_ggnuc_section_real_write_declaration (ValaCCodeNode* base,
 	g_return_if_fail (writer != NULL);
 }
 
-
-ValaGGnucSectionType
-vala_ccode_ggnuc_section_get_section_type (ValaCCodeGGnucSection* self)
-{
-	ValaGGnucSectionType result;
-	ValaGGnucSectionType _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_section_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_ggnuc_section_set_section_type (ValaCCodeGGnucSection* self,
-                                           ValaGGnucSectionType value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_section_type = value;
-}
-
-
 static void
-vala_ccode_ggnuc_section_class_init (ValaCCodeGGnucSectionClass * klass)
+vala_ccode_ggnuc_section_class_init (ValaCCodeGGnucSectionClass * klass,
+                                     gpointer klass_data)
 {
 	vala_ccode_ggnuc_section_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_ggnuc_section_finalize;
@@ -180,13 +168,12 @@ vala_ccode_ggnuc_section_class_init (ValaCCodeGGnucSectionClass * klass)
 	((ValaCCodeNodeClass *) klass)->write_declaration = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_ggnuc_section_real_write_declaration;
 }
 
-
 static void
-vala_ccode_ggnuc_section_instance_init (ValaCCodeGGnucSection * self)
+vala_ccode_ggnuc_section_instance_init (ValaCCodeGGnucSection * self,
+                                        gpointer klass)
 {
 	self->priv = vala_ccode_ggnuc_section_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_ggnuc_section_finalize (ValaCCodeNode * obj)
@@ -196,24 +183,30 @@ vala_ccode_ggnuc_section_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_ggnuc_section_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a section that should be processed on condition.
  */
+static GType
+vala_ccode_ggnuc_section_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeGGnucSectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_ggnuc_section_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeGGnucSection), 0, (GInstanceInitFunc) vala_ccode_ggnuc_section_instance_init, NULL };
+	GType vala_ccode_ggnuc_section_type_id;
+	vala_ccode_ggnuc_section_type_id = g_type_register_static (VALA_TYPE_CCODE_FRAGMENT, "ValaCCodeGGnucSection", &g_define_type_info, 0);
+	ValaCCodeGGnucSection_private_offset = g_type_add_instance_private (vala_ccode_ggnuc_section_type_id, sizeof (ValaCCodeGGnucSectionPrivate));
+	return vala_ccode_ggnuc_section_type_id;
+}
+
 GType
 vala_ccode_ggnuc_section_get_type (void)
 {
 	static volatile gsize vala_ccode_ggnuc_section_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_ggnuc_section_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeGGnucSectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_ggnuc_section_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeGGnucSection), 0, (GInstanceInitFunc) vala_ccode_ggnuc_section_instance_init, NULL };
 		GType vala_ccode_ggnuc_section_type_id;
-		vala_ccode_ggnuc_section_type_id = g_type_register_static (VALA_TYPE_CCODE_FRAGMENT, "ValaCCodeGGnucSection", &g_define_type_info, 0);
-		ValaCCodeGGnucSection_private_offset = g_type_add_instance_private (vala_ccode_ggnuc_section_type_id, sizeof (ValaCCodeGGnucSectionPrivate));
+		vala_ccode_ggnuc_section_type_id = vala_ccode_ggnuc_section_get_type_once ();
 		g_once_init_leave (&vala_ccode_ggnuc_section_type_id__volatile, vala_ccode_ggnuc_section_type_id);
 	}
 	return vala_ccode_ggnuc_section_type_id__volatile;
 }
-
 
 const gchar*
 vala_ggnuc_section_type_to_string (ValaGGnucSectionType self)
@@ -232,19 +225,24 @@ vala_ggnuc_section_type_to_string (ValaGGnucSectionType self)
 	}
 }
 
+static GType
+vala_ggnuc_section_type_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_GGNUC_SECTION_TYPE_IGNORE_DEPRECATIONS, "VALA_GGNUC_SECTION_TYPE_IGNORE_DEPRECATIONS", "ignore-deprecations"}, {0, NULL, NULL}};
+	GType vala_ggnuc_section_type_type_id;
+	vala_ggnuc_section_type_type_id = g_enum_register_static ("ValaGGnucSectionType", values);
+	return vala_ggnuc_section_type_type_id;
+}
 
 GType
 vala_ggnuc_section_type_get_type (void)
 {
 	static volatile gsize vala_ggnuc_section_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ggnuc_section_type_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_GGNUC_SECTION_TYPE_IGNORE_DEPRECATIONS, "VALA_GGNUC_SECTION_TYPE_IGNORE_DEPRECATIONS", "ignore-deprecations"}, {0, NULL, NULL}};
 		GType vala_ggnuc_section_type_type_id;
-		vala_ggnuc_section_type_type_id = g_enum_register_static ("ValaGGnucSectionType", values);
+		vala_ggnuc_section_type_type_id = vala_ggnuc_section_type_get_type_once ();
 		g_once_init_leave (&vala_ggnuc_section_type_type_id__volatile, vala_ggnuc_section_type_type_id);
 	}
 	return vala_ggnuc_section_type_type_id__volatile;
 }
-
-
 

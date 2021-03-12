@@ -34,6 +34,7 @@ namespace Poppler {
 		public Poppler.ActionNamed named;
 		public Poppler.ActionOCGState ocg_state;
 		public Poppler.ActionRendition rendition;
+		public Poppler.ActionResetForm reset_form;
 		public Poppler.ActionType type;
 		public Poppler.ActionUri uri;
 		public Poppler.Action copy ();
@@ -217,6 +218,18 @@ namespace Poppler {
 		public size_t size;
 		[CCode (has_construct_function = false)]
 		protected Attachment ();
+		[Version (since = "20.09.0")]
+		public unowned GLib.StringBuilder get_checksum ();
+		[Version (since = "20.09.0")]
+		public unowned GLib.DateTime? get_ctime ();
+		[Version (since = "20.09.0")]
+		public unowned string get_description ();
+		[Version (since = "20.09.0")]
+		public unowned GLib.DateTime? get_mtime ();
+		[Version (since = "20.09.0")]
+		public unowned string get_name ();
+		[Version (since = "20.09.0")]
+		public size_t get_size ();
 		public bool save (string filename) throws GLib.Error;
 		public bool save_to_callback (Poppler.AttachmentSaveFunc save_func) throws GLib.Error;
 	}
@@ -252,9 +265,14 @@ namespace Poppler {
 	public class Document : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Document ();
+		[Version (since = "0.78")]
+		public GLib.Tree? create_dests_tree ();
 		public Poppler.Dest find_dest (string link_name);
 		[CCode (has_construct_function = false)]
-		public Document.from_data (string data, int length, string? password) throws GLib.Error;
+		[Version (since = "0.82")]
+		public Document.from_bytes (GLib.Bytes bytes, string? password) throws GLib.Error;
+		[CCode (has_construct_function = false)]
+		public Document.from_data ([CCode (array_length_cname = "length", array_length_pos = 1.5)] uint8[] data, string? password) throws GLib.Error;
 		[CCode (has_construct_function = false)]
 		public Document.from_file (string uri, string? password) throws GLib.Error;
 		[CCode (has_construct_function = false)]
@@ -268,6 +286,8 @@ namespace Poppler {
 		public string get_author ();
 		[Version (since = "0.16")]
 		public long get_creation_date ();
+		[Version (since = "20.09.0")]
+		public GLib.DateTime? get_creation_date_time ();
 		[Version (since = "0.16")]
 		public string get_creator ();
 		public Poppler.FormField get_form_field (int id);
@@ -279,6 +299,8 @@ namespace Poppler {
 		public string get_metadata ();
 		[Version (since = "0.16")]
 		public long get_modification_date ();
+		[Version (since = "20.09.0")]
+		public GLib.DateTime? get_modification_date_time ();
 		[Version (since = "0.18")]
 		public uint get_n_attachments ();
 		public int get_n_pages ();
@@ -302,6 +324,15 @@ namespace Poppler {
 		public string get_pdf_version_string ();
 		[Version (since = "0.16")]
 		public Poppler.Permissions get_permissions ();
+		[Version (since = "0.80")]
+		public Poppler.PrintDuplex get_print_duplex ();
+		[Version (since = "0.80")]
+		public int get_print_n_copies ();
+		[CCode (array_length_pos = 0.1)]
+		[Version (since = "0.80")]
+		public Poppler.PageRange[] get_print_page_ranges ();
+		[Version (since = "0.73")]
+		public Poppler.PrintScaling get_print_scaling ();
 		[Version (since = "0.16")]
 		public string get_producer ();
 		[Version (since = "0.16")]
@@ -309,20 +340,28 @@ namespace Poppler {
 		[Version (since = "0.16")]
 		public string get_title ();
 		public bool has_attachments ();
+		[Version (since = "0.90")]
+		public bool has_javascript ();
 		[Version (since = "0.16")]
 		public bool is_linearized ();
+		[Version (since = "0.90")]
+		public void reset_form (GLib.List<string> fields, bool exclude_fields);
 		public bool save (string uri) throws GLib.Error;
 		public bool save_a_copy (string uri) throws GLib.Error;
 		[Version (since = "0.46")]
 		public void set_author (string author);
 		[Version (since = "0.46")]
 		public void set_creation_date (long creation_date);
+		[Version (since = "20.09.0")]
+		public void set_creation_date_time (GLib.DateTime? creation_datetime);
 		[Version (since = "0.46")]
 		public void set_creator (string creator);
 		[Version (since = "0.46")]
 		public void set_keywords (string keywords);
 		[Version (since = "0.46")]
 		public void set_modification_date (long modification_date);
+		[Version (since = "20.09.0")]
+		public void set_modification_date_time (GLib.DateTime? modification_datetime);
 		[Version (since = "0.46")]
 		public void set_producer (string producer);
 		[Version (since = "0.46")]
@@ -330,7 +369,11 @@ namespace Poppler {
 		[Version (since = "0.46")]
 		public void set_title (string title);
 		public string author { owned get; set; }
+		[Version (deprecated = true, deprecated_since = "20.09.0")]
 		public int creation_date { get; set; }
+		[NoAccessorMethod]
+		[Version (since = "20.09.0")]
+		public GLib.DateTime creation_datetime { owned get; set; }
 		public string creator { owned get; set; }
 		[NoAccessorMethod]
 		public string format { owned get; }
@@ -343,10 +386,20 @@ namespace Poppler {
 		public bool linearized { get; }
 		public string metadata { owned get; }
 		[NoAccessorMethod]
+		[Version (deprecated = true, deprecated_since = "20.09.0")]
 		public int mod_date { get; set; }
+		[NoAccessorMethod]
+		[Version (since = "20.09.0")]
+		public GLib.DateTime mod_datetime { owned get; set; }
 		public Poppler.PageLayout page_layout { get; }
 		public Poppler.PageMode page_mode { get; }
 		public Poppler.Permissions permissions { get; }
+		[Version (since = "0.80")]
+		public Poppler.PrintDuplex print_duplex { get; }
+		[Version (since = "0.80")]
+		public int print_n_copies { get; }
+		[Version (since = "0.73")]
+		public Poppler.PrintScaling print_scaling { get; }
 		public string producer { owned get; set; }
 		public string subject { owned get; set; }
 		[NoAccessorMethod]
@@ -407,6 +460,10 @@ namespace Poppler {
 		public void choice_unselect_all ();
 		[Version (since = "0.18")]
 		public unowned Poppler.Action get_action ();
+		[Version (since = "0.72")]
+		public unowned Poppler.Action get_additional_action (Poppler.AdditionalActionType type);
+		[Version (since = "0.88")]
+		public string get_alternate_ui_name ();
 		public Poppler.FormFieldType get_field_type ();
 		public double get_font_size ();
 		public int get_id ();
@@ -522,10 +579,24 @@ namespace Poppler {
 	public class Movie : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected Movie ();
+		[Version (since = "0.89")]
+		public void get_aspect (int width, int height);
+		[Version (since = "0.80")]
+		public uint64 get_duration ();
 		[Version (since = "0.14")]
 		public unowned string get_filename ();
 		[Version (since = "0.54")]
 		public Poppler.MoviePlayMode get_play_mode ();
+		[Version (since = "0.80")]
+		public double get_rate ();
+		[Version (since = "0.80")]
+		public ushort get_rotation_angle ();
+		[Version (since = "0.80")]
+		public uint64 get_start ();
+		[Version (since = "0.80")]
+		public double get_volume ();
+		[Version (since = "0.80")]
+		public bool is_synchronous ();
 		[Version (since = "0.14")]
 		public bool need_poster ();
 		[Version (since = "0.14")]
@@ -555,6 +626,7 @@ namespace Poppler {
 		[Version (since = "0.18")]
 		public static void free_text_attributes (GLib.List<Poppler.TextAttributes> list);
 		public GLib.List<Poppler.AnnotMapping> get_annot_mapping ();
+		public bool get_bounding_box (out Poppler.Rectangle rect);
 		public Poppler.Rectangle get_crop_box ();
 		public double get_duration ();
 		public GLib.List<Poppler.FormFieldMapping> get_form_field_mapping ();
@@ -646,6 +718,7 @@ namespace Poppler {
 	public class StructureElement : GLib.Object {
 		[CCode (has_construct_function = false)]
 		protected StructureElement ();
+		[Version (since = "0.26")]
 		public string get_abbreviation ();
 		[Version (since = "0.26")]
 		public string get_actual_text ();
@@ -875,12 +948,25 @@ namespace Poppler {
 		public Poppler.Media media;
 	}
 	[CCode (cheader_filename = "poppler.h", has_type_id = false)]
+	public struct ActionResetForm {
+		public Poppler.ActionType type;
+		public string title;
+		public GLib.List<string> fields;
+		public bool exclude;
+	}
+	[CCode (cheader_filename = "poppler.h", has_type_id = false)]
 	public struct ActionUri {
 		public Poppler.ActionType type;
 		public string title;
 		public string uri;
 	}
-	[CCode (cheader_filename = "poppler.h", type_id = "poppler_rectangle_get_type ()")]
+	[CCode (cheader_filename = "poppler.h", has_type_id = false)]
+	[Version (since = "0.80")]
+	public struct PageRange {
+		public int start_page;
+		public int end_page;
+	}
+	[CCode (cheader_filename = "poppler.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "poppler_rectangle_get_type ()")]
 	public struct Rectangle {
 		public double x1;
 		public double y1;
@@ -918,7 +1004,16 @@ namespace Poppler {
 		MOVIE,
 		RENDITION,
 		OCG_STATE,
-		JAVASCRIPT
+		JAVASCRIPT,
+		RESET_FORM
+	}
+	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_ADDITIONAL_ACTION_", type_id = "poppler_additional_action_type_get_type ()")]
+	[Version (since = "0.72")]
+	public enum AdditionalActionType {
+		FIELD_MODIFIED,
+		FORMAT_FIELD,
+		VALIDATE_FIELD,
+		CALCULATE_FIELD
 	}
 	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_ANNOT_EXTERNAL_DATA_MARKUP_", type_id = "poppler_annot_external_data_type_get_type ()")]
 	public enum AnnotExternalDataType {
@@ -1017,7 +1112,8 @@ namespace Poppler {
 		DEFAULT,
 		CASE_SENSITIVE,
 		BACKWARDS,
-		WHOLE_WORDS_ONLY
+		WHOLE_WORDS_ONLY,
+		IGNORE_DIACRITICS
 	}
 	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_FONT_TYPE_", type_id = "poppler_font_type_get_type ()")]
 	public enum FontType {
@@ -1173,6 +1269,14 @@ namespace Poppler {
 		OK_TO_PRINT_HIGH_RESOLUTION,
 		FULL
 	}
+	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_PRINT_DUPLEX_", type_id = "poppler_print_duplex_get_type ()")]
+	[Version (since = "0.80")]
+	public enum PrintDuplex {
+		NONE,
+		SIMPLEX,
+		DUPLEX_FLIP_SHORT_EDGE,
+		DUPLEX_FLIP_LONG_EDGE
+	}
 	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_PRINT_", type_id = "poppler_print_flags_get_type ()")]
 	[Flags]
 	[Version (since = "0.16")]
@@ -1181,6 +1285,12 @@ namespace Poppler {
 		MARKUP_ANNOTS,
 		STAMP_ANNOTS_ONLY,
 		ALL
+	}
+	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_PRINT_SCALING_", type_id = "poppler_print_scaling_get_type ()")]
+	[Version (since = "0.73")]
+	public enum PrintScaling {
+		APP_DEFAULT,
+		NONE
 	}
 	[CCode (cheader_filename = "poppler.h", cprefix = "POPPLER_SELECTION_", type_id = "poppler_selection_style_get_type ()")]
 	public enum SelectionStyle {
@@ -1405,4 +1515,10 @@ namespace Poppler {
 	public static Poppler.Backend get_backend ();
 	[CCode (cheader_filename = "poppler.h")]
 	public static unowned string get_version ();
+	[CCode (cheader_filename = "poppler.h")]
+	[Version (since = "0.73")]
+	public static string named_dest_from_bytestring ([CCode (array_length_cname = "length", array_length_pos = 1.1, array_length_type = "gsize")] uint8[] data);
+	[CCode (array_length_pos = 1.1, array_length_type = "gsize", cheader_filename = "poppler.h")]
+	[Version (since = "0.73")]
+	public static uint8[]? named_dest_to_bytestring (string name);
 }

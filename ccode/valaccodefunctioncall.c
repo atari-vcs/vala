@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
@@ -37,14 +36,13 @@ struct _ValaCCodeFunctionCallPrivate {
 	ValaList* arguments;
 };
 
-
 static gint ValaCCodeFunctionCall_private_offset;
 static gpointer vala_ccode_function_call_parent_class = NULL;
 
 static void vala_ccode_function_call_real_write (ValaCCodeNode* base,
                                           ValaCCodeWriter* writer);
 static void vala_ccode_function_call_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_function_call_get_type_once (void);
 
 static inline gpointer
 vala_ccode_function_call_get_instance_private (ValaCCodeFunctionCall* self)
@@ -52,6 +50,33 @@ vala_ccode_function_call_get_instance_private (ValaCCodeFunctionCall* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeFunctionCall_private_offset);
 }
 
+ValaCCodeExpression*
+vala_ccode_function_call_get_call (ValaCCodeFunctionCall* self)
+{
+	ValaCCodeExpression* result;
+	ValaCCodeExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_call;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_ccode_node_ref0 (gpointer self)
+{
+	return self ? vala_ccode_node_ref (self) : NULL;
+}
+
+void
+vala_ccode_function_call_set_call (ValaCCodeFunctionCall* self,
+                                   ValaCCodeExpression* value)
+{
+	ValaCCodeExpression* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_call);
+	self->priv->_call = _tmp0_;
+}
 
 ValaCCodeFunctionCall*
 vala_ccode_function_call_construct (GType object_type,
@@ -63,13 +88,11 @@ vala_ccode_function_call_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeFunctionCall*
 vala_ccode_function_call_new (ValaCCodeExpression* call)
 {
 	return vala_ccode_function_call_construct (VALA_TYPE_CCODE_FUNCTION_CALL, call);
 }
-
 
 /**
  * Appends the specified expression to the list of arguments.
@@ -87,7 +110,6 @@ vala_ccode_function_call_add_argument (ValaCCodeFunctionCall* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, expr);
 }
 
-
 void
 vala_ccode_function_call_insert_argument (ValaCCodeFunctionCall* self,
                                           gint index,
@@ -100,7 +122,6 @@ vala_ccode_function_call_insert_argument (ValaCCodeFunctionCall* self,
 	vala_list_insert (_tmp0_, index, expr);
 }
 
-
 /**
  * Returns a copy of the list of arguments.
  *
@@ -112,20 +133,18 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 ValaList*
 vala_ccode_function_call_get_arguments (ValaCCodeFunctionCall* self)
 {
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
 	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->arguments;
 	_tmp1_ = _vala_iterable_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
 
 static void
 vala_ccode_function_call_real_write (ValaCCodeNode* base,
@@ -160,35 +179,29 @@ vala_ccode_function_call_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValaCCodeExpression* expr = NULL;
-			ValaList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			gboolean _tmp12_;
-			ValaCCodeExpression* _tmp13_;
+			ValaList* _tmp8_;
+			gpointer _tmp9_;
+			ValaCCodeExpression* _tmp10_;
+			_expr_index = _expr_index + 1;
 			_tmp6_ = _expr_index;
-			_expr_index = _tmp6_ + 1;
-			_tmp7_ = _expr_index;
-			_tmp8_ = _expr_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _expr_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _expr_list;
-			_tmp10_ = _expr_index;
-			_tmp11_ = vala_list_get (_tmp9_, _tmp10_);
-			expr = (ValaCCodeExpression*) _tmp11_;
-			_tmp12_ = first;
-			if (!_tmp12_) {
+			_tmp8_ = _expr_list;
+			_tmp9_ = vala_list_get (_tmp8_, _expr_index);
+			expr = (ValaCCodeExpression*) _tmp9_;
+			if (!first) {
 				vala_ccode_writer_write_string (writer, ", ");
 			} else {
 				first = FALSE;
 			}
-			_tmp13_ = expr;
-			if (_tmp13_ != NULL) {
-				ValaCCodeExpression* _tmp14_;
-				_tmp14_ = expr;
-				vala_ccode_node_write ((ValaCCodeNode*) _tmp14_, writer);
+			_tmp10_ = expr;
+			if (_tmp10_ != NULL) {
+				ValaCCodeExpression* _tmp11_;
+				_tmp11_ = expr;
+				vala_ccode_node_write ((ValaCCodeNode*) _tmp11_, writer);
 			}
 			_vala_ccode_node_unref0 (expr);
 		}
@@ -197,40 +210,9 @@ vala_ccode_function_call_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_string (writer, ")");
 }
 
-
-ValaCCodeExpression*
-vala_ccode_function_call_get_call (ValaCCodeFunctionCall* self)
-{
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_call;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_ccode_node_ref0 (gpointer self)
-{
-	return self ? vala_ccode_node_ref (self) : NULL;
-}
-
-
-void
-vala_ccode_function_call_set_call (ValaCCodeFunctionCall* self,
-                                   ValaCCodeExpression* value)
-{
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_call);
-	self->priv->_call = _tmp0_;
-}
-
-
 static void
-vala_ccode_function_call_class_init (ValaCCodeFunctionCallClass * klass)
+vala_ccode_function_call_class_init (ValaCCodeFunctionCallClass * klass,
+                                     gpointer klass_data)
 {
 	vala_ccode_function_call_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_function_call_finalize;
@@ -238,9 +220,9 @@ vala_ccode_function_call_class_init (ValaCCodeFunctionCallClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_function_call_real_write;
 }
 
-
 static void
-vala_ccode_function_call_instance_init (ValaCCodeFunctionCall * self)
+vala_ccode_function_call_instance_init (ValaCCodeFunctionCall * self,
+                                        gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -249,7 +231,6 @@ vala_ccode_function_call_instance_init (ValaCCodeFunctionCall * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_EXPRESSION, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->arguments = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_function_call_finalize (ValaCCodeNode * obj)
@@ -261,23 +242,28 @@ vala_ccode_function_call_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_function_call_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a function call in the C code.
  */
+static GType
+vala_ccode_function_call_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeFunctionCallClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_function_call_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeFunctionCall), 0, (GInstanceInitFunc) vala_ccode_function_call_instance_init, NULL };
+	GType vala_ccode_function_call_type_id;
+	vala_ccode_function_call_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeFunctionCall", &g_define_type_info, 0);
+	ValaCCodeFunctionCall_private_offset = g_type_add_instance_private (vala_ccode_function_call_type_id, sizeof (ValaCCodeFunctionCallPrivate));
+	return vala_ccode_function_call_type_id;
+}
+
 GType
 vala_ccode_function_call_get_type (void)
 {
 	static volatile gsize vala_ccode_function_call_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_function_call_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeFunctionCallClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_function_call_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeFunctionCall), 0, (GInstanceInitFunc) vala_ccode_function_call_instance_init, NULL };
 		GType vala_ccode_function_call_type_id;
-		vala_ccode_function_call_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeFunctionCall", &g_define_type_info, 0);
-		ValaCCodeFunctionCall_private_offset = g_type_add_instance_private (vala_ccode_function_call_type_id, sizeof (ValaCCodeFunctionCallPrivate));
+		vala_ccode_function_call_type_id = vala_ccode_function_call_get_type_once ();
 		g_once_init_leave (&vala_ccode_function_call_type_id__volatile, vala_ccode_function_call_type_id);
 	}
 	return vala_ccode_function_call_type_id__volatile;
 }
-
-
 

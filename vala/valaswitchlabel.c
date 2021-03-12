@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,7 +37,6 @@
 struct _ValaSwitchLabelPrivate {
 	ValaExpression* _expression;
 };
-
 
 static gint ValaSwitchLabel_private_offset;
 static gpointer vala_switch_label_parent_class = NULL;
@@ -52,7 +50,7 @@ static gboolean vala_switch_label_real_check (ValaCodeNode* base,
 static void vala_switch_label_real_emit (ValaCodeNode* base,
                                   ValaCodeGenerator* codegen);
 static void vala_switch_label_finalize (ValaCodeNode * obj);
-
+static GType vala_switch_label_get_type_once (void);
 
 static inline gpointer
 vala_switch_label_get_instance_private (ValaSwitchLabel* self)
@@ -60,6 +58,49 @@ vala_switch_label_get_instance_private (ValaSwitchLabel* self)
 	return G_STRUCT_MEMBER_P (self, ValaSwitchLabel_private_offset);
 }
 
+ValaExpression*
+vala_switch_label_get_expression (ValaSwitchLabel* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_expression;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_switch_label_set_expression (ValaSwitchLabel* self,
+                                  ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_expression);
+	self->priv->_expression = _tmp0_;
+	_tmp1_ = self->priv->_expression;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
+
+ValaSwitchSection*
+vala_switch_label_get_section (ValaSwitchLabel* self)
+{
+	ValaSwitchSection* result;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = vala_code_node_get_parent_node ((ValaCodeNode*) self);
+	_tmp1_ = _tmp0_;
+	result = G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_SWITCH_SECTION, ValaSwitchSection);
+	return result;
+}
 
 /**
  * Creates a new switch case label.
@@ -81,14 +122,12 @@ vala_switch_label_construct (GType object_type,
 	return self;
 }
 
-
 ValaSwitchLabel*
 vala_switch_label_new (ValaExpression* expr,
                        ValaSourceReference* source)
 {
 	return vala_switch_label_construct (VALA_TYPE_SWITCH_LABEL, expr, source);
 }
-
 
 /**
  * Creates a new switch default label.
@@ -106,13 +145,11 @@ vala_switch_label_construct_with_default (GType object_type,
 	return self;
 }
 
-
 ValaSwitchLabel*
 vala_switch_label_new_with_default (ValaSourceReference* source)
 {
 	return vala_switch_label_construct_with_default (VALA_TYPE_SWITCH_LABEL, source);
 }
-
 
 static void
 vala_switch_label_real_accept (ValaCodeNode* base,
@@ -123,7 +160,6 @@ vala_switch_label_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_switch_label (visitor, self);
 }
-
 
 static void
 vala_switch_label_real_accept_children (ValaCodeNode* base,
@@ -150,24 +186,22 @@ vala_switch_label_real_accept_children (ValaCodeNode* base,
 	}
 }
 
-
 static gpointer
-_vala_code_node_ref0 (gpointer self)
+_vala_iterable_ref0 (gpointer self)
 {
-	return self ? vala_code_node_ref (self) : NULL;
+	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static gboolean
 vala_switch_label_real_check (ValaCodeNode* base,
                               ValaCodeContext* context)
 {
 	ValaSwitchLabel * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
 	ValaExpression* _tmp5_;
+	gboolean result = FALSE;
 	self = (ValaSwitchLabel*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -203,19 +237,19 @@ vala_switch_label_real_check (ValaCodeNode* base,
 		ValaExpression* _tmp20_;
 		ValaSymbol* _tmp21_;
 		ValaSymbol* _tmp22_;
+		ValaExpression* _tmp57_;
 		ValaExpression* _tmp58_;
 		ValaExpression* _tmp59_;
 		ValaExpression* _tmp60_;
-		ValaExpression* _tmp61_;
+		ValaExpression* _tmp65_;
 		ValaExpression* _tmp66_;
-		ValaExpression* _tmp67_;
+		ValaDataType* _tmp67_;
 		ValaDataType* _tmp68_;
-		ValaDataType* _tmp69_;
-		ValaSwitchStatement* _tmp70_;
+		ValaSwitchStatement* _tmp69_;
+		ValaExpression* _tmp70_;
 		ValaExpression* _tmp71_;
-		ValaExpression* _tmp72_;
+		ValaDataType* _tmp72_;
 		ValaDataType* _tmp73_;
-		ValaDataType* _tmp74_;
 		_tmp6_ = vala_switch_label_get_section (self);
 		_tmp7_ = _tmp6_;
 		_tmp8_ = vala_code_node_get_parent_node ((ValaCodeNode*) _tmp7_);
@@ -245,9 +279,9 @@ vala_switch_label_real_check (ValaCodeNode* base,
 			ValaTypeSymbol* _tmp25_;
 			ValaTypeSymbol* _tmp26_;
 			_tmp24_ = condition_target_type;
-			_tmp25_ = vala_data_type_get_data_type (_tmp24_);
+			_tmp25_ = vala_data_type_get_type_symbol (_tmp24_);
 			_tmp26_ = _tmp25_;
-			_tmp17_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp26_, VALA_TYPE_ENUM);
+			_tmp17_ = VALA_IS_ENUM (_tmp26_);
 		} else {
 			_tmp17_ = FALSE;
 		}
@@ -258,7 +292,7 @@ vala_switch_label_real_check (ValaCodeNode* base,
 			ValaTypeSymbol* _tmp29_;
 			ValaEnum* _tmp30_;
 			_tmp27_ = condition_target_type;
-			_tmp28_ = vala_data_type_get_data_type (_tmp27_);
+			_tmp28_ = vala_data_type_get_type_symbol (_tmp27_);
 			_tmp29_ = _tmp28_;
 			_tmp30_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp29_, VALA_TYPE_ENUM, ValaEnum));
 			enum_type = _tmp30_;
@@ -266,75 +300,73 @@ vala_switch_label_real_check (ValaCodeNode* base,
 				ValaList* _val_list = NULL;
 				ValaEnum* _tmp31_;
 				ValaList* _tmp32_;
-				gint _val_size = 0;
 				ValaList* _tmp33_;
-				gint _tmp34_;
+				gint _val_size = 0;
+				ValaList* _tmp34_;
 				gint _tmp35_;
+				gint _tmp36_;
 				gint _val_index = 0;
 				_tmp31_ = enum_type;
 				_tmp32_ = vala_enum_get_values (_tmp31_);
-				_val_list = _tmp32_;
-				_tmp33_ = _val_list;
-				_tmp34_ = vala_collection_get_size ((ValaCollection*) _tmp33_);
-				_tmp35_ = _tmp34_;
-				_val_size = _tmp35_;
+				_tmp33_ = _vala_iterable_ref0 (_tmp32_);
+				_val_list = _tmp33_;
+				_tmp34_ = _val_list;
+				_tmp35_ = vala_collection_get_size ((ValaCollection*) _tmp34_);
+				_tmp36_ = _tmp35_;
+				_val_size = _tmp36_;
 				_val_index = -1;
 				while (TRUE) {
-					gint _tmp36_;
 					gint _tmp37_;
 					gint _tmp38_;
 					ValaEnumValue* val = NULL;
 					ValaList* _tmp39_;
-					gint _tmp40_;
-					gpointer _tmp41_;
+					gpointer _tmp40_;
+					ValaExpression* _tmp41_;
 					ValaExpression* _tmp42_;
-					ValaExpression* _tmp43_;
+					gchar* _tmp43_;
 					gchar* _tmp44_;
-					gchar* _tmp45_;
-					ValaEnumValue* _tmp46_;
+					ValaEnumValue* _tmp45_;
+					const gchar* _tmp46_;
 					const gchar* _tmp47_;
-					const gchar* _tmp48_;
-					gboolean _tmp49_;
-					_tmp36_ = _val_index;
-					_val_index = _tmp36_ + 1;
+					gboolean _tmp48_;
+					_val_index = _val_index + 1;
 					_tmp37_ = _val_index;
 					_tmp38_ = _val_size;
 					if (!(_tmp37_ < _tmp38_)) {
 						break;
 					}
 					_tmp39_ = _val_list;
-					_tmp40_ = _val_index;
-					_tmp41_ = vala_list_get (_tmp39_, _tmp40_);
-					val = (ValaEnumValue*) _tmp41_;
-					_tmp42_ = vala_switch_label_get_expression (self);
-					_tmp43_ = _tmp42_;
-					_tmp44_ = vala_code_node_to_string ((ValaCodeNode*) _tmp43_);
-					_tmp45_ = _tmp44_;
-					_tmp46_ = val;
-					_tmp47_ = vala_symbol_get_name ((ValaSymbol*) _tmp46_);
-					_tmp48_ = _tmp47_;
-					_tmp49_ = g_strcmp0 (_tmp45_, _tmp48_) == 0;
-					_g_free0 (_tmp45_);
-					if (_tmp49_) {
+					_tmp40_ = vala_list_get (_tmp39_, _val_index);
+					val = (ValaEnumValue*) _tmp40_;
+					_tmp41_ = vala_switch_label_get_expression (self);
+					_tmp42_ = _tmp41_;
+					_tmp43_ = vala_code_node_to_string ((ValaCodeNode*) _tmp42_);
+					_tmp44_ = _tmp43_;
+					_tmp45_ = val;
+					_tmp46_ = vala_symbol_get_name ((ValaSymbol*) _tmp45_);
+					_tmp47_ = _tmp46_;
+					_tmp48_ = g_strcmp0 (_tmp44_, _tmp47_) == 0;
+					_g_free0 (_tmp44_);
+					if (_tmp48_) {
+						ValaExpression* _tmp49_;
 						ValaExpression* _tmp50_;
-						ValaExpression* _tmp51_;
+						ValaDataType* _tmp51_;
 						ValaDataType* _tmp52_;
 						ValaDataType* _tmp53_;
-						ValaDataType* _tmp54_;
+						ValaExpression* _tmp54_;
 						ValaExpression* _tmp55_;
-						ValaExpression* _tmp56_;
-						ValaEnumValue* _tmp57_;
-						_tmp50_ = vala_switch_label_get_expression (self);
-						_tmp51_ = _tmp50_;
-						_tmp52_ = condition_target_type;
-						_tmp53_ = vala_data_type_copy (_tmp52_);
-						_tmp54_ = _tmp53_;
-						vala_expression_set_target_type (_tmp51_, _tmp54_);
-						_vala_code_node_unref0 (_tmp54_);
-						_tmp55_ = vala_switch_label_get_expression (self);
-						_tmp56_ = _tmp55_;
-						_tmp57_ = val;
-						vala_expression_set_symbol_reference (_tmp56_, (ValaSymbol*) _tmp57_);
+						ValaEnumValue* _tmp56_;
+						_tmp49_ = vala_switch_label_get_expression (self);
+						_tmp50_ = _tmp49_;
+						_tmp51_ = condition_target_type;
+						_tmp52_ = vala_data_type_copy (_tmp51_);
+						_tmp53_ = _tmp52_;
+						vala_expression_set_target_type (_tmp50_, _tmp53_);
+						_vala_code_node_unref0 (_tmp53_);
+						_tmp54_ = vala_switch_label_get_expression (self);
+						_tmp55_ = _tmp54_;
+						_tmp56_ = val;
+						vala_expression_set_symbol_reference (_tmp55_, (ValaSymbol*) _tmp56_);
 						_vala_code_node_unref0 (val);
 						break;
 					}
@@ -344,86 +376,86 @@ vala_switch_label_real_check (ValaCodeNode* base,
 			}
 			_vala_code_node_unref0 (enum_type);
 		}
-		_tmp58_ = vala_switch_label_get_expression (self);
-		_tmp59_ = _tmp58_;
-		if (!vala_code_node_check ((ValaCodeNode*) _tmp59_, context)) {
+		_tmp57_ = vala_switch_label_get_expression (self);
+		_tmp58_ = _tmp57_;
+		if (!vala_code_node_check ((ValaCodeNode*) _tmp58_, context)) {
 			vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
 			result = FALSE;
 			_vala_code_node_unref0 (condition_target_type);
 			_vala_code_node_unref0 (switch_statement);
 			return result;
 		}
-		_tmp60_ = vala_switch_label_get_expression (self);
-		_tmp61_ = _tmp60_;
-		if (!vala_expression_is_constant (_tmp61_)) {
+		_tmp59_ = vala_switch_label_get_expression (self);
+		_tmp60_ = _tmp59_;
+		if (!vala_expression_is_constant (_tmp60_)) {
+			ValaExpression* _tmp61_;
 			ValaExpression* _tmp62_;
-			ValaExpression* _tmp63_;
+			ValaSourceReference* _tmp63_;
 			ValaSourceReference* _tmp64_;
-			ValaSourceReference* _tmp65_;
 			vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-			_tmp62_ = vala_switch_label_get_expression (self);
-			_tmp63_ = _tmp62_;
-			_tmp64_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp63_);
-			_tmp65_ = _tmp64_;
-			vala_report_error (_tmp65_, "Expression must be constant");
+			_tmp61_ = vala_switch_label_get_expression (self);
+			_tmp62_ = _tmp61_;
+			_tmp63_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp62_);
+			_tmp64_ = _tmp63_;
+			vala_report_error (_tmp64_, "Expression must be constant");
 			result = FALSE;
 			_vala_code_node_unref0 (condition_target_type);
 			_vala_code_node_unref0 (switch_statement);
 			return result;
 		}
-		_tmp66_ = vala_switch_label_get_expression (self);
-		_tmp67_ = _tmp66_;
-		_tmp68_ = vala_expression_get_value_type (_tmp67_);
-		_tmp69_ = _tmp68_;
-		_tmp70_ = switch_statement;
-		_tmp71_ = vala_switch_statement_get_expression (_tmp70_);
-		_tmp72_ = _tmp71_;
-		_tmp73_ = vala_expression_get_value_type (_tmp72_);
-		_tmp74_ = _tmp73_;
-		if (!vala_data_type_compatible (_tmp69_, _tmp74_)) {
+		_tmp65_ = vala_switch_label_get_expression (self);
+		_tmp66_ = _tmp65_;
+		_tmp67_ = vala_expression_get_value_type (_tmp66_);
+		_tmp68_ = _tmp67_;
+		_tmp69_ = switch_statement;
+		_tmp70_ = vala_switch_statement_get_expression (_tmp69_);
+		_tmp71_ = _tmp70_;
+		_tmp72_ = vala_expression_get_value_type (_tmp71_);
+		_tmp73_ = _tmp72_;
+		if (!vala_data_type_compatible (_tmp68_, _tmp73_)) {
+			ValaExpression* _tmp74_;
 			ValaExpression* _tmp75_;
-			ValaExpression* _tmp76_;
+			ValaSourceReference* _tmp76_;
 			ValaSourceReference* _tmp77_;
-			ValaSourceReference* _tmp78_;
+			ValaExpression* _tmp78_;
 			ValaExpression* _tmp79_;
-			ValaExpression* _tmp80_;
+			ValaDataType* _tmp80_;
 			ValaDataType* _tmp81_;
-			ValaDataType* _tmp82_;
+			gchar* _tmp82_;
 			gchar* _tmp83_;
-			gchar* _tmp84_;
-			ValaSwitchStatement* _tmp85_;
+			ValaSwitchStatement* _tmp84_;
+			ValaExpression* _tmp85_;
 			ValaExpression* _tmp86_;
-			ValaExpression* _tmp87_;
+			ValaDataType* _tmp87_;
 			ValaDataType* _tmp88_;
-			ValaDataType* _tmp89_;
+			gchar* _tmp89_;
 			gchar* _tmp90_;
 			gchar* _tmp91_;
 			gchar* _tmp92_;
-			gchar* _tmp93_;
 			vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-			_tmp75_ = vala_switch_label_get_expression (self);
-			_tmp76_ = _tmp75_;
-			_tmp77_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp76_);
-			_tmp78_ = _tmp77_;
-			_tmp79_ = vala_switch_label_get_expression (self);
-			_tmp80_ = _tmp79_;
-			_tmp81_ = vala_expression_get_value_type (_tmp80_);
-			_tmp82_ = _tmp81_;
-			_tmp83_ = vala_code_node_to_string ((ValaCodeNode*) _tmp82_);
-			_tmp84_ = _tmp83_;
-			_tmp85_ = switch_statement;
-			_tmp86_ = vala_switch_statement_get_expression (_tmp85_);
-			_tmp87_ = _tmp86_;
-			_tmp88_ = vala_expression_get_value_type (_tmp87_);
-			_tmp89_ = _tmp88_;
-			_tmp90_ = vala_code_node_to_string ((ValaCodeNode*) _tmp89_);
-			_tmp91_ = _tmp90_;
-			_tmp92_ = g_strdup_printf ("Cannot convert from `%s' to `%s'", _tmp84_, _tmp91_);
-			_tmp93_ = _tmp92_;
-			vala_report_error (_tmp78_, _tmp93_);
-			_g_free0 (_tmp93_);
-			_g_free0 (_tmp91_);
-			_g_free0 (_tmp84_);
+			_tmp74_ = vala_switch_label_get_expression (self);
+			_tmp75_ = _tmp74_;
+			_tmp76_ = vala_code_node_get_source_reference ((ValaCodeNode*) _tmp75_);
+			_tmp77_ = _tmp76_;
+			_tmp78_ = vala_switch_label_get_expression (self);
+			_tmp79_ = _tmp78_;
+			_tmp80_ = vala_expression_get_value_type (_tmp79_);
+			_tmp81_ = _tmp80_;
+			_tmp82_ = vala_code_node_to_string ((ValaCodeNode*) _tmp81_);
+			_tmp83_ = _tmp82_;
+			_tmp84_ = switch_statement;
+			_tmp85_ = vala_switch_statement_get_expression (_tmp84_);
+			_tmp86_ = _tmp85_;
+			_tmp87_ = vala_expression_get_value_type (_tmp86_);
+			_tmp88_ = _tmp87_;
+			_tmp89_ = vala_code_node_to_string ((ValaCodeNode*) _tmp88_);
+			_tmp90_ = _tmp89_;
+			_tmp91_ = g_strdup_printf ("Cannot convert from `%s' to `%s'", _tmp83_, _tmp90_);
+			_tmp92_ = _tmp91_;
+			vala_report_error (_tmp77_, _tmp92_);
+			_g_free0 (_tmp92_);
+			_g_free0 (_tmp90_);
+			_g_free0 (_tmp83_);
 			result = FALSE;
 			_vala_code_node_unref0 (condition_target_type);
 			_vala_code_node_unref0 (switch_statement);
@@ -436,7 +468,6 @@ vala_switch_label_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_switch_label_real_emit (ValaCodeNode* base,
                              ValaCodeGenerator* codegen)
@@ -447,59 +478,9 @@ vala_switch_label_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_switch_label ((ValaCodeVisitor*) codegen, self);
 }
 
-
-ValaExpression*
-vala_switch_label_get_expression (ValaSwitchLabel* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_expression;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_switch_label_set_expression (ValaSwitchLabel* self,
-                                  ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_expression);
-	self->priv->_expression = _tmp0_;
-	_tmp1_ = self->priv->_expression;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
-ValaSwitchSection*
-vala_switch_label_get_section (ValaSwitchLabel* self)
-{
-	ValaSwitchSection* result;
-	ValaCodeNode* _tmp0_;
-	ValaCodeNode* _tmp1_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = vala_code_node_get_parent_node ((ValaCodeNode*) self);
-	_tmp1_ = _tmp0_;
-	result = G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_SWITCH_SECTION, ValaSwitchSection);
-	return result;
-}
-
-
-void
-vala_switch_label_set_section (ValaSwitchLabel* self,
-                               ValaSwitchSection* value)
-{
-	g_return_if_fail (self != NULL);
-	vala_code_node_set_parent_node ((ValaCodeNode*) self, (ValaCodeNode*) value);
-}
-
-
 static void
-vala_switch_label_class_init (ValaSwitchLabelClass * klass)
+vala_switch_label_class_init (ValaSwitchLabelClass * klass,
+                              gpointer klass_data)
 {
 	vala_switch_label_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_switch_label_finalize;
@@ -510,13 +491,12 @@ vala_switch_label_class_init (ValaSwitchLabelClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_switch_label_real_emit;
 }
 
-
 static void
-vala_switch_label_instance_init (ValaSwitchLabel * self)
+vala_switch_label_instance_init (ValaSwitchLabel * self,
+                                 gpointer klass)
 {
 	self->priv = vala_switch_label_get_instance_private (self);
 }
-
 
 static void
 vala_switch_label_finalize (ValaCodeNode * obj)
@@ -527,23 +507,28 @@ vala_switch_label_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_switch_label_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a switch label in the source code.
  */
+static GType
+vala_switch_label_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaSwitchLabelClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_switch_label_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSwitchLabel), 0, (GInstanceInitFunc) vala_switch_label_instance_init, NULL };
+	GType vala_switch_label_type_id;
+	vala_switch_label_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaSwitchLabel", &g_define_type_info, 0);
+	ValaSwitchLabel_private_offset = g_type_add_instance_private (vala_switch_label_type_id, sizeof (ValaSwitchLabelPrivate));
+	return vala_switch_label_type_id;
+}
+
 GType
 vala_switch_label_get_type (void)
 {
 	static volatile gsize vala_switch_label_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_switch_label_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaSwitchLabelClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_switch_label_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSwitchLabel), 0, (GInstanceInitFunc) vala_switch_label_instance_init, NULL };
 		GType vala_switch_label_type_id;
-		vala_switch_label_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaSwitchLabel", &g_define_type_info, 0);
-		ValaSwitchLabel_private_offset = g_type_add_instance_private (vala_switch_label_type_id, sizeof (ValaSwitchLabelPrivate));
+		vala_switch_label_type_id = vala_switch_label_get_type_once ();
 		g_once_init_leave (&vala_switch_label_type_id__volatile, vala_switch_label_type_id);
 	}
 	return vala_switch_label_type_id__volatile;
 }
-
-
 

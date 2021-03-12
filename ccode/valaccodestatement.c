@@ -23,16 +23,11 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
-
-
 
 static gpointer vala_ccode_statement_parent_class = NULL;
 
-
+static GType vala_ccode_statement_get_type_once (void);
 
 ValaCCodeStatement*
 vala_ccode_statement_construct (GType object_type)
@@ -42,35 +37,40 @@ vala_ccode_statement_construct (GType object_type)
 	return self;
 }
 
-
 static void
-vala_ccode_statement_class_init (ValaCCodeStatementClass * klass)
+vala_ccode_statement_class_init (ValaCCodeStatementClass * klass,
+                                 gpointer klass_data)
 {
 	vala_ccode_statement_parent_class = g_type_class_peek_parent (klass);
 }
 
-
 static void
-vala_ccode_statement_instance_init (ValaCCodeStatement * self)
+vala_ccode_statement_instance_init (ValaCCodeStatement * self,
+                                    gpointer klass)
 {
 }
-
 
 /**
  * Represents a statement in the C code.
  */
+static GType
+vala_ccode_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeStatement), 0, (GInstanceInitFunc) vala_ccode_statement_instance_init, NULL };
+	GType vala_ccode_statement_type_id;
+	vala_ccode_statement_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeStatement", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return vala_ccode_statement_type_id;
+}
+
 GType
 vala_ccode_statement_get_type (void)
 {
 	static volatile gsize vala_ccode_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeStatement), 0, (GInstanceInitFunc) vala_ccode_statement_instance_init, NULL };
 		GType vala_ccode_statement_type_id;
-		vala_ccode_statement_type_id = g_type_register_static (VALA_TYPE_CCODE_NODE, "ValaCCodeStatement", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+		vala_ccode_statement_type_id = vala_ccode_statement_get_type_once ();
 		g_once_init_leave (&vala_ccode_statement_type_id__volatile, vala_ccode_statement_type_id);
 	}
 	return vala_ccode_statement_type_id__volatile;
 }
-
-
 

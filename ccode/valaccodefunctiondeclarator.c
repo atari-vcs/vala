@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
@@ -40,7 +39,6 @@ struct _ValaCCodeFunctionDeclaratorPrivate {
 	ValaList* parameters;
 };
 
-
 static gint ValaCCodeFunctionDeclarator_private_offset;
 static gpointer vala_ccode_function_declarator_parent_class = NULL;
 
@@ -49,7 +47,7 @@ static void vala_ccode_function_declarator_real_write (ValaCCodeNode* base,
 static void vala_ccode_function_declarator_real_write_declaration (ValaCCodeNode* base,
                                                             ValaCCodeWriter* writer);
 static void vala_ccode_function_declarator_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_function_declarator_get_type_once (void);
 
 static inline gpointer
 vala_ccode_function_declarator_get_instance_private (ValaCCodeFunctionDeclarator* self)
@@ -57,6 +55,27 @@ vala_ccode_function_declarator_get_instance_private (ValaCCodeFunctionDeclarator
 	return G_STRUCT_MEMBER_P (self, ValaCCodeFunctionDeclarator_private_offset);
 }
 
+const gchar*
+vala_ccode_function_declarator_get_name (ValaCCodeFunctionDeclarator* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_function_declarator_set_name (ValaCCodeFunctionDeclarator* self,
+                                         const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
 
 ValaCCodeFunctionDeclarator*
 vala_ccode_function_declarator_construct (GType object_type,
@@ -69,13 +88,11 @@ vala_ccode_function_declarator_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeFunctionDeclarator*
 vala_ccode_function_declarator_new (const gchar* name)
 {
 	return vala_ccode_function_declarator_construct (VALA_TYPE_CCODE_FUNCTION_DECLARATOR, name);
 }
-
 
 /**
  * Appends the specified parameter to the list of function parameters.
@@ -93,7 +110,6 @@ vala_ccode_function_declarator_add_parameter (ValaCCodeFunctionDeclarator* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, param);
 }
 
-
 static void
 vala_ccode_function_declarator_real_write (ValaCCodeNode* base,
                                            ValaCCodeWriter* writer)
@@ -104,13 +120,11 @@ vala_ccode_function_declarator_real_write (ValaCCodeNode* base,
 	vala_ccode_node_write_declaration ((ValaCCodeNode*) self, writer);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 vala_ccode_function_declarator_real_write_declaration (ValaCCodeNode* base,
@@ -125,11 +139,10 @@ vala_ccode_function_declarator_real_write_declaration (ValaCCodeNode* base,
 	gint i = 0;
 	gint format_arg_index = 0;
 	gint args_index = 0;
-	gint _tmp38_;
-	ValaCCodeModifiers _tmp39_;
-	ValaCCodeModifiers _tmp40_;
-	ValaCCodeModifiers _tmp41_;
-	ValaCCodeModifiers _tmp42_;
+	ValaCCodeModifiers _tmp29_;
+	ValaCCodeModifiers _tmp30_;
+	ValaCCodeModifiers _tmp31_;
+	ValaCCodeModifiers _tmp32_;
 	self = (ValaCCodeFunctionDeclarator*) base;
 	g_return_if_fail (writer != NULL);
 	vala_ccode_writer_write_string (writer, "(*");
@@ -171,204 +184,137 @@ vala_ccode_function_declarator_real_write_declaration (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp11_;
 			gint _tmp12_;
-			gint _tmp13_;
 			ValaCCodeParameter* param = NULL;
-			ValaList* _tmp14_;
-			gint _tmp15_;
-			gpointer _tmp16_;
-			gint _tmp17_;
-			ValaCCodeParameter* _tmp18_;
-			ValaCCodeParameter* _tmp19_;
-			ValaCCodeModifiers _tmp20_;
-			ValaCCodeModifiers _tmp21_;
-			gboolean _tmp23_ = FALSE;
-			gboolean _tmp24_;
-			gint _tmp37_;
+			ValaList* _tmp13_;
+			gpointer _tmp14_;
+			ValaCCodeParameter* _tmp15_;
+			ValaCCodeParameter* _tmp16_;
+			ValaCCodeModifiers _tmp17_;
+			ValaCCodeModifiers _tmp18_;
+			gboolean _tmp19_ = FALSE;
+			gint _tmp28_;
+			_param_index = _param_index + 1;
 			_tmp11_ = _param_index;
-			_param_index = _tmp11_ + 1;
-			_tmp12_ = _param_index;
-			_tmp13_ = _param_size;
-			if (!(_tmp12_ < _tmp13_)) {
+			_tmp12_ = _param_size;
+			if (!(_tmp11_ < _tmp12_)) {
 				break;
 			}
-			_tmp14_ = _param_list;
-			_tmp15_ = _param_index;
-			_tmp16_ = vala_list_get (_tmp14_, _tmp15_);
-			param = (ValaCCodeParameter*) _tmp16_;
-			_tmp17_ = i;
-			if (_tmp17_ > 0) {
+			_tmp13_ = _param_list;
+			_tmp14_ = vala_list_get (_tmp13_, _param_index);
+			param = (ValaCCodeParameter*) _tmp14_;
+			if (i > 0) {
 				vala_ccode_writer_write_string (writer, ", ");
 			}
-			_tmp18_ = param;
-			vala_ccode_node_write ((ValaCCodeNode*) _tmp18_, writer);
-			_tmp19_ = param;
-			_tmp20_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) _tmp19_);
-			_tmp21_ = _tmp20_;
-			if ((_tmp21_ & VALA_CCODE_MODIFIERS_FORMAT_ARG) == VALA_CCODE_MODIFIERS_FORMAT_ARG) {
-				gint _tmp22_;
-				_tmp22_ = i;
-				format_arg_index = _tmp22_;
+			_tmp15_ = param;
+			vala_ccode_node_write ((ValaCCodeNode*) _tmp15_, writer);
+			_tmp16_ = param;
+			_tmp17_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) _tmp16_);
+			_tmp18_ = _tmp17_;
+			if ((_tmp18_ & VALA_CCODE_MODIFIERS_FORMAT_ARG) == VALA_CCODE_MODIFIERS_FORMAT_ARG) {
+				format_arg_index = i;
 			}
-			_tmp24_ = has_args;
-			if (_tmp24_) {
-				ValaCCodeParameter* _tmp25_;
-				gboolean _tmp26_;
-				gboolean _tmp27_;
-				_tmp25_ = param;
-				_tmp26_ = vala_ccode_parameter_get_ellipsis (_tmp25_);
-				_tmp27_ = _tmp26_;
-				_tmp23_ = _tmp27_;
+			if (has_args) {
+				ValaCCodeParameter* _tmp20_;
+				gboolean _tmp21_;
+				gboolean _tmp22_;
+				_tmp20_ = param;
+				_tmp21_ = vala_ccode_parameter_get_ellipsis (_tmp20_);
+				_tmp22_ = _tmp21_;
+				_tmp19_ = _tmp22_;
 			} else {
-				_tmp23_ = FALSE;
+				_tmp19_ = FALSE;
 			}
-			if (_tmp23_) {
-				gint _tmp28_;
-				_tmp28_ = i;
-				args_index = _tmp28_;
+			if (_tmp19_) {
+				args_index = i;
 			} else {
-				gboolean _tmp29_ = FALSE;
-				gboolean _tmp30_ = FALSE;
-				gboolean _tmp31_;
-				_tmp31_ = has_args;
-				if (_tmp31_) {
-					ValaCCodeParameter* _tmp32_;
-					const gchar* _tmp33_;
-					const gchar* _tmp34_;
-					_tmp32_ = param;
-					_tmp33_ = vala_ccode_parameter_get_type_name (_tmp32_);
-					_tmp34_ = _tmp33_;
-					_tmp30_ = g_strcmp0 (_tmp34_, "va_list") == 0;
+				gboolean _tmp23_ = FALSE;
+				gboolean _tmp24_ = FALSE;
+				if (has_args) {
+					ValaCCodeParameter* _tmp25_;
+					const gchar* _tmp26_;
+					const gchar* _tmp27_;
+					_tmp25_ = param;
+					_tmp26_ = vala_ccode_parameter_get_type_name (_tmp25_);
+					_tmp27_ = _tmp26_;
+					_tmp24_ = g_strcmp0 (_tmp27_, "va_list") == 0;
 				} else {
-					_tmp30_ = FALSE;
+					_tmp24_ = FALSE;
 				}
-				if (_tmp30_) {
-					gint _tmp35_;
-					_tmp35_ = format_arg_index;
-					_tmp29_ = _tmp35_ < 0;
+				if (_tmp24_) {
+					_tmp23_ = format_arg_index < 0;
 				} else {
-					_tmp29_ = FALSE;
+					_tmp23_ = FALSE;
 				}
-				if (_tmp29_) {
-					gint _tmp36_;
-					_tmp36_ = i;
-					format_arg_index = _tmp36_ - 1;
+				if (_tmp23_) {
+					format_arg_index = i - 1;
 				}
 			}
-			_tmp37_ = i;
-			i = _tmp37_ + 1;
+			_tmp28_ = i;
+			i = _tmp28_ + 1;
 			_vala_ccode_node_unref0 (param);
 		}
 		_vala_iterable_unref0 (_param_list);
 	}
-	_tmp38_ = i;
-	if (_tmp38_ == 0) {
+	if (i == 0) {
 		vala_ccode_writer_write_string (writer, "void");
 	}
 	vala_ccode_writer_write_string (writer, ")");
-	_tmp39_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
-	_tmp40_ = _tmp39_;
-	if ((_tmp40_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
+	_tmp29_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
+	_tmp30_ = _tmp29_;
+	if ((_tmp30_ & VALA_CCODE_MODIFIERS_DEPRECATED) == VALA_CCODE_MODIFIERS_DEPRECATED) {
 		vala_ccode_writer_write_string (writer, " G_GNUC_DEPRECATED");
 	}
-	_tmp41_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
-	_tmp42_ = _tmp41_;
-	if ((_tmp42_ & VALA_CCODE_MODIFIERS_PRINTF) == VALA_CCODE_MODIFIERS_PRINTF) {
-		gint _tmp43_ = 0;
-		gint _tmp44_;
-		gint _tmp47_;
-		gint _tmp48_;
-		gchar* _tmp49_;
-		gchar* _tmp50_;
-		_tmp44_ = format_arg_index;
-		if (_tmp44_ >= 0) {
-			gint _tmp45_;
-			_tmp45_ = format_arg_index;
-			_tmp43_ = _tmp45_ + 1;
+	_tmp31_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
+	_tmp32_ = _tmp31_;
+	if ((_tmp32_ & VALA_CCODE_MODIFIERS_PRINTF) == VALA_CCODE_MODIFIERS_PRINTF) {
+		gint _tmp33_ = 0;
+		gchar* _tmp34_;
+		gchar* _tmp35_;
+		if (format_arg_index >= 0) {
+			_tmp33_ = format_arg_index + 1;
 		} else {
-			gint _tmp46_;
-			_tmp46_ = args_index;
-			_tmp43_ = _tmp46_;
+			_tmp33_ = args_index;
 		}
-		format_arg_index = _tmp43_;
-		_tmp47_ = format_arg_index;
-		_tmp48_ = args_index;
-		_tmp49_ = g_strdup_printf (" G_GNUC_PRINTF(%d,%d)", _tmp47_, _tmp48_ + 1);
-		_tmp50_ = _tmp49_;
-		vala_ccode_writer_write_string (writer, _tmp50_);
-		_g_free0 (_tmp50_);
+		format_arg_index = _tmp33_;
+		_tmp34_ = g_strdup_printf (" G_GNUC_PRINTF(%d,%d)", format_arg_index, args_index + 1);
+		_tmp35_ = _tmp34_;
+		vala_ccode_writer_write_string (writer, _tmp35_);
+		_g_free0 (_tmp35_);
 	} else {
-		ValaCCodeModifiers _tmp51_;
-		ValaCCodeModifiers _tmp52_;
-		_tmp51_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
-		_tmp52_ = _tmp51_;
-		if ((_tmp52_ & VALA_CCODE_MODIFIERS_SCANF) == VALA_CCODE_MODIFIERS_SCANF) {
-			gint _tmp53_ = 0;
-			gint _tmp54_;
-			gint _tmp57_;
-			gint _tmp58_;
-			gchar* _tmp59_;
-			gchar* _tmp60_;
-			_tmp54_ = format_arg_index;
-			if (_tmp54_ >= 0) {
-				gint _tmp55_;
-				_tmp55_ = format_arg_index;
-				_tmp53_ = _tmp55_ + 1;
+		ValaCCodeModifiers _tmp36_;
+		ValaCCodeModifiers _tmp37_;
+		_tmp36_ = vala_ccode_node_get_modifiers ((ValaCCodeNode*) self);
+		_tmp37_ = _tmp36_;
+		if ((_tmp37_ & VALA_CCODE_MODIFIERS_SCANF) == VALA_CCODE_MODIFIERS_SCANF) {
+			gint _tmp38_ = 0;
+			gchar* _tmp39_;
+			gchar* _tmp40_;
+			if (format_arg_index >= 0) {
+				_tmp38_ = format_arg_index + 1;
 			} else {
-				gint _tmp56_;
-				_tmp56_ = args_index;
-				_tmp53_ = _tmp56_;
+				_tmp38_ = args_index;
 			}
-			format_arg_index = _tmp53_;
-			_tmp57_ = format_arg_index;
-			_tmp58_ = args_index;
-			_tmp59_ = g_strdup_printf (" G_GNUC_SCANF(%d,%d)", _tmp57_, _tmp58_ + 1);
-			_tmp60_ = _tmp59_;
-			vala_ccode_writer_write_string (writer, _tmp60_);
-			_g_free0 (_tmp60_);
+			format_arg_index = _tmp38_;
+			_tmp39_ = g_strdup_printf (" G_GNUC_SCANF(%d,%d)", format_arg_index, args_index + 1);
+			_tmp40_ = _tmp39_;
+			vala_ccode_writer_write_string (writer, _tmp40_);
+			_g_free0 (_tmp40_);
 		} else {
-			gint _tmp61_;
-			_tmp61_ = format_arg_index;
-			if (_tmp61_ >= 0) {
-				gint _tmp62_;
-				gchar* _tmp63_;
-				gchar* _tmp64_;
-				_tmp62_ = format_arg_index;
-				_tmp63_ = g_strdup_printf (" G_GNUC_FORMAT(%d)", _tmp62_ + 1);
-				_tmp64_ = _tmp63_;
-				vala_ccode_writer_write_string (writer, _tmp64_);
-				_g_free0 (_tmp64_);
+			if (format_arg_index >= 0) {
+				gchar* _tmp41_;
+				gchar* _tmp42_;
+				_tmp41_ = g_strdup_printf (" G_GNUC_FORMAT(%d)", format_arg_index + 1);
+				_tmp42_ = _tmp41_;
+				vala_ccode_writer_write_string (writer, _tmp42_);
+				_g_free0 (_tmp42_);
 			}
 		}
 	}
 }
 
-
-const gchar*
-vala_ccode_function_declarator_get_name (ValaCCodeFunctionDeclarator* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_function_declarator_set_name (ValaCCodeFunctionDeclarator* self,
-                                         const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
 static void
-vala_ccode_function_declarator_class_init (ValaCCodeFunctionDeclaratorClass * klass)
+vala_ccode_function_declarator_class_init (ValaCCodeFunctionDeclaratorClass * klass,
+                                           gpointer klass_data)
 {
 	vala_ccode_function_declarator_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_function_declarator_finalize;
@@ -377,9 +323,9 @@ vala_ccode_function_declarator_class_init (ValaCCodeFunctionDeclaratorClass * kl
 	((ValaCCodeNodeClass *) klass)->write_declaration = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_function_declarator_real_write_declaration;
 }
 
-
 static void
-vala_ccode_function_declarator_instance_init (ValaCCodeFunctionDeclarator * self)
+vala_ccode_function_declarator_instance_init (ValaCCodeFunctionDeclarator * self,
+                                              gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -388,7 +334,6 @@ vala_ccode_function_declarator_instance_init (ValaCCodeFunctionDeclarator * self
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_PARAMETER, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->parameters = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_function_declarator_finalize (ValaCCodeNode * obj)
@@ -400,23 +345,28 @@ vala_ccode_function_declarator_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_function_declarator_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a function pointer declarator in the C code.
  */
+static GType
+vala_ccode_function_declarator_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeFunctionDeclaratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_function_declarator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeFunctionDeclarator), 0, (GInstanceInitFunc) vala_ccode_function_declarator_instance_init, NULL };
+	GType vala_ccode_function_declarator_type_id;
+	vala_ccode_function_declarator_type_id = g_type_register_static (VALA_TYPE_CCODE_DECLARATOR, "ValaCCodeFunctionDeclarator", &g_define_type_info, 0);
+	ValaCCodeFunctionDeclarator_private_offset = g_type_add_instance_private (vala_ccode_function_declarator_type_id, sizeof (ValaCCodeFunctionDeclaratorPrivate));
+	return vala_ccode_function_declarator_type_id;
+}
+
 GType
 vala_ccode_function_declarator_get_type (void)
 {
 	static volatile gsize vala_ccode_function_declarator_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_function_declarator_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeFunctionDeclaratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_function_declarator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeFunctionDeclarator), 0, (GInstanceInitFunc) vala_ccode_function_declarator_instance_init, NULL };
 		GType vala_ccode_function_declarator_type_id;
-		vala_ccode_function_declarator_type_id = g_type_register_static (VALA_TYPE_CCODE_DECLARATOR, "ValaCCodeFunctionDeclarator", &g_define_type_info, 0);
-		ValaCCodeFunctionDeclarator_private_offset = g_type_add_instance_private (vala_ccode_function_declarator_type_id, sizeof (ValaCCodeFunctionDeclaratorPrivate));
+		vala_ccode_function_declarator_type_id = vala_ccode_function_declarator_get_type_once ();
 		g_once_init_leave (&vala_ccode_function_declarator_type_id__volatile, vala_ccode_function_declarator_type_id);
 	}
 	return vala_ccode_function_declarator_type_id__volatile;
 }
-
-
 

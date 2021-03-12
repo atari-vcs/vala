@@ -28,7 +28,7 @@ public class Vala.StatementList : CodeNode, Statement {
 		get { return list.size; }
 	}
 
-	public StatementList (SourceReference source_reference) {
+	public StatementList (SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 	}
 
@@ -46,6 +46,12 @@ public class Vala.StatementList : CodeNode, Statement {
 
 	public void insert (int index, Statement stmt) {
 		list.insert (index, stmt);
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		foreach (var stmt in list) {
+			stmt.get_error_types (collection, source_reference);
+		}
 	}
 
 	public override void accept (CodeVisitor visitor) {

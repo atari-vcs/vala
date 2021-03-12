@@ -108,34 +108,8 @@ public class Vala.BinaryExpression : Expression {
 		}
 	}
 
-	private unowned string get_operator_string () {
-		switch (_operator) {
-		case BinaryOperator.PLUS: return "+";
-		case BinaryOperator.MINUS: return "-";
-		case BinaryOperator.MUL: return "*";
-		case BinaryOperator.DIV: return "/";
-		case BinaryOperator.MOD: return "%";
-		case BinaryOperator.SHIFT_LEFT: return "<<";
-		case BinaryOperator.SHIFT_RIGHT: return ">>";
-		case BinaryOperator.LESS_THAN: return "<";
-		case BinaryOperator.GREATER_THAN: return ">";
-		case BinaryOperator.LESS_THAN_OR_EQUAL: return "<=";
-		case BinaryOperator.GREATER_THAN_OR_EQUAL: return ">=";
-		case BinaryOperator.EQUALITY: return "==";
-		case BinaryOperator.INEQUALITY: return "!=";
-		case BinaryOperator.BITWISE_AND: return "&";
-		case BinaryOperator.BITWISE_OR: return "|";
-		case BinaryOperator.BITWISE_XOR: return "^";
-		case BinaryOperator.AND: return "&&";
-		case BinaryOperator.OR: return "||";
-		case BinaryOperator.IN: return "in";
-		case BinaryOperator.COALESCE: return "??";
-		default: assert_not_reached ();
-		}
-	}
-
 	public override string to_string () {
-		return "(%s %s %s)".printf (_left.to_string (), get_operator_string (), _right.to_string ());
+		return "(%s %s %s)".printf (_left.to_string (), operator.to_string (), _right.to_string ());
 	}
 
 	public override bool is_constant () {
@@ -152,6 +126,11 @@ public class Vala.BinaryExpression : Expression {
 
 	public override bool is_accessible (Symbol sym) {
 		return left.is_accessible (sym) && right.is_accessible (sym);
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		left.get_error_types (collection, source_reference);
+		right.get_error_types (collection, source_reference);
 	}
 
 	public override bool check (CodeContext context) {
@@ -210,15 +189,31 @@ public class Vala.BinaryExpression : Expression {
 		}
 
 		if (operator == BinaryOperator.COALESCE) {
+			if (target_type != null) {
+				left.target_type = target_type.copy ();
+				right.target_type = target_type.copy ();
+			}
+
 			if (!left.check (context)) {
 				error = true;
 				return false;
 			}
 
-			if (!right.check (context)) {
+			string temp_name = get_temp_name ();
+
+			// right expression is checked under a block (required for short-circuiting)
+			var right_local = new LocalVariable (null, temp_name, right, right.source_reference);
+			var right_decl = new DeclarationStatement (right_local, right.source_reference);
+			var true_block = new Block (source_reference);
+			true_block.add_statement (right_decl);
+
+			if (!true_block.check (context)) {
 				error = true;
 				return false;
 			}
+
+			// right expression may have been replaced by the check
+			right = right_local.initializer;
 
 			DataType local_type = null;
 			bool cast_non_null = false;
@@ -250,26 +245,38 @@ public class Vala.BinaryExpression : Expression {
 				local_type = right.value_type.copy ();
 			}
 
-			var local = new LocalVariable (local_type, get_temp_name (), left, source_reference);
+			if (local_type != null && right.value_type is ValueType && !right.value_type.nullable) {
+				// immediate values in the right expression must always be boxed,
+				// otherwise the local variable may receive a stale pointer to the stack
+				local_type.value_owned = true;
+			}
+
+			var local = new LocalVariable (local_type, temp_name, left, source_reference);
 			var decl = new DeclarationStatement (local, source_reference);
 
-			var right_stmt = new ExpressionStatement (new Assignment (new MemberAccess.simple (local.name, right.source_reference), right, AssignmentOperator.SIMPLE, right.source_reference), right.source_reference);
-
-			var true_block = new Block (source_reference);
-
-			true_block.add_statement (right_stmt);
-
-			var cond = new BinaryExpression (BinaryOperator.EQUALITY, new MemberAccess.simple (local.name, left.source_reference), new NullLiteral (source_reference), source_reference);
-
-			var if_stmt = new IfStatement (cond, true_block, null, source_reference);
-
 			insert_statement (context.analyzer.insert_block, decl);
-			insert_statement (context.analyzer.insert_block, if_stmt);
 
 			if (!decl.check (context)) {
 				error = true;
 				return false;
 			}
+
+			// replace the temporary local variable used to compute the type of the right expression by an assignment
+			var right_stmt = new ExpressionStatement (new Assignment (new MemberAccess.simple (local.name, right.source_reference), right, AssignmentOperator.SIMPLE, right.source_reference), right.source_reference);
+
+			true_block.remove_local_variable (right_local);
+			true_block.replace_statement (right_decl, right_stmt);
+
+			if (!right_stmt.check (context)) {
+				error = true;
+				return false;
+			}
+
+			var cond = new BinaryExpression (BinaryOperator.EQUALITY, new MemberAccess.simple (local.name, left.source_reference), new NullLiteral (source_reference), source_reference);
+
+			var if_stmt = new IfStatement (cond, true_block, null, source_reference);
+
+			insert_statement (context.analyzer.insert_block, if_stmt);
 
 			if (!if_stmt.check (context)) {
 				error = true;
@@ -292,18 +299,23 @@ public class Vala.BinaryExpression : Expression {
 		}
 
 		// enum-type inference
-		if (target_type != null && target_type.data_type is Enum
+		if (target_type != null && target_type.type_symbol is Enum
 		    && (operator == BinaryOperator.BITWISE_AND || operator == BinaryOperator.BITWISE_OR)) {
 			left.target_type = target_type.copy ();
 			right.target_type = target_type.copy ();
+		} else if (operator == BinaryOperator.IN) {
+			right.check (context);
+			if (right.value_type.type_symbol is Enum) {
+				left.target_type = right.value_type.copy ();
+			}
 		}
 		left.check (context);
-		if (left.value_type != null && left.value_type.data_type is Enum
+		if (left.value_type != null && left.value_type.type_symbol is Enum
 		    && (operator == BinaryOperator.EQUALITY || operator == BinaryOperator.INEQUALITY)) {
 			right.target_type = left.value_type.copy ();
 		}
 		right.check (context);
-		if (right.value_type != null && right.value_type.data_type is Enum
+		if (right.value_type != null && right.value_type.type_symbol is Enum
 		    && (operator == BinaryOperator.EQUALITY || operator == BinaryOperator.INEQUALITY)) {
 			left.target_type = right.value_type.copy ();
 			//TODO bug 666035 -- re-check left how?
@@ -343,11 +355,11 @@ public class Vala.BinaryExpression : Expression {
 		right.target_type = right.value_type.copy ();
 		right.target_type.value_owned = false;
 
-		if (left.value_type.data_type == context.analyzer.string_type.data_type
-		    && operator == BinaryOperator.PLUS) {
+		if (operator == BinaryOperator.PLUS && !(left.value_type is PointerType)
+		    && left.value_type.compatible (context.analyzer.string_type)) {
 			// string concatenation
 
-			if (right.value_type == null || right.value_type.data_type != context.analyzer.string_type.data_type) {
+			if (right.value_type == null || !right.value_type.compatible (context.analyzer.string_type)) {
 				error = true;
 				Report.error (source_reference, "Operands must be strings");
 				return false;
@@ -359,11 +371,18 @@ public class Vala.BinaryExpression : Expression {
 			} else {
 				value_type.value_owned = true;
 			}
-		} else if (left.value_type is ArrayType && operator == BinaryOperator.PLUS) {
+
+			value_type.check (context);
+			return !error;
+		} else if (operator == BinaryOperator.PLUS && left.value_type is ArrayType) {
 			// array concatenation
 
-			var array_type = (ArrayType) left.value_type;
+			unowned ArrayType array_type = (ArrayType) left.value_type;
 
+			if (array_type.inline_allocated) {
+				error = true;
+				Report.error (source_reference, "Array concatenation not supported for fixed length arrays");
+			}
 			if (right.value_type == null || !right.value_type.compatible (array_type.element_type)) {
 				error = true;
 				Report.error (source_reference, "Incompatible operand");
@@ -374,20 +393,26 @@ public class Vala.BinaryExpression : Expression {
 
 			value_type = array_type.copy ();
 			value_type.value_owned = true;
-		} else if (operator == BinaryOperator.PLUS
-			   || operator == BinaryOperator.MINUS
-			   || operator == BinaryOperator.MUL
-			   || operator == BinaryOperator.DIV) {
+
+			value_type.check (context);
+			return !error;
+		}
+
+		switch (operator) {
+		case BinaryOperator.PLUS:
+		case BinaryOperator.MINUS:
+		case BinaryOperator.MUL:
+		case BinaryOperator.DIV:
 			// check for pointer arithmetic
 			if (left.value_type is PointerType) {
-				var pointer_type = (PointerType) left.value_type;
+				unowned PointerType pointer_type = (PointerType) left.value_type;
 				if (pointer_type.base_type is VoidType) {
 					error = true;
 					Report.error (source_reference, "Pointer arithmetic not supported for `void*'");
 					return false;
 				}
 
-				var offset_type = right.value_type.data_type as Struct;
+				unowned Struct? offset_type = right.value_type.type_symbol as Struct;
 				if (offset_type != null && offset_type.is_integer_type ()) {
 					if (operator == BinaryOperator.PLUS
 					    || operator == BinaryOperator.MINUS) {
@@ -412,9 +437,10 @@ public class Vala.BinaryExpression : Expression {
 				Report.error (source_reference, "Arithmetic operation not supported for types `%s' and `%s'".printf (left.value_type.to_string (), right.value_type.to_string ()));
 				return false;
 			}
-		} else if (operator == BinaryOperator.MOD
-			   || operator == BinaryOperator.SHIFT_LEFT
-			   || operator == BinaryOperator.SHIFT_RIGHT) {
+			break;
+		case BinaryOperator.MOD:
+		case BinaryOperator.SHIFT_LEFT:
+		case BinaryOperator.SHIFT_RIGHT:
 			left.target_type.nullable = false;
 			right.target_type.nullable = false;
 
@@ -425,15 +451,16 @@ public class Vala.BinaryExpression : Expression {
 				Report.error (source_reference, "Arithmetic operation not supported for types `%s' and `%s'".printf (left.value_type.to_string (), right.value_type.to_string ()));
 				return false;
 			}
-		} else if (operator == BinaryOperator.LESS_THAN
-			   || operator == BinaryOperator.GREATER_THAN
-			   || operator == BinaryOperator.LESS_THAN_OR_EQUAL
-			   || operator == BinaryOperator.GREATER_THAN_OR_EQUAL) {
+			break;
+		case BinaryOperator.LESS_THAN:
+		case BinaryOperator.GREATER_THAN:
+		case BinaryOperator.LESS_THAN_OR_EQUAL:
+		case BinaryOperator.GREATER_THAN_OR_EQUAL:
 			if (left.value_type.compatible (context.analyzer.string_type)
 			    && right.value_type.compatible (context.analyzer.string_type)) {
 				// string comparison
-				} else if (left.value_type is PointerType && right.value_type is PointerType) {
-					// pointer arithmetic
+			} else if (left.value_type is PointerType && right.value_type is PointerType) {
+				// pointer arithmetic
 			} else {
 				DataType resulting_type;
 
@@ -459,9 +486,32 @@ public class Vala.BinaryExpression : Expression {
 			}
 
 			value_type = context.analyzer.bool_type;
-		} else if (operator == BinaryOperator.EQUALITY
-			   || operator == BinaryOperator.INEQUALITY) {
+			break;
+		case BinaryOperator.EQUALITY:
+		case BinaryOperator.INEQUALITY:
 			/* relational operation */
+
+			if (context.profile == Profile.GOBJECT) {
+				// Implicit cast for comparison expression of GValue with other type
+				var gvalue_type = context.analyzer.gvalue_type.type_symbol;
+				if ((left.target_type.type_symbol == gvalue_type && right.target_type.type_symbol != gvalue_type)
+					|| (left.target_type.type_symbol != gvalue_type && right.target_type.type_symbol == gvalue_type)) {
+					Expression gvalue_expr;
+					DataType target_type;
+					if (left.target_type.type_symbol == gvalue_type) {
+						gvalue_expr = left;
+						target_type = right.target_type;
+					} else {
+						gvalue_expr = right;
+						target_type = left.target_type;
+					}
+
+					var cast_expr = new CastExpression (gvalue_expr, target_type, gvalue_expr.source_reference);
+					replace_expression (gvalue_expr, cast_expr);
+					checked = false;
+					return check (context);
+				}
+			}
 
 			if (!right.value_type.compatible (left.value_type)
 			    && !left.value_type.compatible (right.value_type)) {
@@ -490,16 +540,24 @@ public class Vala.BinaryExpression : Expression {
 			}
 
 			value_type = context.analyzer.bool_type;
-		} else if (operator == BinaryOperator.BITWISE_AND
-			   || operator == BinaryOperator.BITWISE_OR
-			   || operator == BinaryOperator.BITWISE_XOR) {
+			break;
+		case BinaryOperator.BITWISE_AND:
+		case BinaryOperator.BITWISE_OR:
+		case BinaryOperator.BITWISE_XOR:
 			// integer type or flags type
 			left.target_type.nullable = false;
 			right.target_type.nullable = false;
 
-			value_type = left.target_type.copy ();
-		} else if (operator == BinaryOperator.AND
-			   || operator == BinaryOperator.OR) {
+			// Don't falsely resolve to bool
+			if (left.value_type.compatible (context.analyzer.bool_type)
+			    && !right.value_type.compatible (context.analyzer.bool_type)) {
+				value_type = right.target_type.copy ();
+			} else {
+				value_type = left.target_type.copy ();
+			}
+			break;
+		case BinaryOperator.AND:
+		case BinaryOperator.OR:
 			if (!left.value_type.compatible (context.analyzer.bool_type) || !right.value_type.compatible (context.analyzer.bool_type)) {
 				error = true;
 				Report.error (source_reference, "Operands must be boolean");
@@ -508,7 +566,8 @@ public class Vala.BinaryExpression : Expression {
 			right.target_type.nullable = false;
 
 			value_type = context.analyzer.bool_type;
-		} else if (operator == BinaryOperator.IN) {
+			break;
+		case BinaryOperator.IN:
 			if (left.value_type.compatible (context.analyzer.int_type)
 			    && right.value_type.compatible (context.analyzer.int_type)) {
 				// integers or enums
@@ -516,6 +575,7 @@ public class Vala.BinaryExpression : Expression {
 				right.target_type.nullable = false;
 			} else if (right.value_type is ArrayType) {
 				if (!left.value_type.compatible (((ArrayType) right.value_type).element_type)) {
+					error = true;
 					Report.error (source_reference, "Cannot look for `%s' in `%s'".printf (left.value_type.to_string (), right.value_type.to_string ()));
 				}
 			} else {
@@ -544,10 +604,14 @@ public class Vala.BinaryExpression : Expression {
 			}
 
 			value_type = context.analyzer.bool_type;
-
-		} else {
-			assert_not_reached ();
+			break;
+		default:
+			error = true;
+			Report.error (source_reference, "internal error: unsupported binary operator");
+			return false;
 		}
+
+		value_type.check (context);
 
 		return !error;
 	}
@@ -593,5 +657,31 @@ public enum Vala.BinaryOperator {
 	AND,
 	OR,
 	IN,
-	COALESCE
+	COALESCE;
+
+	public unowned string to_string () {
+		switch (this) {
+		case PLUS: return "+";
+		case MINUS: return "-";
+		case MUL: return "*";
+		case DIV: return "/";
+		case MOD: return "%";
+		case SHIFT_LEFT: return "<<";
+		case SHIFT_RIGHT: return ">>";
+		case LESS_THAN: return "<";
+		case GREATER_THAN: return ">";
+		case LESS_THAN_OR_EQUAL: return "<=";
+		case GREATER_THAN_OR_EQUAL: return ">=";
+		case EQUALITY: return "==";
+		case INEQUALITY: return "!=";
+		case BITWISE_AND: return "&";
+		case BITWISE_OR: return "|";
+		case BITWISE_XOR: return "^";
+		case AND: return "&&";
+		case OR: return "||";
+		case IN: return "in";
+		case COALESCE: return "??";
+		default: assert_not_reached ();
+		}
+	}
 }

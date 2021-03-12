@@ -23,17 +23,13 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-
-
-
+static GType valadoc_parser_callback_get_type_once (void);
 
 GObject*
 valadoc_parser_callback_get_rule_state (ValadocParserCallback* self)
@@ -41,7 +37,6 @@ valadoc_parser_callback_get_rule_state (ValadocParserCallback* self)
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->get_rule_state (self);
 }
-
 
 void
 valadoc_parser_callback_set_rule_state (ValadocParserCallback* self,
@@ -51,7 +46,6 @@ valadoc_parser_callback_set_rule_state (ValadocParserCallback* self,
 	VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->set_rule_state (self, state);
 }
 
-
 void
 valadoc_parser_callback_push_rule (ValadocParserCallback* self,
                                    ValadocRule* rule)
@@ -60,14 +54,12 @@ valadoc_parser_callback_push_rule (ValadocParserCallback* self,
 	VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->push_rule (self, rule);
 }
 
-
 void
 valadoc_parser_callback_reduce (ValadocParserCallback* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->reduce (self);
 }
-
 
 gboolean
 valadoc_parser_callback_would_parent_accept_token (ValadocParserCallback* self,
@@ -76,7 +68,6 @@ valadoc_parser_callback_would_parent_accept_token (ValadocParserCallback* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->would_parent_accept_token (self, token);
 }
-
 
 gboolean
 valadoc_parser_callback_would_parent_reduce_to_rule (ValadocParserCallback* self,
@@ -87,7 +78,6 @@ valadoc_parser_callback_would_parent_reduce_to_rule (ValadocParserCallback* self
 	return VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->would_parent_reduce_to_rule (self, token, rule);
 }
 
-
 void
 valadoc_parser_callback_warning (ValadocParserCallback* self,
                                  ValadocToken* token,
@@ -96,7 +86,6 @@ valadoc_parser_callback_warning (ValadocParserCallback* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->warning (self, token, message);
 }
-
 
 void
 valadoc_parser_callback_error (ValadocParserCallback* self,
@@ -108,25 +97,30 @@ valadoc_parser_callback_error (ValadocParserCallback* self,
 	VALADOC_PARSER_CALLBACK_GET_INTERFACE (self)->error (self, token, message, error);
 }
 
-
 static void
-valadoc_parser_callback_default_init (ValadocParserCallbackIface * iface)
+valadoc_parser_callback_default_init (ValadocParserCallbackIface * iface,
+                                      gpointer iface_data)
 {
 }
 
+static GType
+valadoc_parser_callback_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocParserCallbackIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_parser_callback_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_parser_callback_type_id;
+	valadoc_parser_callback_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocParserCallback", &g_define_type_info, 0);
+	return valadoc_parser_callback_type_id;
+}
 
 GType
 valadoc_parser_callback_get_type (void)
 {
 	static volatile gsize valadoc_parser_callback_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_parser_callback_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocParserCallbackIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_parser_callback_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_parser_callback_type_id;
-		valadoc_parser_callback_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocParserCallback", &g_define_type_info, 0);
+		valadoc_parser_callback_type_id = valadoc_parser_callback_get_type_once ();
 		g_once_init_leave (&valadoc_parser_callback_type_id__volatile, valadoc_parser_callback_type_id);
 	}
 	return valadoc_parser_callback_type_id__volatile;
 }
-
-
 

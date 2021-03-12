@@ -35,14 +35,15 @@ public class Vala.UsedAttr : CodeVisitor {
 		"has_type_id", "instance_pos", "const_cname", "take_value_function", "copy_function", "free_function",
 		"param_spec_function", "has_target", "has_typedef", "type_cname", "ref_function", "ref_function_void", "unref_function", "type",
 		"has_construct_function", "returns_floating_reference", "gir_namespace", "gir_version", "construct_function",
-		"lower_case_cprefix", "simple_generics", "sentinel", "scope", "has_destroy_function", "ordering", "type_check_function",
+		"lower_case_cprefix", "simple_generics", "sentinel", "scope", "has_destroy_function", "ordering", "type_check_function", "type_get_function",
 		"has_copy_function", "lower_case_csuffix", "ref_sink_function", "dup_function", "finish_function", "generic_type_pos",
 		"array_length_type", "array_length", "array_length_cname", "array_length_cexpr", "array_null_terminated",
 		"vfunc_name", "finish_vfunc_name", "finish_name", "free_function_address_of", "pos", "delegate_target", "delegate_target_cname",
 		"array_length_pos", "delegate_target_pos", "destroy_notify_pos", "ctype", "has_new_function", "notify", "finish_instance",
-		"use_inplace", "feature_test_macro", "default_value_on_error", "async_result_pos", "",
+		"use_inplace", "feature_test_macro", "default_value_on_error", "async_result_pos", "error_pos", "destroy_notify_cname", "",
 
 		"Immutable", "",
+		"SingleInstance", "",
 		"Compact", "",
 		"NoWrapper", "",
 		"NoThrow", "",
@@ -74,6 +75,8 @@ public class Vala.UsedAttr : CodeVisitor {
 		"PrintfFormat", "",
 		"ScanfFormat", "",
 		"FormatArg", "",
+
+		"Source", "filename", "line", "column", "",
 
 		"GtkChild", "name", "internal", "",
 		"GtkTemplate", "ui", "",

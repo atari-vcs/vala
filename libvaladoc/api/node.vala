@@ -1,7 +1,7 @@
 /* node.vala
  *
  * Copyright (C) 2008-2009 Florian Brosch, Didier Villevalois
- * Copyright (C) 20011 Florian Brosch
+ * Copyright (C) 2011 Florian Brosch
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,7 +25,7 @@
 /**
  * Represents a node in the api tree.
  */
-public abstract class Valadoc.Api.Node : Item, Browsable, Documentation {
+public abstract class Valadoc.Api.Node : Item, Documentation {
 	protected bool do_document = false;
 	private SourceFile file;
 
@@ -50,7 +50,7 @@ public abstract class Valadoc.Api.Node : Item, Browsable, Documentation {
 	private Vala.Map<NodeType, Vala.List<Node>> per_type_children;
 
 
-	public Node (Node? parent, SourceFile? file, string? name, Vala.CodeNode? data) {
+	protected Node (Node? parent, SourceFile? file, string? name, Vala.CodeNode? data) {
 		base (data);
 
 		per_name_children = new Vala.HashMap<string, Node> (str_hash, str_equal);
@@ -118,6 +118,9 @@ public abstract class Valadoc.Api.Node : Item, Browsable, Documentation {
 		do_document = true;
 
 		foreach (Node node in per_name_children.get_values ()) {
+			if (this.parent == node) {
+				continue;
+			}
 			if (node.is_browsable (settings)) {
 				node.parse_comments (settings, parser);
 			}
@@ -130,6 +133,9 @@ public abstract class Valadoc.Api.Node : Item, Browsable, Documentation {
 	internal override void check_comments (Settings settings, DocumentationParser parser) {
 
 		foreach (Node node in per_name_children.get_values ()) {
+			if (this.parent == node) {
+				continue;
+			}
 			if (node.is_browsable (settings)) {
 				node.check_comments (settings, parser);
 			}
@@ -277,6 +283,9 @@ public abstract class Valadoc.Api.Node : Item, Browsable, Documentation {
 	 */
 	public void accept_all_children (Visitor visitor, bool filtered = true) {
 		foreach (Vala.List<Node> children in per_type_children.get_values ()) {
+			if (this.parent == children[0]) {
+				continue;
+			}
 			foreach (Node node in children) {
 				if (node.do_document || !filtered) {
 					node.accept (visitor);

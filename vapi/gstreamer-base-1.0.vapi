@@ -14,6 +14,7 @@ namespace Gst {
 			public void copy ([CCode (array_length_cname = "size", array_length_pos = 2.1, array_length_type = "gsize")] out unowned uint8[] dest, size_t offset);
 			[Version (since = "1.4")]
 			public GLib.Bytes copy_bytes (size_t offset, size_t size);
+			[Version (since = "1.10")]
 			public uint64 distance_from_discont ();
 			[Version (since = "1.10")]
 			public Gst.ClockTime dts_at_discont ();
@@ -67,6 +68,8 @@ namespace Gst {
 			[NoWrapper]
 			public virtual bool decide_allocation (Gst.Query query);
 			public virtual Gst.FlowReturn finish_buffer (owned Gst.Buffer buffer);
+			[Version (since = "1.18")]
+			public virtual Gst.FlowReturn finish_buffer_list (owned Gst.BufferList bufferlist);
 			[NoWrapper]
 			public virtual Gst.Caps fixate_src_caps (Gst.Caps caps);
 			[NoWrapper]
@@ -76,10 +79,16 @@ namespace Gst {
 			public Gst.ClockTime get_latency ();
 			[NoWrapper]
 			public virtual Gst.ClockTime get_next_time ();
+			[Version (since = "1.18")]
+			public virtual bool negotiate ();
 			[NoWrapper]
 			public virtual bool negotiated_src_caps (Gst.Caps caps);
+			[Version (since = "1.18")]
+			public virtual Gst.Sample peek_next_sample (Gst.Base.AggregatorPad aggregator_pad);
 			[NoWrapper]
 			public virtual bool propose_allocation (Gst.Base.AggregatorPad pad, Gst.Query decide_query, Gst.Query query);
+			[Version (since = "1.18")]
+			public void selected_samples (Gst.ClockTime pts, Gst.ClockTime dts, Gst.ClockTime duration, Gst.Structure? info);
 			public void set_latency (Gst.ClockTime min_latency, Gst.ClockTime max_latency);
 			public void set_src_caps (Gst.Caps caps);
 			[Version (since = "1.16")]
@@ -87,7 +96,11 @@ namespace Gst {
 			[NoWrapper]
 			public virtual bool sink_event (Gst.Base.AggregatorPad aggregator_pad, Gst.Event event);
 			[NoWrapper]
+			public virtual Gst.FlowReturn sink_event_pre_queue (Gst.Base.AggregatorPad aggregator_pad, Gst.Event event);
+			[NoWrapper]
 			public virtual bool sink_query (Gst.Base.AggregatorPad aggregator_pad, Gst.Query query);
+			[NoWrapper]
+			public virtual bool sink_query_pre_queue (Gst.Base.AggregatorPad aggregator_pad, Gst.Query query);
 			[NoWrapper]
 			public virtual bool src_activate (Gst.PadMode mode, bool active);
 			[NoWrapper]
@@ -98,8 +111,13 @@ namespace Gst {
 			public virtual bool start ();
 			[NoWrapper]
 			public virtual bool stop ();
+			[Version (since = "1.18")]
+			public void update_segment (Gst.Segment segment);
 			[NoWrapper]
 			public virtual Gst.FlowReturn update_src_caps (Gst.Caps caps, out Gst.Caps ret);
+			[NoAccessorMethod]
+			[Version (since = "1.18")]
+			public bool emit_signals { get; set; }
 			[NoAccessorMethod]
 			public uint64 latency { get; set; }
 			[NoAccessorMethod]
@@ -107,6 +125,10 @@ namespace Gst {
 			public uint64 min_upstream_latency { get; set; }
 			[NoAccessorMethod]
 			public uint64 start_time { get; set; }
+			[NoAccessorMethod]
+			public Gst.Base.AggregatorStartTimeSelection start_time_selection { get; set; }
+			[Version (since = "1.18")]
+			public signal void samples_selected (Gst.Segment segment, uint64 pts, uint64 dts, uint64 duration, Gst.Structure? info);
 		}
 		[CCode (cheader_filename = "gst/base/base.h", cname = "GstAggregatorPad", lower_case_cprefix = "gst_aggregator_pad_", type_id = "gst_aggregator_pad_get_type ()")]
 		[GIR (name = "AggregatorPad")]
@@ -125,6 +147,10 @@ namespace Gst {
 			public Gst.Buffer pop_buffer ();
 			[NoWrapper]
 			public virtual bool skip_buffer (Gst.Base.Aggregator aggregator, Gst.Buffer buffer);
+			[NoAccessorMethod]
+			[Version (since = "1.16")]
+			public bool emit_signals { get; set; }
+			public signal void buffer_consumed (Gst.Buffer object);
 		}
 		[CCode (cheader_filename = "gst/base/gstadapter.h,gst/base/gstbaseparse.h,gst/base/gstbasesink.h,gst/base/gstbasesrc.h,gst/base/gstbasetransform.h,gst/base/gstbitreader.h,gst/base/gstbytereader.h,gst/base/gstbytewriter.h,gst/base/gstcollectpads.h,gst/base/gstpushsrc.h,gst/base/gsttypefindhelper.h", cname = "GstBitReader", has_type_id = false)]
 		[Compact]
@@ -137,6 +163,7 @@ namespace Gst {
 			public uint size;
 			public BitReader ([CCode (array_length_type = "guint")] uint8[] data);
 			[CCode (cname = "gst_bit_reader_free")]
+			[DestroysInstance]
 			public void free ();
 			[CCode (cname = "gst_bit_reader_get_bits_uint16")]
 			public bool get_bits_uint16 (out uint16 val, uint nbits);
@@ -187,6 +214,7 @@ namespace Gst {
 			[CCode (cname = "gst_byte_reader_dup_string_utf8")]
 			public bool dup_string_utf8 ([CCode (array_length = false, array_null_terminated = true)] out string[] str);
 			[CCode (cname = "gst_byte_reader_free")]
+			[DestroysInstance]
 			public void free ();
 			[CCode (cname = "gst_byte_reader_get_data")]
 			public bool get_data ([CCode (array_length_cname = "size", array_length_pos = 0.5, array_length_type = "guint")] out unowned uint8[] val);
@@ -322,10 +350,13 @@ namespace Gst {
 			[CCode (cname = "gst_byte_writer_fill")]
 			public bool fill (uint8 value, uint size);
 			[CCode (cname = "gst_byte_writer_free")]
+			[DestroysInstance]
 			public void free ();
 			[CCode (cname = "gst_byte_writer_free_and_get_buffer")]
+			[DestroysInstance]
 			public Gst.Buffer free_and_get_buffer ();
 			[CCode (cname = "gst_byte_writer_free_and_get_data")]
+			[DestroysInstance]
 			public uint8 free_and_get_data ();
 			[CCode (cname = "gst_byte_writer_get_remaining")]
 			public uint get_remaining ();
@@ -535,6 +566,7 @@ namespace Gst {
 			public int overhead;
 			[CCode (has_construct_function = false)]
 			public ParseFrame (Gst.Buffer buffer, Gst.Base.ParseFrameFlags flags, int overhead);
+			[Version (since = "1.12.1")]
 			public Gst.Base.ParseFrame copy ();
 			public void free ();
 			public void init ();
@@ -589,6 +621,8 @@ namespace Gst {
 			[Version (since = "1.16")]
 			public Gst.ClockTime get_processing_deadline ();
 			public Gst.ClockTime get_render_delay ();
+			[Version (since = "1.18")]
+			public Gst.Structure get_stats ();
 			public bool get_sync ();
 			public uint64 get_throttle_time ();
 			[NoWrapper]
@@ -656,6 +690,8 @@ namespace Gst {
 			[NoAccessorMethod]
 			public bool qos { get; set; }
 			public uint64 render_delay { get; set; }
+			[Version (since = "1.18")]
+			public Gst.Structure stats { owned get; }
 			public bool sync { get; set; }
 			public uint64 throttle_time { get; set; }
 			public int64 ts_offset { get; set; }
@@ -695,7 +731,7 @@ namespace Gst {
 			public uint get_blocksize ();
 			public Gst.BufferPool get_buffer_pool ();
 			[NoWrapper]
-			public virtual Gst.Caps get_caps (Gst.Caps filter);
+			public virtual Gst.Caps get_caps (Gst.Caps? filter);
 			public bool get_do_timestamp ();
 			[NoWrapper]
 			public virtual bool get_size (uint64 size);
@@ -704,9 +740,12 @@ namespace Gst {
 			public bool is_async ();
 			[NoWrapper]
 			public virtual bool is_seekable ();
-			[NoWrapper]
+			[Version (since = "1.18")]
 			public virtual bool negotiate ();
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public bool new_seamless_segment (int64 start, int64 stop, int64 time);
+			[Version (since = "1.18")]
+			public bool new_segment (Gst.Segment segment);
 			[NoWrapper]
 			public virtual bool prepare_seek_segment (Gst.Event seek, Gst.Segment segment);
 			[NoWrapper]
@@ -778,6 +817,8 @@ namespace Gst {
 			public virtual bool propose_allocation (Gst.Query decide_query, Gst.Query query);
 			[NoWrapper]
 			public virtual bool query (Gst.PadDirection direction, Gst.Query query);
+			[Version (since = "1.18")]
+			public bool reconfigure ();
 			public void reconfigure_sink ();
 			public void reconfigure_src ();
 			[NoWrapper]
@@ -816,16 +857,20 @@ namespace Gst {
 		}
 		[CCode (cheader_filename = "gst/base/base.h", cname = "GstBitWriter", has_type_id = false)]
 		[GIR (name = "BitWriter")]
+		[Version (since = "1.16")]
 		public struct BitWriter {
 			public uint8 data;
 			public uint bit_size;
 			[CCode (cname = "gst_bit_writer_align_bytes")]
 			public bool align_bytes (uint8 trailing_bit);
 			[CCode (cname = "gst_bit_writer_free")]
+			[DestroysInstance]
 			public void free ();
 			[CCode (cname = "gst_bit_writer_free_and_get_buffer")]
+			[DestroysInstance]
 			public Gst.Buffer free_and_get_buffer ();
 			[CCode (array_length = false, cname = "gst_bit_writer_free_and_get_data")]
+			[DestroysInstance]
 			public uint8[] free_and_get_data ();
 			[CCode (cname = "gst_bit_writer_get_data")]
 			public uint8 get_data ();
@@ -833,12 +878,6 @@ namespace Gst {
 			public uint get_remaining ();
 			[CCode (cname = "gst_bit_writer_get_size")]
 			public uint get_size ();
-			[CCode (cname = "gst_bit_writer_init")]
-			public void init ();
-			[CCode (cname = "gst_bit_writer_init_with_data")]
-			public void init_with_data ([CCode (array_length_cname = "size", array_length_pos = 1.5, array_length_type = "guint")] uint8[] data, bool initialized);
-			[CCode (cname = "gst_bit_writer_init_with_size")]
-			public void init_with_size (uint32 size, bool fixed);
 			[CCode (cname = "gst_bit_writer_put_bits_uint16")]
 			public bool put_bits_uint16 (uint16 value, uint nbits);
 			[CCode (cname = "gst_bit_writer_put_bits_uint32")]
@@ -868,6 +907,14 @@ namespace Gst {
 			public weak Gst.Segment segment;
 			[CCode (cname = "ABI.abi.dts")]
 			public int64 ABI_abi_dts;
+		}
+		[CCode (cheader_filename = "gst/base/base.h", cname = "GstAggregatorStartTimeSelection", cprefix = "GST_AGGREGATOR_START_TIME_SELECTION_", type_id = "gst_aggregator_start_time_selection_get_type ()")]
+		[GIR (name = "AggregatorStartTimeSelection")]
+		[Version (since = "1.18")]
+		public enum AggregatorStartTimeSelection {
+			ZERO,
+			FIRST,
+			SET
 		}
 		[CCode (cheader_filename = "gst/base/base.h", cname = "GstCollectPadsStateFlags", cprefix = "GST_COLLECT_PADS_STATE_", has_type_id = false)]
 		[Flags]

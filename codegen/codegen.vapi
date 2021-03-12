@@ -4,6 +4,8 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class CCodeArrayModule : Vala.CCodeMethodCallModule {
 		public CCodeArrayModule ();
+		public override void append_params_array (Vala.Method m);
+		public override string? append_struct_array_destroy (Vala.Struct st);
 		public override string? append_struct_array_free (Vala.Struct st);
 		public override void append_vala_array_free ();
 		public override void append_vala_array_length ();
@@ -16,7 +18,7 @@ namespace Vala {
 		public override Vala.CCodeExpression get_array_length_cvalue (Vala.TargetValue value, int dim = -1);
 		public override string get_array_size_cname (string array_cname);
 		public override Vala.CCodeExpression? get_dup_func_expression (Vala.DataType type, Vala.SourceReference? source_reference, bool is_chainup);
-		public override string get_parameter_array_length_cname (Vala.Parameter param, int dim);
+		public override string get_variable_array_length_cname (Vala.Variable variable, int dim);
 		public override void visit_array_creation_expression (Vala.ArrayCreationExpression expr);
 		public override void visit_assignment (Vala.Assignment assignment);
 		public override void visit_element_access (Vala.ElementAccess expr);
@@ -37,14 +39,15 @@ namespace Vala {
 		public bool array_length { get; }
 		public string? array_length_expr { get; private set; }
 		public string? array_length_name { get; private set; }
-		public string? array_length_type { get; private set; }
+		public string array_length_type { get; }
 		public bool array_null_terminated { get; }
 		public string const_name { get; }
 		public string copy_function { get; }
 		public string ctype { get; }
 		public string default_value { get; }
 		public string default_value_on_error { get; }
-		public bool delegate_target { get; private set; }
+		public bool delegate_target { get; }
+		public string delegate_target_destroy_notify_name { get; }
 		public string delegate_target_name { get; }
 		public string destroy_function { get; }
 		public string dup_function { get; }
@@ -68,7 +71,7 @@ namespace Vala {
 		public string ref_function { get; }
 		public bool ref_function_void { get; }
 		public string ref_sink_function { get; }
-		public string sentinel { get; private set; }
+		public string sentinel { get; }
 		public string set_value_function { get; }
 		public string take_value_function { get; }
 		public string type_id { get; }
@@ -84,12 +87,16 @@ namespace Vala {
 			public Vala.Map<Vala.LocalVariable,int> closure_variable_clash_map;
 			public Vala.Map<string,int> closure_variable_count_map;
 			public Vala.CatchClause current_catch;
+			public int current_inner_error_id;
 			public bool current_method_inner_error;
 			public bool current_method_return;
 			public Vala.Symbol? current_symbol;
 			public Vala.TryStatement current_try;
+			public int current_try_id;
+			public bool is_in_method_precondition;
 			public int next_coroutine_state;
 			public int next_temp_var_id;
+			public int next_try_id;
 			public Vala.ArrayList<Vala.Symbol> symbol_stack;
 			public Vala.ArrayList<Vala.TargetValue> temp_ref_values;
 			public Vala.Map<string,string> variable_name_map;
@@ -108,13 +115,14 @@ namespace Vala {
 		public Vala.CCodeStruct closure_struct;
 		public Vala.CCodeLineDirective? current_line;
 		public Vala.TypeSymbol dbus_proxy_type;
+		public Vala.DelegateType delegate_target_destroy_type;
+		public Vala.DataType delegate_target_type;
 		public Vala.DataType double_type;
 		public Vala.CCodeBaseModule.EmitContext emit_context;
 		public Vala.DataType float_type;
 		public Vala.TypeSymbol garray_type;
 		public Vala.TypeSymbol gbytearray_type;
 		public Vala.Struct gcond_type;
-		public Vala.DataType gdestroynotify_type;
 		public Vala.ErrorType gerror_type;
 		public Vala.Class glist_type;
 		public Vala.Struct gmutex_type;
@@ -133,7 +141,6 @@ namespace Vala {
 		public Vala.TypeSymbol gtype_type;
 		public Vala.Struct gvalue_type;
 		public Vala.Class gvaluearray_type;
-		public bool gvaluecollector_h_needed;
 		public Vala.Class gvariant_type;
 		public Vala.CCodeFile header_file;
 		public bool in_plugin;
@@ -150,17 +157,21 @@ namespace Vala {
 		public Vala.Struct mutex_type;
 		public int next_regex_id;
 		public Vala.CCodeStruct param_spec_struct;
+		public Vala.DataType pointer_type;
 		public Vala.Set<string> predefined_marshal_set;
 		public Vala.CCodeEnum prop_enum;
 		public Vala.DataType regex_type;
 		public bool requires_array_free;
 		public bool requires_array_length;
 		public bool requires_array_move;
+		public bool requires_array_n_elements;
 		public bool requires_assert;
 		public bool requires_clear_mutex;
+		public static Vala.Set<string> reserved_identifiers;
 		public Vala.Symbol root_symbol;
 		public Vala.DataType short_type;
 		public Vala.CCodeEnum signal_enum;
+		public Vala.DataType size_t_type;
 		public Vala.DataType string_type;
 		public Vala.TypeSymbol type_module_type;
 		public Vala.DataType uchar_type;
@@ -175,27 +186,29 @@ namespace Vala {
 		public Vala.DataType ushort_type;
 		public Vala.DataType void_type;
 		public Vala.Set<string> wrappers;
-		public CCodeBaseModule ();
+		protected CCodeBaseModule ();
 		public bool add_generated_external_symbol (Vala.Symbol external_symbol);
 		public void add_generic_type_arguments (Vala.Map<int,Vala.CCodeExpression> arg_map, Vala.List<Vala.DataType> type_args, Vala.CodeNode expr, bool is_chainup = false, Vala.List<Vala.TypeParameter>? type_parameters = null);
 		public virtual void add_simple_check (Vala.CodeNode node, bool always_fails = false);
 		public bool add_symbol_declaration (Vala.CCodeFile decl_space, Vala.Symbol sym, string name);
 		public bool add_wrapper (string wrapper_name);
-		public void append_array_length (Vala.Expression expr, Vala.CCodeExpression size);
-		public void append_local_free (Vala.Symbol sym, bool stop_at_loop = false, Vala.CodeNode? stop_at = null);
+		public void append_field (Vala.CCodeStruct ccode_struct, Vala.Field f, Vala.CCodeFile decl_space);
+		public void append_local_free (Vala.Symbol sym, Vala.Statement? jump_stmt = null, Vala.CodeNode? stop_at = null);
+		public void append_out_param_free (Vala.Method? m);
+		public virtual void append_params_array (Vala.Method m);
 		protected virtual void append_scope_free (Vala.Symbol sym, Vala.CodeNode? stop_at = null);
+		public virtual string? append_struct_array_destroy (Vala.Struct st);
 		public virtual string? append_struct_array_free (Vala.Struct st);
 		public virtual void append_vala_array_free ();
 		public virtual void append_vala_array_length ();
 		public virtual void append_vala_array_move ();
 		public void append_vala_clear_mutex (string typename, string funcprefix);
-		public void check_type (Vala.DataType type);
-		public void check_type_arguments (Vala.MemberAccess access);
 		public Vala.CCodeExpression convert_from_generic_pointer (Vala.CCodeExpression cexpr, Vala.DataType actual_type);
 		public Vala.CCodeExpression convert_to_generic_pointer (Vala.CCodeExpression cexpr, Vala.DataType actual_type);
 		public virtual Vala.TargetValue? copy_value (Vala.TargetValue value, Vala.CodeNode node);
 		public void create_postcondition_statement (Vala.Expression postcondition);
 		public Vala.TargetValue create_temp_value (Vala.DataType type, bool init, Vala.CodeNode node_reference, bool? value_owned = null);
+		public Vala.CCodeExpression? create_type_check (Vala.CCodeNode ccodenode, Vala.DataType type);
 		public virtual void create_type_check_statement (Vala.CodeNode method_node, Vala.DataType ret_type, Vala.TypeSymbol t, bool non_null, string var_name);
 		public Vala.CCodeExpression? default_value_for_type (Vala.DataType type, bool initializer_expression, bool on_error = false);
 		public virtual Vala.CCodeExpression? deserialize_expression (Vala.DataType type, Vala.CCodeExpression variant_expr, Vala.CCodeExpression? expr, Vala.CCodeExpression? error_expr = null, out bool may_fail = null);
@@ -220,31 +233,24 @@ namespace Vala {
 		protected string generate_free_function_address_of_wrapper (Vala.DataType type);
 		public Vala.CCodeFunctionCall generate_instance_cast (Vala.CCodeExpression expr, Vala.TypeSymbol type);
 		public virtual void generate_interface_declaration (Vala.Interface iface, Vala.CCodeFile decl_space);
-		public virtual void generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
+		public virtual bool generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
 		public void generate_property_accessor_declaration (Vala.PropertyAccessor acc, Vala.CCodeFile decl_space);
 		public virtual string generate_ready_function (Vala.Method m);
 		public virtual void generate_struct_declaration (Vala.Struct st, Vala.CCodeFile decl_space);
 		public void generate_type_declaration (Vala.DataType type, Vala.CCodeFile decl_space);
-		public Vala.CCodeExpression get_array_length_cexpr (Vala.TargetValue value);
 		public virtual Vala.CCodeExpression get_array_length_cexpression (Vala.Expression array_expr, int dim = -1);
 		public virtual string get_array_length_cname (string array_cname, int dim);
 		public virtual Vala.CCodeExpression get_array_length_cvalue (Vala.TargetValue value, int dim = -1);
-		public Vala.List<Vala.CCodeExpression>? get_array_lengths (Vala.Expression expr);
-		public bool get_array_null_terminated (Vala.TargetValue value);
 		public virtual string get_array_size_cname (string array_cname);
-		public Vala.CCodeExpression? get_array_size_cvalue (Vala.TargetValue value);
 		public int get_block_id (Vala.Block b);
+		public Vala.CCodeExpression get_boolean_cconstant (bool b);
+		public static Vala.DataType get_callable_creturn_type (Vala.Callable c);
 		public Vala.CCodeDeclaratorSuffix? get_ccode_declarator_suffix (Vala.DataType type);
 		public Vala.CCodeExpression? get_ccodenode (Vala.Expression node);
-		public string? get_ctype (Vala.TargetValue value);
-		public Vala.CCodeExpression? get_cvalue (Vala.Expression expr);
-		public Vala.CCodeExpression? get_cvalue_ (Vala.TargetValue value);
-		public static Vala.DataType get_data_type_for_symbol (Vala.TypeSymbol sym);
-		public Vala.CCodeExpression? get_delegate_target (Vala.Expression expr);
+		public Vala.CCodeExpression get_cexpression (string name);
 		public virtual Vala.CCodeExpression get_delegate_target_cexpression (Vala.Expression delegate_expr, out Vala.CCodeExpression delegate_target_destroy_notify);
 		public virtual string get_delegate_target_cname (string delegate_cname);
 		public virtual Vala.CCodeExpression get_delegate_target_cvalue (Vala.TargetValue value);
-		public Vala.CCodeExpression? get_delegate_target_destroy_notify (Vala.Expression expr);
 		public virtual string get_delegate_target_destroy_notify_cname (string delegate_cname);
 		public virtual Vala.CCodeExpression get_delegate_target_destroy_notify_cvalue (Vala.TargetValue value);
 		public Vala.CCodeExpression? get_destroy0_func_expression (Vala.DataType type, bool is_chainup = false);
@@ -258,42 +264,42 @@ namespace Vala {
 		public virtual string get_dynamic_signal_disconnect_wrapper_name (Vala.DynamicSignal node);
 		public abstract Vala.TargetValue get_field_cvalue (Vala.Field field, Vala.TargetValue? instance);
 		public virtual Vala.CCodeExpression get_implicit_cast_expression (Vala.CCodeExpression source_cexpr, Vala.DataType? expression_type, Vala.DataType? target_type, Vala.CodeNode? node);
+		public Vala.CCodeExpression get_inner_error_cexpression ();
 		public Vala.CCodeExpression get_local_cexpression (Vala.LocalVariable local);
 		public string get_local_cname (Vala.LocalVariable local);
 		public abstract Vala.TargetValue get_local_cvalue (Vala.LocalVariable local);
-		public bool get_lvalue (Vala.TargetValue value);
-		public bool get_non_null (Vala.TargetValue value);
 		public int get_param_pos (double param_pos, bool ellipsis = false);
 		public virtual Vala.CCodeExpression get_param_spec (Vala.Property prop);
 		public virtual Vala.CCodeExpression get_param_spec_cexpression (Vala.Property prop);
-		public virtual string get_parameter_array_length_cname (Vala.Parameter param, int dim);
+		public Vala.CCodeExpression get_parameter_cexpression (Vala.Parameter param);
 		public abstract Vala.TargetValue get_parameter_cvalue (Vala.Parameter param);
 		public Vala.CCodeConstant get_property_canonical_cconstant (Vala.Property prop);
-		public Vala.CCodeExpression get_result_cexpression (string cname = "result");
 		public Vala.CCodeConstant get_signal_canonical_constant (Vala.Signal sig, string? detail = null);
-		public virtual Vala.CCodeExpression get_signal_creation (Vala.Signal sig, Vala.TypeSymbol type);
-		public bool get_signal_has_emitter (Vala.Signal sig);
+		public virtual Vala.CCodeExpression get_signal_creation (Vala.Signal sig, Vala.ObjectTypeSymbol type);
 		public string get_symbol_lock_name (string symname);
 		public Vala.LocalVariable get_temp_variable (Vala.DataType type, bool value_owned = true, Vala.CodeNode? node_reference = null, bool init = false);
 		public Vala.CCodeExpression get_this_cexpression ();
-		public Vala.DataType? get_this_type ();
+		public Vala.CCodeExpression get_this_interface_cexpression (Vala.Interface iface);
+		public unowned Vala.DataType? get_this_type ();
 		public Vala.CCodeExpression get_type_id_expression (Vala.DataType type, bool is_chainup = false);
-		public Vala.CCodeIdentifier get_value_setter_function (Vala.DataType type_reference);
-		public Vala.CCodeIdentifier get_value_taker_function (Vala.DataType type_reference);
+		public virtual Vala.CCodeExpression get_value_getter_function (Vala.DataType type_reference);
+		public virtual Vala.CCodeExpression get_value_setter_function (Vala.DataType type_reference);
+		public virtual Vala.CCodeExpression get_value_taker_function (Vala.DataType type_reference);
+		public virtual string get_variable_array_length_cname (Vala.Variable variable, int dim);
 		public Vala.CCodeExpression get_variable_cexpression (string name);
 		public string get_variable_cname (string name);
 		public Vala.CCodeExpression? handle_struct_argument (Vala.Parameter? param, Vala.Expression arg, Vala.CCodeExpression? cexpr);
-		public bool is_constant_ccode_expression (Vala.CCodeExpression cexpr);
-		public virtual bool is_gobject_property (Vala.Property prop);
+		public static bool is_constant_ccode (Vala.CodeNode expr);
+		public static bool is_constant_ccode_expression (Vala.CCodeExpression cexpr);
 		public bool is_in_constructor ();
 		public bool is_in_coroutine ();
 		public bool is_in_destructor ();
 		public bool is_lvalue_access_allowed (Vala.DataType type);
-		public bool is_pure_ccode_expression (Vala.CCodeExpression cexpr);
+		public static bool is_pure_ccode_expression (Vala.CCodeExpression cexpr);
 		public bool is_simple_struct_creation (Vala.Variable variable, Vala.Expression expr);
 		public Vala.TargetValue load_temp_value (Vala.TargetValue lvalue);
 		public abstract Vala.TargetValue load_this_parameter (Vala.TypeSymbol sym);
-		public abstract Vala.TargetValue load_variable (Vala.Variable variable, Vala.TargetValue value);
+		public abstract Vala.TargetValue load_variable (Vala.Variable variable, Vala.TargetValue value, Vala.Expression? expr = null);
 		public virtual bool method_has_wrapper (Vala.Method method);
 		public unowned Vala.Block? next_closure_block (Vala.Symbol sym);
 		public bool no_implicit_copy (Vala.DataType type);
@@ -304,21 +310,16 @@ namespace Vala {
 		public void push_function (Vala.CCodeFunction func);
 		public void push_line (Vala.SourceReference? source_reference);
 		public virtual void register_dbus_info (Vala.CCodeBlock block, Vala.ObjectTypeSymbol bindable);
-		public bool requires_copy (Vala.DataType type);
-		public bool requires_destroy (Vala.DataType type);
+		public static bool requires_copy (Vala.DataType type);
+		public static bool requires_destroy (Vala.DataType type);
+		public bool requires_memset_init (Vala.Variable variable, out Vala.CCodeExpression? size);
 		public void return_default_value (Vala.DataType return_type, bool on_error = false);
 		public void return_out_parameter (Vala.Parameter param);
 		public virtual Vala.CCodeExpression? serialize_expression (Vala.DataType type, Vala.CCodeExpression expr);
-		public void set_array_size_cvalue (Vala.TargetValue value, Vala.CCodeExpression? cvalue);
-		public void set_cvalue (Vala.Expression expr, Vala.CCodeExpression? cvalue);
-		public void set_delegate_target (Vala.Expression expr, Vala.CCodeExpression? delegate_target);
-		public void set_delegate_target_destroy_notify (Vala.Expression expr, Vala.CCodeExpression? destroy_notify);
 		public void store_property (Vala.Property prop, Vala.Expression? instance, Vala.TargetValue value);
 		public Vala.TargetValue store_temp_value (Vala.TargetValue initializer, Vala.CodeNode node_reference, bool? value_owned = null);
 		public abstract void store_value (Vala.TargetValue lvalue, Vala.TargetValue value, Vala.SourceReference? source_reference = null);
 		public Vala.TargetValue transform_value (Vala.TargetValue value, Vala.DataType? target_type, Vala.CodeNode node);
-		public Vala.CCodeExpression? try_cast_value_to_type (Vala.CCodeExpression ccodeexpr, Vala.DataType from, Vala.DataType to, Vala.Expression? expr = null);
-		public Vala.TargetValue? try_cast_variant_to_type (Vala.TargetValue value, Vala.DataType to, Vala.CodeNode? node = null);
 		public bool variable_accessible_in_finally (Vala.LocalVariable local);
 		public override void visit_addressof_expression (Vala.AddressofExpression expr);
 		public override void visit_base_access (Vala.BaseAccess expr);
@@ -337,7 +338,6 @@ namespace Vala {
 		public override void visit_expression (Vala.Expression expr);
 		public override void visit_expression_statement (Vala.ExpressionStatement stmt);
 		public override void visit_field (Vala.Field f);
-		public override void visit_formal_parameter (Vala.Parameter p);
 		public override void visit_initializer_list (Vala.InitializerList list);
 		public override void visit_integer_literal (Vala.IntegerLiteral expr);
 		public override void visit_lambda_expression (Vala.LambdaExpression lambda);
@@ -369,6 +369,7 @@ namespace Vala {
 		public Vala.Block? current_closure_block { get; }
 		public Vala.Constructor? current_constructor { get; }
 		public Vala.Destructor? current_destructor { get; }
+		public int current_inner_error_id { get; set; }
 		public Vala.Method? current_method { get; }
 		public bool current_method_inner_error { get; set; }
 		public bool current_method_return { get; set; }
@@ -376,9 +377,12 @@ namespace Vala {
 		public Vala.DataType? current_return_type { get; }
 		public Vala.Symbol current_symbol { get; }
 		public Vala.TryStatement current_try { get; set; }
+		public int current_try_id { get; set; }
 		public Vala.TypeSymbol? current_type_symbol { get; }
 		public bool in_creation_method { get; }
+		public bool is_in_method_precondition { get; set; }
 		public int next_temp_var_id { get; set; }
+		public int next_try_id { get; set; }
 		public Vala.ArrayList<Vala.TargetValue> temp_ref_values { get; }
 		public Vala.Map<string,string> variable_name_map { get; }
 	}
@@ -389,7 +393,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public abstract class CCodeControlFlowModule : Vala.CCodeMethodModule {
-		public CCodeControlFlowModule ();
+		protected CCodeControlFlowModule ();
 		public override void visit_break_statement (Vala.BreakStatement stmt);
 		public override void visit_continue_statement (Vala.ContinueStatement stmt);
 		public override void visit_foreach_statement (Vala.ForeachStatement stmt);
@@ -414,15 +418,15 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public abstract class CCodeMemberAccessModule : Vala.CCodeControlFlowModule {
-		public CCodeMemberAccessModule ();
+		protected CCodeMemberAccessModule ();
 		public override Vala.TargetValue get_field_cvalue (Vala.Field field, Vala.TargetValue? instance);
 		public override Vala.TargetValue get_local_cvalue (Vala.LocalVariable local);
 		public override Vala.TargetValue get_parameter_cvalue (Vala.Parameter param);
-		public override Vala.TargetValue load_field (Vala.Field field, Vala.TargetValue? instance);
-		public override Vala.TargetValue load_local (Vala.LocalVariable local);
-		public override Vala.TargetValue load_parameter (Vala.Parameter param);
+		public override Vala.TargetValue load_field (Vala.Field field, Vala.TargetValue? instance, Vala.Expression? expr = null);
+		public override Vala.TargetValue load_local (Vala.LocalVariable local, Vala.Expression? expr = null);
+		public override Vala.TargetValue load_parameter (Vala.Parameter param, Vala.Expression? expr = null);
 		public override Vala.TargetValue load_this_parameter (Vala.TypeSymbol sym);
-		public override Vala.TargetValue load_variable (Vala.Variable variable, Vala.TargetValue value);
+		public override Vala.TargetValue load_variable (Vala.Variable variable, Vala.TargetValue value, Vala.Expression? expr = null);
 		public override void visit_member_access (Vala.MemberAccess expr);
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -432,10 +436,10 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public abstract class CCodeMethodModule : Vala.CCodeStructModule {
-		public CCodeMethodModule ();
+		protected CCodeMethodModule ();
 		public void complete_async ();
 		public override void generate_cparameters (Vala.Method m, Vala.CCodeFile decl_space, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.CCodeFunction func, Vala.CCodeFunctionDeclarator? vdeclarator = null, Vala.Map<int,Vala.CCodeExpression>? carg_map = null, Vala.CCodeFunctionCall? vcall = null, int direction = 3);
-		public override void generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
+		public override bool generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
 		public virtual void generate_method_result_declaration (Vala.Method m, Vala.CCodeFile decl_space, Vala.CCodeFunction cfunc, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.Map<int,Vala.CCodeExpression>? carg_map);
 		public virtual Vala.CCodeParameter generate_parameter (Vala.Parameter param, Vala.CCodeFile decl_space, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.Map<int,Vala.CCodeExpression>? carg_map);
 		public void generate_vfunc (Vala.Method m, Vala.DataType return_type, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.Map<int,Vala.CCodeExpression> carg_map, string suffix = "", int direction = 3);
@@ -445,7 +449,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public abstract class CCodeStructModule : Vala.CCodeBaseModule {
-		public CCodeStructModule ();
+		protected CCodeStructModule ();
 		public override void generate_struct_declaration (Vala.Struct st, Vala.CCodeFile decl_space);
 		public override void visit_struct (Vala.Struct st);
 	}
@@ -478,14 +482,14 @@ namespace Vala {
 		public override Vala.CCodeFragment get_type_interface_init_declaration ();
 		public override void get_type_interface_init_statements (Vala.CodeContext context, Vala.CCodeBlock block, bool plugin);
 		public override string get_type_struct_name ();
-		public Vala.Class class_reference { get; set; }
+		public weak Vala.Class class_reference { get; set; }
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class EnumRegisterFunction : Vala.TypeRegisterFunction {
 		public EnumRegisterFunction (Vala.Enum en);
 		public override Vala.SymbolAccessibility get_accessibility ();
 		public override Vala.TypeSymbol get_type_declaration ();
-		public Vala.Enum enum_reference { get; set; }
+		public weak Vala.Enum enum_reference { get; set; }
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class GAsyncModule : Vala.GtkModule {
@@ -493,7 +497,7 @@ namespace Vala {
 		public void append_struct (Vala.CCodeStruct structure);
 		public string generate_async_callback_wrapper ();
 		public override void generate_cparameters (Vala.Method m, Vala.CCodeFile decl_space, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.CCodeFunction func, Vala.CCodeFunctionDeclarator? vdeclarator = null, Vala.Map<int,Vala.CCodeExpression>? carg_map = null, Vala.CCodeFunctionCall? vcall = null, int direction = 3);
-		public override void generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
+		public override bool generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
 		public override string generate_ready_function (Vala.Method m);
 		public override void generate_virtual_method_declaration (Vala.Method m, Vala.CCodeFile decl_space, Vala.CCodeStruct type_struct);
 		public override void return_with_exception (Vala.CCodeExpression error_expr);
@@ -585,9 +589,26 @@ namespace Vala {
 		public override void visit_namespace (Vala.Namespace ns);
 		public override void visit_property (Vala.Property prop);
 		public override void visit_signal (Vala.Signal sig);
+		public override void visit_source_file (Vala.SourceFile source_file);
 		public override void visit_struct (Vala.Struct st);
 		public void write_file (Vala.CodeContext context, string directory, string gir_filename, string gir_namespace, string gir_version, string package, string? gir_shared_library = null);
 		public void write_includes ();
+	}
+	[CCode (cheader_filename = "valacodegen.h")]
+	public class GLibValue : Vala.TargetValue {
+		public Vala.CCodeExpression? array_length_cexpr;
+		public Vala.List<Vala.CCodeExpression> array_length_cvalues;
+		public bool array_null_terminated;
+		public Vala.CCodeExpression? array_size_cvalue;
+		public string? ctype;
+		public Vala.CCodeExpression cvalue;
+		public Vala.CCodeExpression? delegate_target_cvalue;
+		public Vala.CCodeExpression? delegate_target_destroy_notify_cvalue;
+		public bool lvalue;
+		public bool non_null;
+		public GLibValue (Vala.DataType? value_type = null, Vala.CCodeExpression? cvalue = null, bool lvalue = false);
+		public void append_array_length_cvalue (Vala.CCodeExpression length_cvalue);
+		public Vala.GLibValue copy ();
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class GObjectModule : Vala.GTypeModule {
@@ -598,7 +619,6 @@ namespace Vala {
 		public override string get_dynamic_signal_cname (Vala.DynamicSignal node);
 		public override string get_dynamic_signal_connect_after_wrapper_name (Vala.DynamicSignal sig);
 		public override string get_dynamic_signal_connect_wrapper_name (Vala.DynamicSignal sig);
-		public override bool is_gobject_property (Vala.Property prop);
 		public override void visit_class (Vala.Class cl);
 		public override void visit_constructor (Vala.Constructor c);
 		public override void visit_method_call (Vala.MethodCall expr);
@@ -607,8 +627,7 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class GSignalModule : Vala.GObjectModule {
 		public GSignalModule ();
-		public override Vala.CCodeExpression get_signal_creation (Vala.Signal sig, Vala.TypeSymbol type);
-		public override void visit_assignment (Vala.Assignment assignment);
+		public override Vala.CCodeExpression get_signal_creation (Vala.Signal sig, Vala.ObjectTypeSymbol type);
 		public override void visit_element_access (Vala.ElementAccess expr);
 		public override void visit_member_access (Vala.MemberAccess expr);
 		public override void visit_method_call (Vala.MethodCall expr);
@@ -623,10 +642,12 @@ namespace Vala {
 		public virtual void generate_class_init (Vala.Class cl);
 		public override void generate_class_struct_declaration (Vala.Class cl, Vala.CCodeFile decl_space);
 		public override void generate_interface_declaration (Vala.Interface iface, Vala.CCodeFile decl_space);
+		public override bool generate_method_declaration (Vala.Method m, Vala.CCodeFile decl_space);
 		public override Vala.CCodeParameter generate_parameter (Vala.Parameter param, Vala.CCodeFile decl_space, Vala.Map<int,Vala.CCodeParameter> cparam_map, Vala.Map<int,Vala.CCodeExpression>? carg_map);
 		public virtual void generate_virtual_method_declaration (Vala.Method m, Vala.CCodeFile decl_space, Vala.CCodeStruct type_struct);
 		public override Vala.CCodeExpression get_param_spec (Vala.Property prop);
 		public override Vala.CCodeExpression get_param_spec_cexpression (Vala.Property prop);
+		public override void visit_cast_expression (Vala.CastExpression expr);
 		public override void visit_class (Vala.Class cl);
 		public override void visit_enum (Vala.Enum en);
 		public override void visit_interface (Vala.Interface iface);
@@ -635,7 +656,15 @@ namespace Vala {
 		public override void visit_struct (Vala.Struct st);
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
-	public class GVariantModule : Vala.GAsyncModule {
+	public class GValueModule : Vala.GAsyncModule {
+		public GValueModule ();
+		public override Vala.CCodeExpression get_value_getter_function (Vala.DataType type_reference);
+		public override Vala.CCodeExpression get_value_setter_function (Vala.DataType type_reference);
+		public override Vala.CCodeExpression get_value_taker_function (Vala.DataType type_reference);
+		public override void visit_cast_expression (Vala.CastExpression expr);
+	}
+	[CCode (cheader_filename = "valacodegen.h")]
+	public class GVariantModule : Vala.GValueModule {
 		public GVariantModule ();
 		public override Vala.CCodeExpression? deserialize_expression (Vala.DataType type, Vala.CCodeExpression variant_expr, Vala.CCodeExpression? expr, Vala.CCodeExpression? error_expr = null, out bool may_fail = null);
 		public override bool generate_enum_declaration (Vala.Enum en, Vala.CCodeFile decl_space);
@@ -644,9 +673,9 @@ namespace Vala {
 		public Vala.CCodeFunction generate_enum_to_string_function (Vala.Enum en);
 		public Vala.CCodeFunction generate_enum_to_string_function_declaration (Vala.Enum en);
 		public static string? get_dbus_signature (Vala.Symbol symbol);
-		public static string? get_type_signature (Vala.DataType datatype, Vala.Symbol? symbol = null);
 		public void read_expression (Vala.DataType type, Vala.CCodeExpression iter_expr, Vala.CCodeExpression target_expr, Vala.Symbol? sym, Vala.CCodeExpression? error_expr = null, out bool may_fail = null);
 		public override Vala.CCodeExpression? serialize_expression (Vala.DataType type, Vala.CCodeExpression expr);
+		public override void visit_cast_expression (Vala.CastExpression expr);
 		public override void visit_enum (Vala.Enum en);
 		public void write_expression (Vala.DataType type, Vala.CCodeExpression builder_expr, Vala.CCodeExpression expr, Vala.Symbol? sym);
 	}
@@ -673,18 +702,18 @@ namespace Vala {
 		public override Vala.TypeSymbol get_type_declaration ();
 		public override void get_type_interface_init_statements (Vala.CodeContext context, Vala.CCodeBlock block, bool plugin);
 		public override string get_type_struct_name ();
-		public Vala.Interface interface_reference { get; set; }
+		public weak Vala.Interface interface_reference { get; set; }
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public class StructRegisterFunction : Vala.TypeRegisterFunction {
 		public StructRegisterFunction (Vala.Struct st);
 		public override Vala.SymbolAccessibility get_accessibility ();
 		public override Vala.TypeSymbol get_type_declaration ();
-		public Vala.Struct struct_reference { get; set; }
+		public weak Vala.Struct struct_reference { get; set; }
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
 	public abstract class TypeRegisterFunction {
-		public TypeRegisterFunction ();
+		protected TypeRegisterFunction ();
 		public abstract Vala.SymbolAccessibility get_accessibility ();
 		public virtual string get_base_finalize_func_name ();
 		public virtual string get_base_init_func_name ();
@@ -710,6 +739,16 @@ namespace Vala {
 		public void init_from_type (Vala.CodeContext context, bool plugin, bool declaration_only);
 	}
 	[CCode (cheader_filename = "valacodegen.h")]
+	public static void append_array_length (Vala.Expression expr, Vala.CCodeExpression size);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_array_length_cexpr (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.List<Vala.CCodeExpression>? get_array_lengths (Vala.Expression expr);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool get_array_null_terminated (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_array_size_cvalue (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_array_length (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string? get_ccode_array_length_expr (Vala.CodeNode node);
@@ -718,11 +757,17 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static double get_ccode_array_length_pos (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
-	public static string? get_ccode_array_length_type (Vala.CodeNode node);
+	public static string get_ccode_array_length_type (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_array_null_terminated (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static double get_ccode_async_result_pos (Vala.Method m);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_class_get_private_function (Vala.Class cl);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_class_type_check_function (Vala.Class cl);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_class_type_function (Vala.Class cl);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_concrete_accessor (Vala.Property p);
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -738,6 +783,8 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_delegate_target (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_delegate_target_destroy_notify_name (Vala.Variable variable);
+	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_delegate_target_name (Vala.Variable variable);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static double get_ccode_delegate_target_pos (Vala.CodeNode node);
@@ -748,9 +795,11 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string? get_ccode_dup_function (Vala.TypeSymbol sym);
 	[CCode (cheader_filename = "valacodegen.h")]
+	public static double get_ccode_error_pos (Vala.Callable c);
+	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_feature_test_macros (Vala.Symbol sym);
 	[CCode (cheader_filename = "valacodegen.h")]
-	public static bool get_ccode_finish_instance (Vala.CodeNode node);
+	public static bool get_ccode_finish_instance (Vala.Method m);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_finish_name (Vala.Method m);
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -769,6 +818,8 @@ namespace Vala {
 	public static bool get_ccode_has_copy_function (Vala.Struct st);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_has_destroy_function (Vala.Struct st);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool get_ccode_has_emitter (Vala.Signal sig);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_has_generic_type_parameter (Vala.Method m);
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -793,6 +844,8 @@ namespace Vala {
 	public static string get_ccode_name (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool get_ccode_no_accessor_method (Vala.Property p);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool get_ccode_no_wrapper (Vala.Method m);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_param_spec_function (Vala.CodeNode sym);
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -820,11 +873,17 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string? get_ccode_type (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_type_cast_function (Vala.ObjectTypeSymbol sym);
+	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_type_check_function (Vala.TypeSymbol sym);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_type_function (Vala.TypeSymbol sym);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static string get_ccode_type_get_function (Vala.ObjectTypeSymbol sym);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_type_id (Vala.CodeNode node);
 	[CCode (cheader_filename = "valacodegen.h")]
-	public static string get_ccode_type_name (Vala.Interface iface);
+	public static string get_ccode_type_name (Vala.ObjectTypeSymbol sym);
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_unref_function (Vala.ObjectTypeSymbol sym);
 	[CCode (cheader_filename = "valacodegen.h")]
@@ -832,5 +891,31 @@ namespace Vala {
 	[CCode (cheader_filename = "valacodegen.h")]
 	public static string get_ccode_vfunc_name (Vala.Method m);
 	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned string? get_ctype (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_cvalue (Vala.Expression expr);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_cvalue_ (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_delegate_target (Vala.Expression expr);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static unowned Vala.CCodeExpression? get_delegate_target_destroy_notify (Vala.Expression expr);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool get_lvalue (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool get_non_null (Vala.TargetValue value);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool is_free_function_address_of (Vala.DataType type);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static bool is_ref_function_void (Vala.DataType type);
+	[CCode (cheader_filename = "valacodegen.h")]
 	public static bool is_reference_counting (Vala.TypeSymbol sym);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static void set_array_size_cvalue (Vala.TargetValue value, Vala.CCodeExpression? cvalue);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static void set_cvalue (Vala.Expression expr, Vala.CCodeExpression? cvalue);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static void set_delegate_target (Vala.Expression expr, Vala.CCodeExpression? delegate_target);
+	[CCode (cheader_filename = "valacodegen.h")]
+	public static void set_delegate_target_destroy_notify (Vala.Expression expr, Vala.CCodeExpression? destroy_notify);
 }

@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,7 +36,6 @@
 struct _ValaPointerIndirectionPrivate {
 	ValaExpression* _inner;
 };
-
 
 static gint ValaPointerIndirection_private_offset;
 static gpointer vala_pointer_indirection_parent_class = NULL;
@@ -50,6 +48,9 @@ static void vala_pointer_indirection_real_replace_expression (ValaCodeNode* base
 static gboolean vala_pointer_indirection_real_is_pure (ValaExpression* base);
 static gboolean vala_pointer_indirection_real_is_accessible (ValaExpression* base,
                                                       ValaSymbol* sym);
+static void vala_pointer_indirection_real_get_error_types (ValaCodeNode* base,
+                                                    ValaCollection* collection,
+                                                    ValaSourceReference* source_reference);
 static gboolean vala_pointer_indirection_real_check (ValaCodeNode* base,
                                               ValaCodeContext* context);
 static void vala_pointer_indirection_real_emit (ValaCodeNode* base,
@@ -60,7 +61,7 @@ static void vala_pointer_indirection_real_get_used_variables (ValaCodeNode* base
                                                        ValaCollection* collection);
 static gchar* vala_pointer_indirection_real_to_string (ValaCodeNode* base);
 static void vala_pointer_indirection_finalize (ValaCodeNode * obj);
-
+static GType vala_pointer_indirection_get_type_once (void);
 
 static inline gpointer
 vala_pointer_indirection_get_instance_private (ValaPointerIndirection* self)
@@ -68,6 +69,36 @@ vala_pointer_indirection_get_instance_private (ValaPointerIndirection* self)
 	return G_STRUCT_MEMBER_P (self, ValaPointerIndirection_private_offset);
 }
 
+ValaExpression*
+vala_pointer_indirection_get_inner (ValaPointerIndirection* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_inner;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_pointer_indirection_set_inner (ValaPointerIndirection* self,
+                                    ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_inner);
+	self->priv->_inner = _tmp0_;
+	_tmp1_ = self->priv->_inner;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 /**
  * Creates a new pointer indirection.
@@ -88,14 +119,12 @@ vala_pointer_indirection_construct (GType object_type,
 	return self;
 }
 
-
 ValaPointerIndirection*
 vala_pointer_indirection_new (ValaExpression* inner,
                               ValaSourceReference* source_reference)
 {
 	return vala_pointer_indirection_construct (VALA_TYPE_POINTER_INDIRECTION, inner, source_reference);
 }
-
 
 static void
 vala_pointer_indirection_real_accept (ValaCodeNode* base,
@@ -112,7 +141,6 @@ vala_pointer_indirection_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_pointer_indirection (visitor, self);
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
-
 
 static void
 vala_pointer_indirection_real_replace_expression (ValaCodeNode* base,
@@ -132,14 +160,13 @@ vala_pointer_indirection_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_pointer_indirection_real_is_pure (ValaExpression* base)
 {
 	ValaPointerIndirection * self;
-	gboolean result = FALSE;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
+	gboolean result = FALSE;
 	self = (ValaPointerIndirection*) base;
 	_tmp0_ = vala_pointer_indirection_get_inner (self);
 	_tmp1_ = _tmp0_;
@@ -147,15 +174,14 @@ vala_pointer_indirection_real_is_pure (ValaExpression* base)
 	return result;
 }
 
-
 static gboolean
 vala_pointer_indirection_real_is_accessible (ValaExpression* base,
                                              ValaSymbol* sym)
 {
 	ValaPointerIndirection * self;
-	gboolean result = FALSE;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
+	gboolean result = FALSE;
 	self = (ValaPointerIndirection*) base;
 	g_return_val_if_fail (sym != NULL, FALSE);
 	_tmp0_ = vala_pointer_indirection_get_inner (self);
@@ -164,20 +190,26 @@ vala_pointer_indirection_real_is_accessible (ValaExpression* base,
 	return result;
 }
 
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
+static void
+vala_pointer_indirection_real_get_error_types (ValaCodeNode* base,
+                                               ValaCollection* collection,
+                                               ValaSourceReference* source_reference)
 {
-	return self ? vala_code_node_ref (self) : NULL;
+	ValaPointerIndirection * self;
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	self = (ValaPointerIndirection*) base;
+	g_return_if_fail (collection != NULL);
+	_tmp0_ = vala_pointer_indirection_get_inner (self);
+	_tmp1_ = _tmp0_;
+	vala_code_node_get_error_types ((ValaCodeNode*) _tmp1_, collection, source_reference);
 }
-
 
 static gboolean
 vala_pointer_indirection_real_check (ValaCodeNode* base,
                                      ValaCodeContext* context)
 {
 	ValaPointerIndirection * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
@@ -190,8 +222,9 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 	ValaExpression* _tmp13_;
 	ValaDataType* _tmp14_;
 	ValaDataType* _tmp15_;
-	gboolean _tmp35_;
-	gboolean _tmp36_;
+	gboolean _tmp37_;
+	gboolean _tmp38_;
+	gboolean result = FALSE;
 	self = (ValaPointerIndirection*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -229,7 +262,7 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 	_tmp13_ = _tmp12_;
 	_tmp14_ = vala_expression_get_value_type (_tmp13_);
 	_tmp15_ = _tmp14_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp15_, VALA_TYPE_POINTER_TYPE)) {
+	if (VALA_IS_POINTER_TYPE (_tmp15_)) {
 		ValaPointerType* pointer_type = NULL;
 		ValaExpression* _tmp16_;
 		ValaExpression* _tmp17_;
@@ -243,6 +276,8 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 		ValaPointerType* _tmp30_;
 		ValaDataType* _tmp31_;
 		ValaDataType* _tmp32_;
+		ValaDataType* _tmp33_;
+		ValaDataType* _tmp34_;
 		_tmp16_ = vala_pointer_indirection_get_inner (self);
 		_tmp17_ = _tmp16_;
 		_tmp18_ = vala_expression_get_value_type (_tmp17_);
@@ -252,7 +287,7 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 		_tmp22_ = pointer_type;
 		_tmp23_ = vala_pointer_type_get_base_type (_tmp22_);
 		_tmp24_ = _tmp23_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp24_, VALA_TYPE_REFERENCE_TYPE)) {
+		if (VALA_IS_REFERENCE_TYPE (_tmp24_)) {
 			_tmp21_ = TRUE;
 		} else {
 			ValaPointerType* _tmp25_;
@@ -261,7 +296,7 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 			_tmp25_ = pointer_type;
 			_tmp26_ = vala_pointer_type_get_base_type (_tmp25_);
 			_tmp27_ = _tmp26_;
-			_tmp21_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp27_, VALA_TYPE_VOID_TYPE);
+			_tmp21_ = VALA_IS_VOID_TYPE (_tmp27_);
 		}
 		if (_tmp21_) {
 			ValaSourceReference* _tmp28_;
@@ -278,23 +313,25 @@ vala_pointer_indirection_real_check (ValaCodeNode* base,
 		_tmp31_ = vala_pointer_type_get_base_type (_tmp30_);
 		_tmp32_ = _tmp31_;
 		vala_expression_set_value_type ((ValaExpression*) self, _tmp32_);
+		_tmp33_ = vala_expression_get_value_type ((ValaExpression*) self);
+		_tmp34_ = _tmp33_;
+		vala_data_type_set_value_owned (_tmp34_, FALSE);
 		_vala_code_node_unref0 (pointer_type);
 	} else {
-		ValaSourceReference* _tmp33_;
-		ValaSourceReference* _tmp34_;
+		ValaSourceReference* _tmp35_;
+		ValaSourceReference* _tmp36_;
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
-		_tmp33_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
-		_tmp34_ = _tmp33_;
-		vala_report_error (_tmp34_, "Pointer indirection not supported for this expression");
+		_tmp35_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+		_tmp36_ = _tmp35_;
+		vala_report_error (_tmp36_, "Pointer indirection not supported for this expression");
 		result = FALSE;
 		return result;
 	}
-	_tmp35_ = vala_code_node_get_error ((ValaCodeNode*) self);
-	_tmp36_ = _tmp35_;
-	result = !_tmp36_;
+	_tmp37_ = vala_code_node_get_error ((ValaCodeNode*) self);
+	_tmp38_ = _tmp37_;
+	result = !_tmp38_;
 	return result;
 }
-
 
 static void
 vala_pointer_indirection_real_emit (ValaCodeNode* base,
@@ -312,7 +349,6 @@ vala_pointer_indirection_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
 static void
 vala_pointer_indirection_real_get_defined_variables (ValaCodeNode* base,
                                                      ValaCollection* collection)
@@ -326,7 +362,6 @@ vala_pointer_indirection_real_get_defined_variables (ValaCodeNode* base,
 	_tmp1_ = _tmp0_;
 	vala_code_node_get_defined_variables ((ValaCodeNode*) _tmp1_, collection);
 }
-
 
 static void
 vala_pointer_indirection_real_get_used_variables (ValaCodeNode* base,
@@ -342,18 +377,17 @@ vala_pointer_indirection_real_get_used_variables (ValaCodeNode* base,
 	vala_code_node_get_used_variables ((ValaCodeNode*) _tmp1_, collection);
 }
 
-
 static gchar*
 vala_pointer_indirection_real_to_string (ValaCodeNode* base)
 {
 	ValaPointerIndirection * self;
-	gchar* result = NULL;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
 	gchar* _tmp2_;
 	gchar* _tmp3_;
 	gchar* _tmp4_;
 	gchar* _tmp5_;
+	gchar* result = NULL;
 	self = (ValaPointerIndirection*) base;
 	_tmp0_ = vala_pointer_indirection_get_inner (self);
 	_tmp1_ = _tmp0_;
@@ -366,36 +400,9 @@ vala_pointer_indirection_real_to_string (ValaCodeNode* base)
 	return result;
 }
 
-
-ValaExpression*
-vala_pointer_indirection_get_inner (ValaPointerIndirection* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_inner;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_pointer_indirection_set_inner (ValaPointerIndirection* self,
-                                    ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_inner);
-	self->priv->_inner = _tmp0_;
-	_tmp1_ = self->priv->_inner;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_pointer_indirection_class_init (ValaPointerIndirectionClass * klass)
+vala_pointer_indirection_class_init (ValaPointerIndirectionClass * klass,
+                                     gpointer klass_data)
 {
 	vala_pointer_indirection_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_pointer_indirection_finalize;
@@ -404,6 +411,7 @@ vala_pointer_indirection_class_init (ValaPointerIndirectionClass * klass)
 	((ValaCodeNodeClass *) klass)->replace_expression = (void (*) (ValaCodeNode*, ValaExpression*, ValaExpression*)) vala_pointer_indirection_real_replace_expression;
 	((ValaExpressionClass *) klass)->is_pure = (gboolean (*) (ValaExpression*)) vala_pointer_indirection_real_is_pure;
 	((ValaExpressionClass *) klass)->is_accessible = (gboolean (*) (ValaExpression*, ValaSymbol*)) vala_pointer_indirection_real_is_accessible;
+	((ValaCodeNodeClass *) klass)->get_error_types = (void (*) (ValaCodeNode*, ValaCollection*, ValaSourceReference*)) vala_pointer_indirection_real_get_error_types;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_pointer_indirection_real_check;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_pointer_indirection_real_emit;
 	((ValaCodeNodeClass *) klass)->get_defined_variables = (void (*) (ValaCodeNode*, ValaCollection*)) vala_pointer_indirection_real_get_defined_variables;
@@ -411,13 +419,12 @@ vala_pointer_indirection_class_init (ValaPointerIndirectionClass * klass)
 	((ValaCodeNodeClass *) klass)->to_string = (gchar* (*) (ValaCodeNode*)) vala_pointer_indirection_real_to_string;
 }
 
-
 static void
-vala_pointer_indirection_instance_init (ValaPointerIndirection * self)
+vala_pointer_indirection_instance_init (ValaPointerIndirection * self,
+                                        gpointer klass)
 {
 	self->priv = vala_pointer_indirection_get_instance_private (self);
 }
-
 
 static void
 vala_pointer_indirection_finalize (ValaCodeNode * obj)
@@ -428,23 +435,30 @@ vala_pointer_indirection_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_pointer_indirection_parent_class)->finalize (obj);
 }
 
-
 /**
- * Represents a pointer indirection in the source code, e.g. `*pointer`.
+ * Represents a pointer indirection.
+ *
+ * {{{ *foo }}}
  */
+static GType
+vala_pointer_indirection_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaPointerIndirectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_pointer_indirection_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaPointerIndirection), 0, (GInstanceInitFunc) vala_pointer_indirection_instance_init, NULL };
+	GType vala_pointer_indirection_type_id;
+	vala_pointer_indirection_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaPointerIndirection", &g_define_type_info, 0);
+	ValaPointerIndirection_private_offset = g_type_add_instance_private (vala_pointer_indirection_type_id, sizeof (ValaPointerIndirectionPrivate));
+	return vala_pointer_indirection_type_id;
+}
+
 GType
 vala_pointer_indirection_get_type (void)
 {
 	static volatile gsize vala_pointer_indirection_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_pointer_indirection_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaPointerIndirectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_pointer_indirection_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaPointerIndirection), 0, (GInstanceInitFunc) vala_pointer_indirection_instance_init, NULL };
 		GType vala_pointer_indirection_type_id;
-		vala_pointer_indirection_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaPointerIndirection", &g_define_type_info, 0);
-		ValaPointerIndirection_private_offset = g_type_add_instance_private (vala_pointer_indirection_type_id, sizeof (ValaPointerIndirectionPrivate));
+		vala_pointer_indirection_type_id = vala_pointer_indirection_get_type_once ();
 		g_once_init_leave (&vala_pointer_indirection_type_id__volatile, vala_pointer_indirection_type_id);
 	}
 	return vala_pointer_indirection_type_id__volatile;
 }
-
-
 

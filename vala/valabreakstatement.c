@@ -23,12 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-
+#include <glib.h>
 
 static gpointer vala_break_statement_parent_class = NULL;
 static ValaStatementIface * vala_break_statement_vala_statement_parent_iface = NULL;
@@ -37,7 +33,7 @@ static void vala_break_statement_real_accept (ValaCodeNode* base,
                                        ValaCodeVisitor* visitor);
 static void vala_break_statement_real_emit (ValaCodeNode* base,
                                      ValaCodeGenerator* codegen);
-
+static GType vala_break_statement_get_type_once (void);
 
 /**
  * Creates a new break statement.
@@ -55,13 +51,11 @@ vala_break_statement_construct (GType object_type,
 	return self;
 }
 
-
 ValaBreakStatement*
 vala_break_statement_new (ValaSourceReference* source)
 {
 	return vala_break_statement_construct (VALA_TYPE_BREAK_STATEMENT, source);
 }
-
 
 static void
 vala_break_statement_real_accept (ValaCodeNode* base,
@@ -73,7 +67,6 @@ vala_break_statement_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_break_statement (visitor, self);
 }
 
-
 static void
 vala_break_statement_real_emit (ValaCodeNode* base,
                                 ValaCodeGenerator* codegen)
@@ -84,46 +77,51 @@ vala_break_statement_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_break_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
 static void
-vala_break_statement_class_init (ValaBreakStatementClass * klass)
+vala_break_statement_class_init (ValaBreakStatementClass * klass,
+                                 gpointer klass_data)
 {
 	vala_break_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_break_statement_real_accept;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_break_statement_real_emit;
 }
 
-
 static void
-vala_break_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_break_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                    gpointer iface_data)
 {
 	vala_break_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_break_statement_instance_init (ValaBreakStatement * self)
+vala_break_statement_instance_init (ValaBreakStatement * self,
+                                    gpointer klass)
 {
 }
-
 
 /**
  * Represents a break statement in the source code.
  */
+static GType
+vala_break_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaBreakStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_break_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaBreakStatement), 0, (GInstanceInitFunc) vala_break_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_break_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_break_statement_type_id;
+	vala_break_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaBreakStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_break_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	return vala_break_statement_type_id;
+}
+
 GType
 vala_break_statement_get_type (void)
 {
 	static volatile gsize vala_break_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_break_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaBreakStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_break_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaBreakStatement), 0, (GInstanceInitFunc) vala_break_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_break_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_break_statement_type_id;
-		vala_break_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaBreakStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_break_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+		vala_break_statement_type_id = vala_break_statement_get_type_once ();
 		g_once_init_leave (&vala_break_statement_type_id__volatile, vala_break_statement_type_id);
 	}
 	return vala_break_statement_type_id__volatile;
 }
-
-
 

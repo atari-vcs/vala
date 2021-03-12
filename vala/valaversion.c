@@ -23,17 +23,10 @@
  * 	Rico Tzschichholz <ricotz@ubuntu.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-
-
-
 
 /**
  * Returns the major version number of the vala library.
@@ -51,7 +44,6 @@ vala_get_major_version (void)
 	return result;
 }
 
-
 /**
  * Returns the minor version number of the vala library.
  *
@@ -67,7 +59,6 @@ vala_get_minor_version (void)
 	result = (guint) VALA_MINOR_VERSION;
 	return result;
 }
-
 
 /**
  * Returns the micro version number of the vala library.
@@ -85,7 +76,6 @@ vala_get_micro_version (void)
 	return result;
 }
 
-
 /**
  * Returns the full build-version string of the vala library.
  *
@@ -101,7 +91,6 @@ vala_get_build_version (void)
 	result = VALA_BUILD_VERSION;
 	return result;
 }
-
 
 /**
  * Checks that the vala library in use is compatible with the given version.
@@ -120,26 +109,20 @@ vala_check_version (guint required_major,
                     guint required_minor,
                     guint required_micro)
 {
-	const gchar* result = NULL;
 	guint effective_micro = 0U;
 	guint required_effective_micro = 0U;
-	guint _tmp0_;
-	guint _tmp1_;
+	const gchar* result = NULL;
 	effective_micro = (guint) ((100 * VALA_MINOR_VERSION) + VALA_MICRO_VERSION);
 	required_effective_micro = (100 * required_minor) + required_micro;
 	if (required_major > ((guint) VALA_MAJOR_VERSION)) {
 		result = "vala version too old (major mismatch)";
 		return result;
 	}
-	_tmp0_ = required_effective_micro;
-	_tmp1_ = effective_micro;
-	if (_tmp0_ > _tmp1_) {
+	if (required_effective_micro > effective_micro) {
 		result = "vala version too old (micro mismatch)";
 		return result;
 	}
 	result = NULL;
 	return result;
 }
-
-
 

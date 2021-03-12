@@ -23,13 +23,12 @@
  * 	Luca Bruno <lethalman88@gmail.com>
  */
 
-
 #include <glib.h>
-#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
 #include <valadoc.h>
 #include <vala.h>
+#include <glib-object.h>
 #include <glib/gstdio.h>
 #include <valagee.h>
 
@@ -141,7 +140,6 @@ struct _GtkdocDBusInterfaceClass {
 	void (*finalize) (GtkdocDBusInterface *self);
 };
 
-
 extern gboolean gtkdoc_config_nohtml;
 gboolean gtkdoc_config_nohtml = FALSE;
 extern gchar** gtkdoc_config_library_filenames;
@@ -159,24 +157,26 @@ static gpointer gtkdoc_director_parent_class = NULL;
 static ValadocDocletIface * gtkdoc_director_valadoc_doclet_parent_iface = NULL;
 
 gboolean gtkdoc_config_parse (gchar** rargs,
-                              int rargs_length1,
+                              gint rargs_length1,
                               ValadocErrorReporter* reporter);
 static void _vala_array_add3 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 GType gtkdoc_director_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDirector, g_object_unref)
 GType gtkdoc_generator_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGenerator, g_object_unref)
 static gchar** gtkdoc_director_combine_string_arrays (gchar** a,
-                                               int a_length1,
+                                               gint a_length1,
                                                gchar** b,
-                                               int b_length1,
-                                               int* result_length1);
+                                               gint b_length1,
+                                               gint* result_length1);
 static gchar** _vala_array_dup3 (gchar** self,
-                          int length);
+                          gint length);
 static void _vala_array_add4 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void gtkdoc_director_real_process (ValadocDoclet* base,
                                    ValadocSettings* settings,
@@ -184,12 +184,12 @@ static void gtkdoc_director_real_process (ValadocDoclet* base,
                                    ValadocErrorReporter* reporter);
 static gboolean gtkdoc_director_prepare_files (GtkdocDirector* self,
                                         gchar** files,
-                                        int files_length1,
+                                        gint files_length1,
                                         const gchar* comments_dir);
 static gboolean gtkdoc_director_scan (GtkdocDirector* self,
                                const gchar* output_dir,
                                gchar** headers,
-                               int headers_length1);
+                               gint headers_length1);
 GtkdocGenerator* gtkdoc_generator_new (void);
 GtkdocGenerator* gtkdoc_generator_construct (GType object_type);
 gboolean gtkdoc_generator_execute (GtkdocGenerator* self,
@@ -206,65 +206,65 @@ gboolean gtkdoc_is_generated_by_vala (const gchar* filename);
 static void gtkdoc_director_prepare_h_file (GtkdocDirector* self,
                                      const gchar* filename);
 static gboolean _vala_string_array_contains (gchar* * stack,
-                                      int stack_length,
+                                      gint stack_length,
                                       const gchar* needle);
 static void _vala_array_add5 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add6 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add7 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add8 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add9 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add10 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add11 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add12 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 gboolean gtkdoc_package_exists (const gchar* package_name,
                                 ValadocErrorReporter* reporter);
 static void _vala_array_add13 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add14 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add15 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add16 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add17 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add18 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 gpointer gtkdoc_dbus_interface_ref (gpointer instance);
 void gtkdoc_dbus_interface_unref (gpointer instance);
@@ -279,6 +279,7 @@ void gtkdoc_dbus_value_take_interface (GValue* value,
                                        gpointer v_object);
 gpointer gtkdoc_dbus_value_get_interface (const GValue* value);
 GType gtkdoc_dbus_interface_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusInterface, gtkdoc_dbus_interface_unref)
 gchar* gtkdoc_to_docbook_id (const gchar* name);
 gpointer gtkdoc_dbus_member_ref (gpointer instance);
 void gtkdoc_dbus_member_unref (gpointer instance);
@@ -293,9 +294,11 @@ void gtkdoc_dbus_value_take_member (GValue* value,
                                     gpointer v_object);
 gpointer gtkdoc_dbus_value_get_member (const GValue* value);
 GType gtkdoc_dbus_member_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusMember, gtkdoc_dbus_member_unref)
 GtkdocDirector* gtkdoc_director_new (void);
 GtkdocDirector* gtkdoc_director_construct (GType object_type);
 static void gtkdoc_director_finalize (GObject * obj);
+static GType gtkdoc_director_get_type_once (void);
 GType register_plugin (ValadocModuleLoader* module_loader);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
@@ -310,8 +313,8 @@ const GOptionEntry GTKDOC_CONFIG_options[7] = {{"library", 'l', 0, G_OPTION_ARG_
 
 static void
 _vala_array_add3 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -322,19 +325,18 @@ _vala_array_add3 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 gboolean
 gtkdoc_config_parse (gchar** rargs,
-                     int rargs_length1,
+                     gint rargs_length1,
                      ValadocErrorReporter* reporter)
 {
-	gboolean result = FALSE;
 	gchar** args = NULL;
 	gchar* _tmp0_;
 	gchar** _tmp1_;
 	gint args_length1;
 	gint _args_size_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (reporter != NULL, FALSE);
 	_tmp0_ = g_strdup ("gtkdoc");
 	_tmp1_ = g_new0 (gchar*, 1 + 1);
@@ -349,60 +351,56 @@ gtkdoc_config_parse (gchar** rargs,
 		gint arg_it = 0;
 		arg_collection = rargs;
 		arg_collection_length1 = rargs_length1;
-		for (arg_it = 0; arg_it < rargs_length1; arg_it = arg_it + 1) {
+		for (arg_it = 0; arg_it < arg_collection_length1; arg_it = arg_it + 1) {
 			gchar* _tmp2_;
 			gchar* arg = NULL;
 			_tmp2_ = g_strdup (arg_collection[arg_it]);
 			arg = _tmp2_;
 			{
-				gchar** _tmp3_;
-				gint _tmp3__length1;
-				const gchar* _tmp4_;
-				gchar* _tmp5_;
-				_tmp3_ = args;
-				_tmp3__length1 = args_length1;
-				_tmp4_ = arg;
-				_tmp5_ = g_strdup (_tmp4_);
-				_vala_array_add3 (&args, &args_length1, &_args_size_, _tmp5_);
+				const gchar* _tmp3_;
+				gchar* _tmp4_;
+				_tmp3_ = arg;
+				_tmp4_ = g_strdup (_tmp3_);
+				_vala_array_add3 (&args, &args_length1, &_args_size_, _tmp4_);
 				_g_free0 (arg);
 			}
 		}
 	}
 	{
 		GOptionContext* opt_context = NULL;
+		GOptionContext* _tmp5_;
 		GOptionContext* _tmp6_;
 		GOptionContext* _tmp7_;
-		GOptionContext* _tmp8_;
 		gchar** gtkdoc_args = NULL;
-		gchar** _tmp9_;
-		gint _tmp9__length1;
+		gchar** _tmp8_;
+		gint _tmp8__length1;
 		gint gtkdoc_args_length1;
 		gint _gtkdoc_args_size_;
-		GOptionContext* _tmp10_;
-		_tmp6_ = g_option_context_new ("- Vala GTK-Doc");
-		opt_context = _tmp6_;
+		GOptionContext* _tmp9_;
+		_tmp5_ = g_option_context_new ("- Vala GTK-Doc");
+		opt_context = _tmp5_;
+		_tmp6_ = opt_context;
+		g_option_context_set_help_enabled (_tmp6_, TRUE);
 		_tmp7_ = opt_context;
-		g_option_context_set_help_enabled (_tmp7_, TRUE);
-		_tmp8_ = opt_context;
-		g_option_context_add_main_entries (_tmp8_, GTKDOC_CONFIG_options, NULL);
-		_tmp9_ = args;
-		_tmp9__length1 = args_length1;
-		gtkdoc_args = _tmp9_;
-		gtkdoc_args_length1 = _tmp9__length1;
+		g_option_context_add_main_entries (_tmp7_, GTKDOC_CONFIG_options, NULL);
+		_tmp8_ = args;
+		_tmp8__length1 = args_length1;
+		gtkdoc_args = _tmp8_;
+		gtkdoc_args_length1 = _tmp8__length1;
 		_gtkdoc_args_size_ = gtkdoc_args_length1;
-		_tmp10_ = opt_context;
-		g_option_context_parse (_tmp10_, &gtkdoc_args_length1, &gtkdoc_args, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			gboolean _tmp11_ = FALSE;
+		_tmp9_ = opt_context;
+		g_option_context_parse (_tmp9_, (gint*) (&gtkdoc_args_length1), &gtkdoc_args, &_inner_error0_);
+		_gtkdoc_args_size_ = gtkdoc_args_length1;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			gboolean _tmp10_ = FALSE;
 			_g_option_context_free0 (opt_context);
-			if (_inner_error_->domain == G_OPTION_ERROR) {
+			if (_inner_error0_->domain == G_OPTION_ERROR) {
 				goto __catch0_g_option_error;
 			}
-			_g_option_context_free0 (opt_context);
 			args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
-			return _tmp11_;
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
+			return _tmp10_;
 		}
 		_g_option_context_free0 (opt_context);
 	}
@@ -410,76 +408,70 @@ gtkdoc_config_parse (gchar** rargs,
 	__catch0_g_option_error:
 	{
 		GError* e = NULL;
-		GError* _tmp12_;
-		const gchar* _tmp13_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp12_ = e;
-		_tmp13_ = _tmp12_->message;
+		GError* _tmp11_;
+		const gchar* _tmp12_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp11_ = e;
+		_tmp12_ = _tmp11_->message;
 		valadoc_error_reporter_simple_error (reporter, "GtkDoc", "%s\n" \
-"Run '-X --help' to see a full list of available command line options.", _tmp13_);
+"Run '-X --help' to see a full list of available command line options.", _tmp12_);
 		result = FALSE;
 		_g_error_free0 (e);
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 		return result;
 	}
 	__finally0:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp14_ = FALSE;
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp13_ = FALSE;
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp14_;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp13_;
 	}
 	{
 		gint i = 0;
 		i = 0;
 		{
-			gboolean _tmp15_ = FALSE;
-			_tmp15_ = TRUE;
+			gboolean _tmp14_ = FALSE;
+			_tmp14_ = TRUE;
 			while (TRUE) {
-				gint _tmp17_;
-				gchar** _tmp18_;
-				gint _tmp18__length1;
+				gchar** _tmp16_;
+				gint _tmp16__length1;
 				gchar* realheader = NULL;
-				gchar** _tmp19_;
-				gint _tmp19__length1;
-				gint _tmp20_;
-				const gchar* _tmp21_;
-				gchar* _tmp22_;
-				const gchar* _tmp23_;
-				if (!_tmp15_) {
-					gint _tmp16_;
-					_tmp16_ = i;
-					i = _tmp16_ + 1;
+				gchar** _tmp17_;
+				gint _tmp17__length1;
+				const gchar* _tmp18_;
+				gchar* _tmp19_;
+				const gchar* _tmp20_;
+				if (!_tmp14_) {
+					gint _tmp15_;
+					_tmp15_ = i;
+					i = _tmp15_ + 1;
 				}
-				_tmp15_ = FALSE;
-				_tmp17_ = i;
-				_tmp18_ = gtkdoc_config_ignore_headers;
-				_tmp18__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
-				if (!(_tmp17_ < _tmp18__length1)) {
+				_tmp14_ = FALSE;
+				_tmp16_ = gtkdoc_config_ignore_headers;
+				_tmp16__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
+				if (!(i < _tmp16__length1)) {
 					break;
 				}
-				_tmp19_ = gtkdoc_config_ignore_headers;
-				_tmp19__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
-				_tmp20_ = i;
-				_tmp21_ = _tmp19_[_tmp20_];
-				_tmp22_ = vala_code_context_realpath (_tmp21_);
-				realheader = _tmp22_;
-				_tmp23_ = realheader;
-				if (_tmp23_ != NULL) {
-					gchar** _tmp24_;
-					gint _tmp24__length1;
-					gint _tmp25_;
-					const gchar* _tmp26_;
-					gchar* _tmp27_;
-					_tmp24_ = gtkdoc_config_ignore_headers;
-					_tmp24__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
-					_tmp25_ = i;
-					_tmp26_ = realheader;
-					_tmp27_ = g_strdup (_tmp26_);
-					_g_free0 (_tmp24_[_tmp25_]);
-					_tmp24_[_tmp25_] = _tmp27_;
+				_tmp17_ = gtkdoc_config_ignore_headers;
+				_tmp17__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
+				_tmp18_ = _tmp17_[i];
+				_tmp19_ = vala_code_context_realpath (_tmp18_);
+				realheader = _tmp19_;
+				_tmp20_ = realheader;
+				if (_tmp20_ != NULL) {
+					gchar** _tmp21_;
+					gint _tmp21__length1;
+					const gchar* _tmp22_;
+					gchar* _tmp23_;
+					_tmp21_ = gtkdoc_config_ignore_headers;
+					_tmp21__length1 = _vala_array_length (gtkdoc_config_ignore_headers);
+					_tmp22_ = realheader;
+					_tmp23_ = g_strdup (_tmp22_);
+					_g_free0 (_tmp21_[i]);
+					_tmp21_[i] = _tmp23_;
 				}
 				_g_free0 (realheader);
 			}
@@ -490,34 +482,34 @@ gtkdoc_config_parse (gchar** rargs,
 	return result;
 }
 
-
 static inline gpointer
 gtkdoc_director_get_instance_private (GtkdocDirector* self)
 {
 	return G_STRUCT_MEMBER_P (self, GtkdocDirector_private_offset);
 }
 
-
 static gchar**
 _vala_array_dup3 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 _vala_array_add4 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -528,22 +520,21 @@ _vala_array_add4 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gchar**
 gtkdoc_director_combine_string_arrays (gchar** a,
-                                       int a_length1,
+                                       gint a_length1,
                                        gchar** b,
-                                       int b_length1,
-                                       int* result_length1)
+                                       gint b_length1,
+                                       gint* result_length1)
 {
-	gchar** result = NULL;
 	gchar** _result_ = NULL;
 	gchar** _tmp0_;
 	gint _tmp0__length1;
 	gint _result__length1;
 	gint __result__size_;
-	gchar** _tmp5_;
-	gint _tmp5__length1;
+	gchar** _tmp4_;
+	gint _tmp4__length1;
+	gchar** result = NULL;
 	_tmp0_ = (a != NULL) ? _vala_array_dup3 (a, a_length1) : ((gpointer) a);
 	_tmp0__length1 = a_length1;
 	_result_ = _tmp0_;
@@ -556,34 +547,29 @@ gtkdoc_director_combine_string_arrays (gchar** a,
 		gint e_it = 0;
 		e_collection = b;
 		e_collection_length1 = b_length1;
-		for (e_it = 0; e_it < b_length1; e_it = e_it + 1) {
+		for (e_it = 0; e_it < e_collection_length1; e_it = e_it + 1) {
 			gchar* _tmp1_;
 			gchar* e = NULL;
 			_tmp1_ = g_strdup (e_collection[e_it]);
 			e = _tmp1_;
 			{
-				gchar** _tmp2_;
-				gint _tmp2__length1;
-				const gchar* _tmp3_;
-				gchar* _tmp4_;
-				_tmp2_ = _result_;
-				_tmp2__length1 = _result__length1;
-				_tmp3_ = e;
-				_tmp4_ = g_strdup (_tmp3_);
-				_vala_array_add4 (&_result_, &_result__length1, &__result__size_, _tmp4_);
+				const gchar* _tmp2_;
+				gchar* _tmp3_;
+				_tmp2_ = e;
+				_tmp3_ = g_strdup (_tmp2_);
+				_vala_array_add4 (&_result_, &_result__length1, &__result__size_, _tmp3_);
 				_g_free0 (e);
 			}
 		}
 	}
-	_tmp5_ = _result_;
-	_tmp5__length1 = _result__length1;
+	_tmp4_ = _result_;
+	_tmp4__length1 = _result__length1;
 	if (result_length1) {
-		*result_length1 = _tmp5__length1;
+		*result_length1 = _tmp4__length1;
 	}
-	result = _tmp5_;
+	result = _tmp4_;
 	return result;
 }
-
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -591,13 +577,11 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static gpointer
 _valadoc_api_tree_ref0 (gpointer self)
 {
 	return self ? valadoc_api_tree_ref (self) : NULL;
 }
-
 
 static void
 gtkdoc_director_real_process (ValadocDoclet* base,
@@ -673,7 +657,7 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	g_return_if_fail (reporter != NULL);
 	_tmp0_ = settings->pluginargs;
 	_tmp0__length1 = settings->pluginargs_length1;
-	if (!gtkdoc_config_parse (_tmp0_, _tmp0__length1, reporter)) {
+	if (!gtkdoc_config_parse (_tmp0_, (gint) _tmp0__length1, reporter)) {
 		return;
 	}
 	_tmp1_ = _g_object_ref0 (settings);
@@ -704,7 +688,7 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	_tmp15_ = vala_collection_to_array (_tmp13_, &_tmp14_);
 	_tmp16_ = _tmp15_;
 	_tmp16__length1 = _tmp14_;
-	_tmp18_ = gtkdoc_director_combine_string_arrays (_tmp11_, _tmp11__length1, _tmp16_, _tmp14_, &_tmp17_);
+	_tmp18_ = gtkdoc_director_combine_string_arrays (_tmp11_, (gint) _tmp11__length1, _tmp16_, (gint) _tmp14_, &_tmp17_);
 	_tmp19_ = _tmp18_;
 	_tmp19__length1 = _tmp17_;
 	_tmp16_ = (_vala_array_free (_tmp16_, _tmp16__length1, (GDestroyNotify) g_free), NULL);
@@ -715,7 +699,7 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	_tmp20_ = files;
 	_tmp20__length1 = files_length1;
 	_tmp21_ = ccomments_dir;
-	if (!gtkdoc_director_prepare_files (self, _tmp20_, _tmp20__length1, _tmp21_)) {
+	if (!gtkdoc_director_prepare_files (self, _tmp20_, (gint) _tmp20__length1, _tmp21_)) {
 		files = (_vala_array_free (files, files_length1, (GDestroyNotify) g_free), NULL);
 		_g_free0 (cscan_dir);
 		_g_free0 (ccomments_dir);
@@ -725,14 +709,14 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	_tmp22__length1 = self->priv->vala_headers_length1;
 	_tmp23_ = self->priv->c_headers;
 	_tmp23__length1 = self->priv->c_headers_length1;
-	_tmp25_ = gtkdoc_director_combine_string_arrays (_tmp22_, _tmp22__length1, _tmp23_, _tmp23__length1, &_tmp24_);
+	_tmp25_ = gtkdoc_director_combine_string_arrays (_tmp22_, (gint) _tmp22__length1, _tmp23_, (gint) _tmp23__length1, &_tmp24_);
 	all_headers = _tmp25_;
 	all_headers_length1 = _tmp24_;
 	_all_headers_size_ = all_headers_length1;
 	_tmp26_ = settings->path;
 	_tmp27_ = all_headers;
 	_tmp27__length1 = all_headers_length1;
-	if (!gtkdoc_director_scan (self, _tmp26_, _tmp27_, _tmp27__length1)) {
+	if (!gtkdoc_director_scan (self, _tmp26_, _tmp27_, (gint) _tmp27__length1)) {
 		all_headers = (_vala_array_free (all_headers, all_headers_length1, (GDestroyNotify) g_free), NULL);
 		files = (_vala_array_free (files, files_length1, (GDestroyNotify) g_free), NULL);
 		_g_free0 (cscan_dir);
@@ -742,7 +726,7 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	_tmp28_ = cscan_dir;
 	_tmp29_ = self->priv->c_headers;
 	_tmp29__length1 = self->priv->c_headers_length1;
-	if (!gtkdoc_director_scan (self, _tmp28_, _tmp29_, _tmp29__length1)) {
+	if (!gtkdoc_director_scan (self, _tmp28_, _tmp29_, (gint) _tmp29__length1)) {
 		all_headers = (_vala_array_free (all_headers, all_headers_length1, (GDestroyNotify) g_free), NULL);
 		files = (_vala_array_free (files, files_length1, (GDestroyNotify) g_free), NULL);
 		_g_free0 (cscan_dir);
@@ -804,7 +788,6 @@ gtkdoc_director_real_process (ValadocDoclet* base,
 	_g_free0 (ccomments_dir);
 }
 
-
 static void
 gtkdoc_director_prepare_c_file (GtkdocDirector* self,
                                 const gchar* filename,
@@ -835,13 +818,12 @@ gtkdoc_director_prepare_c_file (GtkdocDirector* self,
 	}
 }
 
-
 static gboolean
 _vala_string_array_contains (gchar* * stack,
-                             int stack_length,
+                             gint stack_length,
                              const gchar* needle)
 {
-	int i;
+	gint i;
 	for (i = 0; i < stack_length; i++) {
 		if (g_strcmp0 (stack[i], needle) == 0) {
 			return TRUE;
@@ -850,11 +832,10 @@ _vala_string_array_contains (gchar* * stack,
 	return FALSE;
 }
 
-
 static void
 _vala_array_add5 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -864,12 +845,11 @@ _vala_array_add5 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add6 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -879,7 +859,6 @@ _vala_array_add6 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 gtkdoc_director_prepare_h_file (GtkdocDirector* self,
@@ -895,29 +874,20 @@ gtkdoc_director_prepare_h_file (GtkdocDirector* self,
 		return;
 	}
 	if (gtkdoc_is_generated_by_vala (filename)) {
-		gchar** _tmp1_;
-		gint _tmp1__length1;
-		gchar* _tmp2_;
-		_tmp1_ = self->priv->vala_headers;
-		_tmp1__length1 = self->priv->vala_headers_length1;
-		_tmp2_ = g_strdup (filename);
-		_vala_array_add5 (&self->priv->vala_headers, &self->priv->vala_headers_length1, &self->priv->_vala_headers_size_, _tmp2_);
+		gchar* _tmp1_;
+		_tmp1_ = g_strdup (filename);
+		_vala_array_add5 (&self->priv->vala_headers, &self->priv->vala_headers_length1, &self->priv->_vala_headers_size_, _tmp1_);
 	} else {
-		gchar** _tmp3_;
-		gint _tmp3__length1;
-		gchar* _tmp4_;
-		_tmp3_ = self->priv->c_headers;
-		_tmp3__length1 = self->priv->c_headers_length1;
-		_tmp4_ = g_strdup (filename);
-		_vala_array_add6 (&self->priv->c_headers, &self->priv->c_headers_length1, &self->priv->_c_headers_size_, _tmp4_);
+		gchar* _tmp2_;
+		_tmp2_ = g_strdup (filename);
+		_vala_array_add6 (&self->priv->c_headers, &self->priv->c_headers_length1, &self->priv->_c_headers_size_, _tmp2_);
 	}
 }
 
-
 static void
 _vala_array_add7 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -928,25 +898,24 @@ _vala_array_add7 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gboolean
 gtkdoc_director_prepare_files (GtkdocDirector* self,
                                gchar** files,
-                               int files_length1,
+                               gint files_length1,
                                const gchar* comments_dir)
 {
-	gboolean result = FALSE;
 	gchar** _tmp0_;
 	gchar** _tmp1_;
 	gchar** prepared = NULL;
 	gchar** _tmp2_;
 	gint prepared_length1;
 	gint _prepared_size_;
-	gchar** _tmp20_;
-	gint _tmp20__length1;
-	ValadocErrorReporter* _tmp22_;
+	gchar** _tmp19_;
+	gint _tmp19__length1;
+	ValadocErrorReporter* _tmp21_;
+	gint _tmp22_;
 	gint _tmp23_;
-	gint _tmp24_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (comments_dir != NULL, FALSE);
 	_tmp0_ = g_new0 (gchar*, 0 + 1);
@@ -970,7 +939,7 @@ gtkdoc_director_prepare_files (GtkdocDirector* self,
 		gint relative_filename_it = 0;
 		relative_filename_collection = files;
 		relative_filename_collection_length1 = files_length1;
-		for (relative_filename_it = 0; relative_filename_it < files_length1; relative_filename_it = relative_filename_it + 1) {
+		for (relative_filename_it = 0; relative_filename_it < relative_filename_collection_length1; relative_filename_it = relative_filename_it + 1) {
 			gchar* _tmp3_;
 			gchar* relative_filename = NULL;
 			_tmp3_ = g_strdup (relative_filename_collection[relative_filename_it]);
@@ -982,12 +951,10 @@ gtkdoc_director_prepare_files (GtkdocDirector* self,
 				const gchar* _tmp6_;
 				gchar** _tmp7_;
 				gint _tmp7__length1;
-				gchar** _tmp8_;
-				gint _tmp8__length1;
-				const gchar* _tmp9_;
-				gchar* _tmp10_;
-				const gchar* _tmp11_;
-				const gchar* _tmp14_;
+				const gchar* _tmp8_;
+				gchar* _tmp9_;
+				const gchar* _tmp10_;
+				const gchar* _tmp13_;
 				_tmp4_ = relative_filename;
 				_tmp5_ = vala_code_context_realpath (_tmp4_);
 				filename = _tmp5_;
@@ -999,41 +966,39 @@ gtkdoc_director_prepare_files (GtkdocDirector* self,
 					_g_free0 (relative_filename);
 					continue;
 				}
-				_tmp8_ = prepared;
-				_tmp8__length1 = prepared_length1;
-				_tmp9_ = filename;
-				_tmp10_ = g_strdup (_tmp9_);
-				_vala_array_add7 (&prepared, &prepared_length1, &_prepared_size_, _tmp10_);
-				_tmp11_ = filename;
-				if (!g_file_test (_tmp11_, G_FILE_TEST_EXISTS)) {
-					ValadocErrorReporter* _tmp12_;
-					const gchar* _tmp13_;
-					_tmp12_ = self->priv->reporter;
-					_tmp13_ = relative_filename;
-					valadoc_error_reporter_simple_error (_tmp12_, "GtkDoc", "'%s' not found", _tmp13_);
+				_tmp8_ = filename;
+				_tmp9_ = g_strdup (_tmp8_);
+				_vala_array_add7 (&prepared, &prepared_length1, &_prepared_size_, _tmp9_);
+				_tmp10_ = filename;
+				if (!g_file_test (_tmp10_, G_FILE_TEST_EXISTS)) {
+					ValadocErrorReporter* _tmp11_;
+					const gchar* _tmp12_;
+					_tmp11_ = self->priv->reporter;
+					_tmp12_ = relative_filename;
+					valadoc_error_reporter_simple_error (_tmp11_, "GtkDoc", "'%s' not found", _tmp12_);
 					_g_free0 (filename);
 					_g_free0 (relative_filename);
 					continue;
 				}
-				_tmp14_ = filename;
-				if (g_str_has_suffix (_tmp14_, ".c")) {
+				_tmp13_ = filename;
+				if (g_str_has_suffix (_tmp13_, ".c")) {
+					const gchar* _tmp14_;
+					_tmp14_ = filename;
+					gtkdoc_director_prepare_c_file (self, _tmp14_, comments_dir);
+				} else {
 					const gchar* _tmp15_;
 					_tmp15_ = filename;
-					gtkdoc_director_prepare_c_file (self, _tmp15_, comments_dir);
-				} else {
-					const gchar* _tmp16_;
-					_tmp16_ = filename;
-					if (g_str_has_suffix (_tmp16_, ".h")) {
-						const gchar* _tmp17_;
-						_tmp17_ = filename;
-						gtkdoc_director_prepare_h_file (self, _tmp17_);
+					if (g_str_has_suffix (_tmp15_, ".h")) {
+						const gchar* _tmp16_;
+						_tmp16_ = filename;
+						gtkdoc_director_prepare_h_file (self, _tmp16_);
 					} else {
-						ValadocErrorReporter* _tmp18_;
-						const gchar* _tmp19_;
-						_tmp18_ = self->priv->reporter;
-						_tmp19_ = relative_filename;
-						valadoc_error_reporter_simple_error (_tmp18_, "GtkDoc", "'%s' is not a supported source file type. Only .h, and .c files are su" \
-"pported.", _tmp19_);
+						ValadocErrorReporter* _tmp17_;
+						const gchar* _tmp18_;
+						_tmp17_ = self->priv->reporter;
+						_tmp18_ = relative_filename;
+						valadoc_error_reporter_simple_error (_tmp17_, "GtkDoc", "'%s' is not a supported source file type. Only .h, and .c files are su" \
+"pported.", _tmp18_);
 					}
 				}
 				_g_free0 (filename);
@@ -1041,26 +1006,25 @@ gtkdoc_director_prepare_files (GtkdocDirector* self,
 			}
 		}
 	}
-	_tmp20_ = self->priv->vala_headers;
-	_tmp20__length1 = self->priv->vala_headers_length1;
-	if (_tmp20__length1 <= 0) {
-		ValadocErrorReporter* _tmp21_;
-		_tmp21_ = self->priv->reporter;
-		valadoc_error_reporter_simple_error (_tmp21_, "GtkDoc", "No vala header found");
+	_tmp19_ = self->priv->vala_headers;
+	_tmp19__length1 = self->priv->vala_headers_length1;
+	if (_tmp19__length1 <= 0) {
+		ValadocErrorReporter* _tmp20_;
+		_tmp20_ = self->priv->reporter;
+		valadoc_error_reporter_simple_error (_tmp20_, "GtkDoc", "No vala header found");
 	}
-	_tmp22_ = self->priv->reporter;
-	_tmp23_ = valadoc_error_reporter_get_errors (_tmp22_);
-	_tmp24_ = _tmp23_;
-	result = _tmp24_ == 0;
+	_tmp21_ = self->priv->reporter;
+	_tmp22_ = valadoc_error_reporter_get_errors (_tmp21_);
+	_tmp23_ = _tmp22_;
+	result = _tmp23_ == 0;
 	prepared = (_vala_array_free (prepared, prepared_length1, (GDestroyNotify) g_free), NULL);
 	return result;
 }
 
-
 static void
 _vala_array_add8 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1070,12 +1034,11 @@ _vala_array_add8 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add9 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1086,11 +1049,10 @@ _vala_array_add9 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static void
 _vala_array_add10 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1100,12 +1062,11 @@ _vala_array_add10 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add11 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1115,12 +1076,11 @@ _vala_array_add11 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add12 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1130,15 +1090,13 @@ _vala_array_add12 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static gboolean
 gtkdoc_director_scan (GtkdocDirector* self,
                       const gchar* output_dir,
                       gchar** headers,
-                      int headers_length1)
+                      gint headers_length1)
 {
-	gboolean result = FALSE;
 	gchar** args = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
@@ -1152,9 +1110,10 @@ gtkdoc_director_scan (GtkdocDirector* self,
 	gchar** _tmp9_;
 	gint args_length1;
 	gint _args_size_;
-	const gchar* _tmp14_;
-	const gchar* _tmp20_;
-	GError * _inner_error_ = NULL;
+	const gchar* _tmp13_;
+	const gchar* _tmp17_;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (output_dir != NULL, FALSE);
 	if (headers == NULL) {
@@ -1188,113 +1147,92 @@ gtkdoc_director_scan (GtkdocDirector* self,
 		gint header_it = 0;
 		header_collection = headers;
 		header_collection_length1 = headers_length1;
-		for (header_it = 0; header_it < headers_length1; header_it = header_it + 1) {
+		for (header_it = 0; header_it < header_collection_length1; header_it = header_it + 1) {
 			gchar* _tmp10_;
 			gchar* header = NULL;
 			_tmp10_ = g_strdup (header_collection[header_it]);
 			header = _tmp10_;
 			{
-				gchar** _tmp11_;
-				gint _tmp11__length1;
-				const gchar* _tmp12_;
-				gchar* _tmp13_;
-				_tmp11_ = args;
-				_tmp11__length1 = args_length1;
-				_tmp12_ = header;
-				_tmp13_ = g_strdup (_tmp12_);
-				_vala_array_add8 (&args, &args_length1, &_args_size_, _tmp13_);
+				const gchar* _tmp11_;
+				gchar* _tmp12_;
+				_tmp11_ = header;
+				_tmp12_ = g_strdup (_tmp11_);
+				_vala_array_add8 (&args, &args_length1, &_args_size_, _tmp12_);
 				_g_free0 (header);
 			}
 		}
 	}
-	_tmp14_ = gtkdoc_config_deprecated_guards;
-	if (_tmp14_ != NULL) {
-		gchar** _tmp15_;
-		gint _tmp15__length1;
+	_tmp13_ = gtkdoc_config_deprecated_guards;
+	if (_tmp13_ != NULL) {
+		gchar* _tmp14_;
+		const gchar* _tmp15_;
 		gchar* _tmp16_;
-		gchar** _tmp17_;
-		gint _tmp17__length1;
-		const gchar* _tmp18_;
-		gchar* _tmp19_;
-		_tmp15_ = args;
-		_tmp15__length1 = args_length1;
-		_tmp16_ = g_strdup ("--deprecated-guards");
-		_vala_array_add9 (&args, &args_length1, &_args_size_, _tmp16_);
-		_tmp17_ = args;
-		_tmp17__length1 = args_length1;
-		_tmp18_ = gtkdoc_config_deprecated_guards;
-		_tmp19_ = g_strdup (_tmp18_);
-		_vala_array_add10 (&args, &args_length1, &_args_size_, _tmp19_);
+		_tmp14_ = g_strdup ("--deprecated-guards");
+		_vala_array_add9 (&args, &args_length1, &_args_size_, _tmp14_);
+		_tmp15_ = gtkdoc_config_deprecated_guards;
+		_tmp16_ = g_strdup (_tmp15_);
+		_vala_array_add10 (&args, &args_length1, &_args_size_, _tmp16_);
 	}
-	_tmp20_ = gtkdoc_config_ignore_decorators;
-	if (_tmp20_ != NULL) {
-		gchar** _tmp21_;
-		gint _tmp21__length1;
-		gchar* _tmp22_;
+	_tmp17_ = gtkdoc_config_ignore_decorators;
+	if (_tmp17_ != NULL) {
+		gchar* _tmp18_;
+		const gchar* _tmp19_;
+		gchar* _tmp20_;
+		_tmp18_ = g_strdup ("--ignore-decorators");
+		_vala_array_add11 (&args, &args_length1, &_args_size_, _tmp18_);
+		_tmp19_ = gtkdoc_config_ignore_decorators;
+		_tmp20_ = g_strdup (_tmp19_);
+		_vala_array_add12 (&args, &args_length1, &_args_size_, _tmp20_);
+	}
+	{
+		ValadocSettings* _tmp21_;
+		const gchar* _tmp22_;
 		gchar** _tmp23_;
 		gint _tmp23__length1;
-		const gchar* _tmp24_;
-		gchar* _tmp25_;
-		_tmp21_ = args;
-		_tmp21__length1 = args_length1;
-		_tmp22_ = g_strdup ("--ignore-decorators");
-		_vala_array_add11 (&args, &args_length1, &_args_size_, _tmp22_);
+		_tmp21_ = self->priv->settings;
+		_tmp22_ = _tmp21_->path;
 		_tmp23_ = args;
 		_tmp23__length1 = args_length1;
-		_tmp24_ = gtkdoc_config_ignore_decorators;
-		_tmp25_ = g_strdup (_tmp24_);
-		_vala_array_add12 (&args, &args_length1, &_args_size_, _tmp25_);
-	}
-	{
-		ValadocSettings* _tmp26_;
-		const gchar* _tmp27_;
-		gchar** _tmp28_;
-		gint _tmp28__length1;
-		_tmp26_ = self->priv->settings;
-		_tmp27_ = _tmp26_->path;
-		_tmp28_ = args;
-		_tmp28__length1 = args_length1;
-		g_spawn_sync (_tmp27_, _tmp28_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			goto __catch1_g_error;
+		g_spawn_sync (_tmp22_, _tmp23_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch0_g_error;
 		}
 	}
-	goto __finally1;
-	__catch1_g_error:
+	goto __finally0;
+	__catch0_g_error:
 	{
 		GError* e = NULL;
-		ValadocErrorReporter* _tmp29_;
-		GError* _tmp30_;
-		const gchar* _tmp31_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp29_ = self->priv->reporter;
-		_tmp30_ = e;
-		_tmp31_ = _tmp30_->message;
-		valadoc_error_reporter_simple_error (_tmp29_, "gtkdoc-scan", "%s", _tmp31_);
+		ValadocErrorReporter* _tmp24_;
+		GError* _tmp25_;
+		const gchar* _tmp26_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp24_ = self->priv->reporter;
+		_tmp25_ = e;
+		_tmp26_ = _tmp25_->message;
+		valadoc_error_reporter_simple_error (_tmp24_, "gtkdoc-scan", "%s", _tmp26_);
 		result = FALSE;
 		_g_error_free0 (e);
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 		return result;
 	}
-	__finally1:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp32_ = FALSE;
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp27_ = FALSE;
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp32_;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp27_;
 	}
 	result = TRUE;
 	args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 	return result;
 }
 
-
 static void
 _vala_array_add13 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1304,12 +1242,11 @@ _vala_array_add13 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add14 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1319,12 +1256,11 @@ _vala_array_add14 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add15 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1334,12 +1270,11 @@ _vala_array_add15 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add16 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1349,12 +1284,11 @@ _vala_array_add16 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add17 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1364,29 +1298,25 @@ _vala_array_add17 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
 
-
 static void
 _vala_array_add18 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -1397,11 +1327,9 @@ _vala_array_add18 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gboolean
 gtkdoc_director_scangobj (GtkdocDirector* self)
 {
-	gboolean result = FALSE;
 	gchar** _tmp0_;
 	gint _tmp0__length1;
 	GString* library_paths = NULL;
@@ -1416,24 +1344,21 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 	gint pc_length1;
 	gint _pc_size_;
 	gchar** pc_cflags = NULL;
-	gchar** _tmp38_;
+	gchar** _tmp37_;
 	gint pc_cflags_length1;
 	gint _pc_cflags_size_;
-	gchar** _tmp39_;
-	gint _tmp39__length1;
-	gchar** _tmp44_;
-	gint _tmp44__length1;
-	gchar* _tmp45_;
+	gchar** _tmp38_;
+	gint _tmp38__length1;
+	gchar* _tmp42_;
 	gchar** pc_libs = NULL;
-	gchar** _tmp46_;
+	gchar** _tmp43_;
 	gint pc_libs_length1;
 	gint _pc_libs_size_;
-	gchar** _tmp47_;
-	gint _tmp47__length1;
-	gchar** _tmp52_;
-	gint _tmp52__length1;
-	gchar* _tmp53_;
-	GError * _inner_error_ = NULL;
+	gchar** _tmp44_;
+	gint _tmp44__length1;
+	gchar* _tmp48_;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = gtkdoc_config_library_filenames;
 	_tmp0__length1 = _vala_array_length (gtkdoc_config_library_filenames);
@@ -1454,7 +1379,7 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 		gint library_it = 0;
 		library_collection = _tmp3_;
 		library_collection_length1 = _tmp3__length1;
-		for (library_it = 0; library_it < _tmp3__length1; library_it = library_it + 1) {
+		for (library_it = 0; library_it < library_collection_length1; library_it = library_it + 1) {
 			gchar* _tmp4_;
 			gchar* library = NULL;
 			_tmp4_ = g_strdup (library_collection[library_it]);
@@ -1547,181 +1472,162 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 				_tmp25_ = FALSE;
 			}
 			if (_tmp25_) {
-				gchar** _tmp33_;
-				gint _tmp33__length1;
-				ValadocApiPackage* _tmp34_;
+				ValadocApiPackage* _tmp33_;
+				const gchar* _tmp34_;
 				const gchar* _tmp35_;
-				const gchar* _tmp36_;
-				gchar* _tmp37_;
-				_tmp33_ = pc;
-				_tmp33__length1 = pc_length1;
-				_tmp34_ = package;
-				_tmp35_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp34_);
-				_tmp36_ = _tmp35_;
-				_tmp37_ = g_strdup (_tmp36_);
-				_vala_array_add13 (&pc, &pc_length1, &_pc_size_, _tmp37_);
+				gchar* _tmp36_;
+				_tmp33_ = package;
+				_tmp34_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp33_);
+				_tmp35_ = _tmp34_;
+				_tmp36_ = g_strdup (_tmp35_);
+				_vala_array_add13 (&pc, &pc_length1, &_pc_size_, _tmp36_);
 			}
 			_g_object_unref0 (package);
 		}
 		_vala_iterator_unref0 (_package_it);
 	}
-	_tmp38_ = g_new0 (gchar*, 0 + 1);
-	pc_cflags = _tmp38_;
+	_tmp37_ = g_new0 (gchar*, 0 + 1);
+	pc_cflags = _tmp37_;
 	pc_cflags_length1 = 0;
 	_pc_cflags_size_ = pc_cflags_length1;
-	_tmp39_ = pc;
-	_tmp39__length1 = pc_length1;
+	_tmp38_ = pc;
+	_tmp38__length1 = pc_length1;
 	{
 		gchar** name_collection = NULL;
 		gint name_collection_length1 = 0;
 		gint _name_collection_size_ = 0;
 		gint name_it = 0;
-		name_collection = _tmp39_;
-		name_collection_length1 = _tmp39__length1;
-		for (name_it = 0; name_it < _tmp39__length1; name_it = name_it + 1) {
-			gchar* _tmp40_;
+		name_collection = _tmp38_;
+		name_collection_length1 = _tmp38__length1;
+		for (name_it = 0; name_it < name_collection_length1; name_it = name_it + 1) {
+			gchar* _tmp39_;
 			gchar* name = NULL;
-			_tmp40_ = g_strdup (name_collection[name_it]);
-			name = _tmp40_;
+			_tmp39_ = g_strdup (name_collection[name_it]);
+			name = _tmp39_;
 			{
-				gchar** _tmp41_;
-				gint _tmp41__length1;
-				const gchar* _tmp42_;
-				gchar* _tmp43_;
-				_tmp41_ = pc_cflags;
-				_tmp41__length1 = pc_cflags_length1;
-				_tmp42_ = name;
-				_tmp43_ = g_strdup (_tmp42_);
-				_vala_array_add14 (&pc_cflags, &pc_cflags_length1, &_pc_cflags_size_, _tmp43_);
+				const gchar* _tmp40_;
+				gchar* _tmp41_;
+				_tmp40_ = name;
+				_tmp41_ = g_strdup (_tmp40_);
+				_vala_array_add14 (&pc_cflags, &pc_cflags_length1, &_pc_cflags_size_, _tmp41_);
 				_g_free0 (name);
 			}
 		}
 	}
-	_tmp44_ = pc_cflags;
-	_tmp44__length1 = pc_cflags_length1;
-	_tmp45_ = g_strdup ("--cflags");
-	_vala_array_add15 (&pc_cflags, &pc_cflags_length1, &_pc_cflags_size_, _tmp45_);
-	_tmp46_ = g_new0 (gchar*, 0 + 1);
-	pc_libs = _tmp46_;
+	_tmp42_ = g_strdup ("--cflags");
+	_vala_array_add15 (&pc_cflags, &pc_cflags_length1, &_pc_cflags_size_, _tmp42_);
+	_tmp43_ = g_new0 (gchar*, 0 + 1);
+	pc_libs = _tmp43_;
 	pc_libs_length1 = 0;
 	_pc_libs_size_ = pc_libs_length1;
-	_tmp47_ = pc;
-	_tmp47__length1 = pc_length1;
+	_tmp44_ = pc;
+	_tmp44__length1 = pc_length1;
 	{
 		gchar** name_collection = NULL;
 		gint name_collection_length1 = 0;
 		gint _name_collection_size_ = 0;
 		gint name_it = 0;
-		name_collection = _tmp47_;
-		name_collection_length1 = _tmp47__length1;
-		for (name_it = 0; name_it < _tmp47__length1; name_it = name_it + 1) {
-			gchar* _tmp48_;
+		name_collection = _tmp44_;
+		name_collection_length1 = _tmp44__length1;
+		for (name_it = 0; name_it < name_collection_length1; name_it = name_it + 1) {
+			gchar* _tmp45_;
 			gchar* name = NULL;
-			_tmp48_ = g_strdup (name_collection[name_it]);
-			name = _tmp48_;
+			_tmp45_ = g_strdup (name_collection[name_it]);
+			name = _tmp45_;
 			{
-				gchar** _tmp49_;
-				gint _tmp49__length1;
-				const gchar* _tmp50_;
-				gchar* _tmp51_;
-				_tmp49_ = pc_libs;
-				_tmp49__length1 = pc_libs_length1;
-				_tmp50_ = name;
-				_tmp51_ = g_strdup (_tmp50_);
-				_vala_array_add16 (&pc_libs, &pc_libs_length1, &_pc_libs_size_, _tmp51_);
+				const gchar* _tmp46_;
+				gchar* _tmp47_;
+				_tmp46_ = name;
+				_tmp47_ = g_strdup (_tmp46_);
+				_vala_array_add16 (&pc_libs, &pc_libs_length1, &_pc_libs_size_, _tmp47_);
 				_g_free0 (name);
 			}
 		}
 	}
-	_tmp52_ = pc_libs;
-	_tmp52__length1 = pc_libs_length1;
-	_tmp53_ = g_strdup ("--libs");
-	_vala_array_add17 (&pc_libs, &pc_libs_length1, &_pc_libs_size_, _tmp53_);
+	_tmp48_ = g_strdup ("--libs");
+	_vala_array_add17 (&pc_libs, &pc_libs_length1, &_pc_libs_size_, _tmp48_);
 	{
 		gchar* stderr_buf = NULL;
 		gint status = 0;
 		gchar* cflags = NULL;
-		gchar** _tmp54_;
-		gint _tmp54__length1;
-		gchar* _tmp55_ = NULL;
-		gchar* _tmp56_ = NULL;
-		gint _tmp57_ = 0;
-		gint _tmp58_;
-		const gchar* _tmp61_;
-		gchar* _tmp62_;
+		gchar** _tmp49_;
+		gint _tmp49__length1;
+		gchar* _tmp50_ = NULL;
+		gchar* _tmp51_ = NULL;
+		gint _tmp52_ = 0;
+		const gchar* _tmp55_;
+		gchar* _tmp56_;
 		gchar* libs = NULL;
-		gchar** _tmp63_;
-		gint _tmp63__length1;
-		gchar* _tmp64_ = NULL;
-		gchar* _tmp65_ = NULL;
-		gint _tmp66_ = 0;
-		gint _tmp67_;
-		const gchar* _tmp70_;
-		gchar* _tmp71_;
+		gchar** _tmp57_;
+		gint _tmp57__length1;
+		gchar* _tmp58_ = NULL;
+		gchar* _tmp59_ = NULL;
+		gint _tmp60_ = 0;
+		const gchar* _tmp63_;
+		gchar* _tmp64_;
 		gchar** args = NULL;
-		gchar* _tmp72_;
+		gchar* _tmp65_;
+		gchar* _tmp66_;
+		ValadocSettings* _tmp67_;
+		const gchar* _tmp68_;
+		gchar* _tmp69_;
+		gchar* _tmp70_;
+		ValadocSettings* _tmp71_;
+		const gchar* _tmp72_;
 		gchar* _tmp73_;
-		ValadocSettings* _tmp74_;
-		const gchar* _tmp75_;
-		gchar* _tmp76_;
+		gchar* _tmp74_;
+		ValadocSettings* _tmp75_;
+		const gchar* _tmp76_;
 		gchar* _tmp77_;
-		ValadocSettings* _tmp78_;
-		const gchar* _tmp79_;
-		gchar* _tmp80_;
-		gchar* _tmp81_;
-		ValadocSettings* _tmp82_;
-		const gchar* _tmp83_;
-		gchar* _tmp84_;
-		gchar** _tmp85_;
+		gchar** _tmp78_;
 		gint args_length1;
 		gint _args_size_;
-		const gchar* _tmp86_ = NULL;
-		const gchar* _tmp87_;
-		const gchar* _tmp88_ = NULL;
-		const gchar* _tmp89_;
-		const gchar* _tmp90_ = NULL;
-		const gchar* _tmp91_;
+		const gchar* _tmp79_ = NULL;
+		const gchar* _tmp80_;
+		const gchar* _tmp81_ = NULL;
+		const gchar* _tmp82_;
+		const gchar* _tmp83_ = NULL;
+		const gchar* _tmp84_;
 		gchar** env = NULL;
+		const gchar* _tmp85_;
+		gchar* _tmp86_;
+		const gchar* _tmp87_;
+		GString* _tmp88_;
+		const gchar* _tmp89_;
+		gchar* _tmp90_;
+		GString* _tmp91_;
 		const gchar* _tmp92_;
 		gchar* _tmp93_;
-		const gchar* _tmp94_;
-		GString* _tmp95_;
-		const gchar* _tmp96_;
-		gchar* _tmp97_;
-		GString* _tmp98_;
-		const gchar* _tmp99_;
-		gchar* _tmp100_;
-		gchar** _tmp101_;
+		gchar** _tmp94_;
 		gint env_length1;
 		gint _env_size_;
-		gchar** _tmp102_;
-		gchar** _tmp103_;
-		ValadocSettings* _tmp115_;
-		const gchar* _tmp116_;
-		gchar** _tmp117_;
-		gint _tmp117__length1;
-		gchar** _tmp118_;
-		gint _tmp118__length1;
-		_tmp54_ = pc_cflags;
-		_tmp54__length1 = pc_cflags_length1;
-		g_spawn_sync (NULL, _tmp54_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, &_tmp55_, &_tmp56_, &_tmp57_, &_inner_error_);
+		gchar** _tmp95_;
+		gchar** _tmp96_;
+		ValadocSettings* _tmp107_;
+		const gchar* _tmp108_;
+		gchar** _tmp109_;
+		gint _tmp109__length1;
+		gchar** _tmp110_;
+		gint _tmp110__length1;
+		_tmp49_ = pc_cflags;
+		_tmp49__length1 = pc_cflags_length1;
+		g_spawn_sync (NULL, _tmp49_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, &_tmp50_, &_tmp51_, &_tmp52_, &_inner_error0_);
 		_g_free0 (cflags);
-		cflags = _tmp55_;
+		cflags = _tmp50_;
 		_g_free0 (stderr_buf);
-		stderr_buf = _tmp56_;
-		status = _tmp57_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		stderr_buf = _tmp51_;
+		status = _tmp52_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_free0 (cflags);
 			_g_free0 (stderr_buf);
-			goto __catch2_g_error;
+			goto __catch0_g_error;
 		}
-		_tmp58_ = status;
-		if (_tmp58_ != 0) {
-			ValadocErrorReporter* _tmp59_;
-			const gchar* _tmp60_;
-			_tmp59_ = self->priv->reporter;
-			_tmp60_ = stderr_buf;
-			valadoc_error_reporter_simple_error (_tmp59_, "GtkDoc", "pkg-config cflags error: %s", _tmp60_);
+		if (status != 0) {
+			ValadocErrorReporter* _tmp53_;
+			const gchar* _tmp54_;
+			_tmp53_ = self->priv->reporter;
+			_tmp54_ = stderr_buf;
+			valadoc_error_reporter_simple_error (_tmp53_, "GtkDoc", "pkg-config cflags error: %s", _tmp54_);
 			result = FALSE;
 			_g_free0 (cflags);
 			_g_free0 (stderr_buf);
@@ -1732,167 +1638,162 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 			_g_string_free0 (library_paths);
 			return result;
 		}
-		_tmp61_ = cflags;
-		_tmp62_ = string_strip (_tmp61_);
+		_tmp55_ = cflags;
+		_tmp56_ = string_strip (_tmp55_);
 		_g_free0 (cflags);
-		cflags = _tmp62_;
-		_tmp63_ = pc_libs;
-		_tmp63__length1 = pc_libs_length1;
-		g_spawn_sync (NULL, _tmp63_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, &_tmp64_, &_tmp65_, &_tmp66_, &_inner_error_);
+		cflags = _tmp56_;
+		_tmp57_ = pc_libs;
+		_tmp57__length1 = pc_libs_length1;
+		g_spawn_sync (NULL, _tmp57_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, &_tmp58_, &_tmp59_, &_tmp60_, &_inner_error0_);
+		_g_free0 (libs);
+		libs = _tmp58_;
+		_g_free0 (stderr_buf);
+		stderr_buf = _tmp59_;
+		status = _tmp60_;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (libs);
+			_g_free0 (cflags);
+			_g_free0 (stderr_buf);
+			goto __catch0_g_error;
+		}
+		if (status != 0) {
+			ValadocErrorReporter* _tmp61_;
+			const gchar* _tmp62_;
+			_tmp61_ = self->priv->reporter;
+			_tmp62_ = stderr_buf;
+			valadoc_error_reporter_simple_error (_tmp61_, "GtkDoc", "pkg-config libs error: %s", _tmp62_);
+			result = FALSE;
+			_g_free0 (libs);
+			_g_free0 (cflags);
+			_g_free0 (stderr_buf);
+			pc_libs = (_vala_array_free (pc_libs, pc_libs_length1, (GDestroyNotify) g_free), NULL);
+			pc_cflags = (_vala_array_free (pc_cflags, pc_cflags_length1, (GDestroyNotify) g_free), NULL);
+			pc = (_vala_array_free (pc, pc_length1, (GDestroyNotify) g_free), NULL);
+			_g_string_free0 (library_dirs);
+			_g_string_free0 (library_paths);
+			return result;
+		}
+		_tmp63_ = libs;
+		_tmp64_ = string_strip (_tmp63_);
 		_g_free0 (libs);
 		libs = _tmp64_;
-		_g_free0 (stderr_buf);
-		stderr_buf = _tmp65_;
-		status = _tmp66_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			_g_free0 (libs);
-			_g_free0 (cflags);
-			_g_free0 (stderr_buf);
-			goto __catch2_g_error;
-		}
-		_tmp67_ = status;
-		if (_tmp67_ != 0) {
-			ValadocErrorReporter* _tmp68_;
-			const gchar* _tmp69_;
-			_tmp68_ = self->priv->reporter;
-			_tmp69_ = stderr_buf;
-			valadoc_error_reporter_simple_error (_tmp68_, "GtkDoc", "pkg-config libs error: %s", _tmp69_);
-			result = FALSE;
-			_g_free0 (libs);
-			_g_free0 (cflags);
-			_g_free0 (stderr_buf);
-			pc_libs = (_vala_array_free (pc_libs, pc_libs_length1, (GDestroyNotify) g_free), NULL);
-			pc_cflags = (_vala_array_free (pc_cflags, pc_cflags_length1, (GDestroyNotify) g_free), NULL);
-			pc = (_vala_array_free (pc, pc_length1, (GDestroyNotify) g_free), NULL);
-			_g_string_free0 (library_dirs);
-			_g_string_free0 (library_paths);
-			return result;
-		}
-		_tmp70_ = libs;
-		_tmp71_ = string_strip (_tmp70_);
-		_g_free0 (libs);
-		libs = _tmp71_;
-		_tmp72_ = g_strdup ("gtkdoc-scangobj");
-		_tmp73_ = g_strdup ("--module");
-		_tmp74_ = self->priv->settings;
-		_tmp75_ = _tmp74_->pkg_name;
-		_tmp76_ = g_strdup (_tmp75_);
-		_tmp77_ = g_strdup ("--types");
-		_tmp78_ = self->priv->settings;
-		_tmp79_ = _tmp78_->pkg_name;
-		_tmp80_ = g_strdup_printf ("%s.types", _tmp79_);
-		_tmp81_ = g_strdup ("--output-dir");
-		_tmp82_ = self->priv->settings;
-		_tmp83_ = _tmp82_->path;
-		_tmp84_ = g_strdup (_tmp83_);
-		_tmp85_ = g_new0 (gchar*, 7 + 1);
-		_tmp85_[0] = _tmp72_;
-		_tmp85_[1] = _tmp73_;
-		_tmp85_[2] = _tmp76_;
-		_tmp85_[3] = _tmp77_;
-		_tmp85_[4] = _tmp80_;
-		_tmp85_[5] = _tmp81_;
-		_tmp85_[6] = _tmp84_;
-		args = _tmp85_;
+		_tmp65_ = g_strdup ("gtkdoc-scangobj");
+		_tmp66_ = g_strdup ("--module");
+		_tmp67_ = self->priv->settings;
+		_tmp68_ = _tmp67_->pkg_name;
+		_tmp69_ = g_strdup (_tmp68_);
+		_tmp70_ = g_strdup ("--types");
+		_tmp71_ = self->priv->settings;
+		_tmp72_ = _tmp71_->pkg_name;
+		_tmp73_ = g_strdup_printf ("%s.types", _tmp72_);
+		_tmp74_ = g_strdup ("--output-dir");
+		_tmp75_ = self->priv->settings;
+		_tmp76_ = _tmp75_->path;
+		_tmp77_ = g_strdup (_tmp76_);
+		_tmp78_ = g_new0 (gchar*, 7 + 1);
+		_tmp78_[0] = _tmp65_;
+		_tmp78_[1] = _tmp66_;
+		_tmp78_[2] = _tmp69_;
+		_tmp78_[3] = _tmp70_;
+		_tmp78_[4] = _tmp73_;
+		_tmp78_[5] = _tmp74_;
+		_tmp78_[6] = _tmp77_;
+		args = _tmp78_;
 		args_length1 = 7;
 		_args_size_ = args_length1;
-		_tmp87_ = g_getenv ("CFLAGS");
-		_tmp86_ = _tmp87_;
-		if (_tmp86_ == NULL) {
-			_tmp86_ = "";
+		_tmp80_ = g_getenv ("CFLAGS");
+		_tmp79_ = _tmp80_;
+		if (_tmp79_ == NULL) {
+			_tmp79_ = "";
 		}
-		_tmp89_ = g_getenv ("LDFLAGS");
-		_tmp88_ = _tmp89_;
-		if (_tmp88_ == NULL) {
-			_tmp88_ = "";
+		_tmp82_ = g_getenv ("LDFLAGS");
+		_tmp81_ = _tmp82_;
+		if (_tmp81_ == NULL) {
+			_tmp81_ = "";
 		}
-		_tmp91_ = g_getenv ("LD_LIBRARY_PATH");
-		_tmp90_ = _tmp91_;
-		if (_tmp90_ == NULL) {
-			_tmp90_ = "";
+		_tmp84_ = g_getenv ("LD_LIBRARY_PATH");
+		_tmp83_ = _tmp84_;
+		if (_tmp83_ == NULL) {
+			_tmp83_ = "";
 		}
-		_tmp92_ = cflags;
-		_tmp93_ = g_strdup_printf ("CFLAGS=%s %s", _tmp92_, _tmp86_);
-		_tmp94_ = libs;
-		_tmp95_ = library_paths;
-		_tmp96_ = _tmp95_->str;
-		_tmp97_ = g_strdup_printf ("LDFLAGS=%s %s %s", _tmp94_, _tmp96_, _tmp88_);
-		_tmp98_ = library_dirs;
-		_tmp99_ = _tmp98_->str;
-		_tmp100_ = g_strdup_printf ("LD_LIBRARY_PATH=%s%s", _tmp99_, _tmp90_);
-		_tmp101_ = g_new0 (gchar*, 3 + 1);
-		_tmp101_[0] = _tmp93_;
-		_tmp101_[1] = _tmp97_;
-		_tmp101_[2] = _tmp100_;
-		env = _tmp101_;
+		_tmp85_ = cflags;
+		_tmp86_ = g_strdup_printf ("CFLAGS=%s %s", _tmp85_, _tmp79_);
+		_tmp87_ = libs;
+		_tmp88_ = library_paths;
+		_tmp89_ = _tmp88_->str;
+		_tmp90_ = g_strdup_printf ("LDFLAGS=%s %s %s", _tmp87_, _tmp89_, _tmp81_);
+		_tmp91_ = library_dirs;
+		_tmp92_ = _tmp91_->str;
+		_tmp93_ = g_strdup_printf ("LD_LIBRARY_PATH=%s%s", _tmp92_, _tmp83_);
+		_tmp94_ = g_new0 (gchar*, 3 + 1);
+		_tmp94_[0] = _tmp86_;
+		_tmp94_[1] = _tmp90_;
+		_tmp94_[2] = _tmp93_;
+		env = _tmp94_;
 		env_length1 = 3;
 		_env_size_ = env_length1;
-		_tmp103_ = _tmp102_ = g_listenv ();
+		_tmp96_ = _tmp95_ = g_listenv ();
 		{
 			gchar** evar_collection = NULL;
 			gint evar_collection_length1 = 0;
 			gint _evar_collection_size_ = 0;
 			gint evar_it = 0;
-			evar_collection = _tmp103_;
-			evar_collection_length1 = _vala_array_length (_tmp102_);
-			for (evar_it = 0; evar_it < _vala_array_length (_tmp102_); evar_it = evar_it + 1) {
-				gchar* _tmp104_;
+			evar_collection = _tmp96_;
+			evar_collection_length1 = _vala_array_length (_tmp95_);
+			for (evar_it = 0; evar_it < evar_collection_length1; evar_it = evar_it + 1) {
+				gchar* _tmp97_;
 				gchar* evar = NULL;
-				_tmp104_ = g_strdup (evar_collection[evar_it]);
-				evar = _tmp104_;
+				_tmp97_ = g_strdup (evar_collection[evar_it]);
+				evar = _tmp97_;
 				{
-					gboolean _tmp105_ = FALSE;
-					gboolean _tmp106_ = FALSE;
-					const gchar* _tmp107_;
-					_tmp107_ = evar;
-					if (g_strcmp0 (_tmp107_, "CFLAGS") != 0) {
-						const gchar* _tmp108_;
-						_tmp108_ = evar;
-						_tmp106_ = g_strcmp0 (_tmp108_, "LDFLAGS") != 0;
+					gboolean _tmp98_ = FALSE;
+					gboolean _tmp99_ = FALSE;
+					const gchar* _tmp100_;
+					_tmp100_ = evar;
+					if (g_strcmp0 (_tmp100_, "CFLAGS") != 0) {
+						const gchar* _tmp101_;
+						_tmp101_ = evar;
+						_tmp99_ = g_strcmp0 (_tmp101_, "LDFLAGS") != 0;
 					} else {
-						_tmp106_ = FALSE;
+						_tmp99_ = FALSE;
 					}
-					if (_tmp106_) {
-						const gchar* _tmp109_;
-						_tmp109_ = evar;
-						_tmp105_ = g_strcmp0 (_tmp109_, "LD_LIBRARY_PATH") != 0;
+					if (_tmp99_) {
+						const gchar* _tmp102_;
+						_tmp102_ = evar;
+						_tmp98_ = g_strcmp0 (_tmp102_, "LD_LIBRARY_PATH") != 0;
 					} else {
-						_tmp105_ = FALSE;
+						_tmp98_ = FALSE;
 					}
-					if (_tmp105_) {
-						gchar** _tmp110_;
-						gint _tmp110__length1;
-						const gchar* _tmp111_;
-						const gchar* _tmp112_;
-						const gchar* _tmp113_;
-						gchar* _tmp114_;
-						_tmp110_ = env;
-						_tmp110__length1 = env_length1;
-						_tmp111_ = evar;
-						_tmp112_ = evar;
-						_tmp113_ = g_getenv (_tmp112_);
-						_tmp114_ = g_strdup_printf ("%s=%s", _tmp111_, _tmp113_);
-						_vala_array_add18 (&env, &env_length1, &_env_size_, _tmp114_);
+					if (_tmp98_) {
+						const gchar* _tmp103_;
+						const gchar* _tmp104_;
+						const gchar* _tmp105_;
+						gchar* _tmp106_;
+						_tmp103_ = evar;
+						_tmp104_ = evar;
+						_tmp105_ = g_getenv (_tmp104_);
+						_tmp106_ = g_strdup_printf ("%s=%s", _tmp103_, _tmp105_);
+						_vala_array_add18 (&env, &env_length1, &_env_size_, _tmp106_);
 					}
 					_g_free0 (evar);
 				}
 			}
 			evar_collection = (_vala_array_free (evar_collection, evar_collection_length1, (GDestroyNotify) g_free), NULL);
 		}
-		_tmp115_ = self->priv->settings;
-		_tmp116_ = _tmp115_->path;
-		_tmp117_ = args;
-		_tmp117__length1 = args_length1;
-		_tmp118_ = env;
-		_tmp118__length1 = env_length1;
-		g_spawn_sync (_tmp116_, _tmp117_, _tmp118_, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		_tmp107_ = self->priv->settings;
+		_tmp108_ = _tmp107_->path;
+		_tmp109_ = args;
+		_tmp109__length1 = args_length1;
+		_tmp110_ = env;
+		_tmp110__length1 = env_length1;
+		g_spawn_sync (_tmp108_, _tmp109_, _tmp110_, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			env = (_vala_array_free (env, env_length1, (GDestroyNotify) g_free), NULL);
 			args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 			_g_free0 (libs);
 			_g_free0 (cflags);
 			_g_free0 (stderr_buf);
-			goto __catch2_g_error;
+			goto __catch0_g_error;
 		}
 		env = (_vala_array_free (env, env_length1, (GDestroyNotify) g_free), NULL);
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
@@ -1900,19 +1801,19 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 		_g_free0 (cflags);
 		_g_free0 (stderr_buf);
 	}
-	goto __finally2;
-	__catch2_g_error:
+	goto __finally0;
+	__catch0_g_error:
 	{
 		GError* e = NULL;
-		ValadocErrorReporter* _tmp119_;
-		GError* _tmp120_;
-		const gchar* _tmp121_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp119_ = self->priv->reporter;
-		_tmp120_ = e;
-		_tmp121_ = _tmp120_->message;
-		valadoc_error_reporter_simple_error (_tmp119_, "gtkdoc-scangobj", "%s", _tmp121_);
+		ValadocErrorReporter* _tmp111_;
+		GError* _tmp112_;
+		const gchar* _tmp113_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp111_ = self->priv->reporter;
+		_tmp112_ = e;
+		_tmp113_ = _tmp112_->message;
+		valadoc_error_reporter_simple_error (_tmp111_, "gtkdoc-scangobj", "%s", _tmp113_);
 		result = FALSE;
 		_g_error_free0 (e);
 		pc_libs = (_vala_array_free (pc_libs, pc_libs_length1, (GDestroyNotify) g_free), NULL);
@@ -1922,17 +1823,17 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 		_g_string_free0 (library_paths);
 		return result;
 	}
-	__finally2:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp122_ = FALSE;
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp114_ = FALSE;
 		pc_libs = (_vala_array_free (pc_libs, pc_libs_length1, (GDestroyNotify) g_free), NULL);
 		pc_cflags = (_vala_array_free (pc_cflags, pc_cflags_length1, (GDestroyNotify) g_free), NULL);
 		pc = (_vala_array_free (pc, pc_length1, (GDestroyNotify) g_free), NULL);
 		_g_string_free0 (library_dirs);
 		_g_string_free0 (library_paths);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp122_;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp114_;
 	}
 	result = TRUE;
 	pc_libs = (_vala_array_free (pc_libs, pc_libs_length1, (GDestroyNotify) g_free), NULL);
@@ -1943,16 +1844,15 @@ gtkdoc_director_scangobj (GtkdocDirector* self)
 	return result;
 }
 
-
 static gchar*
 string_replace (const gchar* self,
                 const gchar* old,
                 const gchar* replacement)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (old != NULL, NULL);
 	g_return_val_if_fail (replacement != NULL, NULL);
@@ -1984,29 +1884,28 @@ string_replace (const gchar* self,
 		gchar* _tmp10_;
 		_tmp3_ = g_regex_escape_string (old, -1);
 		_tmp4_ = _tmp3_;
-		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error_);
+		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error0_);
 		_tmp6_ = _tmp5_;
 		_g_free0 (_tmp4_);
 		regex = _tmp6_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch5_g_regex_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp8_ = regex;
-		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error_);
+		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error0_);
 		_tmp7_ = _tmp9_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_regex_unref0 (regex);
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch5_g_regex_error;
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			_g_regex_unref0 (regex);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp10_ = _tmp7_;
@@ -2016,23 +1915,17 @@ string_replace (const gchar* self,
 		_g_regex_unref0 (regex);
 		return result;
 	}
-	goto __finally5;
-	__catch5_g_regex_error:
+	goto __finally0;
+	__catch0_g_regex_error:
 	{
-		GError* e = NULL;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		g_assert_not_reached ();
-		_g_error_free0 (e);
 	}
-	__finally5:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return NULL;
-	}
+	__finally0:
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
+	return NULL;
 }
-
 
 static gpointer
 _vala_iterable_ref0 (gpointer self)
@@ -2040,11 +1933,9 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static gboolean
 gtkdoc_director_mkdb (GtkdocDirector* self)
 {
-	gboolean result = FALSE;
 	gchar* main_file = NULL;
 	ValadocSettings* _tmp0_;
 	const gchar* _tmp1_;
@@ -2083,8 +1974,8 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 	gchar** _tmp31_;
 	gint args_length1;
 	gint _args_size_;
-	gboolean _tmp39_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->settings;
 	_tmp1_ = _tmp0_->path;
@@ -2146,20 +2037,20 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 		_tmp33_ = _tmp32_->path;
 		_tmp34_ = args;
 		_tmp34__length1 = args_length1;
-		g_spawn_sync (_tmp33_, _tmp34_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			goto __catch3_g_error;
+		g_spawn_sync (_tmp33_, _tmp34_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch0_g_error;
 		}
 	}
-	goto __finally3;
-	__catch3_g_error:
+	goto __finally0;
+	__catch0_g_error:
 	{
 		GError* e = NULL;
 		ValadocErrorReporter* _tmp35_;
 		GError* _tmp36_;
 		const gchar* _tmp37_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp35_ = self->priv->reporter;
 		_tmp36_ = e;
 		_tmp37_ = _tmp36_->message;
@@ -2171,57 +2062,56 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 		_g_free0 (main_file);
 		return result;
 	}
-	__finally3:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gboolean _tmp38_ = FALSE;
 		args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 		_g_free0 (code_dir);
 		_g_free0 (main_file);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp38_;
 	}
-	_tmp39_ = must_update_main_file;
-	if (_tmp39_) {
+	if (must_update_main_file) {
 		gchar* contents = NULL;
-		ValadocSettings* _tmp47_;
-		const gchar* _tmp48_;
-		const gchar* _tmp53_;
-		ValadocSettings* _tmp54_;
-		const gchar* _tmp55_;
+		ValadocSettings* _tmp46_;
+		const gchar* _tmp47_;
+		const gchar* _tmp52_;
+		ValadocSettings* _tmp53_;
+		const gchar* _tmp54_;
+		gchar* _tmp55_;
 		gchar* _tmp56_;
 		gchar* _tmp57_;
-		gchar* _tmp58_;
-		GtkdocGenerator* _tmp59_;
-		ValaList* _tmp60_;
+		GtkdocGenerator* _tmp58_;
+		ValaList* _tmp59_;
+		gint _tmp60_;
 		gint _tmp61_;
-		gint _tmp62_;
 		{
-			const gchar* _tmp40_;
-			gchar* _tmp41_ = NULL;
-			_tmp40_ = main_file;
-			g_file_get_contents (_tmp40_, &_tmp41_, NULL, &_inner_error_);
+			const gchar* _tmp39_;
+			gchar* _tmp40_ = NULL;
+			_tmp39_ = main_file;
+			g_file_get_contents (_tmp39_, &_tmp40_, NULL, &_inner_error0_);
 			_g_free0 (contents);
-			contents = _tmp41_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				goto __catch4_g_error;
+			contents = _tmp40_;
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				goto __catch1_g_error;
 			}
 		}
-		goto __finally4;
-		__catch4_g_error:
+		goto __finally1;
+		__catch1_g_error:
 		{
 			GError* e = NULL;
-			ValadocErrorReporter* _tmp42_;
-			const gchar* _tmp43_;
-			GError* _tmp44_;
-			const gchar* _tmp45_;
-			e = _inner_error_;
-			_inner_error_ = NULL;
-			_tmp42_ = self->priv->reporter;
-			_tmp43_ = main_file;
-			_tmp44_ = e;
-			_tmp45_ = _tmp44_->message;
-			valadoc_error_reporter_simple_error (_tmp42_, "GtkDoc", "Error while reading main file '%s' contents: %s", _tmp43_, _tmp45_);
+			ValadocErrorReporter* _tmp41_;
+			const gchar* _tmp42_;
+			GError* _tmp43_;
+			const gchar* _tmp44_;
+			e = _inner_error0_;
+			_inner_error0_ = NULL;
+			_tmp41_ = self->priv->reporter;
+			_tmp42_ = main_file;
+			_tmp43_ = e;
+			_tmp44_ = _tmp43_->message;
+			valadoc_error_reporter_simple_error (_tmp41_, "GtkDoc", "Error while reading main file '%s' contents: %s", _tmp42_, _tmp44_);
 			result = FALSE;
 			_g_error_free0 (e);
 			_g_free0 (contents);
@@ -2230,188 +2120,184 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 			_g_free0 (main_file);
 			return result;
 		}
-		__finally4:
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			gboolean _tmp46_ = FALSE;
+		__finally1:
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			gboolean _tmp45_ = FALSE;
 			_g_free0 (contents);
 			args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 			_g_free0 (code_dir);
 			_g_free0 (main_file);
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
-			return _tmp46_;
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
+			return _tmp45_;
 		}
-		_tmp47_ = self->priv->settings;
-		_tmp48_ = _tmp47_->pkg_version;
-		if (_tmp48_ != NULL) {
-			const gchar* _tmp49_;
-			ValadocSettings* _tmp50_;
-			const gchar* _tmp51_;
-			gchar* _tmp52_;
-			_tmp49_ = contents;
-			_tmp50_ = self->priv->settings;
-			_tmp51_ = _tmp50_->pkg_version;
-			_tmp52_ = string_replace (_tmp49_, "[VERSION]", _tmp51_);
+		_tmp46_ = self->priv->settings;
+		_tmp47_ = _tmp46_->pkg_version;
+		if (_tmp47_ != NULL) {
+			const gchar* _tmp48_;
+			ValadocSettings* _tmp49_;
+			const gchar* _tmp50_;
+			gchar* _tmp51_;
+			_tmp48_ = contents;
+			_tmp49_ = self->priv->settings;
+			_tmp50_ = _tmp49_->pkg_version;
+			_tmp51_ = string_replace (_tmp48_, "[VERSION]", _tmp50_);
 			_g_free0 (contents);
-			contents = _tmp52_;
+			contents = _tmp51_;
 		}
-		_tmp53_ = contents;
-		_tmp54_ = self->priv->settings;
-		_tmp55_ = _tmp54_->pkg_name;
-		_tmp56_ = g_strdup_printf ("%s API Reference", _tmp55_);
-		_tmp57_ = _tmp56_;
-		_tmp58_ = string_replace (_tmp53_, "[Insert title here]", _tmp57_);
+		_tmp52_ = contents;
+		_tmp53_ = self->priv->settings;
+		_tmp54_ = _tmp53_->pkg_name;
+		_tmp55_ = g_strdup_printf ("%s API Reference", _tmp54_);
+		_tmp56_ = _tmp55_;
+		_tmp57_ = string_replace (_tmp52_, "[Insert title here]", _tmp56_);
 		_g_free0 (contents);
-		contents = _tmp58_;
-		_g_free0 (_tmp57_);
-		_tmp59_ = self->priv->generator;
-		_tmp60_ = _tmp59_->dbus_interfaces;
-		_tmp61_ = vala_collection_get_size ((ValaCollection*) _tmp60_);
-		_tmp62_ = _tmp61_;
-		if (_tmp62_ > 0) {
+		contents = _tmp57_;
+		_g_free0 (_tmp56_);
+		_tmp58_ = self->priv->generator;
+		_tmp59_ = _tmp58_->dbus_interfaces;
+		_tmp60_ = vala_collection_get_size ((ValaCollection*) _tmp59_);
+		_tmp61_ = _tmp60_;
+		if (_tmp61_ > 0) {
 			GString* builder = NULL;
+			GString* _tmp62_;
 			GString* _tmp63_;
-			GString* _tmp64_;
-			ValadocSettings* _tmp65_;
-			const gchar* _tmp66_;
+			ValadocSettings* _tmp64_;
+			const gchar* _tmp65_;
 			gchar* hierarchy_file = NULL;
-			ValadocSettings* _tmp84_;
-			const gchar* _tmp85_;
-			ValadocSettings* _tmp86_;
-			const gchar* _tmp87_;
+			ValadocSettings* _tmp81_;
+			const gchar* _tmp82_;
+			ValadocSettings* _tmp83_;
+			const gchar* _tmp84_;
+			gchar* _tmp85_;
+			gchar* _tmp86_;
+			gchar* _tmp87_;
 			gchar* _tmp88_;
-			gchar* _tmp89_;
-			gchar* _tmp90_;
-			gchar* _tmp91_;
-			const gchar* _tmp92_;
-			_tmp63_ = g_string_new ("");
-			builder = _tmp63_;
-			_tmp64_ = builder;
-			_tmp65_ = self->priv->settings;
-			_tmp66_ = _tmp65_->pkg_name;
-			g_string_append_printf (_tmp64_, "\n<chapter>\n<title>%s D-Bus API Reference</title>\n", _tmp66_);
+			const gchar* _tmp89_;
+			_tmp62_ = g_string_new ("");
+			builder = _tmp62_;
+			_tmp63_ = builder;
+			_tmp64_ = self->priv->settings;
+			_tmp65_ = _tmp64_->pkg_name;
+			g_string_append_printf (_tmp63_, "\n<chapter>\n<title>%s D-Bus API Reference</title>\n", _tmp65_);
 			{
 				ValaList* _iface_list = NULL;
-				GtkdocGenerator* _tmp67_;
+				GtkdocGenerator* _tmp66_;
+				ValaList* _tmp67_;
 				ValaList* _tmp68_;
-				ValaList* _tmp69_;
 				gint _iface_size = 0;
-				ValaList* _tmp70_;
+				ValaList* _tmp69_;
+				gint _tmp70_;
 				gint _tmp71_;
-				gint _tmp72_;
 				gint _iface_index = 0;
-				_tmp67_ = self->priv->generator;
-				_tmp68_ = _tmp67_->dbus_interfaces;
-				_tmp69_ = _vala_iterable_ref0 (_tmp68_);
-				_iface_list = _tmp69_;
-				_tmp70_ = _iface_list;
-				_tmp71_ = vala_collection_get_size ((ValaCollection*) _tmp70_);
-				_tmp72_ = _tmp71_;
-				_iface_size = _tmp72_;
+				_tmp66_ = self->priv->generator;
+				_tmp67_ = _tmp66_->dbus_interfaces;
+				_tmp68_ = _vala_iterable_ref0 (_tmp67_);
+				_iface_list = _tmp68_;
+				_tmp69_ = _iface_list;
+				_tmp70_ = vala_collection_get_size ((ValaCollection*) _tmp69_);
+				_tmp71_ = _tmp70_;
+				_iface_size = _tmp71_;
 				_iface_index = -1;
 				while (TRUE) {
+					gint _tmp72_;
 					gint _tmp73_;
-					gint _tmp74_;
-					gint _tmp75_;
 					GtkdocDBusInterface* iface = NULL;
-					ValaList* _tmp76_;
-					gint _tmp77_;
-					gpointer _tmp78_;
-					GString* _tmp79_;
-					GtkdocDBusInterface* _tmp80_;
-					const gchar* _tmp81_;
-					gchar* _tmp82_;
-					gchar* _tmp83_;
-					_tmp73_ = _iface_index;
-					_iface_index = _tmp73_ + 1;
-					_tmp74_ = _iface_index;
-					_tmp75_ = _iface_size;
-					if (!(_tmp74_ < _tmp75_)) {
+					ValaList* _tmp74_;
+					gpointer _tmp75_;
+					GString* _tmp76_;
+					GtkdocDBusInterface* _tmp77_;
+					const gchar* _tmp78_;
+					gchar* _tmp79_;
+					gchar* _tmp80_;
+					_iface_index = _iface_index + 1;
+					_tmp72_ = _iface_index;
+					_tmp73_ = _iface_size;
+					if (!(_tmp72_ < _tmp73_)) {
 						break;
 					}
-					_tmp76_ = _iface_list;
-					_tmp77_ = _iface_index;
-					_tmp78_ = vala_list_get (_tmp76_, _tmp77_);
-					iface = (GtkdocDBusInterface*) _tmp78_;
-					_tmp79_ = builder;
-					_tmp80_ = iface;
-					_tmp81_ = _tmp80_->name;
-					_tmp82_ = gtkdoc_to_docbook_id (_tmp81_);
-					_tmp83_ = _tmp82_;
-					g_string_append_printf (_tmp79_, "<xi:include href=\"xml/%s.xml\"/>\n", _tmp83_);
-					_g_free0 (_tmp83_);
+					_tmp74_ = _iface_list;
+					_tmp75_ = vala_list_get (_tmp74_, _iface_index);
+					iface = (GtkdocDBusInterface*) _tmp75_;
+					_tmp76_ = builder;
+					_tmp77_ = iface;
+					_tmp78_ = _tmp77_->name;
+					_tmp79_ = gtkdoc_to_docbook_id (_tmp78_);
+					_tmp80_ = _tmp79_;
+					g_string_append_printf (_tmp76_, "<xi:include href=\"xml/%s.xml\"/>\n", _tmp80_);
+					_g_free0 (_tmp80_);
 					_gtkdoc_dbus_interface_unref0 (iface);
 				}
 				_vala_iterable_unref0 (_iface_list);
 			}
-			_tmp84_ = self->priv->settings;
-			_tmp85_ = _tmp84_->path;
-			_tmp86_ = self->priv->settings;
-			_tmp87_ = _tmp86_->pkg_name;
-			_tmp88_ = g_strdup_printf ("%s.hierarchy", _tmp87_);
-			_tmp89_ = _tmp88_;
-			_tmp90_ = g_build_filename (_tmp85_, _tmp89_, NULL);
-			_tmp91_ = _tmp90_;
-			_g_free0 (_tmp89_);
-			hierarchy_file = _tmp91_;
-			_tmp92_ = hierarchy_file;
-			if (g_file_test (_tmp92_, G_FILE_TEST_EXISTS)) {
-				GString* _tmp93_;
-				const gchar* _tmp94_;
+			_tmp81_ = self->priv->settings;
+			_tmp82_ = _tmp81_->path;
+			_tmp83_ = self->priv->settings;
+			_tmp84_ = _tmp83_->pkg_name;
+			_tmp85_ = g_strdup_printf ("%s.hierarchy", _tmp84_);
+			_tmp86_ = _tmp85_;
+			_tmp87_ = g_build_filename (_tmp82_, _tmp86_, NULL);
+			_tmp88_ = _tmp87_;
+			_g_free0 (_tmp86_);
+			hierarchy_file = _tmp88_;
+			_tmp89_ = hierarchy_file;
+			if (g_file_test (_tmp89_, G_FILE_TEST_EXISTS)) {
+				GString* _tmp90_;
+				const gchar* _tmp91_;
+				GString* _tmp92_;
+				const gchar* _tmp93_;
+				gchar* _tmp94_;
+				_tmp90_ = builder;
+				g_string_append (_tmp90_, "</chapter>\n<chapter id=\"object-tree\">");
+				_tmp91_ = contents;
+				_tmp92_ = builder;
+				_tmp93_ = _tmp92_->str;
+				_tmp94_ = string_replace (_tmp91_, "<chapter id=\"object-tree\">", _tmp93_);
+				_g_free0 (contents);
+				contents = _tmp94_;
+			} else {
 				GString* _tmp95_;
 				const gchar* _tmp96_;
-				gchar* _tmp97_;
-				_tmp93_ = builder;
-				g_string_append (_tmp93_, "</chapter>\n<chapter id=\"object-tree\">");
-				_tmp94_ = contents;
+				GString* _tmp97_;
+				const gchar* _tmp98_;
+				gchar* _tmp99_;
 				_tmp95_ = builder;
-				_tmp96_ = _tmp95_->str;
-				_tmp97_ = string_replace (_tmp94_, "<chapter id=\"object-tree\">", _tmp96_);
+				g_string_append (_tmp95_, "</chapter>\n<index id=\"api-index-full\">");
+				_tmp96_ = contents;
+				_tmp97_ = builder;
+				_tmp98_ = _tmp97_->str;
+				_tmp99_ = string_replace (_tmp96_, "<index id=\"api-index-full\">", _tmp98_);
 				_g_free0 (contents);
-				contents = _tmp97_;
-			} else {
-				GString* _tmp98_;
-				const gchar* _tmp99_;
-				GString* _tmp100_;
-				const gchar* _tmp101_;
-				gchar* _tmp102_;
-				_tmp98_ = builder;
-				g_string_append (_tmp98_, "</chapter>\n<index id=\"api-index-full\">");
-				_tmp99_ = contents;
-				_tmp100_ = builder;
-				_tmp101_ = _tmp100_->str;
-				_tmp102_ = string_replace (_tmp99_, "<index id=\"api-index-full\">", _tmp101_);
-				_g_free0 (contents);
-				contents = _tmp102_;
+				contents = _tmp99_;
 			}
 			_g_free0 (hierarchy_file);
 			_g_string_free0 (builder);
 		}
 		{
-			const gchar* _tmp103_;
-			const gchar* _tmp104_;
-			_tmp103_ = main_file;
-			_tmp104_ = contents;
-			g_file_set_contents (_tmp103_, _tmp104_, (gssize) -1, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				goto __catch6_g_error;
+			const gchar* _tmp100_;
+			const gchar* _tmp101_;
+			_tmp100_ = main_file;
+			_tmp101_ = contents;
+			g_file_set_contents (_tmp100_, _tmp101_, (gssize) -1, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				goto __catch2_g_error;
 			}
 		}
-		goto __finally6;
-		__catch6_g_error:
+		goto __finally2;
+		__catch2_g_error:
 		{
 			GError* e = NULL;
-			ValadocErrorReporter* _tmp105_;
-			const gchar* _tmp106_;
-			GError* _tmp107_;
-			const gchar* _tmp108_;
-			e = _inner_error_;
-			_inner_error_ = NULL;
-			_tmp105_ = self->priv->reporter;
-			_tmp106_ = main_file;
-			_tmp107_ = e;
-			_tmp108_ = _tmp107_->message;
-			valadoc_error_reporter_simple_error (_tmp105_, "GtkDoc", "Error while writing main file '%s' contents: %s", _tmp106_, _tmp108_);
+			ValadocErrorReporter* _tmp102_;
+			const gchar* _tmp103_;
+			GError* _tmp104_;
+			const gchar* _tmp105_;
+			e = _inner_error0_;
+			_inner_error0_ = NULL;
+			_tmp102_ = self->priv->reporter;
+			_tmp103_ = main_file;
+			_tmp104_ = e;
+			_tmp105_ = _tmp104_->message;
+			valadoc_error_reporter_simple_error (_tmp102_, "GtkDoc", "Error while writing main file '%s' contents: %s", _tmp103_, _tmp105_);
 			result = FALSE;
 			_g_error_free0 (e);
 			_g_free0 (contents);
@@ -2420,16 +2306,16 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 			_g_free0 (main_file);
 			return result;
 		}
-		__finally6:
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			gboolean _tmp109_ = FALSE;
+		__finally2:
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			gboolean _tmp106_ = FALSE;
 			_g_free0 (contents);
 			args = (_vala_array_free (args, args_length1, (GDestroyNotify) g_free), NULL);
 			_g_free0 (code_dir);
 			_g_free0 (main_file);
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
-			return _tmp109_;
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
+			return _tmp106_;
 		}
 		_g_free0 (contents);
 	}
@@ -2440,165 +2326,161 @@ gtkdoc_director_mkdb (GtkdocDirector* self)
 	return result;
 }
 
-
 static gboolean
 gtkdoc_director_mkhtml (GtkdocDirector* self)
 {
-	gboolean result = FALSE;
-	gboolean _tmp0_;
 	gchar* html_dir = NULL;
-	ValadocSettings* _tmp1_;
-	const gchar* _tmp2_;
-	gchar* _tmp3_;
-	const gchar* _tmp4_;
-	GError * _inner_error_ = NULL;
+	ValadocSettings* _tmp0_;
+	const gchar* _tmp1_;
+	gchar* _tmp2_;
+	const gchar* _tmp3_;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = gtkdoc_config_nohtml;
-	if (_tmp0_) {
+	if (gtkdoc_config_nohtml) {
 		result = TRUE;
 		return result;
 	}
-	_tmp1_ = self->priv->settings;
-	_tmp2_ = _tmp1_->path;
-	_tmp3_ = g_build_filename (_tmp2_, "html", NULL);
-	html_dir = _tmp3_;
-	_tmp4_ = html_dir;
-	g_mkdir_with_parents (_tmp4_, 0755);
+	_tmp0_ = self->priv->settings;
+	_tmp1_ = _tmp0_->path;
+	_tmp2_ = g_build_filename (_tmp1_, "html", NULL);
+	html_dir = _tmp2_;
+	_tmp3_ = html_dir;
+	g_mkdir_with_parents (_tmp3_, 0755);
 	{
-		const gchar* _tmp5_;
-		gchar* _tmp6_;
-		ValadocSettings* _tmp7_;
-		const gchar* _tmp8_;
-		gchar* _tmp9_;
-		ValadocSettings* _tmp10_;
-		const gchar* _tmp11_;
-		gchar* _tmp12_;
+		const gchar* _tmp4_;
+		gchar* _tmp5_;
+		ValadocSettings* _tmp6_;
+		const gchar* _tmp7_;
+		gchar* _tmp8_;
+		ValadocSettings* _tmp9_;
+		const gchar* _tmp10_;
+		gchar* _tmp11_;
+		gchar** _tmp12_;
 		gchar** _tmp13_;
-		gchar** _tmp14_;
-		gint _tmp14__length1;
-		_tmp5_ = html_dir;
-		_tmp6_ = g_strdup ("gtkdoc-mkhtml");
-		_tmp7_ = self->priv->settings;
-		_tmp8_ = _tmp7_->pkg_name;
-		_tmp9_ = g_strdup (_tmp8_);
-		_tmp10_ = self->priv->settings;
-		_tmp11_ = _tmp10_->pkg_name;
-		_tmp12_ = g_strdup_printf ("../%s-docs.xml", _tmp11_);
-		_tmp13_ = g_new0 (gchar*, 3 + 1);
-		_tmp13_[0] = _tmp6_;
-		_tmp13_[1] = _tmp9_;
-		_tmp13_[2] = _tmp12_;
-		_tmp14_ = _tmp13_;
-		_tmp14__length1 = 3;
-		g_spawn_sync (_tmp5_, _tmp14_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error_);
-		_tmp14_ = (_vala_array_free (_tmp14_, _tmp14__length1, (GDestroyNotify) g_free), NULL);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			goto __catch7_g_error;
+		gint _tmp13__length1;
+		_tmp4_ = html_dir;
+		_tmp5_ = g_strdup ("gtkdoc-mkhtml");
+		_tmp6_ = self->priv->settings;
+		_tmp7_ = _tmp6_->pkg_name;
+		_tmp8_ = g_strdup (_tmp7_);
+		_tmp9_ = self->priv->settings;
+		_tmp10_ = _tmp9_->pkg_name;
+		_tmp11_ = g_strdup_printf ("../%s-docs.xml", _tmp10_);
+		_tmp12_ = g_new0 (gchar*, 3 + 1);
+		_tmp12_[0] = _tmp5_;
+		_tmp12_[1] = _tmp8_;
+		_tmp12_[2] = _tmp11_;
+		_tmp13_ = _tmp12_;
+		_tmp13__length1 = 3;
+		g_spawn_sync (_tmp4_, _tmp13_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error0_);
+		_tmp13_ = (_vala_array_free (_tmp13_, _tmp13__length1, (GDestroyNotify) g_free), NULL);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch0_g_error;
 		}
 	}
-	goto __finally7;
-	__catch7_g_error:
+	goto __finally0;
+	__catch0_g_error:
 	{
 		GError* e = NULL;
-		ValadocErrorReporter* _tmp15_;
-		GError* _tmp16_;
-		const gchar* _tmp17_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp15_ = self->priv->reporter;
-		_tmp16_ = e;
-		_tmp17_ = _tmp16_->message;
-		valadoc_error_reporter_simple_error (_tmp15_, "gtkdoc-mkhtml", "%s", _tmp17_);
+		ValadocErrorReporter* _tmp14_;
+		GError* _tmp15_;
+		const gchar* _tmp16_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp14_ = self->priv->reporter;
+		_tmp15_ = e;
+		_tmp16_ = _tmp15_->message;
+		valadoc_error_reporter_simple_error (_tmp14_, "gtkdoc-mkhtml", "%s", _tmp16_);
 		result = FALSE;
 		_g_error_free0 (e);
 		_g_free0 (html_dir);
 		return result;
 	}
-	__finally7:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp18_ = FALSE;
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp17_ = FALSE;
 		_g_free0 (html_dir);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp18_;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp17_;
 	}
 	{
-		ValadocSettings* _tmp19_;
-		const gchar* _tmp20_;
+		ValadocSettings* _tmp18_;
+		const gchar* _tmp19_;
+		gchar* _tmp20_;
 		gchar* _tmp21_;
-		gchar* _tmp22_;
-		ValadocSettings* _tmp23_;
-		const gchar* _tmp24_;
+		ValadocSettings* _tmp22_;
+		const gchar* _tmp23_;
+		gchar* _tmp24_;
 		gchar* _tmp25_;
-		gchar* _tmp26_;
-		const gchar* _tmp27_;
+		const gchar* _tmp26_;
+		gchar* _tmp27_;
 		gchar* _tmp28_;
-		gchar* _tmp29_;
-		const gchar* _tmp30_;
-		gchar* _tmp31_;
+		const gchar* _tmp29_;
+		gchar* _tmp30_;
+		gchar** _tmp31_;
 		gchar** _tmp32_;
-		gchar** _tmp33_;
-		gint _tmp33__length1;
-		_tmp19_ = self->priv->settings;
-		_tmp20_ = _tmp19_->path;
-		_tmp21_ = g_strdup ("gtkdoc-fixxref");
-		_tmp22_ = g_strdup ("--module");
-		_tmp23_ = self->priv->settings;
-		_tmp24_ = _tmp23_->pkg_name;
-		_tmp25_ = g_strdup (_tmp24_);
-		_tmp26_ = g_strdup ("--module-dir");
-		_tmp27_ = html_dir;
-		_tmp28_ = g_strdup (_tmp27_);
-		_tmp29_ = g_strdup ("--html-dir");
-		_tmp30_ = html_dir;
-		_tmp31_ = g_strdup (_tmp30_);
-		_tmp32_ = g_new0 (gchar*, 7 + 1);
-		_tmp32_[0] = _tmp21_;
-		_tmp32_[1] = _tmp22_;
-		_tmp32_[2] = _tmp25_;
-		_tmp32_[3] = _tmp26_;
-		_tmp32_[4] = _tmp28_;
-		_tmp32_[5] = _tmp29_;
-		_tmp32_[6] = _tmp31_;
-		_tmp33_ = _tmp32_;
-		_tmp33__length1 = 7;
-		g_spawn_sync (_tmp20_, _tmp33_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error_);
-		_tmp33_ = (_vala_array_free (_tmp33_, _tmp33__length1, (GDestroyNotify) g_free), NULL);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			goto __catch8_g_error;
+		gint _tmp32__length1;
+		_tmp18_ = self->priv->settings;
+		_tmp19_ = _tmp18_->path;
+		_tmp20_ = g_strdup ("gtkdoc-fixxref");
+		_tmp21_ = g_strdup ("--module");
+		_tmp22_ = self->priv->settings;
+		_tmp23_ = _tmp22_->pkg_name;
+		_tmp24_ = g_strdup (_tmp23_);
+		_tmp25_ = g_strdup ("--module-dir");
+		_tmp26_ = html_dir;
+		_tmp27_ = g_strdup (_tmp26_);
+		_tmp28_ = g_strdup ("--html-dir");
+		_tmp29_ = html_dir;
+		_tmp30_ = g_strdup (_tmp29_);
+		_tmp31_ = g_new0 (gchar*, 7 + 1);
+		_tmp31_[0] = _tmp20_;
+		_tmp31_[1] = _tmp21_;
+		_tmp31_[2] = _tmp24_;
+		_tmp31_[3] = _tmp25_;
+		_tmp31_[4] = _tmp27_;
+		_tmp31_[5] = _tmp28_;
+		_tmp31_[6] = _tmp30_;
+		_tmp32_ = _tmp31_;
+		_tmp32__length1 = 7;
+		g_spawn_sync (_tmp19_, _tmp32_, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, NULL, NULL, &_inner_error0_);
+		_tmp32_ = (_vala_array_free (_tmp32_, _tmp32__length1, (GDestroyNotify) g_free), NULL);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			goto __catch1_g_error;
 		}
 	}
-	goto __finally8;
-	__catch8_g_error:
+	goto __finally1;
+	__catch1_g_error:
 	{
 		GError* e = NULL;
-		ValadocErrorReporter* _tmp34_;
-		GError* _tmp35_;
-		const gchar* _tmp36_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
-		_tmp34_ = self->priv->reporter;
-		_tmp35_ = e;
-		_tmp36_ = _tmp35_->message;
-		valadoc_error_reporter_simple_error (_tmp34_, "gtkdoc-fixxref", "%s", _tmp36_);
+		ValadocErrorReporter* _tmp33_;
+		GError* _tmp34_;
+		const gchar* _tmp35_;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
+		_tmp33_ = self->priv->reporter;
+		_tmp34_ = e;
+		_tmp35_ = _tmp34_->message;
+		valadoc_error_reporter_simple_error (_tmp33_, "gtkdoc-fixxref", "%s", _tmp35_);
 		result = FALSE;
 		_g_error_free0 (e);
 		_g_free0 (html_dir);
 		return result;
 	}
-	__finally8:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp37_ = FALSE;
+	__finally1:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp36_ = FALSE;
 		_g_free0 (html_dir);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp37_;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp36_;
 	}
 	result = TRUE;
 	_g_free0 (html_dir);
 	return result;
 }
-
 
 GtkdocDirector*
 gtkdoc_director_construct (GType object_type)
@@ -2608,37 +2490,35 @@ gtkdoc_director_construct (GType object_type)
 	return self;
 }
 
-
 GtkdocDirector*
 gtkdoc_director_new (void)
 {
 	return gtkdoc_director_construct (GTKDOC_TYPE_DIRECTOR);
 }
 
-
 static void
-gtkdoc_director_class_init (GtkdocDirectorClass * klass)
+gtkdoc_director_class_init (GtkdocDirectorClass * klass,
+                            gpointer klass_data)
 {
 	gtkdoc_director_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &GtkdocDirector_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = gtkdoc_director_finalize;
 }
 
-
 static void
-gtkdoc_director_valadoc_doclet_interface_init (ValadocDocletIface * iface)
+gtkdoc_director_valadoc_doclet_interface_init (ValadocDocletIface * iface,
+                                               gpointer iface_data)
 {
 	gtkdoc_director_valadoc_doclet_parent_iface = g_type_interface_peek_parent (iface);
 	iface->process = (void (*) (ValadocDoclet*, ValadocSettings*, ValadocApiTree*, ValadocErrorReporter*)) gtkdoc_director_real_process;
 }
 
-
 static void
-gtkdoc_director_instance_init (GtkdocDirector * self)
+gtkdoc_director_instance_init (GtkdocDirector * self,
+                               gpointer klass)
 {
 	self->priv = gtkdoc_director_get_instance_private (self);
 }
-
 
 static void
 gtkdoc_director_finalize (GObject * obj)
@@ -2654,23 +2534,29 @@ gtkdoc_director_finalize (GObject * obj)
 	G_OBJECT_CLASS (gtkdoc_director_parent_class)->finalize (obj);
 }
 
+static GType
+gtkdoc_director_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocDirectorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_director_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDirector), 0, (GInstanceInitFunc) gtkdoc_director_instance_init, NULL };
+	static const GInterfaceInfo valadoc_doclet_info = { (GInterfaceInitFunc) gtkdoc_director_valadoc_doclet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType gtkdoc_director_type_id;
+	gtkdoc_director_type_id = g_type_register_static (G_TYPE_OBJECT, "GtkdocDirector", &g_define_type_info, 0);
+	g_type_add_interface_static (gtkdoc_director_type_id, VALADOC_TYPE_DOCLET, &valadoc_doclet_info);
+	GtkdocDirector_private_offset = g_type_add_instance_private (gtkdoc_director_type_id, sizeof (GtkdocDirectorPrivate));
+	return gtkdoc_director_type_id;
+}
 
 GType
 gtkdoc_director_get_type (void)
 {
 	static volatile gsize gtkdoc_director_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_director_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocDirectorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_director_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocDirector), 0, (GInstanceInitFunc) gtkdoc_director_instance_init, NULL };
-		static const GInterfaceInfo valadoc_doclet_info = { (GInterfaceInitFunc) gtkdoc_director_valadoc_doclet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType gtkdoc_director_type_id;
-		gtkdoc_director_type_id = g_type_register_static (G_TYPE_OBJECT, "GtkdocDirector", &g_define_type_info, 0);
-		g_type_add_interface_static (gtkdoc_director_type_id, VALADOC_TYPE_DOCLET, &valadoc_doclet_info);
-		GtkdocDirector_private_offset = g_type_add_instance_private (gtkdoc_director_type_id, sizeof (GtkdocDirectorPrivate));
+		gtkdoc_director_type_id = gtkdoc_director_get_type_once ();
 		g_once_init_leave (&gtkdoc_director_type_id__volatile, gtkdoc_director_type_id);
 	}
 	return gtkdoc_director_type_id__volatile;
 }
-
 
 GType
 register_plugin (ValadocModuleLoader* module_loader)
@@ -2681,14 +2567,13 @@ register_plugin (ValadocModuleLoader* module_loader)
 	return result;
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -2696,7 +2581,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -2707,11 +2591,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -2720,6 +2603,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

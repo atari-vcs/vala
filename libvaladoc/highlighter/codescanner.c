@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 enum  {
 	VALADOC_HIGHLIGHTER_CODE_SCANNER_0_PROPERTY,
@@ -41,7 +40,6 @@ typedef enum  {
 	VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_REAL,
 	VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_NONE
 } ValadocHighlighterCodeScannerNumericType;
-
 
 #define VALADOC_HIGHLIGHTER_CODE_SCANNER_TYPE_NUMERIC_TYPE (valadoc_highlighter_code_scanner_numeric_type_get_type ())
 #define _vala_map_unref0(var) ((var == NULL) ? NULL : (var = (vala_map_unref (var), NULL)))
@@ -62,7 +60,6 @@ struct _ValadocHighlighterCodeScannerPrivate {
 	const gchar* content;
 	const gchar* pos;
 };
-
 
 static gint ValadocHighlighterCodeScanner_private_offset;
 static gpointer valadoc_highlighter_code_scanner_parent_class = NULL;
@@ -102,7 +99,7 @@ static gboolean valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighl
 static gboolean valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighterCodeScanner* self,
                                                                        glong* skip);
 static void valadoc_highlighter_code_scanner_finalize (GObject * obj);
-
+static GType valadoc_highlighter_code_scanner_get_type_once (void);
 
 static inline gpointer
 valadoc_highlighter_code_scanner_get_instance_private (ValadocHighlighterCodeScanner* self)
@@ -110,20 +107,26 @@ valadoc_highlighter_code_scanner_get_instance_private (ValadocHighlighterCodeSca
 	return G_STRUCT_MEMBER_P (self, ValadocHighlighterCodeScanner_private_offset);
 }
 
+static GType
+valadoc_highlighter_code_scanner_numeric_type_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_INTEGER, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_INTEGER", "integer"}, {VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_REAL, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_REAL", "real"}, {VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_NONE, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_NONE", "none"}, {0, NULL, NULL}};
+	GType valadoc_highlighter_code_scanner_numeric_type_type_id;
+	valadoc_highlighter_code_scanner_numeric_type_type_id = g_enum_register_static ("ValadocHighlighterCodeScannerNumericType", values);
+	return valadoc_highlighter_code_scanner_numeric_type_type_id;
+}
 
 static GType
 valadoc_highlighter_code_scanner_numeric_type_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_code_scanner_numeric_type_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_code_scanner_numeric_type_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_INTEGER, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_INTEGER", "integer"}, {VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_REAL, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_REAL", "real"}, {VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_NONE, "VALADOC_HIGHLIGHTER_CODE_SCANNER_NUMERIC_TYPE_NONE", "none"}, {0, NULL, NULL}};
 		GType valadoc_highlighter_code_scanner_numeric_type_type_id;
-		valadoc_highlighter_code_scanner_numeric_type_type_id = g_enum_register_static ("ValadocHighlighterCodeScannerNumericType", values);
+		valadoc_highlighter_code_scanner_numeric_type_type_id = valadoc_highlighter_code_scanner_numeric_type_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_code_scanner_numeric_type_type_id__volatile, valadoc_highlighter_code_scanner_numeric_type_type_id);
 	}
 	return valadoc_highlighter_code_scanner_numeric_type_type_id__volatile;
 }
-
 
 static void
 _valadoc_highlighter_code_token_unref0_ (gpointer var)
@@ -131,20 +134,17 @@ _valadoc_highlighter_code_token_unref0_ (gpointer var)
 	(var == NULL) ? NULL : (var = (valadoc_highlighter_code_token_unref (var), NULL));
 }
 
-
 static inline void
 _g_queue_free__valadoc_highlighter_code_token_unref0_ (GQueue* self)
 {
 	g_queue_free_full (self, (GDestroyNotify) _valadoc_highlighter_code_token_unref0_);
 }
 
-
 static gpointer
 _vala_map_ref0 (gpointer self)
 {
 	return self ? vala_map_ref (self) : NULL;
 }
-
 
 ValadocHighlighterCodeScanner*
 valadoc_highlighter_code_scanner_construct (GType object_type,
@@ -174,7 +174,6 @@ valadoc_highlighter_code_scanner_construct (GType object_type,
 	return self;
 }
 
-
 ValadocHighlighterCodeScanner*
 valadoc_highlighter_code_scanner_new (const gchar* content,
                                       gboolean enable_string_templates,
@@ -187,19 +186,17 @@ valadoc_highlighter_code_scanner_new (const gchar* content,
 	return valadoc_highlighter_code_scanner_construct (VALADOC_HIGHLIGHTER_TYPE_CODE_SCANNER, content, enable_string_templates, enabel_verbatim_string, enable_preprocessor_define, enable_preprocessor_include, enable_keyword_escape, keywords);
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static const gchar*
 string_offset (const gchar* self,
@@ -211,19 +208,18 @@ string_offset (const gchar* self,
 	return result;
 }
 
-
 static ValadocHighlighterCodeToken*
 valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 {
 	ValadocHighlighterCodeScanner * self;
-	ValadocHighlighterCodeToken* result = NULL;
 	GQueue* _tmp0_;
 	const gchar* start = NULL;
-	GQueue* _tmp96_;
-	ValadocHighlighterCodeToken* _tmp97_;
-	const gchar* _tmp98_;
-	const gchar* _tmp99_;
-	ValadocHighlighterCodeToken* _tmp100_;
+	GQueue* _tmp91_;
+	ValadocHighlighterCodeToken* _tmp92_;
+	const gchar* _tmp93_;
+	const gchar* _tmp94_;
+	ValadocHighlighterCodeToken* _tmp95_;
+	ValadocHighlighterCodeToken* result = NULL;
 	self = (ValadocHighlighterCodeScanner*) base;
 	_tmp0_ = self->priv->token_queue;
 	if (!g_queue_is_empty (_tmp0_)) {
@@ -245,17 +241,17 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 			gboolean _tmp8_ = FALSE;
 			const gchar* _tmp9_;
 			const gchar* _tmp10_;
-			const gchar* _tmp46_;
-			gboolean _tmp51_ = FALSE;
-			const gchar* _tmp52_;
-			gboolean _tmp69_ = FALSE;
-			const gchar* _tmp70_;
+			const gchar* _tmp44_;
+			gboolean _tmp49_ = FALSE;
+			const gchar* _tmp50_;
+			gboolean _tmp64_ = FALSE;
+			const gchar* _tmp65_;
+			const gchar* _tmp71_;
 			const gchar* _tmp76_;
-			const gchar* _tmp81_;
-			gboolean _tmp86_ = FALSE;
-			gboolean _tmp87_ = FALSE;
-			const gchar* _tmp88_;
-			const gchar* _tmp89_;
+			gboolean _tmp81_ = FALSE;
+			gboolean _tmp82_ = FALSE;
+			const gchar* _tmp83_;
+			const gchar* _tmp84_;
 			if (!_tmp4_) {
 				const gchar* _tmp5_;
 				const gchar* _tmp6_;
@@ -316,198 +312,204 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 					break;
 				} else {
 					gboolean _tmp21_ = FALSE;
-					gboolean _tmp22_;
-					_tmp22_ = self->priv->enable_preprocessor_include;
-					if (_tmp22_) {
-						const gchar* _tmp23_;
-						_tmp23_ = self->priv->pos;
-						_tmp21_ = g_str_has_prefix (_tmp23_, "#include");
+					if (self->priv->enable_preprocessor_include) {
+						const gchar* _tmp22_;
+						_tmp22_ = self->priv->pos;
+						_tmp21_ = g_str_has_prefix (_tmp22_, "#include");
 					} else {
 						_tmp21_ = FALSE;
 					}
 					if (_tmp21_) {
 						const gchar* end = NULL;
-						const gchar* _tmp24_;
-						_tmp24_ = self->priv->pos;
-						end = _tmp24_;
+						const gchar* _tmp23_;
+						_tmp23_ = self->priv->pos;
+						end = _tmp23_;
 						if (valadoc_highlighter_code_scanner_queue_c_include (self)) {
+							const gchar* _tmp24_;
 							const gchar* _tmp25_;
-							const gchar* _tmp26_;
-							ValadocHighlighterCodeToken* _tmp27_;
-							_tmp25_ = start;
-							_tmp26_ = end;
-							_tmp27_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp25_, _tmp26_);
-							result = _tmp27_;
+							ValadocHighlighterCodeToken* _tmp26_;
+							_tmp24_ = start;
+							_tmp25_ = end;
+							_tmp26_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp24_, _tmp25_);
+							result = _tmp26_;
 							return result;
 						} else {
-							const gchar* _tmp28_;
-							_tmp28_ = line_start;
-							self->priv->pos = _tmp28_;
+							const gchar* _tmp27_;
+							_tmp27_ = line_start;
+							self->priv->pos = _tmp27_;
 							continue;
 						}
 					} else {
+						gboolean _tmp28_ = FALSE;
 						gboolean _tmp29_ = FALSE;
 						gboolean _tmp30_ = FALSE;
 						gboolean _tmp31_ = FALSE;
-						gboolean _tmp32_ = FALSE;
-						const gchar* _tmp33_;
-						_tmp33_ = self->priv->pos;
-						if (g_str_has_prefix (_tmp33_, "#if")) {
-							_tmp32_ = TRUE;
-						} else {
-							const gchar* _tmp34_;
-							_tmp34_ = self->priv->pos;
-							_tmp32_ = g_str_has_prefix (_tmp34_, "#else");
-						}
-						if (_tmp32_) {
+						const gchar* _tmp32_;
+						_tmp32_ = self->priv->pos;
+						if (g_str_has_prefix (_tmp32_, "#if")) {
 							_tmp31_ = TRUE;
 						} else {
-							const gchar* _tmp35_;
-							_tmp35_ = self->priv->pos;
-							_tmp31_ = g_str_has_prefix (_tmp35_, "#elif");
+							const gchar* _tmp33_;
+							_tmp33_ = self->priv->pos;
+							_tmp31_ = g_str_has_prefix (_tmp33_, "#else");
 						}
 						if (_tmp31_) {
 							_tmp30_ = TRUE;
 						} else {
-							const gchar* _tmp36_;
-							_tmp36_ = self->priv->pos;
-							_tmp30_ = g_str_has_prefix (_tmp36_, "#endif");
+							const gchar* _tmp34_;
+							_tmp34_ = self->priv->pos;
+							_tmp30_ = g_str_has_prefix (_tmp34_, "#elif");
 						}
 						if (_tmp30_) {
 							_tmp29_ = TRUE;
 						} else {
-							gboolean _tmp37_ = FALSE;
-							gboolean _tmp38_;
-							_tmp38_ = self->priv->enable_preprocessor_define;
-							if (_tmp38_) {
-								gboolean _tmp39_ = FALSE;
-								const gchar* _tmp40_;
-								_tmp40_ = self->priv->pos;
-								if (g_str_has_prefix (_tmp40_, "#defined")) {
-									_tmp39_ = TRUE;
-								} else {
-									const gchar* _tmp41_;
-									_tmp41_ = self->priv->pos;
-									_tmp39_ = g_str_has_prefix (_tmp41_, "#ifdef");
-								}
-								_tmp37_ = _tmp39_;
-							} else {
-								_tmp37_ = FALSE;
-							}
-							_tmp29_ = _tmp37_;
+							const gchar* _tmp35_;
+							_tmp35_ = self->priv->pos;
+							_tmp29_ = g_str_has_prefix (_tmp35_, "#endif");
 						}
 						if (_tmp29_) {
+							_tmp28_ = TRUE;
+						} else {
+							gboolean _tmp36_ = FALSE;
+							if (self->priv->enable_preprocessor_define) {
+								gboolean _tmp37_ = FALSE;
+								const gchar* _tmp38_;
+								_tmp38_ = self->priv->pos;
+								if (g_str_has_prefix (_tmp38_, "#defined")) {
+									_tmp37_ = TRUE;
+								} else {
+									const gchar* _tmp39_;
+									_tmp39_ = self->priv->pos;
+									_tmp37_ = g_str_has_prefix (_tmp39_, "#ifdef");
+								}
+								_tmp36_ = _tmp37_;
+							} else {
+								_tmp36_ = FALSE;
+							}
+							_tmp28_ = _tmp36_;
+						}
+						if (_tmp28_) {
 							const gchar* end = NULL;
+							const gchar* _tmp40_;
+							const gchar* _tmp41_;
 							const gchar* _tmp42_;
-							const gchar* _tmp43_;
-							const gchar* _tmp44_;
-							ValadocHighlighterCodeToken* _tmp45_;
-							_tmp42_ = self->priv->pos;
-							end = _tmp42_;
+							ValadocHighlighterCodeToken* _tmp43_;
+							_tmp40_ = self->priv->pos;
+							end = _tmp40_;
 							valadoc_highlighter_code_scanner_queue_until (self, '\n', VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PREPROCESSOR);
-							_tmp43_ = start;
-							_tmp44_ = end;
-							_tmp45_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp43_, _tmp44_);
-							result = _tmp45_;
+							_tmp41_ = start;
+							_tmp42_ = end;
+							_tmp43_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp41_, _tmp42_);
+							result = _tmp43_;
 							return result;
 						}
 					}
 				}
 			}
-			_tmp46_ = self->priv->pos;
-			if (string_get (_tmp46_, (glong) 0) == '\'') {
+			_tmp44_ = self->priv->pos;
+			if (string_get (_tmp44_, (glong) 0) == '\'') {
 				const gchar* end = NULL;
+				const gchar* _tmp45_;
+				const gchar* _tmp46_;
 				const gchar* _tmp47_;
-				const gchar* _tmp48_;
-				const gchar* _tmp49_;
-				ValadocHighlighterCodeToken* _tmp50_;
-				_tmp47_ = self->priv->pos;
-				end = _tmp47_;
+				ValadocHighlighterCodeToken* _tmp48_;
+				_tmp45_ = self->priv->pos;
+				end = _tmp45_;
 				valadoc_highlighter_code_scanner_queue_string_literal (self, "\'");
-				_tmp48_ = start;
-				_tmp49_ = end;
-				_tmp50_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp48_, _tmp49_);
-				result = _tmp50_;
+				_tmp46_ = start;
+				_tmp47_ = end;
+				_tmp48_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp46_, _tmp47_);
+				result = _tmp48_;
 				return result;
 			}
-			_tmp52_ = self->priv->pos;
-			if (string_get (_tmp52_, (glong) 0) == '"') {
-				_tmp51_ = TRUE;
+			_tmp50_ = self->priv->pos;
+			if (string_get (_tmp50_, (glong) 0) == '"') {
+				_tmp49_ = TRUE;
 			} else {
-				gboolean _tmp53_ = FALSE;
-				gboolean _tmp54_ = FALSE;
-				gboolean _tmp55_;
-				_tmp55_ = self->priv->enable_string_templates;
-				if (_tmp55_) {
-					const gchar* _tmp56_;
-					_tmp56_ = self->priv->pos;
-					_tmp54_ = string_get (_tmp56_, (glong) 0) == '@';
+				gboolean _tmp51_ = FALSE;
+				gboolean _tmp52_ = FALSE;
+				if (self->priv->enable_string_templates) {
+					const gchar* _tmp53_;
+					_tmp53_ = self->priv->pos;
+					_tmp52_ = string_get (_tmp53_, (glong) 0) == '@';
 				} else {
-					_tmp54_ = FALSE;
+					_tmp52_ = FALSE;
 				}
-				if (_tmp54_) {
-					const gchar* _tmp57_;
-					_tmp57_ = self->priv->pos;
-					_tmp53_ = string_get (_tmp57_, (glong) 1) == '"';
+				if (_tmp52_) {
+					const gchar* _tmp54_;
+					_tmp54_ = self->priv->pos;
+					_tmp51_ = string_get (_tmp54_, (glong) 1) == '"';
 				} else {
-					_tmp53_ = FALSE;
+					_tmp51_ = FALSE;
 				}
-				_tmp51_ = _tmp53_;
+				_tmp49_ = _tmp51_;
 			}
-			if (_tmp51_) {
+			if (_tmp49_) {
 				const gchar* end = NULL;
-				const gchar* _tmp58_;
-				gboolean _tmp59_ = FALSE;
-				gboolean _tmp60_;
-				const gchar* _tmp66_;
-				const gchar* _tmp67_;
-				ValadocHighlighterCodeToken* _tmp68_;
-				_tmp58_ = self->priv->pos;
-				end = _tmp58_;
-				_tmp60_ = self->priv->enabel_verbatim_string;
-				if (_tmp60_) {
-					gboolean _tmp61_ = FALSE;
-					const gchar* _tmp62_;
-					_tmp62_ = self->priv->pos;
-					if (g_str_has_prefix (_tmp62_, "\"\"\"")) {
-						_tmp61_ = TRUE;
+				const gchar* _tmp55_;
+				gboolean _tmp56_ = FALSE;
+				const gchar* _tmp61_;
+				const gchar* _tmp62_;
+				ValadocHighlighterCodeToken* _tmp63_;
+				_tmp55_ = self->priv->pos;
+				end = _tmp55_;
+				if (self->priv->enabel_verbatim_string) {
+					gboolean _tmp57_ = FALSE;
+					const gchar* _tmp58_;
+					_tmp58_ = self->priv->pos;
+					if (g_str_has_prefix (_tmp58_, "\"\"\"")) {
+						_tmp57_ = TRUE;
 					} else {
-						gboolean _tmp63_ = FALSE;
-						gboolean _tmp64_;
-						_tmp64_ = self->priv->enable_string_templates;
-						if (_tmp64_) {
-							const gchar* _tmp65_;
-							_tmp65_ = self->priv->pos;
-							_tmp63_ = g_str_has_prefix (_tmp65_, "@\"\"\"");
+						gboolean _tmp59_ = FALSE;
+						if (self->priv->enable_string_templates) {
+							const gchar* _tmp60_;
+							_tmp60_ = self->priv->pos;
+							_tmp59_ = g_str_has_prefix (_tmp60_, "@\"\"\"");
 						} else {
-							_tmp63_ = FALSE;
+							_tmp59_ = FALSE;
 						}
-						_tmp61_ = _tmp63_;
+						_tmp57_ = _tmp59_;
 					}
-					_tmp59_ = _tmp61_;
+					_tmp56_ = _tmp57_;
 				} else {
-					_tmp59_ = FALSE;
+					_tmp56_ = FALSE;
 				}
-				if (_tmp59_) {
+				if (_tmp56_) {
 					valadoc_highlighter_code_scanner_queue_string_literal (self, "\"\"\"");
 				} else {
 					valadoc_highlighter_code_scanner_queue_string_literal (self, "\"");
 				}
-				_tmp66_ = start;
-				_tmp67_ = end;
-				_tmp68_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp66_, _tmp67_);
-				result = _tmp68_;
+				_tmp61_ = start;
+				_tmp62_ = end;
+				_tmp63_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp61_, _tmp62_);
+				result = _tmp63_;
 				return result;
 			}
-			_tmp70_ = self->priv->pos;
-			if (string_get (_tmp70_, (glong) 0) >= '0') {
-				const gchar* _tmp71_;
-				_tmp71_ = self->priv->pos;
-				_tmp69_ = string_get (_tmp71_, (glong) 0) <= '9';
+			_tmp65_ = self->priv->pos;
+			if (string_get (_tmp65_, (glong) 0) >= '0') {
+				const gchar* _tmp66_;
+				_tmp66_ = self->priv->pos;
+				_tmp64_ = string_get (_tmp66_, (glong) 0) <= '9';
 			} else {
-				_tmp69_ = FALSE;
+				_tmp64_ = FALSE;
 			}
-			if (_tmp69_) {
+			if (_tmp64_) {
+				const gchar* end = NULL;
+				const gchar* _tmp67_;
+				const gchar* _tmp68_;
+				const gchar* _tmp69_;
+				ValadocHighlighterCodeToken* _tmp70_;
+				_tmp67_ = self->priv->pos;
+				end = _tmp67_;
+				valadoc_highlighter_code_scanner_queue_numeric_literal (self);
+				_tmp68_ = start;
+				_tmp69_ = end;
+				_tmp70_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp68_, _tmp69_);
+				result = _tmp70_;
+				return result;
+			}
+			_tmp71_ = self->priv->pos;
+			if (g_str_has_prefix (_tmp71_, "/*")) {
 				const gchar* end = NULL;
 				const gchar* _tmp72_;
 				const gchar* _tmp73_;
@@ -515,7 +517,7 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 				ValadocHighlighterCodeToken* _tmp75_;
 				_tmp72_ = self->priv->pos;
 				end = _tmp72_;
-				valadoc_highlighter_code_scanner_queue_numeric_literal (self);
+				valadoc_highlighter_code_scanner_queue_multiline_comment (self);
 				_tmp73_ = start;
 				_tmp74_ = end;
 				_tmp75_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp73_, _tmp74_);
@@ -523,7 +525,7 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 				return result;
 			}
 			_tmp76_ = self->priv->pos;
-			if (g_str_has_prefix (_tmp76_, "/*")) {
+			if (g_str_has_prefix (_tmp76_, "//")) {
 				const gchar* end = NULL;
 				const gchar* _tmp77_;
 				const gchar* _tmp78_;
@@ -531,58 +533,42 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 				ValadocHighlighterCodeToken* _tmp80_;
 				_tmp77_ = self->priv->pos;
 				end = _tmp77_;
-				valadoc_highlighter_code_scanner_queue_multiline_comment (self);
+				valadoc_highlighter_code_scanner_queue_until (self, '\n', VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT);
 				_tmp78_ = start;
 				_tmp79_ = end;
 				_tmp80_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp78_, _tmp79_);
 				result = _tmp80_;
 				return result;
 			}
-			_tmp81_ = self->priv->pos;
-			if (g_str_has_prefix (_tmp81_, "//")) {
-				const gchar* end = NULL;
-				const gchar* _tmp82_;
-				const gchar* _tmp83_;
-				const gchar* _tmp84_;
-				ValadocHighlighterCodeToken* _tmp85_;
-				_tmp82_ = self->priv->pos;
-				end = _tmp82_;
-				valadoc_highlighter_code_scanner_queue_until (self, '\n', VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT);
-				_tmp83_ = start;
-				_tmp84_ = end;
-				_tmp85_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp83_, _tmp84_);
-				result = _tmp85_;
-				return result;
-			}
-			_tmp88_ = self->priv->pos;
-			_tmp89_ = self->priv->content;
-			if (((gchar*) _tmp88_) == ((gchar*) _tmp89_)) {
-				_tmp87_ = TRUE;
+			_tmp83_ = self->priv->pos;
+			_tmp84_ = self->priv->content;
+			if (((gchar*) _tmp83_) == ((gchar*) _tmp84_)) {
+				_tmp82_ = TRUE;
 			} else {
-				const gchar* _tmp90_;
-				_tmp90_ = self->priv->pos;
-				_tmp87_ = !valadoc_highlighter_code_scanner_isidstartchar (self, string_get (_tmp90_, (glong) -1));
+				const gchar* _tmp85_;
+				_tmp85_ = self->priv->pos;
+				_tmp82_ = !valadoc_highlighter_code_scanner_isidstartchar (self, string_get (_tmp85_, (glong) -1));
 			}
-			if (_tmp87_) {
-				const gchar* _tmp91_;
-				_tmp91_ = self->priv->pos;
-				_tmp86_ = valadoc_highlighter_code_scanner_isidstartchar (self, string_get (_tmp91_, (glong) 0));
+			if (_tmp82_) {
+				const gchar* _tmp86_;
+				_tmp86_ = self->priv->pos;
+				_tmp81_ = valadoc_highlighter_code_scanner_isidstartchar (self, string_get (_tmp86_, (glong) 0));
 			} else {
-				_tmp86_ = FALSE;
+				_tmp81_ = FALSE;
 			}
-			if (_tmp86_) {
+			if (_tmp81_) {
 				const gchar* end = NULL;
-				const gchar* _tmp92_;
-				_tmp92_ = self->priv->pos;
-				end = _tmp92_;
+				const gchar* _tmp87_;
+				_tmp87_ = self->priv->pos;
+				end = _tmp87_;
 				if (valadoc_highlighter_code_scanner_queue_keyword (self)) {
-					const gchar* _tmp93_;
-					const gchar* _tmp94_;
-					ValadocHighlighterCodeToken* _tmp95_;
-					_tmp93_ = start;
-					_tmp94_ = end;
-					_tmp95_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp93_, _tmp94_);
-					result = _tmp95_;
+					const gchar* _tmp88_;
+					const gchar* _tmp89_;
+					ValadocHighlighterCodeToken* _tmp90_;
+					_tmp88_ = start;
+					_tmp89_ = end;
+					_tmp90_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp88_, _tmp89_);
+					result = _tmp90_;
 					return result;
 				} else {
 					continue;
@@ -590,16 +576,15 @@ valadoc_highlighter_code_scanner_real_next (ValadocHighlighterScanner* base)
 			}
 		}
 	}
-	_tmp96_ = self->priv->token_queue;
-	_tmp97_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF, "");
-	g_queue_push_tail (_tmp96_, _tmp97_);
-	_tmp98_ = start;
-	_tmp99_ = self->priv->pos;
-	_tmp100_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp98_, _tmp99_);
-	result = _tmp100_;
+	_tmp91_ = self->priv->token_queue;
+	_tmp92_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_EOF, "");
+	g_queue_push_tail (_tmp91_, _tmp92_);
+	_tmp93_ = start;
+	_tmp94_ = self->priv->pos;
+	_tmp95_ = valadoc_highlighter_code_scanner_dispatch (self, _tmp93_, _tmp94_);
+	result = _tmp95_;
 	return result;
 }
-
 
 static gchar*
 _g_ascii_dup (gchar* self)
@@ -610,13 +595,11 @@ _g_ascii_dup (gchar* self)
 	return dup;
 }
 
-
 static gpointer
 __g_ascii_dup0 (gpointer self)
 {
 	return self ? _g_ascii_dup (self) : NULL;
 }
-
 
 static gboolean
 _g_ascii_equal (const gchar * s1,
@@ -634,11 +617,9 @@ _g_ascii_equal (const gchar * s1,
 	return (*s1) == (*s2);
 }
 
-
 static gboolean
 valadoc_highlighter_code_scanner_queue_c_include (ValadocHighlighterCodeScanner* self)
 {
-	gboolean result = FALSE;
 	const gchar* include_start = NULL;
 	const gchar* _tmp0_;
 	const gchar* start = NULL;
@@ -650,6 +631,7 @@ valadoc_highlighter_code_scanner_queue_c_include (ValadocHighlighterCodeScanner*
 	gchar* _tmp15_;
 	gboolean _tmp45_ = FALSE;
 	const gchar* _tmp46_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	include_start = _tmp0_;
@@ -830,7 +812,6 @@ valadoc_highlighter_code_scanner_queue_c_include (ValadocHighlighterCodeScanner*
 	_g_free0 (end_char);
 }
 
-
 static glong
 string_pointer_to_offset (const gchar* self,
                           const gchar* pos)
@@ -842,15 +823,14 @@ string_pointer_to_offset (const gchar* self,
 	return result;
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -865,17 +845,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -892,32 +870,23 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gboolean
 valadoc_highlighter_code_scanner_queue_keyword (ValadocHighlighterCodeScanner* self)
 {
-	gboolean result = FALSE;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -926,17 +895,17 @@ valadoc_highlighter_code_scanner_queue_keyword (ValadocHighlighterCodeScanner* s
 	const gchar* _tmp8_;
 	gchar* word = NULL;
 	const gchar* _tmp9_;
-	glong _tmp10_;
-	gchar* _tmp11_;
+	gchar* _tmp10_;
 	ValadocHighlighterCodeTokenType* token_type = NULL;
-	ValaHashMap* _tmp12_;
-	const gchar* _tmp13_;
-	gpointer _tmp14_;
-	ValadocHighlighterCodeTokenType* _tmp15_;
-	GQueue* _tmp17_;
-	ValadocHighlighterCodeTokenType* _tmp18_;
-	const gchar* _tmp19_;
-	ValadocHighlighterCodeToken* _tmp20_;
+	ValaHashMap* _tmp11_;
+	const gchar* _tmp12_;
+	gpointer _tmp13_;
+	ValadocHighlighterCodeTokenType* _tmp14_;
+	GQueue* _tmp16_;
+	ValadocHighlighterCodeTokenType* _tmp17_;
+	const gchar* _tmp18_;
+	ValadocHighlighterCodeToken* _tmp19_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
@@ -964,34 +933,32 @@ valadoc_highlighter_code_scanner_queue_keyword (ValadocHighlighterCodeScanner* s
 	_tmp8_ = self->priv->pos;
 	length = string_pointer_to_offset (_tmp7_, _tmp8_);
 	_tmp9_ = start;
-	_tmp10_ = length;
-	_tmp11_ = string_substring (_tmp9_, (glong) 0, _tmp10_);
-	word = _tmp11_;
-	_tmp12_ = self->priv->keywords;
-	_tmp13_ = word;
-	_tmp14_ = vala_map_get ((ValaMap*) _tmp12_, _tmp13_);
-	token_type = (ValadocHighlighterCodeTokenType*) _tmp14_;
-	_tmp15_ = token_type;
-	if (_tmp15_ == NULL) {
-		const gchar* _tmp16_;
-		_tmp16_ = start;
-		self->priv->pos = _tmp16_;
+	_tmp10_ = string_substring (_tmp9_, (glong) 0, length);
+	word = _tmp10_;
+	_tmp11_ = self->priv->keywords;
+	_tmp12_ = word;
+	_tmp13_ = vala_map_get ((ValaMap*) _tmp11_, _tmp12_);
+	token_type = (ValadocHighlighterCodeTokenType*) _tmp13_;
+	_tmp14_ = token_type;
+	if (_tmp14_ == NULL) {
+		const gchar* _tmp15_;
+		_tmp15_ = start;
+		self->priv->pos = _tmp15_;
 		result = FALSE;
 		_g_free0 (token_type);
 		_g_free0 (word);
 		return result;
 	}
-	_tmp17_ = self->priv->token_queue;
-	_tmp18_ = token_type;
-	_tmp19_ = word;
-	_tmp20_ = valadoc_highlighter_code_token_new (*_tmp18_, _tmp19_);
-	g_queue_push_tail (_tmp17_, _tmp20_);
+	_tmp16_ = self->priv->token_queue;
+	_tmp17_ = token_type;
+	_tmp18_ = word;
+	_tmp19_ = valadoc_highlighter_code_token_new (*_tmp17_, _tmp18_);
+	g_queue_push_tail (_tmp16_, _tmp19_);
 	result = TRUE;
 	_g_free0 (token_type);
 	_g_free0 (word);
 	return result;
 }
-
 
 static void
 valadoc_highlighter_code_scanner_queue_multiline_comment (ValadocHighlighterCodeScanner* self)
@@ -1049,7 +1016,6 @@ valadoc_highlighter_code_scanner_queue_multiline_comment (ValadocHighlighterCode
 	_tmp14_ = self->priv->pos;
 	valadoc_highlighter_code_scanner_queue_token (self, _tmp13_, _tmp14_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_COMMENT);
 }
-
 
 static void
 valadoc_highlighter_code_scanner_queue_until (ValadocHighlighterCodeScanner* self,
@@ -1110,7 +1076,6 @@ valadoc_highlighter_code_scanner_queue_until (ValadocHighlighterCodeScanner* sel
 	valadoc_highlighter_code_scanner_queue_token (self, _tmp13_, _tmp14_, token_type);
 }
 
-
 static void
 valadoc_highlighter_code_scanner_queue_string_literal (ValadocHighlighterCodeScanner* self,
                                                        const gchar* end_chars)
@@ -1119,9 +1084,9 @@ valadoc_highlighter_code_scanner_queue_string_literal (ValadocHighlighterCodeSca
 	const gchar* _tmp0_;
 	gboolean is_template = FALSE;
 	const gchar* _tmp1_;
-	const gchar* _tmp40_;
-	const gchar* _tmp45_;
-	const gchar* _tmp46_;
+	const gchar* _tmp38_;
+	const gchar* _tmp43_;
+	const gchar* _tmp44_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (end_chars != NULL);
 	_tmp0_ = self->priv->pos;
@@ -1202,85 +1167,80 @@ valadoc_highlighter_code_scanner_queue_string_literal (ValadocHighlighterCodeSca
 		} else {
 			gboolean _tmp23_ = FALSE;
 			gboolean _tmp24_ = FALSE;
-			gboolean _tmp25_;
-			_tmp25_ = is_template;
-			if (_tmp25_) {
-				const gchar* _tmp26_;
-				_tmp26_ = self->priv->pos;
-				_tmp24_ = string_get (_tmp26_, (glong) 0) == '$';
+			if (is_template) {
+				const gchar* _tmp25_;
+				_tmp25_ = self->priv->pos;
+				_tmp24_ = string_get (_tmp25_, (glong) 0) == '$';
 			} else {
 				_tmp24_ = FALSE;
 			}
 			if (_tmp24_) {
-				glong _tmp27_ = 0L;
-				gboolean _tmp28_;
-				_tmp28_ = valadoc_highlighter_code_scanner_has_template_literal_prefix (self, &_tmp27_);
-				skip = _tmp27_;
-				_tmp23_ = _tmp28_;
+				glong _tmp26_ = 0L;
+				gboolean _tmp27_;
+				_tmp27_ = valadoc_highlighter_code_scanner_has_template_literal_prefix (self, &_tmp26_);
+				skip = _tmp26_;
+				_tmp23_ = _tmp27_;
 			} else {
 				_tmp23_ = FALSE;
 			}
 			_tmp13_ = _tmp23_;
 		}
 		if (_tmp13_) {
+			const gchar* _tmp28_;
 			const gchar* _tmp29_;
-			const gchar* _tmp30_;
 			const gchar* sub_start = NULL;
+			const gchar* _tmp30_;
 			const gchar* _tmp31_;
 			const gchar* _tmp32_;
-			glong _tmp33_;
+			const gchar* _tmp33_;
 			const gchar* _tmp34_;
 			const gchar* _tmp35_;
+			_tmp28_ = start;
+			_tmp29_ = self->priv->pos;
+			valadoc_highlighter_code_scanner_queue_token (self, _tmp28_, _tmp29_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL);
+			_tmp30_ = self->priv->pos;
+			sub_start = _tmp30_;
+			_tmp31_ = self->priv->pos;
+			_tmp32_ = string_offset (_tmp31_, skip);
+			self->priv->pos = _tmp32_;
+			_tmp33_ = sub_start;
+			_tmp34_ = self->priv->pos;
+			valadoc_highlighter_code_scanner_queue_token (self, _tmp33_, _tmp34_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE);
+			_tmp35_ = self->priv->pos;
+			start = _tmp35_;
+		} else {
 			const gchar* _tmp36_;
 			const gchar* _tmp37_;
-			_tmp29_ = start;
-			_tmp30_ = self->priv->pos;
-			valadoc_highlighter_code_scanner_queue_token (self, _tmp29_, _tmp30_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL);
-			_tmp31_ = self->priv->pos;
-			sub_start = _tmp31_;
-			_tmp32_ = self->priv->pos;
-			_tmp33_ = skip;
-			_tmp34_ = string_offset (_tmp32_, _tmp33_);
-			self->priv->pos = _tmp34_;
-			_tmp35_ = sub_start;
 			_tmp36_ = self->priv->pos;
-			valadoc_highlighter_code_scanner_queue_token (self, _tmp35_, _tmp36_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_ESCAPE);
-			_tmp37_ = self->priv->pos;
-			start = _tmp37_;
-		} else {
-			const gchar* _tmp38_;
-			const gchar* _tmp39_;
-			_tmp38_ = self->priv->pos;
-			_tmp39_ = string_offset (_tmp38_, (glong) 1);
-			self->priv->pos = _tmp39_;
+			_tmp37_ = string_offset (_tmp36_, (glong) 1);
+			self->priv->pos = _tmp37_;
 		}
 	}
-	_tmp40_ = self->priv->pos;
-	if (string_get (_tmp40_, (glong) 0) != '\0') {
-		const gchar* _tmp41_;
-		gint _tmp42_;
-		gint _tmp43_;
-		const gchar* _tmp44_;
-		_tmp41_ = self->priv->pos;
-		_tmp42_ = strlen (end_chars);
-		_tmp43_ = _tmp42_;
-		_tmp44_ = string_offset (_tmp41_, (glong) _tmp43_);
-		self->priv->pos = _tmp44_;
+	_tmp38_ = self->priv->pos;
+	if (string_get (_tmp38_, (glong) 0) != '\0') {
+		const gchar* _tmp39_;
+		gint _tmp40_;
+		gint _tmp41_;
+		const gchar* _tmp42_;
+		_tmp39_ = self->priv->pos;
+		_tmp40_ = strlen (end_chars);
+		_tmp41_ = _tmp40_;
+		_tmp42_ = string_offset (_tmp39_, (glong) _tmp41_);
+		self->priv->pos = _tmp42_;
 	}
-	_tmp45_ = start;
-	_tmp46_ = self->priv->pos;
-	valadoc_highlighter_code_scanner_queue_token (self, _tmp45_, _tmp46_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL);
+	_tmp43_ = start;
+	_tmp44_ = self->priv->pos;
+	valadoc_highlighter_code_scanner_queue_token (self, _tmp43_, _tmp44_, VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_LITERAL);
 }
-
 
 static gboolean
 valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighterCodeScanner* self,
                                                               glong* skip)
 {
 	glong _vala_skip = 0L;
-	gboolean result = FALSE;
 	const gchar* _tmp0_;
-	const gchar* _tmp4_;
+	const gchar* _tmp3_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	if (valadoc_highlighter_code_scanner_isidchar (self, string_get (_tmp0_, (glong) 1))) {
@@ -1288,14 +1248,12 @@ valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighter
 		while (TRUE) {
 			const gchar* _tmp1_;
 			glong _tmp2_;
-			glong _tmp3_;
 			_tmp1_ = self->priv->pos;
-			_tmp2_ = _vala_skip;
-			if (!valadoc_highlighter_code_scanner_isidchar (self, string_get (_tmp1_, _tmp2_))) {
+			if (!valadoc_highlighter_code_scanner_isidchar (self, string_get (_tmp1_, _vala_skip))) {
 				break;
 			}
-			_tmp3_ = _vala_skip;
-			_vala_skip = _tmp3_ + 1;
+			_tmp2_ = _vala_skip;
+			_vala_skip = _tmp2_ + 1;
 		}
 		result = TRUE;
 		if (skip) {
@@ -1303,35 +1261,31 @@ valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighter
 		}
 		return result;
 	}
-	_tmp4_ = self->priv->pos;
-	if (string_get (_tmp4_, (glong) 1) == '(') {
+	_tmp3_ = self->priv->pos;
+	if (string_get (_tmp3_, (glong) 1) == '(') {
 		gint level = 0;
 		level = 1;
 		_vala_skip = (glong) 2;
 		while (TRUE) {
-			gint _tmp5_;
-			const gchar* _tmp6_;
+			const gchar* _tmp4_;
 			glong _tmp7_;
-			glong _tmp10_;
-			_tmp5_ = level;
-			if (!(_tmp5_ > 0)) {
+			if (!(level > 0)) {
 				break;
 			}
-			_tmp6_ = self->priv->pos;
-			_tmp7_ = _vala_skip;
-			switch (string_get (_tmp6_, _tmp7_)) {
+			_tmp4_ = self->priv->pos;
+			switch (string_get (_tmp4_, _vala_skip)) {
 				case '(':
 				{
-					gint _tmp8_;
-					_tmp8_ = level;
-					level = _tmp8_ + 1;
+					gint _tmp5_;
+					_tmp5_ = level;
+					level = _tmp5_ + 1;
 					break;
 				}
 				case ')':
 				{
-					gint _tmp9_;
-					_tmp9_ = level;
-					level = _tmp9_ - 1;
+					gint _tmp6_;
+					_tmp6_ = level;
+					level = _tmp6_ - 1;
 					break;
 				}
 				case '\0':
@@ -1346,8 +1300,8 @@ valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighter
 				default:
 				break;
 			}
-			_tmp10_ = _vala_skip;
-			_vala_skip = _tmp10_ + 1;
+			_tmp7_ = _vala_skip;
+			_vala_skip = _tmp7_ + 1;
 		}
 		result = TRUE;
 		if (skip) {
@@ -1363,14 +1317,13 @@ valadoc_highlighter_code_scanner_has_template_literal_prefix (ValadocHighlighter
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanner* self,
                                                     glong* skip)
 {
 	glong _vala_skip = 0L;
-	gboolean result = FALSE;
 	const gchar* _tmp0_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	switch (string_get (_tmp0_, (glong) 1)) {
@@ -1398,7 +1351,7 @@ valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanne
 			const gchar* _tmp1_;
 			_tmp1_ = self->priv->pos;
 			if (g_ascii_isxdigit (string_get (_tmp1_, (glong) 2))) {
-				glong _tmp7_;
+				glong _tmp6_;
 				{
 					gboolean _tmp2_ = FALSE;
 					_vala_skip = (glong) 2;
@@ -1406,7 +1359,6 @@ valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanne
 					while (TRUE) {
 						const gchar* _tmp4_;
 						glong _tmp5_;
-						glong _tmp6_;
 						if (!_tmp2_) {
 							glong _tmp3_;
 							_tmp3_ = _vala_skip;
@@ -1414,16 +1366,15 @@ valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanne
 						}
 						_tmp2_ = FALSE;
 						_tmp4_ = self->priv->pos;
-						_tmp5_ = _vala_skip;
-						if (!g_ascii_isxdigit (string_get (_tmp4_, _tmp5_))) {
+						if (!g_ascii_isxdigit (string_get (_tmp4_, _vala_skip))) {
 							break;
 						}
-						_tmp6_ = _vala_skip;
-						_vala_skip = _tmp6_ + 1;
+						_tmp5_ = _vala_skip;
+						_vala_skip = _tmp5_ + 1;
 					}
 				}
-				_tmp7_ = _vala_skip;
-				_vala_skip = _tmp7_ + 1;
+				_tmp6_ = _vala_skip;
+				_vala_skip = _tmp6_ + 1;
 				result = TRUE;
 				if (skip) {
 					*skip = _vala_skip;
@@ -1439,22 +1390,22 @@ valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanne
 		}
 		default:
 		{
-			const gchar* _tmp8_;
-			_tmp8_ = self->priv->pos;
-			if (g_ascii_isdigit (string_get (_tmp8_, (glong) 1))) {
-				const gchar* _tmp9_;
+			const gchar* _tmp7_;
+			_tmp7_ = self->priv->pos;
+			if (g_ascii_isdigit (string_get (_tmp7_, (glong) 1))) {
+				const gchar* _tmp8_;
 				_vala_skip = (glong) 2;
-				_tmp9_ = self->priv->pos;
-				if (g_ascii_isdigit (string_get (_tmp9_, (glong) 2))) {
-					glong _tmp10_;
-					const gchar* _tmp11_;
-					_tmp10_ = _vala_skip;
-					_vala_skip = _tmp10_ + 1;
-					_tmp11_ = self->priv->pos;
-					if (g_ascii_isdigit (string_get (_tmp11_, (glong) 3))) {
-						glong _tmp12_;
-						_tmp12_ = _vala_skip;
-						_vala_skip = _tmp12_ + 1;
+				_tmp8_ = self->priv->pos;
+				if (g_ascii_isdigit (string_get (_tmp8_, (glong) 2))) {
+					glong _tmp9_;
+					const gchar* _tmp10_;
+					_tmp9_ = _vala_skip;
+					_vala_skip = _tmp9_ + 1;
+					_tmp10_ = self->priv->pos;
+					if (g_ascii_isdigit (string_get (_tmp10_, (glong) 3))) {
+						glong _tmp11_;
+						_tmp11_ = _vala_skip;
+						_vala_skip = _tmp11_ + 1;
 					}
 				}
 				result = TRUE;
@@ -1476,16 +1427,15 @@ valadoc_highlighter_code_scanner_has_escape_prefix (ValadocHighlighterCodeScanne
 	}
 }
 
-
 static gint
 string_index_of_char (const gchar* self,
                       gunichar c,
                       gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -1501,13 +1451,11 @@ string_index_of_char (const gchar* self,
 	}
 }
 
-
 static gboolean
 valadoc_highlighter_code_scanner_has_printf_format_prefix (ValadocHighlighterCodeScanner* self,
                                                            glong* skip)
 {
 	glong _vala_skip = 0L;
-	gboolean result = FALSE;
 	const gchar* pos = NULL;
 	const gchar* _tmp0_;
 	const gchar* start = NULL;
@@ -1521,6 +1469,7 @@ valadoc_highlighter_code_scanner_has_printf_format_prefix (ValadocHighlighterCod
 	const gchar* _tmp34_;
 	const gchar* _tmp37_;
 	const gchar* _tmp38_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	pos = _tmp0_;
@@ -1694,7 +1643,6 @@ valadoc_highlighter_code_scanner_has_printf_format_prefix (ValadocHighlighterCod
 	}
 	return result;
 }
-
 
 static void
 valadoc_highlighter_code_scanner_queue_numeric_literal (ValadocHighlighterCodeScanner* self)
@@ -1951,20 +1899,18 @@ valadoc_highlighter_code_scanner_queue_numeric_literal (ValadocHighlighterCodeSc
 	valadoc_highlighter_code_scanner_queue_token (self, _tmp62_, _tmp63_, _tmp60_);
 }
 
-
 static ValadocHighlighterCodeToken*
 valadoc_highlighter_code_scanner_dispatch (ValadocHighlighterCodeScanner* self,
                                            const gchar* start,
                                            const gchar* end)
 {
-	ValadocHighlighterCodeToken* result = NULL;
 	GQueue* _tmp0_;
 	glong length = 0L;
 	gchar* content = NULL;
-	glong _tmp3_;
-	gchar* _tmp4_;
-	const gchar* _tmp5_;
-	ValadocHighlighterCodeToken* _tmp6_;
+	gchar* _tmp3_;
+	const gchar* _tmp4_;
+	ValadocHighlighterCodeToken* _tmp5_;
+	ValadocHighlighterCodeToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (start != NULL, NULL);
 	g_return_val_if_fail (end != NULL, NULL);
@@ -1979,16 +1925,14 @@ valadoc_highlighter_code_scanner_dispatch (ValadocHighlighterCodeScanner* self,
 		return result;
 	}
 	length = string_pointer_to_offset (start, end);
-	_tmp3_ = length;
-	_tmp4_ = string_substring (start, (glong) 0, _tmp3_);
-	content = _tmp4_;
-	_tmp5_ = content;
-	_tmp6_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, _tmp5_);
-	result = _tmp6_;
+	_tmp3_ = string_substring (start, (glong) 0, length);
+	content = _tmp3_;
+	_tmp4_ = content;
+	_tmp5_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, _tmp4_);
+	result = _tmp5_;
 	_g_free0 (content);
 	return result;
 }
-
 
 static void
 valadoc_highlighter_code_scanner_queue_token (ValadocHighlighterCodeScanner* self,
@@ -2013,13 +1957,12 @@ valadoc_highlighter_code_scanner_queue_token (ValadocHighlighterCodeScanner* sel
 	_g_free0 (content);
 }
 
-
 static inline gboolean
 valadoc_highlighter_code_scanner_isidchar (ValadocHighlighterCodeScanner* self,
                                            gchar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	if (g_ascii_isalnum (c)) {
 		_tmp0_ = TRUE;
@@ -2030,14 +1973,13 @@ valadoc_highlighter_code_scanner_isidchar (ValadocHighlighterCodeScanner* self,
 	return result;
 }
 
-
 static inline gboolean
 valadoc_highlighter_code_scanner_isidstartchar (ValadocHighlighterCodeScanner* self,
                                                 gchar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	if (g_ascii_isalnum (c)) {
 		_tmp1_ = TRUE;
@@ -2049,9 +1991,7 @@ valadoc_highlighter_code_scanner_isidstartchar (ValadocHighlighterCodeScanner* s
 	} else {
 		gboolean _tmp2_ = FALSE;
 		if (c == '@') {
-			gboolean _tmp3_;
-			_tmp3_ = self->priv->enable_keyword_escape;
-			_tmp2_ = _tmp3_;
+			_tmp2_ = self->priv->enable_keyword_escape;
 		} else {
 			_tmp2_ = FALSE;
 		}
@@ -2061,33 +2001,32 @@ valadoc_highlighter_code_scanner_isidstartchar (ValadocHighlighterCodeScanner* s
 	return result;
 }
 
-
 static void
-valadoc_highlighter_code_scanner_class_init (ValadocHighlighterCodeScannerClass * klass)
+valadoc_highlighter_code_scanner_class_init (ValadocHighlighterCodeScannerClass * klass,
+                                             gpointer klass_data)
 {
 	valadoc_highlighter_code_scanner_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocHighlighterCodeScanner_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_highlighter_code_scanner_finalize;
 }
 
-
 static void
-valadoc_highlighter_code_scanner_valadoc_highlighter_scanner_interface_init (ValadocHighlighterScannerIface * iface)
+valadoc_highlighter_code_scanner_valadoc_highlighter_scanner_interface_init (ValadocHighlighterScannerIface * iface,
+                                                                             gpointer iface_data)
 {
 	valadoc_highlighter_code_scanner_valadoc_highlighter_scanner_parent_iface = g_type_interface_peek_parent (iface);
 	iface->next = (ValadocHighlighterCodeToken* (*) (ValadocHighlighterScanner*)) valadoc_highlighter_code_scanner_real_next;
 }
 
-
 static void
-valadoc_highlighter_code_scanner_instance_init (ValadocHighlighterCodeScanner * self)
+valadoc_highlighter_code_scanner_instance_init (ValadocHighlighterCodeScanner * self,
+                                                gpointer klass)
 {
 	GQueue* _tmp0_;
 	self->priv = valadoc_highlighter_code_scanner_get_instance_private (self);
 	_tmp0_ = g_queue_new ();
 	self->priv->token_queue = _tmp0_;
 }
-
 
 static void
 valadoc_highlighter_code_scanner_finalize (GObject * obj)
@@ -2099,25 +2038,30 @@ valadoc_highlighter_code_scanner_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_highlighter_code_scanner_parent_class)->finalize (obj);
 }
 
-
 /**
  * A cheap scanner used to highlight C and Vala source code.
  */
+static GType
+valadoc_highlighter_code_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterCodeScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_code_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterCodeScanner), 0, (GInstanceInitFunc) valadoc_highlighter_code_scanner_instance_init, NULL };
+	static const GInterfaceInfo valadoc_highlighter_scanner_info = { (GInterfaceInitFunc) valadoc_highlighter_code_scanner_valadoc_highlighter_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_highlighter_code_scanner_type_id;
+	valadoc_highlighter_code_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterCodeScanner", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_highlighter_code_scanner_type_id, VALADOC_HIGHLIGHTER_TYPE_SCANNER, &valadoc_highlighter_scanner_info);
+	ValadocHighlighterCodeScanner_private_offset = g_type_add_instance_private (valadoc_highlighter_code_scanner_type_id, sizeof (ValadocHighlighterCodeScannerPrivate));
+	return valadoc_highlighter_code_scanner_type_id;
+}
+
 GType
 valadoc_highlighter_code_scanner_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_code_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_code_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterCodeScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_code_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterCodeScanner), 0, (GInstanceInitFunc) valadoc_highlighter_code_scanner_instance_init, NULL };
-		static const GInterfaceInfo valadoc_highlighter_scanner_info = { (GInterfaceInitFunc) valadoc_highlighter_code_scanner_valadoc_highlighter_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_highlighter_code_scanner_type_id;
-		valadoc_highlighter_code_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterCodeScanner", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_highlighter_code_scanner_type_id, VALADOC_HIGHLIGHTER_TYPE_SCANNER, &valadoc_highlighter_scanner_info);
-		ValadocHighlighterCodeScanner_private_offset = g_type_add_instance_private (valadoc_highlighter_code_scanner_type_id, sizeof (ValadocHighlighterCodeScannerPrivate));
+		valadoc_highlighter_code_scanner_type_id = valadoc_highlighter_code_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_code_scanner_type_id__volatile, valadoc_highlighter_code_scanner_type_id);
 	}
 	return valadoc_highlighter_code_scanner_type_id__volatile;
 }
-
-
 

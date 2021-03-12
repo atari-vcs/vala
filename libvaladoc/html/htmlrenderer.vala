@@ -1,6 +1,6 @@
 /* htmlrenderer.vala
  *
- * Copyright (C) 2008-20014 Florian Brosch, Didier Villevalois
+ * Copyright (C) 2008-2014 Florian Brosch, Didier Villevalois
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -421,7 +421,7 @@ public class Valadoc.Html.HtmlRenderer : ContentRenderer {
 	}
 
 	public override void visit_paragraph (Paragraph element) {
-		//FIXME: the extra-field is just a workarround for the current codegen ...
+		//FIXME: the extra-field is just a workaround for the current codegen ...
 		switch (element.horizontal_align) {
 		case HorizontalAlign.CENTER:
 			writer.start_tag ("p", {"style", "text-align: center;"});
@@ -533,6 +533,9 @@ public class Valadoc.Html.HtmlRenderer : ContentRenderer {
 		case Run.Style.XML_CDATA:
 			tag = "span";
 			css_type = "xml_cdata";
+			break;
+
+		case Run.Style.NONE:
 			break;
 		}
 		if (tag != null) {

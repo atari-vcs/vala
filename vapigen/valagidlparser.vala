@@ -384,11 +384,19 @@ public class Vala.GIdlParser : CodeVisitor {
 			} else if (sym is ErrorDomain) {
 				ns.add_error_domain ((ErrorDomain) sym);
 			} else if (sym is Field) {
-				ns.add_field ((Field) sym);
+				unowned Field field = (Field) sym;
+				if (field.binding == MemberBinding.INSTANCE) {
+					field.binding = MemberBinding.STATIC;
+				}
+				ns.add_field (field);
 			} else if (sym is Interface) {
 				ns.add_interface ((Interface) sym);
 			} else if (sym is Method) {
-				ns.add_method ((Method) sym);
+				unowned Method method = (Method) sym;
+				if (method.binding == MemberBinding.INSTANCE) {
+					method.binding = MemberBinding.STATIC;
+				}
+				ns.add_method (method);
 			} else if (sym is Namespace) {
 				ns.add_namespace ((Namespace) sym);
 			} else if (sym is Struct) {
@@ -447,7 +455,9 @@ public class Vala.GIdlParser : CodeVisitor {
 		} else if (node.type == IdlNodeTypeId.FUNCTION) {
 			var m = parse_function ((IdlNodeFunction) node);
 			if (m != null) {
-				m.binding = MemberBinding.STATIC;
+				if (!(m is CreationMethod)) {
+					m.binding = MemberBinding.STATIC;
+				}
 				add_symbol_to_container (container, m);
 				current_source_file.add_node (m);
 			}
@@ -463,7 +473,7 @@ public class Vala.GIdlParser : CodeVisitor {
 		Symbol? cc = null;
 
 		foreach ( unowned string tok in path ) {
-			cc = cp.scope.lookup (tok) as Symbol;
+			cc = cp.scope.lookup (tok);
 			if ( cc == null ) {
 				cc = new Namespace (tok, current_source_reference);
 				add_symbol_to_container (cp, cc);
@@ -1817,8 +1827,10 @@ public class Vala.GIdlParser : CodeVisitor {
 							m.add_parameter (async_param);
 						}
 					}
-					foreach (DataType error_type in finish_method.get_error_types ()) {
-						m.add_error_type (error_type.copy ());
+					var error_types = new ArrayList<DataType> ();
+					finish_method.get_error_types (error_types, m.source_reference);
+					foreach (DataType error_type in error_types) {
+						m.add_error_type (error_type);
 					}
 					finish_methods.add (finish_method);
 				}
@@ -2402,7 +2414,7 @@ public class Vala.GIdlParser : CodeVisitor {
 						m.name = m.name.substring ("class_".length, m.name.length - "class_".length);
 					}
 					continue;
-				} else {
+				} else if (!(m is CreationMethod)) {
 					// static method
 					m.binding = MemberBinding.STATIC;
 				}
@@ -2602,7 +2614,7 @@ public class Vala.GIdlParser : CodeVisitor {
 			}
 		}
 
-		if (first) {
+		if (first && !(m is CreationMethod)) {
 			// no parameters => static method
 			m.binding = MemberBinding.STATIC;
 		}
@@ -2736,6 +2748,9 @@ public class Vala.GIdlParser : CodeVisitor {
 				prop.set_accessor = new PropertyAccessor (false, true, prop_node.@construct, prop.property_type.copy (), null, null);
 			}
 		}
+
+		// there is no information about the internal ownership so assume `owned` as default
+		prop.property_type.value_owned = true;
 
 		var attributes = get_attributes ("%s:%s".printf (get_cname (current_data_type), node.name));
 		if (attributes != null) {

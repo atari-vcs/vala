@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CONTENT_LINK_0_PROPERTY,
@@ -53,11 +52,12 @@ struct _ValadocContentLinkPrivate {
 	ValadocImporterInternalIdRegistrar* _id_registrar;
 };
 
-
 static gint ValadocContentLink_private_offset;
 static gpointer valadoc_content_link_parent_class = NULL;
 static ValadocContentInlineIface * valadoc_content_link_valadoc_content_inline_parent_iface = NULL;
 
+G_GNUC_INTERNAL void valadoc_content_link_set_id_registrar (ValadocContentLink* self,
+                                            ValadocImporterInternalIdRegistrar* value);
 G_GNUC_INTERNAL ValadocContentLink* valadoc_content_link_new (void);
 G_GNUC_INTERNAL ValadocContentLink* valadoc_content_link_construct (GType object_type);
 G_GNUC_INTERNAL ValadocContentInlineContent* valadoc_content_inline_content_construct (GType object_type);
@@ -86,11 +86,10 @@ static void valadoc_content_link_real_accept (ValadocContentContentElement* base
 static gboolean valadoc_content_link_real_is_empty (ValadocContentContentElement* base);
 static ValadocContentContentElement* valadoc_content_link_real_copy (ValadocContentContentElement* base,
                                                               ValadocContentContentElement* new_parent);
-G_GNUC_INTERNAL void valadoc_content_link_set_id_registrar (ValadocContentLink* self,
-                                            ValadocImporterInternalIdRegistrar* value);
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_link_finalize (GObject * obj);
+static GType valadoc_content_link_get_type_once (void);
 static void _vala_valadoc_content_link_get_property (GObject * object,
                                               guint property_id,
                                               GValue * value,
@@ -100,13 +99,71 @@ static void _vala_valadoc_content_link_set_property (GObject * object,
                                               const GValue * value,
                                               GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_content_link_get_instance_private (ValadocContentLink* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentLink_private_offset);
 }
 
+const gchar*
+valadoc_content_link_get_url (ValadocContentLink* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_url;
+	result = _tmp0_;
+	return result;
+}
+
+void
+valadoc_content_link_set_url (ValadocContentLink* self,
+                              const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_link_get_url (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_url);
+		self->priv->_url = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_link_properties[VALADOC_CONTENT_LINK_URL_PROPERTY]);
+	}
+}
+
+ValadocImporterInternalIdRegistrar*
+valadoc_content_link_get_id_registrar (ValadocContentLink* self)
+{
+	ValadocImporterInternalIdRegistrar* result;
+	ValadocImporterInternalIdRegistrar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_id_registrar;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_valadoc_importer_internal_id_registrar_ref0 (gpointer self)
+{
+	return self ? valadoc_importer_internal_id_registrar_ref (self) : NULL;
+}
+
+G_GNUC_INTERNAL void
+valadoc_content_link_set_id_registrar (ValadocContentLink* self,
+                                       ValadocImporterInternalIdRegistrar* value)
+{
+	ValadocImporterInternalIdRegistrar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_content_link_get_id_registrar (self);
+	if (old_value != value) {
+		ValadocImporterInternalIdRegistrar* _tmp0_;
+		_tmp0_ = _valadoc_importer_internal_id_registrar_ref0 (value);
+		_valadoc_importer_internal_id_registrar_unref0 (self->priv->_id_registrar);
+		self->priv->_id_registrar = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_link_properties[VALADOC_CONTENT_LINK_ID_REGISTRAR_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentLink*
 valadoc_content_link_construct (GType object_type)
@@ -116,13 +173,11 @@ valadoc_content_link_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentLink*
 valadoc_content_link_new (void)
 {
 	return valadoc_content_link_construct (VALADOC_CONTENT_TYPE_LINK);
 }
-
 
 static void
 valadoc_content_link_real_configure (ValadocContentContentElement* base,
@@ -135,13 +190,11 @@ valadoc_content_link_real_configure (ValadocContentContentElement* base,
 	g_return_if_fail (locator != NULL);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 static void
 valadoc_content_link_real_check (ValadocContentContentElement* base,
@@ -196,7 +249,7 @@ valadoc_content_link_real_check (ValadocContentContentElement* base,
 			ValadocContentSymbolLink* _tmp18_;
 			_tmp5_ = valadoc_content_content_element_get_parent ((ValadocContentContentElement*) self);
 			_tmp6_ = _tmp5_;
-			_tmp7_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp6_, VALADOC_CONTENT_TYPE_INLINE_CONTENT) ? ((ValadocContentInlineContent*) _tmp6_) : NULL);
+			_tmp7_ = _g_object_ref0 (VALADOC_CONTENT_IS_INLINE_CONTENT (_tmp6_) ? ((ValadocContentInlineContent*) _tmp6_) : NULL);
 			_parent = _tmp7_;
 			_tmp8_ = _parent;
 			_vala_assert (_tmp8_ != NULL, "_parent != null");
@@ -247,7 +300,7 @@ valadoc_content_link_real_check (ValadocContentContentElement* base,
 			ValadocContentRun* _tmp43_;
 			ValadocContentInlineContent* _tmp44_;
 			ValadocContentRun* _tmp45_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_PACKAGE)) {
+			if (VALADOC_API_IS_PACKAGE (container)) {
 				gchar* _tmp24_;
 				_tmp24_ = g_strdup ("");
 				_g_free0 (_tmp23_);
@@ -273,7 +326,7 @@ valadoc_content_link_real_check (ValadocContentContentElement* base,
 			_g_free0 (_tmp31_);
 			_tmp33_ = valadoc_content_content_element_get_parent ((ValadocContentContentElement*) self);
 			_tmp34_ = _tmp33_;
-			_tmp35_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp34_, VALADOC_CONTENT_TYPE_INLINE_CONTENT) ? ((ValadocContentInlineContent*) _tmp34_) : NULL);
+			_tmp35_ = _g_object_ref0 (VALADOC_CONTENT_IS_INLINE_CONTENT (_tmp34_) ? ((ValadocContentInlineContent*) _tmp34_) : NULL);
 			_parent = _tmp35_;
 			_tmp36_ = _parent;
 			_vala_assert (_tmp36_ != NULL, "_parent != null");
@@ -306,7 +359,6 @@ valadoc_content_link_real_check (ValadocContentContentElement* base,
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_content_link_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_INLINE_CONTENT, ValadocContentInlineContent), api_root, container, file_path, reporter, settings);
 }
 
-
 static void
 valadoc_content_link_real_accept (ValadocContentContentElement* base,
                                   ValadocContentContentVisitor* visitor)
@@ -316,7 +368,6 @@ valadoc_content_link_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_link (visitor, self);
 }
-
 
 static gboolean
 valadoc_content_link_real_is_empty (ValadocContentContentElement* base)
@@ -328,20 +379,17 @@ valadoc_content_link_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_link_real_copy (ValadocContentContentElement* base,
                                 ValadocContentContentElement* new_parent)
 {
 	ValadocContentLink * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentLink* link = NULL;
 	ValadocContentLink* _tmp0_;
 	ValadocContentLink* _tmp1_;
@@ -349,6 +397,7 @@ valadoc_content_link_real_copy (ValadocContentContentElement* base,
 	ValadocContentLink* _tmp3_;
 	ValadocContentLink* _tmp4_;
 	const gchar* _tmp5_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentLink*) base;
 	_tmp0_ = valadoc_content_link_new ();
 	link = _tmp0_;
@@ -382,44 +431,40 @@ valadoc_content_link_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp12_;
 			gint _tmp13_;
-			gint _tmp14_;
 			ValadocContentInline* element = NULL;
-			ValaList* _tmp15_;
-			gint _tmp16_;
-			gpointer _tmp17_;
+			ValaList* _tmp14_;
+			gpointer _tmp15_;
 			ValadocContentInline* copy = NULL;
-			ValadocContentInline* _tmp18_;
-			ValadocContentLink* _tmp19_;
-			ValadocContentContentElement* _tmp20_;
-			ValadocContentInline* _tmp21_;
-			ValadocContentLink* _tmp22_;
-			ValaList* _tmp23_;
-			ValaList* _tmp24_;
-			ValadocContentInline* _tmp25_;
+			ValadocContentInline* _tmp16_;
+			ValadocContentLink* _tmp17_;
+			ValadocContentContentElement* _tmp18_;
+			ValadocContentInline* _tmp19_;
+			ValadocContentLink* _tmp20_;
+			ValaList* _tmp21_;
+			ValaList* _tmp22_;
+			ValadocContentInline* _tmp23_;
+			_element_index = _element_index + 1;
 			_tmp12_ = _element_index;
-			_element_index = _tmp12_ + 1;
-			_tmp13_ = _element_index;
-			_tmp14_ = _element_size;
-			if (!(_tmp13_ < _tmp14_)) {
+			_tmp13_ = _element_size;
+			if (!(_tmp12_ < _tmp13_)) {
 				break;
 			}
-			_tmp15_ = _element_list;
-			_tmp16_ = _element_index;
-			_tmp17_ = vala_list_get (_tmp15_, _tmp16_);
-			element = (ValadocContentInline*) _tmp17_;
-			_tmp18_ = element;
-			_tmp19_ = link;
-			_tmp20_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp18_, (ValadocContentContentElement*) _tmp19_);
-			_tmp21_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp20_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp20_) : NULL;
-			if (_tmp21_ == NULL) {
-				_g_object_unref0 (_tmp20_);
+			_tmp14_ = _element_list;
+			_tmp15_ = vala_list_get (_tmp14_, _element_index);
+			element = (ValadocContentInline*) _tmp15_;
+			_tmp16_ = element;
+			_tmp17_ = link;
+			_tmp18_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp16_, (ValadocContentContentElement*) _tmp17_);
+			_tmp19_ = VALADOC_CONTENT_IS_INLINE (_tmp18_) ? ((ValadocContentInline*) _tmp18_) : NULL;
+			if (_tmp19_ == NULL) {
+				_g_object_unref0 (_tmp18_);
 			}
-			copy = _tmp21_;
-			_tmp22_ = link;
-			_tmp23_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp22_);
-			_tmp24_ = _tmp23_;
-			_tmp25_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp24_, _tmp25_);
+			copy = _tmp19_;
+			_tmp20_ = link;
+			_tmp21_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp20_);
+			_tmp22_ = _tmp21_;
+			_tmp23_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp22_, _tmp23_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -429,70 +474,9 @@ valadoc_content_link_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-const gchar*
-valadoc_content_link_get_url (ValadocContentLink* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_url;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_content_link_set_url (ValadocContentLink* self,
-                              const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_content_link_get_url (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_url);
-		self->priv->_url = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_link_properties[VALADOC_CONTENT_LINK_URL_PROPERTY]);
-	}
-}
-
-
-ValadocImporterInternalIdRegistrar*
-valadoc_content_link_get_id_registrar (ValadocContentLink* self)
-{
-	ValadocImporterInternalIdRegistrar* result;
-	ValadocImporterInternalIdRegistrar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_id_registrar;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_valadoc_importer_internal_id_registrar_ref0 (gpointer self)
-{
-	return self ? valadoc_importer_internal_id_registrar_ref (self) : NULL;
-}
-
-
-G_GNUC_INTERNAL void
-valadoc_content_link_set_id_registrar (ValadocContentLink* self,
-                                       ValadocImporterInternalIdRegistrar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_content_link_get_id_registrar (self) != value) {
-		ValadocImporterInternalIdRegistrar* _tmp0_;
-		_tmp0_ = _valadoc_importer_internal_id_registrar_ref0 (value);
-		_valadoc_importer_internal_id_registrar_unref0 (self->priv->_id_registrar);
-		self->priv->_id_registrar = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_link_properties[VALADOC_CONTENT_LINK_ID_REGISTRAR_PROPERTY]);
-	}
-}
-
-
 static void
-valadoc_content_link_class_init (ValadocContentLinkClass * klass)
+valadoc_content_link_class_init (ValadocContentLinkClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_content_link_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentLink_private_offset);
@@ -511,20 +495,19 @@ valadoc_content_link_class_init (ValadocContentLinkClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_LINK_ID_REGISTRAR_PROPERTY, valadoc_content_link_properties[VALADOC_CONTENT_LINK_ID_REGISTRAR_PROPERTY] = valadoc_importer_param_spec_internal_id_registrar ("id-registrar", "id-registrar", "id-registrar", VALADOC_IMPORTER_TYPE_INTERNAL_ID_REGISTRAR, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_link_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface)
+valadoc_content_link_valadoc_content_inline_interface_init (ValadocContentInlineIface * iface,
+                                                            gpointer iface_data)
 {
 	valadoc_content_link_valadoc_content_inline_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_link_instance_init (ValadocContentLink * self)
+valadoc_content_link_instance_init (ValadocContentLink * self,
+                                    gpointer klass)
 {
 	self->priv = valadoc_content_link_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_link_finalize (GObject * obj)
@@ -536,23 +519,29 @@ valadoc_content_link_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_link_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_link_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentLinkClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_link_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentLink), 0, (GInstanceInitFunc) valadoc_content_link_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_link_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_link_type_id;
+	valadoc_content_link_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentLink", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_link_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
+	ValadocContentLink_private_offset = g_type_add_instance_private (valadoc_content_link_type_id, sizeof (ValadocContentLinkPrivate));
+	return valadoc_content_link_type_id;
+}
 
 GType
 valadoc_content_link_get_type (void)
 {
 	static volatile gsize valadoc_content_link_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_link_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentLinkClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_link_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentLink), 0, (GInstanceInitFunc) valadoc_content_link_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_inline_info = { (GInterfaceInitFunc) valadoc_content_link_valadoc_content_inline_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_link_type_id;
-		valadoc_content_link_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentLink", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_link_type_id, VALADOC_CONTENT_TYPE_INLINE, &valadoc_content_inline_info);
-		ValadocContentLink_private_offset = g_type_add_instance_private (valadoc_content_link_type_id, sizeof (ValadocContentLinkPrivate));
+		valadoc_content_link_type_id = valadoc_content_link_get_type_once ();
 		g_once_init_leave (&valadoc_content_link_type_id__volatile, valadoc_content_link_type_id);
 	}
 	return valadoc_content_link_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_link_get_property (GObject * object,
@@ -575,7 +564,6 @@ _vala_valadoc_content_link_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_link_set_property (GObject * object,
                                          guint property_id,
@@ -596,6 +584,4 @@ _vala_valadoc_content_link_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

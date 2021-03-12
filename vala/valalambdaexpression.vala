@@ -23,8 +23,9 @@
 using GLib;
 
 /**
- * Represents a lambda expression in the source code. Lambda expressions are
- * anonymous methods with implicitly typed parameters.
+ * Represents a lambda expression in the source code.
+ *
+ * Lambda expressions are anonymous methods with implicitly typed parameters.
  */
 public class Vala.LambdaExpression : Expression {
 	private static int next_lambda_id = 0;
@@ -33,13 +34,29 @@ public class Vala.LambdaExpression : Expression {
 	 * The expression body of this lambda expression. Only one of
 	 * expression_body or statement_body may be set.
 	 */
-	public Expression expression_body { get; set; }
+	public Expression expression_body {
+		get { return _expression_body; }
+		set {
+			_expression_body = value;
+			if (_expression_body != null) {
+				_expression_body.parent_node = this;
+			}
+		}
+	}
 
 	/**
 	 * The statement body of this lambda expression. Only one of
 	 * expression_body or statement_body may be set.
 	 */
-	public Block statement_body { get; set; }
+	public Block statement_body {
+		get { return _statement_body; }
+		set {
+			_statement_body = value;
+			if (_statement_body != null) {
+				_statement_body.parent_node = this;
+			}
+		}
+	}
 
 	/**
 	 * The generated method.
@@ -47,6 +64,8 @@ public class Vala.LambdaExpression : Expression {
 	public Method method { get; set; }
 
 	private List<Parameter> parameters = new ArrayList<Parameter> ();
+	Block _statement_body;
+	Expression _expression_body;
 
 	/**
 	 * Creates a new lambda expression.
@@ -55,7 +74,7 @@ public class Vala.LambdaExpression : Expression {
 	 * @param source_reference reference to source code
 	 * @return                 newly created lambda expression
 	 */
-	public LambdaExpression (Expression expression_body, SourceReference source_reference) {
+	public LambdaExpression (Expression expression_body, SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 		this.expression_body = expression_body;
 	}
@@ -67,7 +86,7 @@ public class Vala.LambdaExpression : Expression {
 	 * @param source_reference reference to source code
 	 * @return                 newly created lambda expression
 	 */
-	public LambdaExpression.with_statement_body (Block statement_body, SourceReference source_reference) {
+	public LambdaExpression.with_statement_body (Block statement_body, SourceReference? source_reference = null) {
 		this.statement_body = statement_body;
 		this.source_reference = source_reference;
 	}
@@ -82,11 +101,11 @@ public class Vala.LambdaExpression : Expression {
 	}
 
 	/**
-	 * Returns copy of parameter list.
+	 * Returns the parameter list.
 	 *
 	 * @return parameter list
 	 */
-	public List<Parameter> get_parameters () {
+	public unowned List<Parameter> get_parameters () {
 		return parameters;
 	}
 
@@ -135,7 +154,14 @@ public class Vala.LambdaExpression : Expression {
 		method = new Method ("_lambda%d_".printf (next_lambda_id++), return_type, source_reference);
 		// track usage for flow analyzer
 		method.used = true;
-		method.version.check (source_reference);
+
+		if (return_type is ArrayType) {
+			method.copy_attribute_bool (cb, "CCode", "array_length");
+			method.copy_attribute_bool (cb, "CCode", "array_null_terminated");
+			method.copy_attribute_string (cb, "CCode", "array_length_type");
+		} else if (return_type is DelegateType) {
+			method.copy_attribute_bool (cb, "CCode", "delegate_target");
+		}
 
 		if (!cb.has_target || !context.analyzer.is_in_instance_method ()) {
 			method.binding = MemberBinding.STATIC;
@@ -160,6 +186,7 @@ public class Vala.LambdaExpression : Expression {
 			}
 		}
 		method.owner = context.analyzer.current_symbol.scope;
+		method.parent_node = this;
 
 		var lambda_params = get_parameters ();
 		Iterator<Parameter> lambda_param_it = lambda_params.iterator ();
@@ -187,6 +214,7 @@ public class Vala.LambdaExpression : Expression {
 			}
 
 			lambda_param.variable_type = cb_param.variable_type.get_actual_type (target_type, null, this);
+			lambda_param.base_parameter = cb_param;
 			method.add_parameter (lambda_param);
 		}
 
@@ -197,7 +225,9 @@ public class Vala.LambdaExpression : Expression {
 			return false;
 		}
 
-		foreach (var error_type in cb.get_error_types ()) {
+		var error_types = new ArrayList<DataType> ();
+		cb.get_error_types (error_types);
+		foreach (var error_type in error_types) {
 			method.add_error_type (error_type.copy ());
 		}
 
@@ -205,7 +235,7 @@ public class Vala.LambdaExpression : Expression {
 			var block = new Block (source_reference);
 			block.scope.parent_scope = method.scope;
 
-			if (method.return_type.data_type != null) {
+			if (method.return_type.type_symbol != null) {
 				block.add_statement (new ReturnStatement (expression_body, source_reference));
 			} else {
 				block.add_statement (new ExpressionStatement (expression_body, source_reference));
@@ -218,7 +248,7 @@ public class Vala.LambdaExpression : Expression {
 		method.body.owner = method.scope;
 
 		// support use of generics in closures
-		var m = context.analyzer.find_parent_method (context.analyzer.current_symbol);
+		unowned Method? m = SemanticAnalyzer.find_parent_method (context.analyzer.current_symbol);
 		if (m != null) {
 			foreach (var type_param in m.get_type_parameters ()) {
 				method.add_type_parameter (new TypeParameter (type_param.name, type_param.source_reference));
@@ -247,7 +277,7 @@ public class Vala.LambdaExpression : Expression {
 
 	public override void get_used_variables (Collection<Variable> collection) {
 		// require captured variables to be initialized
-		if (method.closure) {
+		if (method != null && method.closure) {
 			method.get_captured_variables ((Collection<LocalVariable>) collection);
 		}
 	}

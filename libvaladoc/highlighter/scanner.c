@@ -23,15 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 
-
-
-
-
+static GType valadoc_highlighter_scanner_get_type_once (void);
 
 ValadocHighlighterCodeToken*
 valadoc_highlighter_scanner_next (ValadocHighlighterScanner* self)
@@ -40,29 +35,34 @@ valadoc_highlighter_scanner_next (ValadocHighlighterScanner* self)
 	return VALADOC_HIGHLIGHTER_SCANNER_GET_INTERFACE (self)->next (self);
 }
 
-
 static void
-valadoc_highlighter_scanner_default_init (ValadocHighlighterScannerIface * iface)
+valadoc_highlighter_scanner_default_init (ValadocHighlighterScannerIface * iface,
+                                          gpointer iface_data)
 {
 }
-
 
 /**
  * Scanner interface used to highlight source code.
  */
+static GType
+valadoc_highlighter_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterScannerIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_scanner_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_highlighter_scanner_type_id;
+	valadoc_highlighter_scanner_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocHighlighterScanner", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_highlighter_scanner_type_id, G_TYPE_OBJECT);
+	return valadoc_highlighter_scanner_type_id;
+}
+
 GType
 valadoc_highlighter_scanner_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterScannerIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_scanner_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_highlighter_scanner_type_id;
-		valadoc_highlighter_scanner_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocHighlighterScanner", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_highlighter_scanner_type_id, G_TYPE_OBJECT);
+		valadoc_highlighter_scanner_type_id = valadoc_highlighter_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_scanner_type_id__volatile, valadoc_highlighter_scanner_type_id);
 	}
 	return valadoc_highlighter_scanner_type_id__volatile;
 }
-
-
 

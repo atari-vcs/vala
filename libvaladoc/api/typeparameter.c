@@ -23,10 +23,8 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <vala.h>
@@ -39,7 +37,6 @@ enum  {
 static GParamSpec* valadoc_api_typeparameter_properties[VALADOC_API_TYPEPARAMETER_NUM_PROPERTIES];
 #define _valadoc_api_signature_builder_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_signature_builder_unref (var), NULL)))
 
-
 static gpointer valadoc_api_typeparameter_parent_class = NULL;
 
 static ValadocContentInline* valadoc_api_typeparameter_real_build_signature (ValadocApiItem* base);
@@ -47,11 +44,11 @@ static void valadoc_api_typeparameter_real_accept (ValadocApiNode* base,
                                             ValadocApiVisitor* visitor);
 static gboolean valadoc_api_typeparameter_real_is_browsable (ValadocApiNode* base,
                                                       ValadocSettings* settings);
+static GType valadoc_api_typeparameter_get_type_once (void);
 static void _vala_valadoc_api_typeparameter_get_property (GObject * object,
                                                    guint property_id,
                                                    GValue * value,
                                                    GParamSpec * pspec);
-
 
 ValadocApiTypeParameter*
 valadoc_api_typeparameter_construct (GType object_type,
@@ -65,10 +62,9 @@ valadoc_api_typeparameter_construct (GType object_type,
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiTypeParameter*) valadoc_api_symbol_construct (object_type, parent, file, name, VALADOC_API_SYMBOL_ACCESSIBILITY_PUBLIC, (ValaSymbol*) data);
+	self = (ValadocApiTypeParameter*) valadoc_api_symbol_construct (object_type, parent, file, name, VALA_SYMBOL_ACCESSIBILITY_PUBLIC, NULL, (ValaSymbol*) data);
 	return self;
 }
-
 
 ValadocApiTypeParameter*
 valadoc_api_typeparameter_new (ValadocApiNode* parent,
@@ -79,7 +75,6 @@ valadoc_api_typeparameter_new (ValadocApiNode* parent,
 	return valadoc_api_typeparameter_construct (VALADOC_API_TYPE_TYPEPARAMETER, parent, file, name, data);
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -87,12 +82,12 @@ static ValadocContentInline*
 valadoc_api_typeparameter_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiTypeParameter * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp1_;
 	ValadocApiSignatureBuilder* _tmp2_;
 	ValadocContentRun* _tmp3_;
 	ValadocContentInline* _tmp4_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiTypeParameter*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	_tmp1_ = _tmp0_;
@@ -104,6 +99,15 @@ valadoc_api_typeparameter_real_build_signature (ValadocApiItem* base)
 	return result;
 }
 
+static ValadocApiNodeType
+valadoc_api_typeparameter_real_get_node_type (ValadocApiNode* base)
+{
+	ValadocApiNodeType result;
+	ValadocApiTypeParameter* self;
+	self = (ValadocApiTypeParameter*) base;
+	result = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
+	return result;
+}
 
 /**
  * {@inheritDoc}
@@ -118,7 +122,6 @@ valadoc_api_typeparameter_real_accept (ValadocApiNode* base,
 	valadoc_api_visitor_visit_type_parameter (visitor, self);
 }
 
-
 static gboolean
 valadoc_api_typeparameter_real_is_browsable (ValadocApiNode* base,
                                              ValadocSettings* settings)
@@ -131,20 +134,9 @@ valadoc_api_typeparameter_real_is_browsable (ValadocApiNode* base,
 	return result;
 }
 
-
-static ValadocApiNodeType
-valadoc_api_typeparameter_real_get_node_type (ValadocApiNode* base)
-{
-	ValadocApiNodeType result;
-	ValadocApiTypeParameter* self;
-	self = (ValadocApiTypeParameter*) base;
-	result = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
-	return result;
-}
-
-
 static void
-valadoc_api_typeparameter_class_init (ValadocApiTypeParameterClass * klass)
+valadoc_api_typeparameter_class_init (ValadocApiTypeParameterClass * klass,
+                                      gpointer klass_data)
 {
 	valadoc_api_typeparameter_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiItemClass *) klass)->build_signature = (ValadocContentInline* (*) (ValadocApiItem*)) valadoc_api_typeparameter_real_build_signature;
@@ -158,29 +150,35 @@ valadoc_api_typeparameter_class_init (ValadocApiTypeParameterClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_TYPEPARAMETER_NODE_TYPE_PROPERTY, valadoc_api_typeparameter_properties[VALADOC_API_TYPEPARAMETER_NODE_TYPE_PROPERTY] = g_param_spec_enum ("node-type", "node-type", "node-type", VALADOC_API_TYPE_NODE_TYPE, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_typeparameter_instance_init (ValadocApiTypeParameter * self)
+valadoc_api_typeparameter_instance_init (ValadocApiTypeParameter * self,
+                                         gpointer klass)
 {
 }
-
 
 /**
  * Represents a generic type parameter in the source code.
  */
+static GType
+valadoc_api_typeparameter_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiTypeParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_typeparameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiTypeParameter), 0, (GInstanceInitFunc) valadoc_api_typeparameter_instance_init, NULL };
+	GType valadoc_api_typeparameter_type_id;
+	valadoc_api_typeparameter_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiTypeParameter", &g_define_type_info, 0);
+	return valadoc_api_typeparameter_type_id;
+}
+
 GType
 valadoc_api_typeparameter_get_type (void)
 {
 	static volatile gsize valadoc_api_typeparameter_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_typeparameter_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiTypeParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_typeparameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiTypeParameter), 0, (GInstanceInitFunc) valadoc_api_typeparameter_instance_init, NULL };
 		GType valadoc_api_typeparameter_type_id;
-		valadoc_api_typeparameter_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiTypeParameter", &g_define_type_info, 0);
+		valadoc_api_typeparameter_type_id = valadoc_api_typeparameter_get_type_once ();
 		g_once_init_leave (&valadoc_api_typeparameter_type_id__volatile, valadoc_api_typeparameter_type_id);
 	}
 	return valadoc_api_typeparameter_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_typeparameter_get_property (GObject * object,
@@ -199,6 +197,4 @@ _vala_valadoc_api_typeparameter_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

@@ -46,7 +46,7 @@ public class Vala.ClassRegisterFunction : TypeRegisterFunction {
 	}
 
 	public override string get_type_struct_name () {
-		return "%sClass".printf (get_ccode_name (class_reference));
+		return get_ccode_type_name (class_reference);
 	}
 
 	public override string get_base_init_func_name () {
@@ -153,11 +153,11 @@ public class Vala.ClassRegisterFunction : TypeRegisterFunction {
 		var frag = new CCodeFragment ();
 
 		foreach (DataType base_type in class_reference.get_base_types ()) {
-			if (!(base_type.data_type is Interface)) {
+			if (!(base_type.type_symbol is Interface)) {
 				continue;
 			}
 
-			var iface = (Interface) base_type.data_type;
+			unowned Interface iface = (Interface) base_type.type_symbol;
 
 			var iface_info_name = "%s_info".printf (get_ccode_lower_case_name (iface, null));
 
@@ -172,11 +172,11 @@ public class Vala.ClassRegisterFunction : TypeRegisterFunction {
 
 	public override void get_type_interface_init_statements (CodeContext context, CCodeBlock block, bool plugin) {
 		foreach (DataType base_type in class_reference.get_base_types ()) {
-			if (!(base_type.data_type is Interface)) {
+			if (!(base_type.type_symbol is Interface)) {
 				continue;
 			}
 
-			var iface = (Interface) base_type.data_type;
+			unowned Interface iface = (Interface) base_type.type_symbol;
 
 			var iface_info_name = "%s_info".printf (get_ccode_lower_case_name (iface, null));
 			if (!plugin) {

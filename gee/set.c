@@ -23,11 +23,7 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valagee.h"
-
 
 struct _ValaSetPrivate {
 	GType g_type;
@@ -35,18 +31,16 @@ struct _ValaSetPrivate {
 	GDestroyNotify g_destroy_func;
 };
 
-
 static gint ValaSet_private_offset;
 static gpointer vala_set_parent_class = NULL;
 
-
+static GType vala_set_get_type_once (void);
 
 static inline gpointer
 vala_set_get_instance_private (ValaSet* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaSet_private_offset);
 }
-
 
 ValaSet*
 vala_set_construct (GType object_type,
@@ -62,38 +56,43 @@ vala_set_construct (GType object_type,
 	return self;
 }
 
-
 static void
-vala_set_class_init (ValaSetClass * klass)
+vala_set_class_init (ValaSetClass * klass,
+                     gpointer klass_data)
 {
 	vala_set_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValaSet_private_offset);
 }
 
-
 static void
-vala_set_instance_init (ValaSet * self)
+vala_set_instance_init (ValaSet * self,
+                        gpointer klass)
 {
 	self->priv = vala_set_get_instance_private (self);
 }
 
-
 /**
  * A set is a collection without duplicates.
  */
+static GType
+vala_set_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaSetClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_set_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSet), 0, (GInstanceInitFunc) vala_set_instance_init, NULL };
+	GType vala_set_type_id;
+	vala_set_type_id = g_type_register_static (VALA_TYPE_COLLECTION, "ValaSet", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValaSet_private_offset = g_type_add_instance_private (vala_set_type_id, sizeof (ValaSetPrivate));
+	return vala_set_type_id;
+}
+
 GType
 vala_set_get_type (void)
 {
 	static volatile gsize vala_set_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_set_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaSetClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_set_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaSet), 0, (GInstanceInitFunc) vala_set_instance_init, NULL };
 		GType vala_set_type_id;
-		vala_set_type_id = g_type_register_static (VALA_TYPE_COLLECTION, "ValaSet", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValaSet_private_offset = g_type_add_instance_private (vala_set_type_id, sizeof (ValaSetPrivate));
+		vala_set_type_id = vala_set_get_type_once ();
 		g_once_init_leave (&vala_set_type_id__volatile, vala_set_type_id);
 	}
 	return vala_set_type_id__volatile;
 }
-
-
 

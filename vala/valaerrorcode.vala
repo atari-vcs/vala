@@ -23,7 +23,7 @@
 using GLib;
 
 /**
- * Represents an enum member in the source code.
+ * Represents an error value member in the source code.
  */
 public class Vala.ErrorCode : TypeSymbol {
 	/**
@@ -39,7 +39,23 @@ public class Vala.ErrorCode : TypeSymbol {
 		}
 	}
 
+	/**
+	 * Refers to the enum value of this error code for direct access.
+	 */
+	public Constant code {
+		get {
+			return _code;
+		}
+		private set {
+			_code = value;
+			if (_code != null) {
+				_code.owner = owner;
+			}
+		}
+	}
+
 	private Expression _value;
+	private Constant _code;
 
 	/**
 	 * Creates a new enum value.
@@ -83,6 +99,10 @@ public class Vala.ErrorCode : TypeSymbol {
 		if (value != null) {
 			value.check (context);
 		}
+
+		code = new Constant (name, context.analyzer.int_type.copy (), null, source_reference, comment);
+		code.external = true;
+		code.check (context);
 
 		return !error;
 	}

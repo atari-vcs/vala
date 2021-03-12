@@ -23,13 +23,12 @@
  * 	Marc-André Lurau <marcandre.lureau@redhat.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
@@ -39,7 +38,6 @@ struct _ValaCCodeIfSectionPrivate {
 	gchar* _expression;
 };
 
-
 static gint ValaCCodeIfSection_private_offset;
 static gpointer vala_ccode_if_section_parent_class = NULL;
 
@@ -48,7 +46,7 @@ static void vala_ccode_if_section_real_write (ValaCCodeNode* base,
 static void vala_ccode_if_section_real_write_declaration (ValaCCodeNode* base,
                                                    ValaCCodeWriter* writer);
 static void vala_ccode_if_section_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_if_section_get_type_once (void);
 
 static inline gpointer
 vala_ccode_if_section_get_instance_private (ValaCCodeIfSection* self)
@@ -56,6 +54,27 @@ vala_ccode_if_section_get_instance_private (ValaCCodeIfSection* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeIfSection_private_offset);
 }
 
+const gchar*
+vala_ccode_if_section_get_expression (ValaCCodeIfSection* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_expression;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_if_section_set_expression (ValaCCodeIfSection* self,
+                                      const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_expression);
+	self->priv->_expression = _tmp0_;
+}
 
 ValaCCodeIfSection*
 vala_ccode_if_section_construct (GType object_type,
@@ -68,13 +87,11 @@ vala_ccode_if_section_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeIfSection*
 vala_ccode_if_section_new (const gchar* expr)
 {
 	return vala_ccode_if_section_construct (VALA_TYPE_CCODE_IF_SECTION, expr);
 }
-
 
 static void
 vala_ccode_if_section_real_write (ValaCCodeNode* base,
@@ -105,25 +122,21 @@ vala_ccode_if_section_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCCodeNode* node = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValaCCodeNode* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCCodeNode* _tmp9_;
+			_node_index = _node_index + 1;
 			_tmp5_ = _node_index;
-			_node_index = _tmp5_ + 1;
-			_tmp6_ = _node_index;
-			_tmp7_ = _node_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _node_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _node_list;
-			_tmp9_ = _node_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			node = (ValaCCodeNode*) _tmp10_;
-			_tmp11_ = node;
-			vala_ccode_node_write_combined (_tmp11_, writer);
+			_tmp7_ = _node_list;
+			_tmp8_ = vala_list_get (_tmp7_, _node_index);
+			node = (ValaCCodeNode*) _tmp8_;
+			_tmp9_ = node;
+			vala_ccode_node_write_combined (_tmp9_, writer);
 			_vala_ccode_node_unref0 (node);
 		}
 		_vala_iterable_unref0 (_node_list);
@@ -131,7 +144,6 @@ vala_ccode_if_section_real_write (ValaCCodeNode* base,
 	vala_ccode_writer_write_string (writer, "#endif");
 	vala_ccode_writer_write_newline (writer);
 }
-
 
 static void
 vala_ccode_if_section_real_write_declaration (ValaCCodeNode* base,
@@ -142,33 +154,9 @@ vala_ccode_if_section_real_write_declaration (ValaCCodeNode* base,
 	g_return_if_fail (writer != NULL);
 }
 
-
-const gchar*
-vala_ccode_if_section_get_expression (ValaCCodeIfSection* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_expression;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_if_section_set_expression (ValaCCodeIfSection* self,
-                                      const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_expression);
-	self->priv->_expression = _tmp0_;
-}
-
-
 static void
-vala_ccode_if_section_class_init (ValaCCodeIfSectionClass * klass)
+vala_ccode_if_section_class_init (ValaCCodeIfSectionClass * klass,
+                                  gpointer klass_data)
 {
 	vala_ccode_if_section_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_if_section_finalize;
@@ -177,13 +165,12 @@ vala_ccode_if_section_class_init (ValaCCodeIfSectionClass * klass)
 	((ValaCCodeNodeClass *) klass)->write_declaration = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_if_section_real_write_declaration;
 }
 
-
 static void
-vala_ccode_if_section_instance_init (ValaCCodeIfSection * self)
+vala_ccode_if_section_instance_init (ValaCCodeIfSection * self,
+                                     gpointer klass)
 {
 	self->priv = vala_ccode_if_section_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_if_section_finalize (ValaCCodeNode * obj)
@@ -194,23 +181,28 @@ vala_ccode_if_section_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_if_section_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a section that should be processed on condition.
  */
+static GType
+vala_ccode_if_section_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIfSectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_if_section_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIfSection), 0, (GInstanceInitFunc) vala_ccode_if_section_instance_init, NULL };
+	GType vala_ccode_if_section_type_id;
+	vala_ccode_if_section_type_id = g_type_register_static (VALA_TYPE_CCODE_FRAGMENT, "ValaCCodeIfSection", &g_define_type_info, 0);
+	ValaCCodeIfSection_private_offset = g_type_add_instance_private (vala_ccode_if_section_type_id, sizeof (ValaCCodeIfSectionPrivate));
+	return vala_ccode_if_section_type_id;
+}
+
 GType
 vala_ccode_if_section_get_type (void)
 {
 	static volatile gsize vala_ccode_if_section_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_if_section_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeIfSectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_if_section_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeIfSection), 0, (GInstanceInitFunc) vala_ccode_if_section_instance_init, NULL };
 		GType vala_ccode_if_section_type_id;
-		vala_ccode_if_section_type_id = g_type_register_static (VALA_TYPE_CCODE_FRAGMENT, "ValaCCodeIfSection", &g_define_type_info, 0);
-		ValaCCodeIfSection_private_offset = g_type_add_instance_private (vala_ccode_if_section_type_id, sizeof (ValaCCodeIfSectionPrivate));
+		vala_ccode_if_section_type_id = vala_ccode_if_section_get_type_once ();
 		g_once_init_leave (&vala_ccode_if_section_type_id__volatile, vala_ccode_if_section_type_id);
 	}
 	return vala_ccode_if_section_type_id__volatile;
 }
-
-
 

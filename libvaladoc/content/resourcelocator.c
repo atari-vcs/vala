@@ -23,17 +23,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
-
-
-
-
+static GType valadoc_resource_locator_get_type_once (void);
 
 gchar*
 valadoc_resource_locator_resolve (ValadocResourceLocator* self,
@@ -43,26 +38,31 @@ valadoc_resource_locator_resolve (ValadocResourceLocator* self,
 	return VALADOC_RESOURCE_LOCATOR_GET_INTERFACE (self)->resolve (self, path);
 }
 
-
 static void
-valadoc_resource_locator_default_init (ValadocResourceLocatorIface * iface)
+valadoc_resource_locator_default_init (ValadocResourceLocatorIface * iface,
+                                       gpointer iface_data)
 {
 }
 
+static GType
+valadoc_resource_locator_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocResourceLocatorIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_resource_locator_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_resource_locator_type_id;
+	valadoc_resource_locator_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocResourceLocator", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_resource_locator_type_id, G_TYPE_OBJECT);
+	return valadoc_resource_locator_type_id;
+}
 
 GType
 valadoc_resource_locator_get_type (void)
 {
 	static volatile gsize valadoc_resource_locator_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_resource_locator_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocResourceLocatorIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_resource_locator_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_resource_locator_type_id;
-		valadoc_resource_locator_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocResourceLocator", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_resource_locator_type_id, G_TYPE_OBJECT);
+		valadoc_resource_locator_type_id = valadoc_resource_locator_get_type_once ();
 		g_once_init_leave (&valadoc_resource_locator_type_id__volatile, valadoc_resource_locator_type_id);
 	}
 	return valadoc_resource_locator_type_id__volatile;
 }
-
-
 

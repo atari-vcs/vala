@@ -24,8 +24,11 @@
 public class Vala.CCodeFile {
 	public bool is_header { get; set; }
 
+	public weak SourceFile? file { get; private set; }
+
 	Set<string> features = new HashSet<string> (str_hash, str_equal);
 	Set<string> declarations = new HashSet<string> (str_hash, str_equal);
+	Set<string> definitions = new HashSet<string> (str_hash, str_equal);
 	Set<string> includes = new HashSet<string> (str_hash, str_equal);
 	CCodeFragment comments = new CCodeFragment ();
 	CCodeFragment feature_test_macros = new CCodeFragment ();
@@ -35,6 +38,10 @@ public class Vala.CCodeFile {
 	CCodeFragment type_member_declaration = new CCodeFragment ();
 	CCodeFragment constant_declaration = new CCodeFragment ();
 	CCodeFragment type_member_definition = new CCodeFragment ();
+
+	public CCodeFile (SourceFile? source_file = null) {
+		file = source_file;
+	}
 
 	public bool add_declaration (string name) {
 		if (name in declarations) {
@@ -50,7 +57,7 @@ public class Vala.CCodeFile {
 
 	public void add_feature_test_macro (string feature_test_macro) {
 		if (!(feature_test_macro in features)) {
-			feature_test_macros.append (new CCodeFeatureTestMacro (feature_test_macro));
+			feature_test_macros.append (new CCodeDefine (feature_test_macro));
 			features.add (feature_test_macro);
 		}
 	}
@@ -83,17 +90,24 @@ public class Vala.CCodeFile {
 	}
 
 	public void add_function_declaration (CCodeFunction func) {
+		declarations.add (func.name);
+
 		var decl = func.copy ();
 		decl.is_declaration = true;
 		type_member_declaration.append (decl);
 	}
 
 	public void add_function (CCodeFunction func) {
+		if (!definitions.add (func.name)) {
+			Report.error (null, "internal: Redefinition of `%s'".printf (func.name));
+			return;
+		}
+
 		type_member_definition.append (func);
 	}
 
 	public List<string> get_symbols () {
-		var symbols = new ArrayList<string> ();
+		var symbols = new ArrayList<string> (str_equal);
 		get_symbols_from_fragment (symbols, type_member_declaration);
 		return symbols;
 	}

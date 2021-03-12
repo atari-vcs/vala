@@ -7,7 +7,6 @@ public static delegate void Maman.VoidCallback ();
 public static delegate int Maman.ActionCallback ();
 
 public delegate void Maman.InstanceCallback (int i);
-public delegate Maman.SelfCallback Maman.SelfCallback (Maman.SelfCallback scb);
 
 public delegate ParameterEnum Maman.EnumDelegate (ParameterEnum pe);
 
@@ -112,8 +111,3 @@ class Maman.Bar : Object, Foo {
 		return 0;
 	}
 }
-
-void main () {
-	Maman.Bar.main ();
-}
-

@@ -1,4 +1,4 @@
-/* curses.vala
+/* curses.vapi
  *
  * Copyright (c) 2007 Ed Schouten <ed@fxq.nl>
  * All rights reserved.
@@ -44,7 +44,7 @@ namespace Curses {
 		public const Curses.Color WHITE;
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "unsigned char", has_type_id = false)]
 	public enum Acs {
 		ULCORNER, LLCORNER, URCORNER, LRCORNER, LTEE, RTEE,
 		BTEE, TTEE, HLINE, VLINE, PLUS, S1, S9, DIAMOND,
@@ -74,7 +74,11 @@ namespace Curses {
 		[CCode (cname = "dupwin")]
 		public Window copy();
 		public ulong getbkgd();
+#if POSIX
+		public static Window getwin(Posix.FILE filep);
+#else
 		public static Window getwin(GLib.FileStream filep);
+#endif
 		public void idcok(bool bf);
 		public int idlok(bool bf);
 		public void immedok(bool bf);
@@ -96,7 +100,7 @@ namespace Curses {
 		[CCode (cname = "mvwaddstr")]
 		public int mvaddstr(int y, int x, string str);
 		[CCode (cname = "mvwchgat")]
-		public int mvchgat(int y, int x, int n, ulong attr, short color);
+		public int mvchgat(int y, int x, int n, ulong attr, short color, void* data);
 		[CCode (cname = "mvwdelch")]
 		public int mvdelch(int y, int x);
 		[CCode (cname = "mvwgetch")]
@@ -125,10 +129,10 @@ namespace Curses {
 		[CCode (cname = "mvwinstr")]
 		public int mvinstr(int y, int x, string str);
 		[CCode (cname = "mvwprintw")]
-		[PrintfLike]
+		[PrintfFormat]
 		public int mvprintw(int y, int x, string str, ...);
 		[CCode (cname = "mvwscanw")]
-		[PrintfLike]
+		[PrintfFormat]
 		public int mvscanw(int y, int x, string str, ...);
 		[CCode (cname = "mvwvline")]
 		public int mvvline(int y, int x, ulong ch, int n);
@@ -138,7 +142,11 @@ namespace Curses {
 		public int notimeout(bool bf);
 		public int overlay(Window win);
 		public int overwrite(Window win);
+#if POSIX
+		public int putwin(Posix.FILE filep);
+#else
 		public int putwin(GLib.FileStream filep);
+#endif
 		public int redrawwin();
 		public int scroll();
 		public int scrollok(bool bf);
@@ -162,13 +170,13 @@ namespace Curses {
 		[CCode (cname = "wattrset")]
 		public int attrset(ulong attrs);
 		[CCode (cname = "wattr_get")]
-		public int attr_get(ref ulong attrs, ref ulong pair);
+		public int attr_get(ref ulong attrs, ref ulong pair, void* data);
 		[CCode (cname = "wattr_on")]
-		public int attr_on(ulong attrs);
+		public int attr_on(ulong attrs, void* data);
 		[CCode (cname = "wattr_off")]
-		public int attr_off(ulong attrs);
+		public int attr_off(ulong attrs, void* data);
 		[CCode (cname = "wattr_set")]
-		public int attr_set(ulong attrs, short pair);
+		public int attr_set(ulong attrs, short pair, void* data);
 		[CCode (cname = "wbkgd")]
 		public int bkgd(ulong ch);
 		[CCode (cname = "wbkgdset")]
@@ -176,7 +184,7 @@ namespace Curses {
 		[CCode (cname = "wborder")]
 		public int border(ulong ls, ulong rs, ulong ts, ulong bs, ulong tl, ulong tr, ulong bl, ulong br);
 		[CCode (cname = "wchgat")]
-		public int chgat(int n, ulong attr, short color);
+		public int chgat(int n, ulong attr, short color, void* data);
 		[CCode (cname = "wclear")]
 		public int clear();
 		[CCode (cname = "wclrtobot")]
@@ -184,7 +192,7 @@ namespace Curses {
 		[CCode (cname = "wclrtoeol")]
 		public int clrtoeol();
 		[CCode (cname = "wcolor_set")]
-		public int color_set(short color_pair_number);
+		public int color_set(short color_pair_number, void* data);
 		[CCode (cname = "wcursyncup")]
 		public void cursyncup();
 		[CCode (cname = "wdelch")]
@@ -230,7 +238,7 @@ namespace Curses {
 		[CCode (cname = "wnoutrefresh")]
 		public int noutrefresh();
 		[CCode (cname = "wprintw")]
-		[PrintfLike]
+		[PrintfFormat]
 		public int printw(string str, ...);
 		[CCode (cname = "vw_printw")]
 		public int vprintw(string str, va_list args);
@@ -239,7 +247,7 @@ namespace Curses {
 		[CCode (cname = "wrefresh")]
 		public int refresh();
 		[CCode (cname = "wscanw")]
-		[PrintfLike]
+		[PrintfFormat]
 		public int scanw(string str, ...);
 		[CCode (cname = "vw_scanw")]
 		public int vscanw(string str, va_list args);
@@ -280,7 +288,11 @@ namespace Curses {
 	[CCode (free_function = "delscreen", cname = "SCREEN", cprefix = "")]
 	public class Screen {
 		[CCode (cname = "newterm")]
+#if POSIX
+		public Screen(string str, Posix.FILE outfd, Posix.FILE infd);
+#else
 		public Screen(string str, GLib.FileStream outfd, GLib.FileStream infd);
+#endif
 		public unowned Screen set_term();
 	}
 
@@ -292,10 +304,10 @@ namespace Curses {
 	public int attroff(ulong attr);
 	public int attron(ulong attr);
 	public int attrset(ulong attr);
-	public int attr_get(ref ulong attrs, ref short pair);
-	public int attr_off(ulong attrs);
-	public int attr_on(ulong attrs);
-	public int attr_set(ulong attrs, short pair);
+	public int attr_get(ref ulong attrs, ref short pair, void* data);
+	public int attr_off(ulong attrs, void* data);
+	public int attr_on(ulong attrs, void* data);
+	public int attr_set(ulong attrs, short pair, void* data);
 	public int baudrate();
 	public int beep();
 	public int bkgd(ulong ch);
@@ -303,12 +315,12 @@ namespace Curses {
 	public int border(ulong ls, ulong rs, ulong ts, ulong bs, ulong tl, ulong tr, ulong bl, ulong br);
 	public bool can_change_color();
 	public int cbreak();
-	public int chgat(int n, ulong attr, short color);
+	public int chgat(int n, ulong attr, short color, void* data);
 	public int clear();
 	public int clrtobot();
 	public int clrtoeol();
 	public int color_content(short color, ref short r, ref short g, ref short b);
-	public int color_set(short color_pair_number);
+	public int color_set(short color_pair_number, void* data);
 	public int COLOR_PAIR(int n);
 	public int curs_set(int visibility);
 	public int def_prog_mode();
@@ -349,15 +361,14 @@ namespace Curses {
 	public bool isendwin();
 	public string keyname(int c);
 	public char killchar();
-	public string ulongname();
+	public string longname();
 	public int move(int y, int x);
 	public int mvaddch(int y, int x, ulong ch);
 	public int mvaddchnstr(int y, int x, [CCode (array_length = false)] ulong[] chstr, int n);
 	public int mvaddchstr(int y, int x, [CCode (array_length = false)] ulong[] chstr);
 	public int mvaddnstr(int y, int x, string str, int n);
 	public int mvaddstr(int y, int x, string str);
-	public int mvchgat(int y, int x, int n, ulong attr, short color);
-	public int mvcur(int oldrow, int oldcol, int newrow, int newcol);
+	public int mvchgat(int y, int x, int n, ulong attr, short color, void* data);
 	public int mvdelch(int y, int x);
 	public int mvgetch(int y, int x);
 	public int mvgetnstr(int y, int x, string str, int n);
@@ -371,9 +382,9 @@ namespace Curses {
 	public int mvinsnstr(int y, int x, string str, int n);
 	public int mvinsstr(int y, int x, string str);
 	public int mvinstr(int y, int x, string str);
-	[PrintfLike]
+	[PrintfFormat]
 	public int mvprintw(int y, int x, string str, ...);
-	[PrintfLike]
+	[PrintfFormat]
 	public int mvscanw(int y, int x, string str, ...);
 	public int mvvline(int y, int x, ulong ch, int n);
 	public int napms(int ms);
@@ -385,7 +396,7 @@ namespace Curses {
 	public int noraw();
 	public int pair_content(short pair, ref Color f, ref Color b);
 	public int PAIR_NUMBER(int attrs);
-	[PrintfLike]
+	[PrintfFormat]
 	public int printw(string str, ...);
 	public void qiflush();
 	public int raw();
@@ -393,10 +404,11 @@ namespace Curses {
 	public int resetty();
 	public int reset_prog_mode();
 	public int reset_shell_mode();
+	[CCode (has_target = false, has_typedef = false)]
 	public delegate int RipofflineInitFunc(Window win, int n);
 	public int ripoffline(int line, RipofflineInitFunc init);
 	public int savetty();
-	[PrintfLike]
+	[PrintfFormat]
 	public int scanw(string str, ...);
 	public int scr_dump(string str);
 	public int scr_init(string str);
@@ -405,12 +417,12 @@ namespace Curses {
 	public int scr_set(string str);
 	public int setscrreg(int top, int bot);
 	public int slk_attroff(ulong attrs);
-	public int slk_attr_off(ulong attrs);
+	public int slk_attr_off(ulong attrs, void* data);
 	public int slk_attron(ulong attrs);
-	public int slk_attr_on(ulong attrs);
+	public int slk_attr_on(ulong attrs, void* data);
 	public int slk_attrset(ulong attrs);
 	public ulong slk_attr();
-	public int slk_attr_set(ulong attrs, short pair);
+	public int slk_attr_set(ulong attrs, short pair, void* data);
 	public int slk_clear();
 	public int slk_color(short color_pair_number);
 	public int slk_init(int fmt);
@@ -429,23 +441,63 @@ namespace Curses {
 	public int typeahead(int fd);
 	public int ungetch(int ch);
 	public void use_env(bool bf);
-	public int vidattr(ulong attrs);
-	public delegate int VidputsPutcFunc(char ch);
-	public int vidputs(ulong attrs, VidputsPutcFunc putc);
 	public int vline(ulong ch, int n);
 
-	[CCode (cprefix = "A_", has_type_id = false)]
+	// curses interface to terminfo (term.h)
+	[CCode (cname = "TERMINAL", cheader_filename = "term.h", has_type_id = false)]
+	public struct Terminal {
+		[CCode (cname = "set_curterm")]
+		public unowned Terminal? set_cur();
+		[CCode (cname = "del_curterm")]
+		public int del_cur();
+	}
+	public static Terminal? cur_term;
+	[CCode (cheader_filename = "term.h")]
+	public int setupterm(string? term, int filedes, out int errret);
+	[CCode (cheader_filename = "term.h")]
+	public int setterm(string? term);
+	[CCode (cheader_filename = "term.h")]
+	public int restartterm(string? term, int filedes, out int errret);
+
+	[CCode (has_typedef = false, has_target = false)]
+	public delegate int VidputsPutcFunc([CCode (type = "int")] char c);
+
+	[CCode (cheader_filename = "term.h")]
+	namespace TermInfo {
+		[CCode (cname = "tputs")]
+#if POSIX
+		public int puts(string str, int affcnt = 1, VidputsPutcFunc putc = (c) => Posix.stdout.putc (c));
+#else
+		public int puts(string str, int affcnt = 1, VidputsPutcFunc putc = (c) => GLib.stdout.putc (c));
+#endif
+		[CCode (cname = "tigetflag")]
+		public int getflag(string capname);
+		[CCode (cname = "tigetnum")]
+		public int getnum(string capname);
+		[CCode (cname = "tigetstr")]
+		public unowned string? getstr(string capname);
+		[CCode (cname = "tiparm")]
+		public unowned string parm(string capname, ...);
+	}
+
+	public int vidputs(ulong attrs, VidputsPutcFunc putc);
+	public int vidattr(ulong attrs);
+
+	public int mvcur(int oldrow, int oldcol, int newrow, int newcol);
+
+	[CCode (cname = "chtype", cprefix = "A_", has_type_id = false)]
 	public enum Attribute {
 		NORMAL, ATTRIBUTES, CHARTEXT, COLOR, STANDOUT,
 		UNDERLINE, REVERSE, BLINK, DIM, BOLD, ALTCHARSET, INVIS,
-		PROTECT, HORIZONTAL, LEFT, LOW, RIGHT, TOP, VERTICAL
+		PROTECT, HORIZONTAL, LEFT, LOW, RIGHT, TOP, VERTICAL,
+		ITALIC // ITALIC is an ncurses extension
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Key {
 		CODE_YES, MIN, BREAK, SRESET, RESET, DOWN, UP, LEFT,
-		RIGHT, HOME, BACKSPACE, F0, /* XXX F(n), */ DL, IL, DC,
-		IC, EIC, CLEAR, EOS, EOL, SF, SR, NPAGE, PPAGE, STAB,
+		RIGHT, HOME, BACKSPACE, F0, DL, IL, DC, IC, EIC,
+		CLEAR, EOS, EOL, SF, SR, NPAGE, PPAGE, STAB,
 		CTAB, CATAB, ENTER, PRINT, LL, A1, A3, B2, C1, C3, BTAB,
 		BEG, CANCEL, CLOSE, COMMAND, COPY, CREATE, END, EXIT,
 		FIND, HELP, MARK, MESSAGE, MOVE, NEXT, OPEN, OPTIONS,
@@ -455,7 +507,11 @@ namespace Curses {
 		SHOME, SIC, SLEFT, SMESSAGE, SMOVE, SNEXT, SOPTIONS,
 		SPREVIOUS, SPRINT, SREDO, SREPLACE, SRIGHT, SRSUME,
 		SSAVE, SSUSPEND, SUNDO, SUSPEND, UNDO, MOUSE, RESIZE,
-		EVENT, MAX
+		MAX;
+
+		public static int F (int n) {
+			return F0 + n;
+		}
 	}
 
 	/* TODO: mouse + wide char support */
@@ -468,20 +524,20 @@ namespace Curses {
 		long bstate;
 	}
 
-	[CCode (cprefix="", has_type_id = false)]
+	[CCode (cname = "int", cprefix = "", has_type_id = false)]
 	public enum MouseMask {
 		ALL_MOUSE_EVENTS,
 		REPORT_MOUSE_POSITION
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button {
 		SHIFT,
 		CTRL,
 		ALT,
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button1 {
 		PRESSED,
 		RELEASED,
@@ -490,7 +546,7 @@ namespace Curses {
 		TRIPLE_CLICKED
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button2 {
 		PRESSED,
 		RELEASED,
@@ -499,7 +555,7 @@ namespace Curses {
 		TRIPLE_CLICKED
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button3 {
 		PRESSED,
 		RELEASED,
@@ -508,7 +564,7 @@ namespace Curses {
 		TRIPLE_CLICKED
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button4 {
 		PRESSED,
 		RELEASED,
@@ -517,7 +573,7 @@ namespace Curses {
 		TRIPLE_CLICKED
 	}
 
-	[CCode (has_type_id = false)]
+	[CCode (cname = "int", has_type_id = false)]
 	public enum Button5 {
 		PRESSED,
 		RELEASED,

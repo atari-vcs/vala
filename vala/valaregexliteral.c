@@ -24,22 +24,18 @@
  * 	Jukka-Pekka Iivonen <jp0409@jippii.fi>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_regex_unref0(var) ((var == NULL) ? NULL : (var = (g_regex_unref (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
 struct _ValaRegexLiteralPrivate {
 	gchar* _value;
 };
-
 
 static gint ValaRegexLiteral_private_offset;
 static gpointer vala_regex_literal_parent_class = NULL;
@@ -54,7 +50,7 @@ static gboolean vala_regex_literal_real_check (ValaCodeNode* base,
 static void vala_regex_literal_real_emit (ValaCodeNode* base,
                                    ValaCodeGenerator* codegen);
 static void vala_regex_literal_finalize (ValaCodeNode * obj);
-
+static GType vala_regex_literal_get_type_once (void);
 
 static inline gpointer
 vala_regex_literal_get_instance_private (ValaRegexLiteral* self)
@@ -62,6 +58,27 @@ vala_regex_literal_get_instance_private (ValaRegexLiteral* self)
 	return G_STRUCT_MEMBER_P (self, ValaRegexLiteral_private_offset);
 }
 
+const gchar*
+vala_regex_literal_get_value (ValaRegexLiteral* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_value;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_regex_literal_set_value (ValaRegexLiteral* self,
+                              const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_value);
+	self->priv->_value = _tmp0_;
+}
 
 /**
  * Creates a new regular expression literal.
@@ -83,14 +100,12 @@ vala_regex_literal_construct (GType object_type,
 	return self;
 }
 
-
 ValaRegexLiteral*
 vala_regex_literal_new (const gchar* value,
                         ValaSourceReference* source_reference)
 {
 	return vala_regex_literal_construct (VALA_TYPE_REGEX_LITERAL, value, source_reference);
 }
-
 
 static void
 vala_regex_literal_real_accept (ValaCodeNode* base,
@@ -103,7 +118,6 @@ vala_regex_literal_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
 
-
 static gboolean
 vala_regex_literal_real_is_pure (ValaExpression* base)
 {
@@ -113,7 +127,6 @@ vala_regex_literal_real_is_pure (ValaExpression* base)
 	result = TRUE;
 	return result;
 }
-
 
 static gboolean
 vala_regex_literal_real_is_non_null (ValaExpression* base)
@@ -125,14 +138,13 @@ vala_regex_literal_real_is_non_null (ValaExpression* base)
 	return result;
 }
 
-
 static gchar*
 vala_regex_literal_real_to_string (ValaCodeNode* base)
 {
 	ValaRegexLiteral * self;
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	self = (ValaRegexLiteral*) base;
 	_tmp0_ = self->priv->_value;
 	_tmp1_ = g_strdup (_tmp0_);
@@ -140,13 +152,11 @@ vala_regex_literal_real_to_string (ValaCodeNode* base)
 	return result;
 }
 
-
 static gboolean
 vala_regex_literal_real_check (ValaCodeNode* base,
                                ValaCodeContext* context)
 {
 	ValaRegexLiteral * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaSemanticAnalyzer* _tmp14_;
@@ -156,7 +166,8 @@ vala_regex_literal_real_check (ValaCodeNode* base,
 	ValaDataType* _tmp18_;
 	gboolean _tmp19_;
 	gboolean _tmp20_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	self = (ValaRegexLiteral*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -176,15 +187,15 @@ vala_regex_literal_real_check (ValaCodeNode* base,
 		GRegex* _tmp5_;
 		GRegex* _tmp7_;
 		_tmp4_ = self->priv->_value;
-		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error_);
+		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error0_);
 		regex = _tmp5_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			gboolean _tmp6_ = FALSE;
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch21_g_regex_error;
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp6_;
 		}
 		_tmp7_ = regex;
@@ -192,17 +203,15 @@ vala_regex_literal_real_check (ValaCodeNode* base,
 		}
 		_g_regex_unref0 (regex);
 	}
-	goto __finally21;
-	__catch21_g_regex_error:
+	goto __finally0;
+	__catch0_g_regex_error:
 	{
-		GError* err = NULL;
 		ValaSourceReference* _tmp8_;
 		ValaSourceReference* _tmp9_;
 		const gchar* _tmp10_;
 		gchar* _tmp11_;
 		gchar* _tmp12_;
-		err = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
 		_tmp8_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
 		_tmp9_ = _tmp8_;
@@ -212,14 +221,13 @@ vala_regex_literal_real_check (ValaCodeNode* base,
 		vala_report_error (_tmp9_, _tmp12_);
 		_g_free0 (_tmp12_);
 		result = FALSE;
-		_g_error_free0 (err);
 		return result;
 	}
-	__finally21:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gboolean _tmp13_ = FALSE;
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp13_;
 	}
 	_tmp14_ = vala_code_context_get_analyzer (context);
@@ -235,7 +243,6 @@ vala_regex_literal_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_regex_literal_real_emit (ValaCodeNode* base,
                               ValaCodeGenerator* codegen)
@@ -247,33 +254,9 @@ vala_regex_literal_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
-const gchar*
-vala_regex_literal_get_value (ValaRegexLiteral* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_value;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_regex_literal_set_value (ValaRegexLiteral* self,
-                              const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_value);
-	self->priv->_value = _tmp0_;
-}
-
-
 static void
-vala_regex_literal_class_init (ValaRegexLiteralClass * klass)
+vala_regex_literal_class_init (ValaRegexLiteralClass * klass,
+                               gpointer klass_data)
 {
 	vala_regex_literal_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_regex_literal_finalize;
@@ -286,13 +269,12 @@ vala_regex_literal_class_init (ValaRegexLiteralClass * klass)
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_regex_literal_real_emit;
 }
 
-
 static void
-vala_regex_literal_instance_init (ValaRegexLiteral * self)
+vala_regex_literal_instance_init (ValaRegexLiteral * self,
+                                  gpointer klass)
 {
 	self->priv = vala_regex_literal_get_instance_private (self);
 }
-
 
 static void
 vala_regex_literal_finalize (ValaCodeNode * obj)
@@ -303,23 +285,28 @@ vala_regex_literal_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_regex_literal_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a regular expression literal in the source code.
  */
+static GType
+vala_regex_literal_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaRegexLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_regex_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaRegexLiteral), 0, (GInstanceInitFunc) vala_regex_literal_instance_init, NULL };
+	GType vala_regex_literal_type_id;
+	vala_regex_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaRegexLiteral", &g_define_type_info, 0);
+	ValaRegexLiteral_private_offset = g_type_add_instance_private (vala_regex_literal_type_id, sizeof (ValaRegexLiteralPrivate));
+	return vala_regex_literal_type_id;
+}
+
 GType
 vala_regex_literal_get_type (void)
 {
 	static volatile gsize vala_regex_literal_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_regex_literal_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaRegexLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_regex_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaRegexLiteral), 0, (GInstanceInitFunc) vala_regex_literal_instance_init, NULL };
 		GType vala_regex_literal_type_id;
-		vala_regex_literal_type_id = g_type_register_static (VALA_TYPE_LITERAL, "ValaRegexLiteral", &g_define_type_info, 0);
-		ValaRegexLiteral_private_offset = g_type_add_instance_private (vala_regex_literal_type_id, sizeof (ValaRegexLiteralPrivate));
+		vala_regex_literal_type_id = vala_regex_literal_get_type_once ();
 		g_once_init_leave (&vala_regex_literal_type_id__volatile, vala_regex_literal_type_id);
 	}
 	return vala_regex_literal_type_id__volatile;
 }
-
-
 

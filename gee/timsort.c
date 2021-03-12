@@ -23,13 +23,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
 #include <glib-object.h>
 #include "valagee.h"
+#include <glib.h>
 #include <string.h>
 #include <gobject/gvaluecollector.h>
-
 
 #define VALA_TYPE_TIM_SORT (vala_tim_sort_get_type ())
 #define VALA_TIM_SORT(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALA_TYPE_TIM_SORT, ValaTimSort))
@@ -94,7 +92,6 @@ struct _ValaParamSpecTimSort {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValaTimSort_private_offset;
 static gpointer vala_tim_sort_parent_class = NULL;
 
@@ -154,8 +151,8 @@ static void vala_tim_sort_insertion_sort (ValaTimSort* self,
 static inline void vala_tim_sort_slice_shorten_start (ValaTimSortSlice* self,
                                         gint n);
 static void _vala_array_add1 (ValaTimSortSlice** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        ValaTimSortSlice* value);
 static void vala_tim_sort_merge_collapse (ValaTimSort* self);
 static void vala_tim_sort_merge_force_collapse (ValaTimSort* self);
@@ -203,6 +200,7 @@ static inline void vala_tim_sort_slice_swap (ValaTimSortSlice* self,
                                gint i,
                                gint j);
 static void vala_tim_sort_finalize (ValaTimSort * obj);
+static GType vala_tim_sort_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -215,13 +213,11 @@ static void _vala_array_move (gpointer array,
                        gint dest,
                        gint length);
 
-
 static inline gpointer
 vala_tim_sort_get_instance_private (ValaTimSort* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaTimSort_private_offset);
 }
-
 
 G_GNUC_INTERNAL void
 vala_tim_sort_sort (GType g_type,
@@ -232,20 +228,18 @@ vala_tim_sort_sort (GType g_type,
                     gpointer compare_target)
 {
 	g_return_if_fail (list != NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (list, VALA_TYPE_ARRAY_LIST)) {
+	if (VALA_IS_ARRAY_LIST (list)) {
 		vala_tim_sort_sort_arraylist (g_type, (GBoxedCopyFunc) g_dup_func, (GDestroyNotify) g_destroy_func, G_TYPE_CHECK_INSTANCE_CAST (list, VALA_TYPE_ARRAY_LIST, ValaArrayList), compare, compare_target);
 	} else {
 		vala_tim_sort_sort_list (g_type, (GBoxedCopyFunc) g_dup_func, (GDestroyNotify) g_destroy_func, list, compare, compare_target);
 	}
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 vala_tim_sort_sort_list (GType g_type,
@@ -315,7 +309,7 @@ vala_tim_sort_sort_list (GType g_type,
 		gint item_it = 0;
 		item_collection = _tmp16_;
 		item_collection_length1 = _tmp16__length1;
-		for (item_it = 0; item_it < _tmp16__length1; item_it = item_it + 1) {
+		for (item_it = 0; item_it < item_collection_length1; item_it = item_it + 1) {
 			gpointer _tmp17_;
 			gpointer item = NULL;
 			_tmp17_ = ((item_collection[item_it] != NULL) && (g_dup_func != NULL)) ? g_dup_func ((gpointer) item_collection[item_it]) : ((gpointer) item_collection[item_it]);
@@ -331,7 +325,6 @@ vala_tim_sort_sort_list (GType g_type,
 	_vala_tim_sort_unref0 (helper);
 }
 
-
 static void
 vala_tim_sort_sort_arraylist (GType g_type,
                               GBoxedCopyFunc g_dup_func,
@@ -345,7 +338,6 @@ vala_tim_sort_sort_arraylist (GType g_type,
 	ValaList* _tmp1_;
 	gpointer* _tmp2_;
 	gint _tmp2__length1;
-	gint _tmp3_;
 	g_return_if_fail (list != NULL);
 	_tmp0_ = vala_tim_sort_new (g_type, (GBoxedCopyFunc) g_dup_func, (GDestroyNotify) g_destroy_func);
 	helper = _tmp0_;
@@ -356,19 +348,17 @@ vala_tim_sort_sort_arraylist (GType g_type,
 	_tmp2__length1 = list->_items_length1;
 	helper->priv->list = _tmp2_;
 	helper->priv->index = 0;
-	_tmp3_ = list->_size;
-	helper->priv->size = _tmp3_;
+	helper->priv->size = list->_size;
 	helper->priv->compare = compare;
 	helper->priv->compare_target = compare_target;
 	vala_tim_sort_do_sort (helper);
 	_vala_tim_sort_unref0 (helper);
 }
 
-
 static void
 _vala_array_add1 (ValaTimSortSlice** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   ValaTimSortSlice* value)
 {
 	if ((*length) == (*size)) {
@@ -379,154 +369,112 @@ _vala_array_add1 (ValaTimSortSlice** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static void
 vala_tim_sort_do_sort (ValaTimSort* self)
 {
-	gint _tmp0_;
-	ValaTimSortSlice** _tmp1_;
+	ValaTimSortSlice** _tmp0_;
 	ValaTimSortSlice* remaining = NULL;
-	void** _tmp2_;
-	gint _tmp3_;
-	gint _tmp4_;
-	ValaTimSortSlice* _tmp5_;
+	void** _tmp1_;
+	ValaTimSortSlice* _tmp2_;
 	gint minimum_length = 0;
-	ValaTimSortSlice* _tmp6_;
-	gint _tmp7_;
-	ValaTimSortSlice* _tmp31_;
-	gint _tmp32_;
-	gint _tmp33_;
-	ValaTimSortSlice** _tmp34_;
-	gint _tmp34__length1;
-	ValaTimSortSlice** _tmp35_;
-	gint _tmp35__length1;
-	ValaTimSortSlice* _tmp36_;
-	gint _tmp37_;
-	ValaTimSortSlice** _tmp38_;
-	gint _tmp38__length1;
-	ValaTimSortSlice* _tmp39_;
-	gint _tmp40_;
-	gint _tmp41_;
+	ValaTimSortSlice* _tmp3_;
+	ValaTimSortSlice* _tmp17_;
+	ValaTimSortSlice** _tmp18_;
+	gint _tmp18__length1;
+	ValaTimSortSlice** _tmp19_;
+	gint _tmp19__length1;
+	ValaTimSortSlice* _tmp20_;
+	ValaTimSortSlice** _tmp21_;
+	gint _tmp21__length1;
+	ValaTimSortSlice* _tmp22_;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->priv->size;
-	if (_tmp0_ < 2) {
+	if (self->priv->size < 2) {
 		return;
 	}
-	_tmp1_ = g_new0 (ValaTimSortSlice*, 0 + 1);
+	_tmp0_ = g_new0 (ValaTimSortSlice*, 0 + 1);
 	self->priv->pending = (_vala_array_free (self->priv->pending, self->priv->pending_length1, (GDestroyNotify) vala_tim_sort_slice_free), NULL);
-	self->priv->pending = _tmp1_;
+	self->priv->pending = _tmp0_;
 	self->priv->pending_length1 = 0;
 	self->priv->_pending_size_ = self->priv->pending_length1;
 	self->priv->minimum_gallop = VALA_TIM_SORT_MINIMUM_GALLOP;
-	_tmp2_ = self->priv->list;
-	_tmp3_ = self->priv->index;
-	_tmp4_ = self->priv->size;
-	_tmp5_ = vala_tim_sort_slice_new (_tmp2_, _tmp3_, _tmp4_);
-	remaining = _tmp5_;
-	_tmp6_ = remaining;
-	_tmp7_ = _tmp6_->length;
-	minimum_length = vala_tim_sort_compute_minimum_run_length (self, _tmp7_);
+	_tmp1_ = self->priv->list;
+	_tmp2_ = vala_tim_sort_slice_new (_tmp1_, self->priv->index, self->priv->size);
+	remaining = _tmp2_;
+	_tmp3_ = remaining;
+	minimum_length = vala_tim_sort_compute_minimum_run_length (self, _tmp3_->length);
 	while (TRUE) {
-		ValaTimSortSlice* _tmp8_;
-		gint _tmp9_;
+		ValaTimSortSlice* _tmp4_;
 		gboolean descending = FALSE;
 		ValaTimSortSlice* run = NULL;
-		ValaTimSortSlice* _tmp10_;
-		gboolean _tmp11_ = FALSE;
-		ValaTimSortSlice* _tmp12_;
-		gboolean _tmp13_;
+		ValaTimSortSlice* _tmp5_;
+		gboolean _tmp6_ = FALSE;
+		ValaTimSortSlice* _tmp7_;
+		ValaTimSortSlice* _tmp9_;
+		ValaTimSortSlice* _tmp14_;
 		ValaTimSortSlice* _tmp15_;
-		gint _tmp16_;
-		gint _tmp17_;
-		ValaTimSortSlice* _tmp26_;
-		ValaTimSortSlice* _tmp27_;
-		gint _tmp28_;
-		ValaTimSortSlice** _tmp29_;
-		gint _tmp29__length1;
-		ValaTimSortSlice* _tmp30_;
-		_tmp8_ = remaining;
-		_tmp9_ = _tmp8_->length;
-		if (!(_tmp9_ > 0)) {
+		ValaTimSortSlice* _tmp16_;
+		_tmp4_ = remaining;
+		if (!(_tmp4_->length > 0)) {
 			break;
 		}
-		_tmp10_ = remaining;
-		_tmp12_ = vala_tim_sort_compute_longest_run (self, _tmp10_, &_tmp11_);
-		descending = _tmp11_;
-		run = _tmp12_;
-		_tmp13_ = descending;
-		if (_tmp13_) {
-			ValaTimSortSlice* _tmp14_;
-			_tmp14_ = run;
-			vala_tim_sort_slice_reverse (_tmp14_);
+		_tmp5_ = remaining;
+		_tmp7_ = vala_tim_sort_compute_longest_run (self, _tmp5_, &_tmp6_);
+		descending = _tmp6_;
+		run = _tmp7_;
+		if (descending) {
+			ValaTimSortSlice* _tmp8_;
+			_tmp8_ = run;
+			vala_tim_sort_slice_reverse (_tmp8_);
 		}
-		_tmp15_ = run;
-		_tmp16_ = _tmp15_->length;
-		_tmp17_ = minimum_length;
-		if (_tmp16_ < _tmp17_) {
+		_tmp9_ = run;
+		if (_tmp9_->length < minimum_length) {
 			gint sorted_count = 0;
-			ValaTimSortSlice* _tmp18_;
-			gint _tmp19_;
-			ValaTimSortSlice* _tmp20_;
-			gint _tmp21_;
-			ValaTimSortSlice* _tmp22_;
-			gint _tmp23_;
-			ValaTimSortSlice* _tmp24_;
-			gint _tmp25_;
-			_tmp18_ = run;
-			_tmp19_ = _tmp18_->length;
-			sorted_count = _tmp19_;
-			_tmp20_ = run;
-			_tmp21_ = minimum_length;
-			_tmp22_ = remaining;
-			_tmp23_ = _tmp22_->length;
-			_tmp20_->length = MIN (_tmp21_, _tmp23_);
-			_tmp24_ = run;
-			_tmp25_ = sorted_count;
-			vala_tim_sort_insertion_sort (self, _tmp24_, _tmp25_);
+			ValaTimSortSlice* _tmp10_;
+			ValaTimSortSlice* _tmp11_;
+			ValaTimSortSlice* _tmp12_;
+			ValaTimSortSlice* _tmp13_;
+			_tmp10_ = run;
+			sorted_count = _tmp10_->length;
+			_tmp11_ = run;
+			_tmp12_ = remaining;
+			_tmp11_->length = MIN (minimum_length, _tmp12_->length);
+			_tmp13_ = run;
+			vala_tim_sort_insertion_sort (self, _tmp13_, sorted_count);
 		}
-		_tmp26_ = remaining;
-		_tmp27_ = run;
-		_tmp28_ = _tmp27_->length;
-		vala_tim_sort_slice_shorten_start (_tmp26_, _tmp28_);
-		_tmp29_ = self->priv->pending;
-		_tmp29__length1 = self->priv->pending_length1;
-		_tmp30_ = run;
+		_tmp14_ = remaining;
+		_tmp15_ = run;
+		vala_tim_sort_slice_shorten_start (_tmp14_, _tmp15_->length);
+		_tmp16_ = run;
 		run = NULL;
-		_vala_array_add1 (&self->priv->pending, &self->priv->pending_length1, &self->priv->_pending_size_, _tmp30_);
+		_vala_array_add1 (&self->priv->pending, &self->priv->pending_length1, &self->priv->_pending_size_, _tmp16_);
 		vala_tim_sort_merge_collapse (self);
 		_vala_tim_sort_slice_free0 (run);
 	}
-	_tmp31_ = remaining;
-	_tmp32_ = _tmp31_->index;
-	_tmp33_ = self->priv->size;
-	_vala_assert (_tmp32_ == _tmp33_, "remaining.index == size");
+	_tmp17_ = remaining;
+	_vala_assert (_tmp17_->index == self->priv->size, "remaining.index == size");
 	vala_tim_sort_merge_force_collapse (self);
-	_tmp34_ = self->priv->pending;
-	_tmp34__length1 = self->priv->pending_length1;
-	_vala_assert (_tmp34__length1 == 1, "pending.length == 1");
-	_tmp35_ = self->priv->pending;
-	_tmp35__length1 = self->priv->pending_length1;
-	_tmp36_ = _tmp35_[0];
-	_tmp37_ = _tmp36_->index;
-	_vala_assert (_tmp37_ == 0, "pending[0].index == 0");
-	_tmp38_ = self->priv->pending;
-	_tmp38__length1 = self->priv->pending_length1;
-	_tmp39_ = _tmp38_[0];
-	_tmp40_ = _tmp39_->length;
-	_tmp41_ = self->priv->size;
-	_vala_assert (_tmp40_ == _tmp41_, "pending[0].length == size");
+	_tmp18_ = self->priv->pending;
+	_tmp18__length1 = self->priv->pending_length1;
+	_vala_assert (_tmp18__length1 == 1, "pending.length == 1");
+	_tmp19_ = self->priv->pending;
+	_tmp19__length1 = self->priv->pending_length1;
+	_tmp20_ = _tmp19_[0];
+	_vala_assert (_tmp20_->index == 0, "pending[0].index == 0");
+	_tmp21_ = self->priv->pending;
+	_tmp21__length1 = self->priv->pending_length1;
+	_tmp22_ = _tmp21_[0];
+	_vala_assert (_tmp22_->length == self->priv->size, "pending[0].length == size");
 	_vala_tim_sort_slice_free0 (remaining);
 }
-
 
 static inline gboolean
 vala_tim_sort_lower_than (ValaTimSort* self,
                           gconstpointer left,
                           gconstpointer right)
 {
-	gboolean result = FALSE;
 	GCompareDataFunc _tmp0_;
-	void* _tmp0__target;
+	gpointer _tmp0__target;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->compare;
 	_tmp0__target = self->priv->compare_target;
@@ -534,15 +482,14 @@ vala_tim_sort_lower_than (ValaTimSort* self,
 	return result;
 }
 
-
 static inline gboolean
 vala_tim_sort_lower_than_or_equal_to (ValaTimSort* self,
                                       gconstpointer left,
                                       gconstpointer right)
 {
-	gboolean result = FALSE;
 	GCompareDataFunc _tmp0_;
-	void* _tmp0__target;
+	gpointer _tmp0__target;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->compare;
 	_tmp0__target = self->priv->compare_target;
@@ -550,30 +497,24 @@ vala_tim_sort_lower_than_or_equal_to (ValaTimSort* self,
 	return result;
 }
 
-
 static gint
 vala_tim_sort_compute_minimum_run_length (ValaTimSort* self,
                                           gint length)
 {
-	gint result = 0;
 	gint run_length = 0;
-	gint _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	run_length = 0;
 	while (TRUE) {
-		gint _tmp0_;
 		if (!(length >= 64)) {
 			break;
 		}
-		_tmp0_ = run_length;
-		run_length = _tmp0_ | (length & 1);
+		run_length |= length & 1;
 		length = length >> 1;
 	}
-	_tmp1_ = run_length;
-	result = length + _tmp1_;
+	result = length + run_length;
 	return result;
 }
-
 
 static ValaTimSortSlice*
 vala_tim_sort_compute_longest_run (ValaTimSort* self,
@@ -581,77 +522,55 @@ vala_tim_sort_compute_longest_run (ValaTimSort* self,
                                    gboolean* descending)
 {
 	gboolean _vala_descending = FALSE;
-	ValaTimSortSlice* result = NULL;
 	gint run_length = 0;
-	gint _tmp0_;
-	void** _tmp34_;
-	gint _tmp35_;
-	gint _tmp36_;
-	ValaTimSortSlice* _tmp37_;
+	void** _tmp18_;
+	ValaTimSortSlice* _tmp19_;
+	ValaTimSortSlice* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (a != NULL, NULL);
-	_tmp0_ = a->length;
-	if (_tmp0_ <= 1) {
-		gint _tmp1_;
-		_tmp1_ = a->length;
-		run_length = _tmp1_;
+	if (a->length <= 1) {
+		run_length = a->length;
 		_vala_descending = FALSE;
 	} else {
+		void** _tmp0_;
+		void* _tmp1_;
 		void** _tmp2_;
-		gint _tmp3_;
-		void* _tmp4_;
-		void** _tmp5_;
-		gint _tmp6_;
-		void* _tmp7_;
+		void* _tmp3_;
 		run_length = 2;
+		_tmp0_ = a->list;
+		_tmp1_ = _tmp0_[a->index + 1];
 		_tmp2_ = a->list;
-		_tmp3_ = a->index;
-		_tmp4_ = _tmp2_[_tmp3_ + 1];
-		_tmp5_ = a->list;
-		_tmp6_ = a->index;
-		_tmp7_ = _tmp5_[_tmp6_];
-		if (vala_tim_sort_lower_than (self, _tmp4_, _tmp7_)) {
+		_tmp3_ = _tmp2_[a->index];
+		if (vala_tim_sort_lower_than (self, _tmp1_, _tmp3_)) {
 			_vala_descending = TRUE;
 			{
 				gint i = 0;
-				gint _tmp8_;
-				_tmp8_ = a->index;
-				i = _tmp8_ + 2;
+				i = a->index + 2;
 				{
-					gboolean _tmp9_ = FALSE;
-					_tmp9_ = TRUE;
+					gboolean _tmp4_ = FALSE;
+					_tmp4_ = TRUE;
 					while (TRUE) {
-						gint _tmp11_;
-						gint _tmp12_;
-						gint _tmp13_;
-						void** _tmp14_;
-						gint _tmp15_;
-						void* _tmp16_;
-						void** _tmp17_;
-						gint _tmp18_;
-						void* _tmp19_;
-						if (!_tmp9_) {
-							gint _tmp10_;
-							_tmp10_ = i;
-							i = _tmp10_ + 1;
+						void** _tmp6_;
+						void* _tmp7_;
+						void** _tmp8_;
+						void* _tmp9_;
+						if (!_tmp4_) {
+							gint _tmp5_;
+							_tmp5_ = i;
+							i = _tmp5_ + 1;
 						}
-						_tmp9_ = FALSE;
-						_tmp11_ = i;
-						_tmp12_ = a->index;
-						_tmp13_ = a->length;
-						if (!(_tmp11_ < (_tmp12_ + _tmp13_))) {
+						_tmp4_ = FALSE;
+						if (!(i < (a->index + a->length))) {
 							break;
 						}
-						_tmp14_ = a->list;
-						_tmp15_ = i;
-						_tmp16_ = _tmp14_[_tmp15_];
-						_tmp17_ = a->list;
-						_tmp18_ = i;
-						_tmp19_ = _tmp17_[_tmp18_ - 1];
-						if (vala_tim_sort_lower_than (self, _tmp16_, _tmp19_)) {
-							gint _tmp20_;
-							_tmp20_ = run_length;
-							run_length = _tmp20_ + 1;
+						_tmp6_ = a->list;
+						_tmp7_ = _tmp6_[i];
+						_tmp8_ = a->list;
+						_tmp9_ = _tmp8_[i - 1];
+						if (vala_tim_sort_lower_than (self, _tmp7_, _tmp9_)) {
+							gint _tmp10_;
+							_tmp10_ = run_length;
+							run_length = _tmp10_ + 1;
 						} else {
 							break;
 						}
@@ -662,63 +581,48 @@ vala_tim_sort_compute_longest_run (ValaTimSort* self,
 			_vala_descending = FALSE;
 			{
 				gint i = 0;
-				gint _tmp21_;
-				_tmp21_ = a->index;
-				i = _tmp21_ + 2;
+				i = a->index + 2;
 				{
-					gboolean _tmp22_ = FALSE;
-					_tmp22_ = TRUE;
+					gboolean _tmp11_ = FALSE;
+					_tmp11_ = TRUE;
 					while (TRUE) {
-						gint _tmp24_;
-						gint _tmp25_;
-						gint _tmp26_;
-						void** _tmp27_;
-						gint _tmp28_;
-						void* _tmp29_;
-						void** _tmp30_;
-						gint _tmp31_;
-						void* _tmp32_;
-						if (!_tmp22_) {
-							gint _tmp23_;
-							_tmp23_ = i;
-							i = _tmp23_ + 1;
+						void** _tmp13_;
+						void* _tmp14_;
+						void** _tmp15_;
+						void* _tmp16_;
+						if (!_tmp11_) {
+							gint _tmp12_;
+							_tmp12_ = i;
+							i = _tmp12_ + 1;
 						}
-						_tmp22_ = FALSE;
-						_tmp24_ = i;
-						_tmp25_ = a->index;
-						_tmp26_ = a->length;
-						if (!(_tmp24_ < (_tmp25_ + _tmp26_))) {
+						_tmp11_ = FALSE;
+						if (!(i < (a->index + a->length))) {
 							break;
 						}
-						_tmp27_ = a->list;
-						_tmp28_ = i;
-						_tmp29_ = _tmp27_[_tmp28_];
-						_tmp30_ = a->list;
-						_tmp31_ = i;
-						_tmp32_ = _tmp30_[_tmp31_ - 1];
-						if (vala_tim_sort_lower_than (self, _tmp29_, _tmp32_)) {
+						_tmp13_ = a->list;
+						_tmp14_ = _tmp13_[i];
+						_tmp15_ = a->list;
+						_tmp16_ = _tmp15_[i - 1];
+						if (vala_tim_sort_lower_than (self, _tmp14_, _tmp16_)) {
 							break;
 						} else {
-							gint _tmp33_;
-							_tmp33_ = run_length;
-							run_length = _tmp33_ + 1;
+							gint _tmp17_;
+							_tmp17_ = run_length;
+							run_length = _tmp17_ + 1;
 						}
 					}
 				}
 			}
 		}
 	}
-	_tmp34_ = a->list;
-	_tmp35_ = a->index;
-	_tmp36_ = run_length;
-	_tmp37_ = vala_tim_sort_slice_new (_tmp34_, _tmp35_, _tmp36_);
-	result = _tmp37_;
+	_tmp18_ = a->list;
+	_tmp19_ = vala_tim_sort_slice_new (_tmp18_, a->index, run_length);
+	result = _tmp19_;
 	if (descending) {
 		*descending = _vala_descending;
 	}
 	return result;
 }
-
 
 static void
 vala_tim_sort_insertion_sort (ValaTimSort* self,
@@ -729,108 +633,63 @@ vala_tim_sort_insertion_sort (ValaTimSort* self,
 	g_return_if_fail (a != NULL);
 	{
 		gint start = 0;
-		gint _tmp0_;
-		_tmp0_ = a->index;
-		start = _tmp0_ + offset;
+		start = a->index + offset;
 		{
-			gboolean _tmp1_ = FALSE;
-			_tmp1_ = TRUE;
+			gboolean _tmp0_ = FALSE;
+			_tmp0_ = TRUE;
 			while (TRUE) {
-				gint _tmp3_;
-				gint _tmp4_;
-				gint _tmp5_;
 				gint left = 0;
-				gint _tmp6_;
 				gint right = 0;
-				gint _tmp7_;
 				void* pivot = NULL;
+				void** _tmp2_;
+				void* _tmp3_;
+				void** _tmp7_;
 				void** _tmp8_;
-				gint _tmp9_;
+				void** _tmp9_;
 				void* _tmp10_;
-				gint _tmp22_;
-				gint _tmp23_;
-				void** _tmp24_;
-				gint _tmp25_;
-				void** _tmp26_;
-				gint _tmp27_;
-				gint _tmp28_;
-				gint _tmp29_;
-				void** _tmp30_;
-				gint _tmp31_;
-				void* _tmp32_;
-				if (!_tmp1_) {
-					gint _tmp2_;
-					_tmp2_ = start;
-					start = _tmp2_ + 1;
+				if (!_tmp0_) {
+					gint _tmp1_;
+					_tmp1_ = start;
+					start = _tmp1_ + 1;
 				}
-				_tmp1_ = FALSE;
-				_tmp3_ = start;
-				_tmp4_ = a->index;
-				_tmp5_ = a->length;
-				if (!(_tmp3_ < (_tmp4_ + _tmp5_))) {
+				_tmp0_ = FALSE;
+				if (!(start < (a->index + a->length))) {
 					break;
 				}
-				_tmp6_ = a->index;
-				left = _tmp6_;
-				_tmp7_ = start;
-				right = _tmp7_;
-				_tmp8_ = a->list;
-				_tmp9_ = right;
-				_tmp10_ = _tmp8_[_tmp9_];
-				pivot = _tmp10_;
+				left = a->index;
+				right = start;
+				_tmp2_ = a->list;
+				_tmp3_ = _tmp2_[right];
+				pivot = _tmp3_;
 				while (TRUE) {
-					gint _tmp11_;
-					gint _tmp12_;
 					gint p = 0;
-					gint _tmp13_;
-					gint _tmp14_;
-					gint _tmp15_;
-					void* _tmp16_;
-					void** _tmp17_;
-					gint _tmp18_;
-					void* _tmp19_;
-					_tmp11_ = left;
-					_tmp12_ = right;
-					if (!(_tmp11_ < _tmp12_)) {
+					void* _tmp4_;
+					void** _tmp5_;
+					void* _tmp6_;
+					if (!(left < right)) {
 						break;
 					}
-					_tmp13_ = left;
-					_tmp14_ = right;
-					_tmp15_ = left;
-					p = _tmp13_ + ((_tmp14_ - _tmp15_) >> 1);
-					_tmp16_ = pivot;
-					_tmp17_ = a->list;
-					_tmp18_ = p;
-					_tmp19_ = _tmp17_[_tmp18_];
-					if (vala_tim_sort_lower_than (self, _tmp16_, _tmp19_)) {
-						gint _tmp20_;
-						_tmp20_ = p;
-						right = _tmp20_;
+					p = left + ((right - left) >> 1);
+					_tmp4_ = pivot;
+					_tmp5_ = a->list;
+					_tmp6_ = _tmp5_[p];
+					if (vala_tim_sort_lower_than (self, _tmp4_, _tmp6_)) {
+						right = p;
 					} else {
-						gint _tmp21_;
-						_tmp21_ = p;
-						left = _tmp21_ + 1;
+						left = p + 1;
 					}
 				}
-				_tmp22_ = left;
-				_tmp23_ = right;
-				_vala_assert (_tmp22_ == _tmp23_, "left == right");
-				_tmp24_ = a->list;
-				_tmp25_ = left;
-				_tmp26_ = a->list;
-				_tmp27_ = left;
-				_tmp28_ = start;
-				_tmp29_ = left;
-				g_memmove (&_tmp24_[_tmp25_ + 1], &_tmp26_[_tmp27_], (gsize) (sizeof (gpointer) * (_tmp28_ - _tmp29_)));
-				_tmp30_ = a->list;
-				_tmp31_ = left;
-				_tmp32_ = pivot;
-				_tmp30_[_tmp31_] = _tmp32_;
+				_vala_assert (left == right, "left == right");
+				_tmp7_ = a->list;
+				_tmp8_ = a->list;
+				memmove (&_tmp7_[left + 1], &_tmp8_[left], (gsize) (sizeof (gpointer) * (start - left)));
+				_tmp9_ = a->list;
+				_tmp10_ = pivot;
+				_tmp9_[left] = _tmp10_;
 			}
 		}
 	}
 }
-
 
 static void
 vala_tim_sort_merge_collapse (ValaTimSort* self)
@@ -843,116 +702,77 @@ vala_tim_sort_merge_collapse (ValaTimSort* self)
 	_tmp0__length1 = self->priv->pending_length1;
 	count = _tmp0__length1;
 	while (TRUE) {
-		gint _tmp1_;
-		gboolean _tmp2_ = FALSE;
-		gint _tmp3_;
-		ValaTimSortSlice** _tmp35_;
-		gint _tmp35__length1;
-		_tmp1_ = count;
-		if (!(_tmp1_ > 1)) {
+		gboolean _tmp1_ = FALSE;
+		ValaTimSortSlice** _tmp16_;
+		gint _tmp16__length1;
+		if (!(count > 1)) {
 			break;
 		}
-		_tmp3_ = count;
-		if (_tmp3_ >= 3) {
+		if (count >= 3) {
+			ValaTimSortSlice** _tmp2_;
+			gint _tmp2__length1;
+			ValaTimSortSlice* _tmp3_;
 			ValaTimSortSlice** _tmp4_;
 			gint _tmp4__length1;
-			gint _tmp5_;
-			ValaTimSortSlice* _tmp6_;
-			gint _tmp7_;
-			ValaTimSortSlice** _tmp8_;
-			gint _tmp8__length1;
-			gint _tmp9_;
-			ValaTimSortSlice* _tmp10_;
-			gint _tmp11_;
-			ValaTimSortSlice** _tmp12_;
-			gint _tmp12__length1;
-			gint _tmp13_;
-			ValaTimSortSlice* _tmp14_;
-			gint _tmp15_;
+			ValaTimSortSlice* _tmp5_;
+			ValaTimSortSlice** _tmp6_;
+			gint _tmp6__length1;
+			ValaTimSortSlice* _tmp7_;
+			_tmp2_ = self->priv->pending;
+			_tmp2__length1 = self->priv->pending_length1;
+			_tmp3_ = _tmp2_[count - 3];
 			_tmp4_ = self->priv->pending;
 			_tmp4__length1 = self->priv->pending_length1;
-			_tmp5_ = count;
-			_tmp6_ = _tmp4_[_tmp5_ - 3];
-			_tmp7_ = _tmp6_->length;
+			_tmp5_ = _tmp4_[count - 2];
+			_tmp6_ = self->priv->pending;
+			_tmp6__length1 = self->priv->pending_length1;
+			_tmp7_ = _tmp6_[count - 1];
+			_tmp1_ = _tmp3_->length <= (_tmp5_->length + _tmp7_->length);
+		} else {
+			_tmp1_ = FALSE;
+		}
+		if (_tmp1_) {
+			ValaTimSortSlice** _tmp8_;
+			gint _tmp8__length1;
+			ValaTimSortSlice* _tmp9_;
+			ValaTimSortSlice** _tmp10_;
+			gint _tmp10__length1;
+			ValaTimSortSlice* _tmp11_;
 			_tmp8_ = self->priv->pending;
 			_tmp8__length1 = self->priv->pending_length1;
-			_tmp9_ = count;
-			_tmp10_ = _tmp8_[_tmp9_ - 2];
-			_tmp11_ = _tmp10_->length;
-			_tmp12_ = self->priv->pending;
-			_tmp12__length1 = self->priv->pending_length1;
-			_tmp13_ = count;
-			_tmp14_ = _tmp12_[_tmp13_ - 1];
-			_tmp15_ = _tmp14_->length;
-			_tmp2_ = _tmp7_ <= (_tmp11_ + _tmp15_);
-		} else {
-			_tmp2_ = FALSE;
-		}
-		if (_tmp2_) {
-			ValaTimSortSlice** _tmp16_;
-			gint _tmp16__length1;
-			gint _tmp17_;
-			ValaTimSortSlice* _tmp18_;
-			gint _tmp19_;
-			ValaTimSortSlice** _tmp20_;
-			gint _tmp20__length1;
-			gint _tmp21_;
-			ValaTimSortSlice* _tmp22_;
-			gint _tmp23_;
-			_tmp16_ = self->priv->pending;
-			_tmp16__length1 = self->priv->pending_length1;
-			_tmp17_ = count;
-			_tmp18_ = _tmp16_[_tmp17_ - 3];
-			_tmp19_ = _tmp18_->length;
-			_tmp20_ = self->priv->pending;
-			_tmp20__length1 = self->priv->pending_length1;
-			_tmp21_ = count;
-			_tmp22_ = _tmp20_[_tmp21_ - 1];
-			_tmp23_ = _tmp22_->length;
-			if (_tmp19_ < _tmp23_) {
-				gint _tmp24_;
-				_tmp24_ = count;
-				vala_tim_sort_merge_at (self, _tmp24_ - 3);
+			_tmp9_ = _tmp8_[count - 3];
+			_tmp10_ = self->priv->pending;
+			_tmp10__length1 = self->priv->pending_length1;
+			_tmp11_ = _tmp10_[count - 1];
+			if (_tmp9_->length < _tmp11_->length) {
+				vala_tim_sort_merge_at (self, count - 3);
 			} else {
-				gint _tmp25_;
-				_tmp25_ = count;
-				vala_tim_sort_merge_at (self, _tmp25_ - 2);
+				vala_tim_sort_merge_at (self, count - 2);
 			}
 		} else {
-			ValaTimSortSlice** _tmp26_;
-			gint _tmp26__length1;
-			gint _tmp27_;
-			ValaTimSortSlice* _tmp28_;
-			gint _tmp29_;
-			ValaTimSortSlice** _tmp30_;
-			gint _tmp30__length1;
-			gint _tmp31_;
-			ValaTimSortSlice* _tmp32_;
-			gint _tmp33_;
-			_tmp26_ = self->priv->pending;
-			_tmp26__length1 = self->priv->pending_length1;
-			_tmp27_ = count;
-			_tmp28_ = _tmp26_[_tmp27_ - 2];
-			_tmp29_ = _tmp28_->length;
-			_tmp30_ = self->priv->pending;
-			_tmp30__length1 = self->priv->pending_length1;
-			_tmp31_ = count;
-			_tmp32_ = _tmp30_[_tmp31_ - 1];
-			_tmp33_ = _tmp32_->length;
-			if (_tmp29_ <= _tmp33_) {
-				gint _tmp34_;
-				_tmp34_ = count;
-				vala_tim_sort_merge_at (self, _tmp34_ - 2);
+			ValaTimSortSlice** _tmp12_;
+			gint _tmp12__length1;
+			ValaTimSortSlice* _tmp13_;
+			ValaTimSortSlice** _tmp14_;
+			gint _tmp14__length1;
+			ValaTimSortSlice* _tmp15_;
+			_tmp12_ = self->priv->pending;
+			_tmp12__length1 = self->priv->pending_length1;
+			_tmp13_ = _tmp12_[count - 2];
+			_tmp14_ = self->priv->pending;
+			_tmp14__length1 = self->priv->pending_length1;
+			_tmp15_ = _tmp14_[count - 1];
+			if (_tmp13_->length <= _tmp15_->length) {
+				vala_tim_sort_merge_at (self, count - 2);
 			} else {
 				break;
 			}
 		}
-		_tmp35_ = self->priv->pending;
-		_tmp35__length1 = self->priv->pending_length1;
-		count = _tmp35__length1;
+		_tmp16_ = self->priv->pending;
+		_tmp16__length1 = self->priv->pending_length1;
+		count = _tmp16__length1;
 	}
 }
-
 
 static void
 vala_tim_sort_merge_force_collapse (ValaTimSort* self)
@@ -965,56 +785,39 @@ vala_tim_sort_merge_force_collapse (ValaTimSort* self)
 	_tmp0__length1 = self->priv->pending_length1;
 	count = _tmp0__length1;
 	while (TRUE) {
-		gint _tmp1_;
-		gboolean _tmp2_ = FALSE;
-		gint _tmp3_;
-		ValaTimSortSlice** _tmp14_;
-		gint _tmp14__length1;
-		_tmp1_ = count;
-		if (!(_tmp1_ > 1)) {
+		gboolean _tmp1_ = FALSE;
+		ValaTimSortSlice** _tmp6_;
+		gint _tmp6__length1;
+		if (!(count > 1)) {
 			break;
 		}
-		_tmp3_ = count;
-		if (_tmp3_ >= 3) {
+		if (count >= 3) {
+			ValaTimSortSlice** _tmp2_;
+			gint _tmp2__length1;
+			ValaTimSortSlice* _tmp3_;
 			ValaTimSortSlice** _tmp4_;
 			gint _tmp4__length1;
-			gint _tmp5_;
-			ValaTimSortSlice* _tmp6_;
-			gint _tmp7_;
-			ValaTimSortSlice** _tmp8_;
-			gint _tmp8__length1;
-			gint _tmp9_;
-			ValaTimSortSlice* _tmp10_;
-			gint _tmp11_;
+			ValaTimSortSlice* _tmp5_;
+			_tmp2_ = self->priv->pending;
+			_tmp2__length1 = self->priv->pending_length1;
+			_tmp3_ = _tmp2_[count - 3];
 			_tmp4_ = self->priv->pending;
 			_tmp4__length1 = self->priv->pending_length1;
-			_tmp5_ = count;
-			_tmp6_ = _tmp4_[_tmp5_ - 3];
-			_tmp7_ = _tmp6_->length;
-			_tmp8_ = self->priv->pending;
-			_tmp8__length1 = self->priv->pending_length1;
-			_tmp9_ = count;
-			_tmp10_ = _tmp8_[_tmp9_ - 1];
-			_tmp11_ = _tmp10_->length;
-			_tmp2_ = _tmp7_ < _tmp11_;
+			_tmp5_ = _tmp4_[count - 1];
+			_tmp1_ = _tmp3_->length < _tmp5_->length;
 		} else {
-			_tmp2_ = FALSE;
+			_tmp1_ = FALSE;
 		}
-		if (_tmp2_) {
-			gint _tmp12_;
-			_tmp12_ = count;
-			vala_tim_sort_merge_at (self, _tmp12_ - 3);
+		if (_tmp1_) {
+			vala_tim_sort_merge_at (self, count - 3);
 		} else {
-			gint _tmp13_;
-			_tmp13_ = count;
-			vala_tim_sort_merge_at (self, _tmp13_ - 2);
+			vala_tim_sort_merge_at (self, count - 2);
 		}
-		_tmp14_ = self->priv->pending;
-		_tmp14__length1 = self->priv->pending_length1;
-		count = _tmp14__length1;
+		_tmp6_ = self->priv->pending;
+		_tmp6__length1 = self->priv->pending_length1;
+		count = _tmp6__length1;
 	}
 }
-
 
 static void
 vala_tim_sort_merge_at (ValaTimSort* self,
@@ -1029,47 +832,33 @@ vala_tim_sort_merge_at (ValaTimSort* self,
 	gint _tmp2__length1;
 	ValaTimSortSlice* _tmp3_;
 	ValaTimSortSlice* _tmp4_;
-	gint _tmp5_;
+	ValaTimSortSlice* _tmp5_;
 	ValaTimSortSlice* _tmp6_;
-	gint _tmp7_;
+	ValaTimSortSlice* _tmp7_;
 	ValaTimSortSlice* _tmp8_;
-	gint _tmp9_;
-	ValaTimSortSlice* _tmp10_;
-	gint _tmp11_;
+	ValaTimSortSlice** _tmp9_;
+	gint _tmp9__length1;
+	void** _tmp10_;
+	ValaTimSortSlice* _tmp11_;
 	ValaTimSortSlice* _tmp12_;
-	gint _tmp13_;
-	ValaTimSortSlice** _tmp14_;
-	gint _tmp14__length1;
-	void** _tmp15_;
-	ValaTimSortSlice* _tmp16_;
-	gint _tmp17_;
-	ValaTimSortSlice* _tmp18_;
-	gint _tmp19_;
-	ValaTimSortSlice* _tmp20_;
-	gint _tmp21_;
-	ValaTimSortSlice* _tmp22_;
-	ValaTimSortSlice** _tmp23_;
-	gint _tmp23__length1;
+	ValaTimSortSlice* _tmp13_;
+	ValaTimSortSlice* _tmp14_;
+	ValaTimSortSlice** _tmp15_;
+	gint _tmp15__length1;
 	gint sorted_count = 0;
+	ValaTimSortSlice* _tmp16_;
+	void* _tmp17_;
+	ValaTimSortSlice* _tmp18_;
+	ValaTimSortSlice* _tmp19_;
+	ValaTimSortSlice* _tmp20_;
+	ValaTimSortSlice* _tmp21_;
+	ValaTimSortSlice* _tmp22_;
+	void* _tmp23_;
 	ValaTimSortSlice* _tmp24_;
-	void* _tmp25_;
+	ValaTimSortSlice* _tmp25_;
 	ValaTimSortSlice* _tmp26_;
 	ValaTimSortSlice* _tmp27_;
-	gint _tmp28_;
-	ValaTimSortSlice* _tmp29_;
-	gint _tmp30_;
-	ValaTimSortSlice* _tmp31_;
-	ValaTimSortSlice* _tmp32_;
-	void* _tmp33_;
-	ValaTimSortSlice* _tmp34_;
-	ValaTimSortSlice* _tmp35_;
-	gint _tmp36_;
-	ValaTimSortSlice* _tmp37_;
-	gint _tmp38_;
-	ValaTimSortSlice* _tmp39_;
-	gint _tmp40_;
-	ValaTimSortSlice* _tmp41_;
-	gint _tmp42_;
+	ValaTimSortSlice* _tmp28_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->pending;
 	_tmp0__length1 = self->priv->pending_length1;
@@ -1082,87 +871,72 @@ vala_tim_sort_merge_at (ValaTimSort* self,
 	_tmp2_[index + 1] = NULL;
 	b = _tmp3_;
 	_tmp4_ = a;
-	_tmp5_ = _tmp4_->length;
-	_vala_assert (_tmp5_ > 0, "a.length > 0");
-	_tmp6_ = b;
-	_tmp7_ = _tmp6_->length;
-	_vala_assert (_tmp7_ > 0, "b.length > 0");
-	_tmp8_ = a;
-	_tmp9_ = _tmp8_->index;
-	_tmp10_ = a;
-	_tmp11_ = _tmp10_->length;
-	_tmp12_ = b;
-	_tmp13_ = _tmp12_->index;
-	_vala_assert ((_tmp9_ + _tmp11_) == _tmp13_, "a.index + a.length == b.index");
-	_tmp14_ = self->priv->pending;
-	_tmp14__length1 = self->priv->pending_length1;
-	_tmp15_ = self->priv->list;
-	_tmp16_ = a;
-	_tmp17_ = _tmp16_->index;
-	_tmp18_ = a;
-	_tmp19_ = _tmp18_->length;
-	_tmp20_ = b;
-	_tmp21_ = _tmp20_->length;
-	_tmp22_ = vala_tim_sort_slice_new (_tmp15_, _tmp17_, _tmp19_ + _tmp21_);
-	_vala_tim_sort_slice_free0 (_tmp14_[index]);
-	_tmp14_[index] = _tmp22_;
-	_tmp23_ = self->priv->pending;
-	_tmp23__length1 = self->priv->pending_length1;
-	_vala_array_move (self->priv->pending, sizeof (ValaTimSortSlice*), index + 2, index + 1, (_tmp23__length1 - index) - 2);
+	_vala_assert (_tmp4_->length > 0, "a.length > 0");
+	_tmp5_ = b;
+	_vala_assert (_tmp5_->length > 0, "b.length > 0");
+	_tmp6_ = a;
+	_tmp7_ = a;
+	_tmp8_ = b;
+	_vala_assert ((_tmp6_->index + _tmp7_->length) == _tmp8_->index, "a.index + a.length == b.index");
+	_tmp9_ = self->priv->pending;
+	_tmp9__length1 = self->priv->pending_length1;
+	_tmp10_ = self->priv->list;
+	_tmp11_ = a;
+	_tmp12_ = a;
+	_tmp13_ = b;
+	_tmp14_ = vala_tim_sort_slice_new (_tmp10_, _tmp11_->index, _tmp12_->length + _tmp13_->length);
+	_vala_tim_sort_slice_free0 (_tmp9_[index]);
+	_tmp9_[index] = _tmp14_;
+	_tmp15_ = self->priv->pending;
+	_tmp15__length1 = self->priv->pending_length1;
+	_vala_array_move (self->priv->pending, sizeof (ValaTimSortSlice*), index + 2, index + 1, (_tmp15__length1 - index) - 2);
 	self->priv->pending_length1 = self->priv->pending_length1 - 1;
+	_tmp16_ = b;
+	_tmp17_ = vala_tim_sort_slice_peek_first (_tmp16_);
+	_tmp18_ = a;
+	sorted_count = vala_tim_sort_gallop_rightmost (self, _tmp17_, _tmp18_, 0);
+	_tmp19_ = a;
+	vala_tim_sort_slice_shorten_start (_tmp19_, sorted_count);
+	_tmp20_ = a;
+	if (_tmp20_->length == 0) {
+		_vala_tim_sort_slice_free0 (b);
+		_vala_tim_sort_slice_free0 (a);
+		return;
+	}
+	_tmp21_ = b;
+	_tmp22_ = a;
+	_tmp23_ = vala_tim_sort_slice_peek_last (_tmp22_);
 	_tmp24_ = b;
-	_tmp25_ = vala_tim_sort_slice_peek_first (_tmp24_);
-	_tmp26_ = a;
-	sorted_count = vala_tim_sort_gallop_rightmost (self, _tmp25_, _tmp26_, 0);
+	_tmp25_ = b;
+	_tmp21_->length = vala_tim_sort_gallop_leftmost (self, _tmp23_, _tmp24_, _tmp25_->length - 1);
+	_tmp26_ = b;
+	if (_tmp26_->length == 0) {
+		_vala_tim_sort_slice_free0 (b);
+		_vala_tim_sort_slice_free0 (a);
+		return;
+	}
 	_tmp27_ = a;
-	_tmp28_ = sorted_count;
-	vala_tim_sort_slice_shorten_start (_tmp27_, _tmp28_);
-	_tmp29_ = a;
-	_tmp30_ = _tmp29_->length;
-	if (_tmp30_ == 0) {
-		_vala_tim_sort_slice_free0 (b);
-		_vala_tim_sort_slice_free0 (a);
-		return;
-	}
-	_tmp31_ = b;
-	_tmp32_ = a;
-	_tmp33_ = vala_tim_sort_slice_peek_last (_tmp32_);
-	_tmp34_ = b;
-	_tmp35_ = b;
-	_tmp36_ = _tmp35_->length;
-	_tmp31_->length = vala_tim_sort_gallop_leftmost (self, _tmp33_, _tmp34_, _tmp36_ - 1);
-	_tmp37_ = b;
-	_tmp38_ = _tmp37_->length;
-	if (_tmp38_ == 0) {
-		_vala_tim_sort_slice_free0 (b);
-		_vala_tim_sort_slice_free0 (a);
-		return;
-	}
-	_tmp39_ = a;
-	_tmp40_ = _tmp39_->length;
-	_tmp41_ = b;
-	_tmp42_ = _tmp41_->length;
-	if (_tmp40_ <= _tmp42_) {
-		ValaTimSortSlice* _tmp43_;
-		ValaTimSortSlice* _tmp44_;
-		_tmp43_ = a;
+	_tmp28_ = b;
+	if (_tmp27_->length <= _tmp28_->length) {
+		ValaTimSortSlice* _tmp29_;
+		ValaTimSortSlice* _tmp30_;
+		_tmp29_ = a;
 		a = NULL;
-		_tmp44_ = b;
+		_tmp30_ = b;
 		b = NULL;
-		vala_tim_sort_merge_low (self, _tmp43_, _tmp44_);
+		vala_tim_sort_merge_low (self, _tmp29_, _tmp30_);
 	} else {
-		ValaTimSortSlice* _tmp45_;
-		ValaTimSortSlice* _tmp46_;
-		_tmp45_ = a;
+		ValaTimSortSlice* _tmp31_;
+		ValaTimSortSlice* _tmp32_;
+		_tmp31_ = a;
 		a = NULL;
-		_tmp46_ = b;
+		_tmp32_ = b;
 		b = NULL;
-		vala_tim_sort_merge_high (self, _tmp45_, _tmp46_);
+		vala_tim_sort_merge_high (self, _tmp31_, _tmp32_);
 	}
 	_vala_tim_sort_slice_free0 (b);
 	_vala_tim_sort_slice_free0 (a);
 }
-
 
 static gint
 vala_tim_sort_gallop_leftmost (ValaTimSort* self,
@@ -1170,193 +944,102 @@ vala_tim_sort_gallop_leftmost (ValaTimSort* self,
                                ValaTimSortSlice* a,
                                gint hint)
 {
-	gint result = 0;
-	gint _tmp0_;
 	gint p = 0;
-	gint _tmp1_;
 	gint last_offset = 0;
 	gint offset = 0;
-	void** _tmp2_;
-	gint _tmp3_;
-	void* _tmp4_;
-	gint _tmp36_;
-	gint _tmp37_;
-	gint _tmp38_;
-	gint _tmp39_;
-	gint _tmp40_;
-	gint _tmp41_;
-	gint _tmp53_;
-	gint _tmp54_;
+	void** _tmp0_;
+	void* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (a != NULL, 0);
 	_vala_assert (0 <= hint, "0 <= hint");
-	_tmp0_ = a->length;
-	_vala_assert (hint < _tmp0_, "hint < a.length");
-	_tmp1_ = a->index;
-	p = _tmp1_ + hint;
+	_vala_assert (hint < a->length, "hint < a.length");
+	p = a->index + hint;
 	last_offset = 0;
 	offset = 1;
-	_tmp2_ = a->list;
-	_tmp3_ = p;
-	_tmp4_ = _tmp2_[_tmp3_];
-	if (vala_tim_sort_lower_than (self, _tmp4_, key)) {
+	_tmp0_ = a->list;
+	_tmp1_ = _tmp0_[p];
+	if (vala_tim_sort_lower_than (self, _tmp1_, key)) {
 		gint max_offset = 0;
-		gint _tmp5_;
-		gint _tmp15_;
-		gint _tmp16_;
-		gint _tmp18_;
-		gint _tmp19_;
-		_tmp5_ = a->length;
-		max_offset = _tmp5_ - hint;
+		max_offset = a->length - hint;
 		while (TRUE) {
-			gint _tmp6_;
-			gint _tmp7_;
-			void** _tmp8_;
-			gint _tmp9_;
-			gint _tmp10_;
-			void* _tmp11_;
-			_tmp6_ = offset;
-			_tmp7_ = max_offset;
-			if (!(_tmp6_ < _tmp7_)) {
+			void** _tmp2_;
+			void* _tmp3_;
+			if (!(offset < max_offset)) {
 				break;
 			}
-			_tmp8_ = a->list;
-			_tmp9_ = p;
-			_tmp10_ = offset;
-			_tmp11_ = _tmp8_[_tmp9_ + _tmp10_];
-			if (vala_tim_sort_lower_than (self, _tmp11_, key)) {
-				gint _tmp12_;
-				gint _tmp13_;
-				gint _tmp14_;
-				_tmp12_ = offset;
-				last_offset = _tmp12_;
-				_tmp13_ = offset;
-				offset = _tmp13_ << 1;
-				_tmp14_ = offset;
-				offset = _tmp14_ + 1;
+			_tmp2_ = a->list;
+			_tmp3_ = _tmp2_[p + offset];
+			if (vala_tim_sort_lower_than (self, _tmp3_, key)) {
+				gint _tmp4_;
+				last_offset = offset;
+				offset <<= 1;
+				_tmp4_ = offset;
+				offset = _tmp4_ + 1;
 			} else {
 				break;
 			}
 		}
-		_tmp15_ = offset;
-		_tmp16_ = max_offset;
-		if (_tmp15_ > _tmp16_) {
-			gint _tmp17_;
-			_tmp17_ = max_offset;
-			offset = _tmp17_;
+		if (offset > max_offset) {
+			offset = max_offset;
 		}
-		_tmp18_ = last_offset;
-		last_offset = hint + _tmp18_;
-		_tmp19_ = offset;
-		offset = hint + _tmp19_;
+		last_offset = hint + last_offset;
+		offset = hint + offset;
 	} else {
 		gint max_offset = 0;
-		gint _tmp29_;
-		gint _tmp30_;
 		gint temp_last_offset = 0;
-		gint _tmp32_;
 		gint temp_offset = 0;
-		gint _tmp33_;
-		gint _tmp34_;
-		gint _tmp35_;
 		max_offset = hint + 1;
 		while (TRUE) {
-			gint _tmp20_;
-			gint _tmp21_;
-			void** _tmp22_;
-			gint _tmp23_;
-			gint _tmp24_;
-			void* _tmp25_;
-			_tmp20_ = offset;
-			_tmp21_ = max_offset;
-			if (!(_tmp20_ < _tmp21_)) {
+			void** _tmp5_;
+			void* _tmp6_;
+			if (!(offset < max_offset)) {
 				break;
 			}
-			_tmp22_ = a->list;
-			_tmp23_ = p;
-			_tmp24_ = offset;
-			_tmp25_ = _tmp22_[_tmp23_ - _tmp24_];
-			if (vala_tim_sort_lower_than (self, _tmp25_, key)) {
+			_tmp5_ = a->list;
+			_tmp6_ = _tmp5_[p - offset];
+			if (vala_tim_sort_lower_than (self, _tmp6_, key)) {
 				break;
 			} else {
-				gint _tmp26_;
-				gint _tmp27_;
-				gint _tmp28_;
-				_tmp26_ = offset;
-				last_offset = _tmp26_;
-				_tmp27_ = offset;
-				offset = _tmp27_ << 1;
-				_tmp28_ = offset;
-				offset = _tmp28_ + 1;
+				gint _tmp7_;
+				last_offset = offset;
+				offset <<= 1;
+				_tmp7_ = offset;
+				offset = _tmp7_ + 1;
 			}
 		}
-		_tmp29_ = offset;
-		_tmp30_ = max_offset;
-		if (_tmp29_ > _tmp30_) {
-			gint _tmp31_;
-			_tmp31_ = max_offset;
-			offset = _tmp31_;
+		if (offset > max_offset) {
+			offset = max_offset;
 		}
-		_tmp32_ = last_offset;
-		temp_last_offset = _tmp32_;
-		_tmp33_ = offset;
-		temp_offset = _tmp33_;
-		_tmp34_ = temp_offset;
-		last_offset = hint - _tmp34_;
-		_tmp35_ = temp_last_offset;
-		offset = hint - _tmp35_;
+		temp_last_offset = last_offset;
+		temp_offset = offset;
+		last_offset = hint - temp_offset;
+		offset = hint - temp_last_offset;
 	}
-	_tmp36_ = last_offset;
-	_vala_assert (-1 <= _tmp36_, "-1 <= last_offset");
-	_tmp37_ = last_offset;
-	_tmp38_ = offset;
-	_vala_assert (_tmp37_ < _tmp38_, "last_offset < offset");
-	_tmp39_ = offset;
-	_tmp40_ = a->length;
-	_vala_assert (_tmp39_ <= _tmp40_, "offset <= a.length");
-	_tmp41_ = last_offset;
-	last_offset = _tmp41_ + 1;
+	_vala_assert (-1 <= last_offset, "-1 <= last_offset");
+	_vala_assert (last_offset < offset, "last_offset < offset");
+	_vala_assert (offset <= a->length, "offset <= a.length");
+	last_offset += 1;
 	while (TRUE) {
-		gint _tmp42_;
-		gint _tmp43_;
 		gint m = 0;
-		gint _tmp44_;
-		gint _tmp45_;
-		gint _tmp46_;
-		void** _tmp47_;
-		gint _tmp48_;
-		gint _tmp49_;
-		void* _tmp50_;
-		_tmp42_ = last_offset;
-		_tmp43_ = offset;
-		if (!(_tmp42_ < _tmp43_)) {
+		void** _tmp8_;
+		void* _tmp9_;
+		if (!(last_offset < offset)) {
 			break;
 		}
-		_tmp44_ = last_offset;
-		_tmp45_ = offset;
-		_tmp46_ = last_offset;
-		m = _tmp44_ + ((_tmp45_ - _tmp46_) >> 1);
-		_tmp47_ = a->list;
-		_tmp48_ = a->index;
-		_tmp49_ = m;
-		_tmp50_ = _tmp47_[_tmp48_ + _tmp49_];
-		if (vala_tim_sort_lower_than (self, _tmp50_, key)) {
-			gint _tmp51_;
-			_tmp51_ = m;
-			last_offset = _tmp51_ + 1;
+		m = last_offset + ((offset - last_offset) >> 1);
+		_tmp8_ = a->list;
+		_tmp9_ = _tmp8_[a->index + m];
+		if (vala_tim_sort_lower_than (self, _tmp9_, key)) {
+			last_offset = m + 1;
 		} else {
-			gint _tmp52_;
-			_tmp52_ = m;
-			offset = _tmp52_;
+			offset = m;
 		}
 	}
-	_tmp53_ = last_offset;
-	_tmp54_ = offset;
-	_vala_assert (_tmp53_ == _tmp54_, "last_offset == offset");
+	_vala_assert (last_offset == offset, "last_offset == offset");
 	result = offset;
 	return result;
 }
-
 
 static gint
 vala_tim_sort_gallop_rightmost (ValaTimSort* self,
@@ -1364,272 +1047,145 @@ vala_tim_sort_gallop_rightmost (ValaTimSort* self,
                                 ValaTimSortSlice* a,
                                 gint hint)
 {
-	gint result = 0;
-	gint _tmp0_;
 	gint p = 0;
-	gint _tmp1_;
 	gint last_offset = 0;
 	gint offset = 0;
-	void** _tmp2_;
-	gint _tmp3_;
-	void* _tmp4_;
-	gint _tmp36_;
-	gint _tmp37_;
-	gint _tmp38_;
-	gint _tmp39_;
-	gint _tmp40_;
-	gint _tmp41_;
-	gint _tmp53_;
-	gint _tmp54_;
+	void** _tmp0_;
+	void* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (a != NULL, 0);
 	_vala_assert (0 <= hint, "0 <= hint");
-	_tmp0_ = a->length;
-	_vala_assert (hint < _tmp0_, "hint < a.length");
-	_tmp1_ = a->index;
-	p = _tmp1_ + hint;
+	_vala_assert (hint < a->length, "hint < a.length");
+	p = a->index + hint;
 	last_offset = 0;
 	offset = 1;
-	_tmp2_ = a->list;
-	_tmp3_ = p;
-	_tmp4_ = _tmp2_[_tmp3_];
-	if (vala_tim_sort_lower_than_or_equal_to (self, _tmp4_, key)) {
+	_tmp0_ = a->list;
+	_tmp1_ = _tmp0_[p];
+	if (vala_tim_sort_lower_than_or_equal_to (self, _tmp1_, key)) {
 		gint max_offset = 0;
-		gint _tmp5_;
-		gint _tmp15_;
-		gint _tmp16_;
-		gint _tmp18_;
-		gint _tmp19_;
-		_tmp5_ = a->length;
-		max_offset = _tmp5_ - hint;
+		max_offset = a->length - hint;
 		while (TRUE) {
-			gint _tmp6_;
-			gint _tmp7_;
-			void** _tmp8_;
-			gint _tmp9_;
-			gint _tmp10_;
-			void* _tmp11_;
-			_tmp6_ = offset;
-			_tmp7_ = max_offset;
-			if (!(_tmp6_ < _tmp7_)) {
+			void** _tmp2_;
+			void* _tmp3_;
+			if (!(offset < max_offset)) {
 				break;
 			}
-			_tmp8_ = a->list;
-			_tmp9_ = p;
-			_tmp10_ = offset;
-			_tmp11_ = _tmp8_[_tmp9_ + _tmp10_];
-			if (vala_tim_sort_lower_than_or_equal_to (self, _tmp11_, key)) {
-				gint _tmp12_;
-				gint _tmp13_;
-				gint _tmp14_;
-				_tmp12_ = offset;
-				last_offset = _tmp12_;
-				_tmp13_ = offset;
-				offset = _tmp13_ << 1;
-				_tmp14_ = offset;
-				offset = _tmp14_ + 1;
+			_tmp2_ = a->list;
+			_tmp3_ = _tmp2_[p + offset];
+			if (vala_tim_sort_lower_than_or_equal_to (self, _tmp3_, key)) {
+				gint _tmp4_;
+				last_offset = offset;
+				offset <<= 1;
+				_tmp4_ = offset;
+				offset = _tmp4_ + 1;
 			} else {
 				break;
 			}
 		}
-		_tmp15_ = offset;
-		_tmp16_ = max_offset;
-		if (_tmp15_ > _tmp16_) {
-			gint _tmp17_;
-			_tmp17_ = max_offset;
-			offset = _tmp17_;
+		if (offset > max_offset) {
+			offset = max_offset;
 		}
-		_tmp18_ = last_offset;
-		last_offset = hint + _tmp18_;
-		_tmp19_ = offset;
-		offset = hint + _tmp19_;
+		last_offset = hint + last_offset;
+		offset = hint + offset;
 	} else {
 		gint max_offset = 0;
-		gint _tmp29_;
-		gint _tmp30_;
 		gint temp_last_offset = 0;
-		gint _tmp32_;
 		gint temp_offset = 0;
-		gint _tmp33_;
-		gint _tmp34_;
-		gint _tmp35_;
 		max_offset = hint + 1;
 		while (TRUE) {
-			gint _tmp20_;
-			gint _tmp21_;
-			void** _tmp22_;
-			gint _tmp23_;
-			gint _tmp24_;
-			void* _tmp25_;
-			_tmp20_ = offset;
-			_tmp21_ = max_offset;
-			if (!(_tmp20_ < _tmp21_)) {
+			void** _tmp5_;
+			void* _tmp6_;
+			if (!(offset < max_offset)) {
 				break;
 			}
-			_tmp22_ = a->list;
-			_tmp23_ = p;
-			_tmp24_ = offset;
-			_tmp25_ = _tmp22_[_tmp23_ - _tmp24_];
-			if (vala_tim_sort_lower_than_or_equal_to (self, _tmp25_, key)) {
+			_tmp5_ = a->list;
+			_tmp6_ = _tmp5_[p - offset];
+			if (vala_tim_sort_lower_than_or_equal_to (self, _tmp6_, key)) {
 				break;
 			} else {
-				gint _tmp26_;
-				gint _tmp27_;
-				gint _tmp28_;
-				_tmp26_ = offset;
-				last_offset = _tmp26_;
-				_tmp27_ = offset;
-				offset = _tmp27_ << 1;
-				_tmp28_ = offset;
-				offset = _tmp28_ + 1;
+				gint _tmp7_;
+				last_offset = offset;
+				offset <<= 1;
+				_tmp7_ = offset;
+				offset = _tmp7_ + 1;
 			}
 		}
-		_tmp29_ = offset;
-		_tmp30_ = max_offset;
-		if (_tmp29_ > _tmp30_) {
-			gint _tmp31_;
-			_tmp31_ = max_offset;
-			offset = _tmp31_;
+		if (offset > max_offset) {
+			offset = max_offset;
 		}
-		_tmp32_ = last_offset;
-		temp_last_offset = _tmp32_;
-		_tmp33_ = offset;
-		temp_offset = _tmp33_;
-		_tmp34_ = temp_offset;
-		last_offset = hint - _tmp34_;
-		_tmp35_ = temp_last_offset;
-		offset = hint - _tmp35_;
+		temp_last_offset = last_offset;
+		temp_offset = offset;
+		last_offset = hint - temp_offset;
+		offset = hint - temp_last_offset;
 	}
-	_tmp36_ = last_offset;
-	_vala_assert (-1 <= _tmp36_, "-1 <= last_offset");
-	_tmp37_ = last_offset;
-	_tmp38_ = offset;
-	_vala_assert (_tmp37_ < _tmp38_, "last_offset < offset");
-	_tmp39_ = offset;
-	_tmp40_ = a->length;
-	_vala_assert (_tmp39_ <= _tmp40_, "offset <= a.length");
-	_tmp41_ = last_offset;
-	last_offset = _tmp41_ + 1;
+	_vala_assert (-1 <= last_offset, "-1 <= last_offset");
+	_vala_assert (last_offset < offset, "last_offset < offset");
+	_vala_assert (offset <= a->length, "offset <= a.length");
+	last_offset += 1;
 	while (TRUE) {
-		gint _tmp42_;
-		gint _tmp43_;
 		gint m = 0;
-		gint _tmp44_;
-		gint _tmp45_;
-		gint _tmp46_;
-		void** _tmp47_;
-		gint _tmp48_;
-		gint _tmp49_;
-		void* _tmp50_;
-		_tmp42_ = last_offset;
-		_tmp43_ = offset;
-		if (!(_tmp42_ < _tmp43_)) {
+		void** _tmp8_;
+		void* _tmp9_;
+		if (!(last_offset < offset)) {
 			break;
 		}
-		_tmp44_ = last_offset;
-		_tmp45_ = offset;
-		_tmp46_ = last_offset;
-		m = _tmp44_ + ((_tmp45_ - _tmp46_) >> 1);
-		_tmp47_ = a->list;
-		_tmp48_ = a->index;
-		_tmp49_ = m;
-		_tmp50_ = _tmp47_[_tmp48_ + _tmp49_];
-		if (vala_tim_sort_lower_than_or_equal_to (self, _tmp50_, key)) {
-			gint _tmp51_;
-			_tmp51_ = m;
-			last_offset = _tmp51_ + 1;
+		m = last_offset + ((offset - last_offset) >> 1);
+		_tmp8_ = a->list;
+		_tmp9_ = _tmp8_[a->index + m];
+		if (vala_tim_sort_lower_than_or_equal_to (self, _tmp9_, key)) {
+			last_offset = m + 1;
 		} else {
-			gint _tmp52_;
-			_tmp52_ = m;
-			offset = _tmp52_;
+			offset = m;
 		}
 	}
-	_tmp53_ = last_offset;
-	_tmp54_ = offset;
-	_vala_assert (_tmp53_ == _tmp54_, "last_offset == offset");
+	_vala_assert (last_offset == offset, "last_offset == offset");
 	result = offset;
 	return result;
 }
-
 
 static void
 vala_tim_sort_merge_low (ValaTimSort* self,
                          ValaTimSortSlice* a,
                          ValaTimSortSlice* b)
 {
-	gint _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	gint _tmp3_;
-	gint _tmp4_;
 	gint minimum_gallop = 0;
-	gint _tmp5_;
 	gint dest = 0;
-	gint _tmp6_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (a != NULL);
 	g_return_if_fail (b != NULL);
-	_tmp0_ = a->length;
-	_vala_assert (_tmp0_ > 0, "a.length > 0");
-	_tmp1_ = b->length;
-	_vala_assert (_tmp1_ > 0, "b.length > 0");
-	_tmp2_ = a->index;
-	_tmp3_ = a->length;
-	_tmp4_ = b->index;
-	_vala_assert ((_tmp2_ + _tmp3_) == _tmp4_, "a.index + a.length == b.index");
-	_tmp5_ = self->priv->minimum_gallop;
-	minimum_gallop = _tmp5_;
-	_tmp6_ = a->index;
-	dest = _tmp6_;
+	_vala_assert (a->length > 0, "a.length > 0");
+	_vala_assert (b->length > 0, "b.length > 0");
+	_vala_assert ((a->index + a->length) == b->index, "a.index + a.length == b.index");
+	minimum_gallop = self->priv->minimum_gallop;
+	dest = a->index;
 	vala_tim_sort_slice_copy (a);
 	{
-		void** _tmp7_;
-		gint _tmp8_;
-		void* _tmp9_;
-		gboolean _tmp10_ = FALSE;
-		gint _tmp11_;
-		_tmp7_ = self->priv->list;
-		_tmp8_ = dest;
-		dest = _tmp8_ + 1;
-		_tmp9_ = vala_tim_sort_slice_pop_first (b);
-		_tmp7_[_tmp8_] = _tmp9_;
-		_tmp11_ = a->length;
-		if (_tmp11_ == 1) {
-			_tmp10_ = TRUE;
+		void** _tmp0_;
+		gint _tmp1_;
+		void* _tmp2_;
+		gboolean _tmp3_ = FALSE;
+		_tmp0_ = self->priv->list;
+		_tmp1_ = dest;
+		dest = _tmp1_ + 1;
+		_tmp2_ = vala_tim_sort_slice_pop_first (b);
+		_tmp0_[_tmp1_] = _tmp2_;
+		if (a->length == 1) {
+			_tmp3_ = TRUE;
 		} else {
-			gint _tmp12_;
-			_tmp12_ = b->length;
-			_tmp10_ = _tmp12_ == 0;
+			_tmp3_ = b->length == 0;
 		}
-		if (_tmp10_) {
+		if (_tmp3_) {
 			{
-				gint _tmp13_;
-				gint _tmp14_;
-				void** _tmp15_;
-				gint _tmp16_;
-				gint _tmp17_;
-				gint _tmp18_;
-				void** _tmp19_;
-				gint _tmp20_;
-				gint _tmp21_;
-				gint _tmp22_;
-				gint _tmp23_;
-				_tmp13_ = a->length;
-				_vala_assert (_tmp13_ >= 0, "a.length >= 0");
-				_tmp14_ = b->length;
-				_vala_assert (_tmp14_ >= 0, "b.length >= 0");
-				_tmp15_ = self->priv->list;
-				_tmp16_ = b->index;
-				_tmp17_ = dest;
-				_tmp18_ = b->length;
-				vala_tim_sort_slice_merge_in (b, _tmp15_, _tmp16_, _tmp17_, _tmp18_);
-				_tmp19_ = self->priv->list;
-				_tmp20_ = a->index;
-				_tmp21_ = dest;
-				_tmp22_ = b->length;
-				_tmp23_ = a->length;
-				vala_tim_sort_slice_merge_in (a, _tmp19_, _tmp20_, _tmp21_ + _tmp22_, _tmp23_);
+				void** _tmp4_;
+				void** _tmp5_;
+				_vala_assert (a->length >= 0, "a.length >= 0");
+				_vala_assert (b->length >= 0, "b.length >= 0");
+				_tmp4_ = self->priv->list;
+				vala_tim_sort_slice_merge_in (b, _tmp4_, b->index, dest, b->length);
+				_tmp5_ = self->priv->list;
+				vala_tim_sort_slice_merge_in (a, _tmp5_, a->index, dest + b->length, a->length);
 			}
 			_vala_tim_sort_slice_free0 (a);
 			_vala_tim_sort_slice_free0 (b);
@@ -1638,484 +1194,257 @@ vala_tim_sort_merge_low (ValaTimSort* self,
 		while (TRUE) {
 			gint a_count = 0;
 			gint b_count = 0;
-			gint _tmp62_;
-			gint _tmp140_;
-			gint _tmp141_;
+			gint _tmp20_;
+			gint _tmp41_;
 			a_count = 0;
 			b_count = 0;
 			while (TRUE) {
-				void* _tmp24_;
-				void* _tmp25_;
-				_tmp24_ = vala_tim_sort_slice_peek_first (b);
-				_tmp25_ = vala_tim_sort_slice_peek_first (a);
-				if (vala_tim_sort_lower_than (self, _tmp24_, _tmp25_)) {
-					void** _tmp26_;
-					gint _tmp27_;
-					void* _tmp28_;
-					gint _tmp29_;
-					gint _tmp41_;
-					gint _tmp42_;
-					gint _tmp43_;
-					_tmp26_ = self->priv->list;
-					_tmp27_ = dest;
-					dest = _tmp27_ + 1;
-					_tmp28_ = vala_tim_sort_slice_pop_first (b);
-					_tmp26_[_tmp27_] = _tmp28_;
-					_tmp29_ = b->length;
-					if (_tmp29_ == 0) {
+				void* _tmp6_;
+				void* _tmp7_;
+				_tmp6_ = vala_tim_sort_slice_peek_first (b);
+				_tmp7_ = vala_tim_sort_slice_peek_first (a);
+				if (vala_tim_sort_lower_than (self, _tmp6_, _tmp7_)) {
+					void** _tmp8_;
+					gint _tmp9_;
+					void* _tmp10_;
+					gint _tmp13_;
+					_tmp8_ = self->priv->list;
+					_tmp9_ = dest;
+					dest = _tmp9_ + 1;
+					_tmp10_ = vala_tim_sort_slice_pop_first (b);
+					_tmp8_[_tmp9_] = _tmp10_;
+					if (b->length == 0) {
 						{
-							gint _tmp30_;
-							gint _tmp31_;
-							void** _tmp32_;
-							gint _tmp33_;
-							gint _tmp34_;
-							gint _tmp35_;
-							void** _tmp36_;
-							gint _tmp37_;
-							gint _tmp38_;
-							gint _tmp39_;
-							gint _tmp40_;
-							_tmp30_ = a->length;
-							_vala_assert (_tmp30_ >= 0, "a.length >= 0");
-							_tmp31_ = b->length;
-							_vala_assert (_tmp31_ >= 0, "b.length >= 0");
-							_tmp32_ = self->priv->list;
-							_tmp33_ = b->index;
-							_tmp34_ = dest;
-							_tmp35_ = b->length;
-							vala_tim_sort_slice_merge_in (b, _tmp32_, _tmp33_, _tmp34_, _tmp35_);
-							_tmp36_ = self->priv->list;
-							_tmp37_ = a->index;
-							_tmp38_ = dest;
-							_tmp39_ = b->length;
-							_tmp40_ = a->length;
-							vala_tim_sort_slice_merge_in (a, _tmp36_, _tmp37_, _tmp38_ + _tmp39_, _tmp40_);
+							void** _tmp11_;
+							void** _tmp12_;
+							_vala_assert (a->length >= 0, "a.length >= 0");
+							_vala_assert (b->length >= 0, "b.length >= 0");
+							_tmp11_ = self->priv->list;
+							vala_tim_sort_slice_merge_in (b, _tmp11_, b->index, dest, b->length);
+							_tmp12_ = self->priv->list;
+							vala_tim_sort_slice_merge_in (a, _tmp12_, a->index, dest + b->length, a->length);
 						}
 						_vala_tim_sort_slice_free0 (a);
 						_vala_tim_sort_slice_free0 (b);
 						return;
 					}
-					_tmp41_ = b_count;
-					b_count = _tmp41_ + 1;
+					_tmp13_ = b_count;
+					b_count = _tmp13_ + 1;
 					a_count = 0;
-					_tmp42_ = b_count;
-					_tmp43_ = minimum_gallop;
-					if (_tmp42_ >= _tmp43_) {
+					if (b_count >= minimum_gallop) {
 						break;
 					}
 				} else {
-					void** _tmp44_;
-					gint _tmp45_;
-					void* _tmp46_;
-					gint _tmp47_;
-					gint _tmp59_;
-					gint _tmp60_;
-					gint _tmp61_;
-					_tmp44_ = self->priv->list;
-					_tmp45_ = dest;
-					dest = _tmp45_ + 1;
-					_tmp46_ = vala_tim_sort_slice_pop_first (a);
-					_tmp44_[_tmp45_] = _tmp46_;
-					_tmp47_ = a->length;
-					if (_tmp47_ == 1) {
+					void** _tmp14_;
+					gint _tmp15_;
+					void* _tmp16_;
+					gint _tmp19_;
+					_tmp14_ = self->priv->list;
+					_tmp15_ = dest;
+					dest = _tmp15_ + 1;
+					_tmp16_ = vala_tim_sort_slice_pop_first (a);
+					_tmp14_[_tmp15_] = _tmp16_;
+					if (a->length == 1) {
 						{
-							gint _tmp48_;
-							gint _tmp49_;
-							void** _tmp50_;
-							gint _tmp51_;
-							gint _tmp52_;
-							gint _tmp53_;
-							void** _tmp54_;
-							gint _tmp55_;
-							gint _tmp56_;
-							gint _tmp57_;
-							gint _tmp58_;
-							_tmp48_ = a->length;
-							_vala_assert (_tmp48_ >= 0, "a.length >= 0");
-							_tmp49_ = b->length;
-							_vala_assert (_tmp49_ >= 0, "b.length >= 0");
-							_tmp50_ = self->priv->list;
-							_tmp51_ = b->index;
-							_tmp52_ = dest;
-							_tmp53_ = b->length;
-							vala_tim_sort_slice_merge_in (b, _tmp50_, _tmp51_, _tmp52_, _tmp53_);
-							_tmp54_ = self->priv->list;
-							_tmp55_ = a->index;
-							_tmp56_ = dest;
-							_tmp57_ = b->length;
-							_tmp58_ = a->length;
-							vala_tim_sort_slice_merge_in (a, _tmp54_, _tmp55_, _tmp56_ + _tmp57_, _tmp58_);
+							void** _tmp17_;
+							void** _tmp18_;
+							_vala_assert (a->length >= 0, "a.length >= 0");
+							_vala_assert (b->length >= 0, "b.length >= 0");
+							_tmp17_ = self->priv->list;
+							vala_tim_sort_slice_merge_in (b, _tmp17_, b->index, dest, b->length);
+							_tmp18_ = self->priv->list;
+							vala_tim_sort_slice_merge_in (a, _tmp18_, a->index, dest + b->length, a->length);
 						}
 						_vala_tim_sort_slice_free0 (a);
 						_vala_tim_sort_slice_free0 (b);
 						return;
 					}
-					_tmp59_ = a_count;
-					a_count = _tmp59_ + 1;
+					_tmp19_ = a_count;
+					a_count = _tmp19_ + 1;
 					b_count = 0;
-					_tmp60_ = a_count;
-					_tmp61_ = minimum_gallop;
-					if (_tmp60_ >= _tmp61_) {
+					if (a_count >= minimum_gallop) {
 						break;
 					}
 				}
 			}
-			_tmp62_ = minimum_gallop;
-			minimum_gallop = _tmp62_ + 1;
+			_tmp20_ = minimum_gallop;
+			minimum_gallop = _tmp20_ + 1;
 			while (TRUE) {
-				gint _tmp63_ = 0;
-				gint _tmp64_;
-				gint _tmp65_;
-				gint _tmp66_;
-				void* _tmp67_;
-				void** _tmp68_;
-				gint _tmp69_;
-				gint _tmp70_;
-				gint _tmp71_;
-				gint _tmp72_;
-				gint _tmp73_;
-				gint _tmp74_;
-				gint _tmp75_;
-				void** _tmp87_;
-				gint _tmp88_;
-				void* _tmp89_;
-				gint _tmp90_;
-				void* _tmp102_;
-				void** _tmp103_;
-				gint _tmp104_;
-				gint _tmp105_;
-				gint _tmp106_;
-				gint _tmp107_;
-				gint _tmp108_;
-				gint _tmp109_;
-				gint _tmp110_;
-				void** _tmp122_;
-				gint _tmp123_;
-				void* _tmp124_;
-				gint _tmp125_;
-				gboolean _tmp137_ = FALSE;
-				gint _tmp138_;
-				_tmp64_ = minimum_gallop;
-				if (_tmp64_ > 1) {
-					_tmp63_ = 1;
+				gint _tmp21_ = 0;
+				void* _tmp22_;
+				void** _tmp23_;
+				void** _tmp26_;
+				gint _tmp27_;
+				void* _tmp28_;
+				void* _tmp31_;
+				void** _tmp32_;
+				void** _tmp35_;
+				gint _tmp36_;
+				void* _tmp37_;
+				gboolean _tmp40_ = FALSE;
+				if (minimum_gallop > 1) {
+					_tmp21_ = 1;
 				} else {
-					_tmp63_ = 0;
+					_tmp21_ = 0;
 				}
-				_tmp65_ = minimum_gallop;
-				minimum_gallop = _tmp65_ - _tmp63_;
-				_tmp66_ = minimum_gallop;
-				self->priv->minimum_gallop = _tmp66_;
-				_tmp67_ = vala_tim_sort_slice_peek_first (b);
-				a_count = vala_tim_sort_gallop_rightmost (self, _tmp67_, a, 0);
-				_tmp68_ = self->priv->list;
-				_tmp69_ = a->index;
-				_tmp70_ = dest;
-				_tmp71_ = a_count;
-				vala_tim_sort_slice_merge_in (a, _tmp68_, _tmp69_, _tmp70_, _tmp71_);
-				_tmp72_ = dest;
-				_tmp73_ = a_count;
-				dest = _tmp72_ + _tmp73_;
-				_tmp74_ = a_count;
-				vala_tim_sort_slice_shorten_start (a, _tmp74_);
-				_tmp75_ = a->length;
-				if (_tmp75_ <= 1) {
+				minimum_gallop -= _tmp21_;
+				self->priv->minimum_gallop = minimum_gallop;
+				_tmp22_ = vala_tim_sort_slice_peek_first (b);
+				a_count = vala_tim_sort_gallop_rightmost (self, _tmp22_, a, 0);
+				_tmp23_ = self->priv->list;
+				vala_tim_sort_slice_merge_in (a, _tmp23_, a->index, dest, a_count);
+				dest += a_count;
+				vala_tim_sort_slice_shorten_start (a, a_count);
+				if (a->length <= 1) {
 					{
-						gint _tmp76_;
-						gint _tmp77_;
-						void** _tmp78_;
-						gint _tmp79_;
-						gint _tmp80_;
-						gint _tmp81_;
-						void** _tmp82_;
-						gint _tmp83_;
-						gint _tmp84_;
-						gint _tmp85_;
-						gint _tmp86_;
-						_tmp76_ = a->length;
-						_vala_assert (_tmp76_ >= 0, "a.length >= 0");
-						_tmp77_ = b->length;
-						_vala_assert (_tmp77_ >= 0, "b.length >= 0");
-						_tmp78_ = self->priv->list;
-						_tmp79_ = b->index;
-						_tmp80_ = dest;
-						_tmp81_ = b->length;
-						vala_tim_sort_slice_merge_in (b, _tmp78_, _tmp79_, _tmp80_, _tmp81_);
-						_tmp82_ = self->priv->list;
-						_tmp83_ = a->index;
-						_tmp84_ = dest;
-						_tmp85_ = b->length;
-						_tmp86_ = a->length;
-						vala_tim_sort_slice_merge_in (a, _tmp82_, _tmp83_, _tmp84_ + _tmp85_, _tmp86_);
+						void** _tmp24_;
+						void** _tmp25_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp24_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (b, _tmp24_, b->index, dest, b->length);
+						_tmp25_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (a, _tmp25_, a->index, dest + b->length, a->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp87_ = self->priv->list;
-				_tmp88_ = dest;
-				dest = _tmp88_ + 1;
-				_tmp89_ = vala_tim_sort_slice_pop_first (b);
-				_tmp87_[_tmp88_] = _tmp89_;
-				_tmp90_ = b->length;
-				if (_tmp90_ == 0) {
+				_tmp26_ = self->priv->list;
+				_tmp27_ = dest;
+				dest = _tmp27_ + 1;
+				_tmp28_ = vala_tim_sort_slice_pop_first (b);
+				_tmp26_[_tmp27_] = _tmp28_;
+				if (b->length == 0) {
 					{
-						gint _tmp91_;
-						gint _tmp92_;
-						void** _tmp93_;
-						gint _tmp94_;
-						gint _tmp95_;
-						gint _tmp96_;
-						void** _tmp97_;
-						gint _tmp98_;
-						gint _tmp99_;
-						gint _tmp100_;
-						gint _tmp101_;
-						_tmp91_ = a->length;
-						_vala_assert (_tmp91_ >= 0, "a.length >= 0");
-						_tmp92_ = b->length;
-						_vala_assert (_tmp92_ >= 0, "b.length >= 0");
-						_tmp93_ = self->priv->list;
-						_tmp94_ = b->index;
-						_tmp95_ = dest;
-						_tmp96_ = b->length;
-						vala_tim_sort_slice_merge_in (b, _tmp93_, _tmp94_, _tmp95_, _tmp96_);
-						_tmp97_ = self->priv->list;
-						_tmp98_ = a->index;
-						_tmp99_ = dest;
-						_tmp100_ = b->length;
-						_tmp101_ = a->length;
-						vala_tim_sort_slice_merge_in (a, _tmp97_, _tmp98_, _tmp99_ + _tmp100_, _tmp101_);
+						void** _tmp29_;
+						void** _tmp30_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp29_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (b, _tmp29_, b->index, dest, b->length);
+						_tmp30_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (a, _tmp30_, a->index, dest + b->length, a->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp102_ = vala_tim_sort_slice_peek_first (a);
-				b_count = vala_tim_sort_gallop_leftmost (self, _tmp102_, b, 0);
-				_tmp103_ = self->priv->list;
-				_tmp104_ = b->index;
-				_tmp105_ = dest;
-				_tmp106_ = b_count;
-				vala_tim_sort_slice_merge_in (b, _tmp103_, _tmp104_, _tmp105_, _tmp106_);
-				_tmp107_ = dest;
-				_tmp108_ = b_count;
-				dest = _tmp107_ + _tmp108_;
-				_tmp109_ = b_count;
-				vala_tim_sort_slice_shorten_start (b, _tmp109_);
-				_tmp110_ = b->length;
-				if (_tmp110_ == 0) {
+				_tmp31_ = vala_tim_sort_slice_peek_first (a);
+				b_count = vala_tim_sort_gallop_leftmost (self, _tmp31_, b, 0);
+				_tmp32_ = self->priv->list;
+				vala_tim_sort_slice_merge_in (b, _tmp32_, b->index, dest, b_count);
+				dest += b_count;
+				vala_tim_sort_slice_shorten_start (b, b_count);
+				if (b->length == 0) {
 					{
-						gint _tmp111_;
-						gint _tmp112_;
-						void** _tmp113_;
-						gint _tmp114_;
-						gint _tmp115_;
-						gint _tmp116_;
-						void** _tmp117_;
-						gint _tmp118_;
-						gint _tmp119_;
-						gint _tmp120_;
-						gint _tmp121_;
-						_tmp111_ = a->length;
-						_vala_assert (_tmp111_ >= 0, "a.length >= 0");
-						_tmp112_ = b->length;
-						_vala_assert (_tmp112_ >= 0, "b.length >= 0");
-						_tmp113_ = self->priv->list;
-						_tmp114_ = b->index;
-						_tmp115_ = dest;
-						_tmp116_ = b->length;
-						vala_tim_sort_slice_merge_in (b, _tmp113_, _tmp114_, _tmp115_, _tmp116_);
-						_tmp117_ = self->priv->list;
-						_tmp118_ = a->index;
-						_tmp119_ = dest;
-						_tmp120_ = b->length;
-						_tmp121_ = a->length;
-						vala_tim_sort_slice_merge_in (a, _tmp117_, _tmp118_, _tmp119_ + _tmp120_, _tmp121_);
+						void** _tmp33_;
+						void** _tmp34_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp33_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (b, _tmp33_, b->index, dest, b->length);
+						_tmp34_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (a, _tmp34_, a->index, dest + b->length, a->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp122_ = self->priv->list;
-				_tmp123_ = dest;
-				dest = _tmp123_ + 1;
-				_tmp124_ = vala_tim_sort_slice_pop_first (a);
-				_tmp122_[_tmp123_] = _tmp124_;
-				_tmp125_ = a->length;
-				if (_tmp125_ == 1) {
+				_tmp35_ = self->priv->list;
+				_tmp36_ = dest;
+				dest = _tmp36_ + 1;
+				_tmp37_ = vala_tim_sort_slice_pop_first (a);
+				_tmp35_[_tmp36_] = _tmp37_;
+				if (a->length == 1) {
 					{
-						gint _tmp126_;
-						gint _tmp127_;
-						void** _tmp128_;
-						gint _tmp129_;
-						gint _tmp130_;
-						gint _tmp131_;
-						void** _tmp132_;
-						gint _tmp133_;
-						gint _tmp134_;
-						gint _tmp135_;
-						gint _tmp136_;
-						_tmp126_ = a->length;
-						_vala_assert (_tmp126_ >= 0, "a.length >= 0");
-						_tmp127_ = b->length;
-						_vala_assert (_tmp127_ >= 0, "b.length >= 0");
-						_tmp128_ = self->priv->list;
-						_tmp129_ = b->index;
-						_tmp130_ = dest;
-						_tmp131_ = b->length;
-						vala_tim_sort_slice_merge_in (b, _tmp128_, _tmp129_, _tmp130_, _tmp131_);
-						_tmp132_ = self->priv->list;
-						_tmp133_ = a->index;
-						_tmp134_ = dest;
-						_tmp135_ = b->length;
-						_tmp136_ = a->length;
-						vala_tim_sort_slice_merge_in (a, _tmp132_, _tmp133_, _tmp134_ + _tmp135_, _tmp136_);
+						void** _tmp38_;
+						void** _tmp39_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp38_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (b, _tmp38_, b->index, dest, b->length);
+						_tmp39_ = self->priv->list;
+						vala_tim_sort_slice_merge_in (a, _tmp39_, a->index, dest + b->length, a->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp138_ = a_count;
-				if (_tmp138_ < VALA_TIM_SORT_MINIMUM_GALLOP) {
-					gint _tmp139_;
-					_tmp139_ = b_count;
-					_tmp137_ = _tmp139_ < VALA_TIM_SORT_MINIMUM_GALLOP;
+				if (a_count < VALA_TIM_SORT_MINIMUM_GALLOP) {
+					_tmp40_ = b_count < VALA_TIM_SORT_MINIMUM_GALLOP;
 				} else {
-					_tmp137_ = FALSE;
+					_tmp40_ = FALSE;
 				}
-				if (_tmp137_) {
+				if (_tmp40_) {
 					break;
 				}
 			}
-			_tmp140_ = minimum_gallop;
-			minimum_gallop = _tmp140_ + 1;
-			_tmp141_ = minimum_gallop;
-			self->priv->minimum_gallop = _tmp141_;
+			_tmp41_ = minimum_gallop;
+			minimum_gallop = _tmp41_ + 1;
+			self->priv->minimum_gallop = minimum_gallop;
 		}
 	}
 	__finally0:
 	{
-		gint _tmp142_;
-		gint _tmp143_;
-		void** _tmp144_;
-		gint _tmp145_;
-		gint _tmp146_;
-		gint _tmp147_;
-		void** _tmp148_;
-		gint _tmp149_;
-		gint _tmp150_;
-		gint _tmp151_;
-		gint _tmp152_;
-		_tmp142_ = a->length;
-		_vala_assert (_tmp142_ >= 0, "a.length >= 0");
-		_tmp143_ = b->length;
-		_vala_assert (_tmp143_ >= 0, "b.length >= 0");
-		_tmp144_ = self->priv->list;
-		_tmp145_ = b->index;
-		_tmp146_ = dest;
-		_tmp147_ = b->length;
-		vala_tim_sort_slice_merge_in (b, _tmp144_, _tmp145_, _tmp146_, _tmp147_);
-		_tmp148_ = self->priv->list;
-		_tmp149_ = a->index;
-		_tmp150_ = dest;
-		_tmp151_ = b->length;
-		_tmp152_ = a->length;
-		vala_tim_sort_slice_merge_in (a, _tmp148_, _tmp149_, _tmp150_ + _tmp151_, _tmp152_);
+		void** _tmp42_;
+		void** _tmp43_;
+		_vala_assert (a->length >= 0, "a.length >= 0");
+		_vala_assert (b->length >= 0, "b.length >= 0");
+		_tmp42_ = self->priv->list;
+		vala_tim_sort_slice_merge_in (b, _tmp42_, b->index, dest, b->length);
+		_tmp43_ = self->priv->list;
+		vala_tim_sort_slice_merge_in (a, _tmp43_, a->index, dest + b->length, a->length);
 	}
 	_vala_tim_sort_slice_free0 (a);
 	_vala_tim_sort_slice_free0 (b);
-	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-	g_clear_error (&_inner_error_);
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
 	return;
 }
-
 
 static void
 vala_tim_sort_merge_high (ValaTimSort* self,
                           ValaTimSortSlice* a,
                           ValaTimSortSlice* b)
 {
-	gint _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	gint _tmp3_;
-	gint _tmp4_;
 	gint minimum_gallop = 0;
-	gint _tmp5_;
 	gint dest = 0;
-	gint _tmp6_;
-	gint _tmp7_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (a != NULL);
 	g_return_if_fail (b != NULL);
-	_tmp0_ = a->length;
-	_vala_assert (_tmp0_ > 0, "a.length > 0");
-	_tmp1_ = b->length;
-	_vala_assert (_tmp1_ > 0, "b.length > 0");
-	_tmp2_ = a->index;
-	_tmp3_ = a->length;
-	_tmp4_ = b->index;
-	_vala_assert ((_tmp2_ + _tmp3_) == _tmp4_, "a.index + a.length == b.index");
-	_tmp5_ = self->priv->minimum_gallop;
-	minimum_gallop = _tmp5_;
-	_tmp6_ = b->index;
-	_tmp7_ = b->length;
-	dest = _tmp6_ + _tmp7_;
+	_vala_assert (a->length > 0, "a.length > 0");
+	_vala_assert (b->length > 0, "b.length > 0");
+	_vala_assert ((a->index + a->length) == b->index, "a.index + a.length == b.index");
+	minimum_gallop = self->priv->minimum_gallop;
+	dest = b->index + b->length;
 	vala_tim_sort_slice_copy (b);
 	{
-		void** _tmp8_;
-		gint _tmp9_;
-		gint _tmp10_;
-		void* _tmp11_;
-		gboolean _tmp12_ = FALSE;
-		gint _tmp13_;
-		_tmp8_ = self->priv->list;
-		_tmp9_ = dest;
-		dest = _tmp9_ - 1;
-		_tmp10_ = dest;
-		_tmp11_ = vala_tim_sort_slice_pop_last (a);
-		_tmp8_[_tmp10_] = _tmp11_;
-		_tmp13_ = a->length;
-		if (_tmp13_ == 0) {
-			_tmp12_ = TRUE;
+		void** _tmp0_;
+		gint _tmp1_;
+		void* _tmp2_;
+		gboolean _tmp3_ = FALSE;
+		_tmp0_ = self->priv->list;
+		dest = dest - 1;
+		_tmp1_ = dest;
+		_tmp2_ = vala_tim_sort_slice_pop_last (a);
+		_tmp0_[_tmp1_] = _tmp2_;
+		if (a->length == 0) {
+			_tmp3_ = TRUE;
 		} else {
-			gint _tmp14_;
-			_tmp14_ = b->length;
-			_tmp12_ = _tmp14_ == 1;
+			_tmp3_ = b->length == 1;
 		}
-		if (_tmp12_) {
+		if (_tmp3_) {
 			{
-				gint _tmp15_;
-				gint _tmp16_;
-				void** _tmp17_;
-				gint _tmp18_;
-				gint _tmp19_;
-				gint _tmp20_;
-				gint _tmp21_;
-				void** _tmp22_;
-				gint _tmp23_;
-				gint _tmp24_;
-				gint _tmp25_;
-				gint _tmp26_;
-				gint _tmp27_;
-				_tmp15_ = a->length;
-				_vala_assert (_tmp15_ >= 0, "a.length >= 0");
-				_tmp16_ = b->length;
-				_vala_assert (_tmp16_ >= 0, "b.length >= 0");
-				_tmp17_ = self->priv->list;
-				_tmp18_ = a->index;
-				_tmp19_ = dest;
-				_tmp20_ = a->length;
-				_tmp21_ = a->length;
-				vala_tim_sort_slice_merge_in_reversed (a, _tmp17_, _tmp18_, _tmp19_ - _tmp20_, _tmp21_);
-				_tmp22_ = self->priv->list;
-				_tmp23_ = b->index;
-				_tmp24_ = dest;
-				_tmp25_ = a->length;
-				_tmp26_ = b->length;
-				_tmp27_ = b->length;
-				vala_tim_sort_slice_merge_in_reversed (b, _tmp22_, _tmp23_, (_tmp24_ - _tmp25_) - _tmp26_, _tmp27_);
+				void** _tmp4_;
+				void** _tmp5_;
+				_vala_assert (a->length >= 0, "a.length >= 0");
+				_vala_assert (b->length >= 0, "b.length >= 0");
+				_tmp4_ = self->priv->list;
+				vala_tim_sort_slice_merge_in_reversed (a, _tmp4_, a->index, dest - a->length, a->length);
+				_tmp5_ = self->priv->list;
+				vala_tim_sort_slice_merge_in_reversed (b, _tmp5_, b->index, (dest - a->length) - b->length, b->length);
 			}
 			_vala_tim_sort_slice_free0 (a);
 			_vala_tim_sort_slice_free0 (b);
@@ -2124,456 +1453,217 @@ vala_tim_sort_merge_high (ValaTimSort* self,
 		while (TRUE) {
 			gint a_count = 0;
 			gint b_count = 0;
-			gint _tmp72_;
-			gint _tmp170_;
-			gint _tmp171_;
+			gint _tmp20_;
+			gint _tmp41_;
 			a_count = 0;
 			b_count = 0;
 			while (TRUE) {
-				void* _tmp28_;
-				void* _tmp29_;
-				_tmp28_ = vala_tim_sort_slice_peek_last (b);
-				_tmp29_ = vala_tim_sort_slice_peek_last (a);
-				if (vala_tim_sort_lower_than (self, _tmp28_, _tmp29_)) {
-					void** _tmp30_;
-					gint _tmp31_;
-					gint _tmp32_;
-					void* _tmp33_;
-					gint _tmp34_;
-					gint _tmp48_;
-					gint _tmp49_;
-					gint _tmp50_;
-					_tmp30_ = self->priv->list;
-					_tmp31_ = dest;
-					dest = _tmp31_ - 1;
-					_tmp32_ = dest;
-					_tmp33_ = vala_tim_sort_slice_pop_last (a);
-					_tmp30_[_tmp32_] = _tmp33_;
-					_tmp34_ = a->length;
-					if (_tmp34_ == 0) {
+				void* _tmp6_;
+				void* _tmp7_;
+				_tmp6_ = vala_tim_sort_slice_peek_last (b);
+				_tmp7_ = vala_tim_sort_slice_peek_last (a);
+				if (vala_tim_sort_lower_than (self, _tmp6_, _tmp7_)) {
+					void** _tmp8_;
+					gint _tmp9_;
+					void* _tmp10_;
+					gint _tmp13_;
+					_tmp8_ = self->priv->list;
+					dest = dest - 1;
+					_tmp9_ = dest;
+					_tmp10_ = vala_tim_sort_slice_pop_last (a);
+					_tmp8_[_tmp9_] = _tmp10_;
+					if (a->length == 0) {
 						{
-							gint _tmp35_;
-							gint _tmp36_;
-							void** _tmp37_;
-							gint _tmp38_;
-							gint _tmp39_;
-							gint _tmp40_;
-							gint _tmp41_;
-							void** _tmp42_;
-							gint _tmp43_;
-							gint _tmp44_;
-							gint _tmp45_;
-							gint _tmp46_;
-							gint _tmp47_;
-							_tmp35_ = a->length;
-							_vala_assert (_tmp35_ >= 0, "a.length >= 0");
-							_tmp36_ = b->length;
-							_vala_assert (_tmp36_ >= 0, "b.length >= 0");
-							_tmp37_ = self->priv->list;
-							_tmp38_ = a->index;
-							_tmp39_ = dest;
-							_tmp40_ = a->length;
-							_tmp41_ = a->length;
-							vala_tim_sort_slice_merge_in_reversed (a, _tmp37_, _tmp38_, _tmp39_ - _tmp40_, _tmp41_);
-							_tmp42_ = self->priv->list;
-							_tmp43_ = b->index;
-							_tmp44_ = dest;
-							_tmp45_ = a->length;
-							_tmp46_ = b->length;
-							_tmp47_ = b->length;
-							vala_tim_sort_slice_merge_in_reversed (b, _tmp42_, _tmp43_, (_tmp44_ - _tmp45_) - _tmp46_, _tmp47_);
+							void** _tmp11_;
+							void** _tmp12_;
+							_vala_assert (a->length >= 0, "a.length >= 0");
+							_vala_assert (b->length >= 0, "b.length >= 0");
+							_tmp11_ = self->priv->list;
+							vala_tim_sort_slice_merge_in_reversed (a, _tmp11_, a->index, dest - a->length, a->length);
+							_tmp12_ = self->priv->list;
+							vala_tim_sort_slice_merge_in_reversed (b, _tmp12_, b->index, (dest - a->length) - b->length, b->length);
 						}
 						_vala_tim_sort_slice_free0 (a);
 						_vala_tim_sort_slice_free0 (b);
 						return;
 					}
-					_tmp48_ = a_count;
-					a_count = _tmp48_ + 1;
+					_tmp13_ = a_count;
+					a_count = _tmp13_ + 1;
 					b_count = 0;
-					_tmp49_ = a_count;
-					_tmp50_ = minimum_gallop;
-					if (_tmp49_ >= _tmp50_) {
+					if (a_count >= minimum_gallop) {
 						break;
 					}
 				} else {
-					void** _tmp51_;
-					gint _tmp52_;
-					gint _tmp53_;
-					void* _tmp54_;
-					gint _tmp55_;
-					gint _tmp69_;
-					gint _tmp70_;
-					gint _tmp71_;
-					_tmp51_ = self->priv->list;
-					_tmp52_ = dest;
-					dest = _tmp52_ - 1;
-					_tmp53_ = dest;
-					_tmp54_ = vala_tim_sort_slice_pop_last (b);
-					_tmp51_[_tmp53_] = _tmp54_;
-					_tmp55_ = b->length;
-					if (_tmp55_ == 1) {
+					void** _tmp14_;
+					gint _tmp15_;
+					void* _tmp16_;
+					gint _tmp19_;
+					_tmp14_ = self->priv->list;
+					dest = dest - 1;
+					_tmp15_ = dest;
+					_tmp16_ = vala_tim_sort_slice_pop_last (b);
+					_tmp14_[_tmp15_] = _tmp16_;
+					if (b->length == 1) {
 						{
-							gint _tmp56_;
-							gint _tmp57_;
-							void** _tmp58_;
-							gint _tmp59_;
-							gint _tmp60_;
-							gint _tmp61_;
-							gint _tmp62_;
-							void** _tmp63_;
-							gint _tmp64_;
-							gint _tmp65_;
-							gint _tmp66_;
-							gint _tmp67_;
-							gint _tmp68_;
-							_tmp56_ = a->length;
-							_vala_assert (_tmp56_ >= 0, "a.length >= 0");
-							_tmp57_ = b->length;
-							_vala_assert (_tmp57_ >= 0, "b.length >= 0");
-							_tmp58_ = self->priv->list;
-							_tmp59_ = a->index;
-							_tmp60_ = dest;
-							_tmp61_ = a->length;
-							_tmp62_ = a->length;
-							vala_tim_sort_slice_merge_in_reversed (a, _tmp58_, _tmp59_, _tmp60_ - _tmp61_, _tmp62_);
-							_tmp63_ = self->priv->list;
-							_tmp64_ = b->index;
-							_tmp65_ = dest;
-							_tmp66_ = a->length;
-							_tmp67_ = b->length;
-							_tmp68_ = b->length;
-							vala_tim_sort_slice_merge_in_reversed (b, _tmp63_, _tmp64_, (_tmp65_ - _tmp66_) - _tmp67_, _tmp68_);
+							void** _tmp17_;
+							void** _tmp18_;
+							_vala_assert (a->length >= 0, "a.length >= 0");
+							_vala_assert (b->length >= 0, "b.length >= 0");
+							_tmp17_ = self->priv->list;
+							vala_tim_sort_slice_merge_in_reversed (a, _tmp17_, a->index, dest - a->length, a->length);
+							_tmp18_ = self->priv->list;
+							vala_tim_sort_slice_merge_in_reversed (b, _tmp18_, b->index, (dest - a->length) - b->length, b->length);
 						}
 						_vala_tim_sort_slice_free0 (a);
 						_vala_tim_sort_slice_free0 (b);
 						return;
 					}
-					_tmp69_ = b_count;
-					b_count = _tmp69_ + 1;
+					_tmp19_ = b_count;
+					b_count = _tmp19_ + 1;
 					a_count = 0;
-					_tmp70_ = b_count;
-					_tmp71_ = minimum_gallop;
-					if (_tmp70_ >= _tmp71_) {
+					if (b_count >= minimum_gallop) {
 						break;
 					}
 				}
 			}
-			_tmp72_ = minimum_gallop;
-			minimum_gallop = _tmp72_ + 1;
+			_tmp20_ = minimum_gallop;
+			minimum_gallop = _tmp20_ + 1;
 			while (TRUE) {
-				gint _tmp73_ = 0;
-				gint _tmp74_;
-				gint _tmp75_;
-				gint _tmp76_;
+				gint _tmp21_ = 0;
 				gint k = 0;
-				void* _tmp77_;
-				gint _tmp78_;
-				gint _tmp79_;
-				gint _tmp80_;
-				void** _tmp81_;
-				gint _tmp82_;
-				gint _tmp83_;
-				gint _tmp84_;
-				gint _tmp85_;
-				gint _tmp86_;
-				gint _tmp87_;
-				gint _tmp88_;
-				gint _tmp89_;
-				gint _tmp90_;
-				void** _tmp104_;
-				gint _tmp105_;
-				gint _tmp106_;
-				void* _tmp107_;
-				gint _tmp108_;
-				void* _tmp122_;
-				gint _tmp123_;
-				gint _tmp124_;
-				gint _tmp125_;
-				void** _tmp126_;
-				gint _tmp127_;
-				gint _tmp128_;
-				gint _tmp129_;
-				gint _tmp130_;
-				gint _tmp131_;
-				gint _tmp132_;
-				gint _tmp133_;
-				gint _tmp134_;
-				gint _tmp135_;
-				void** _tmp149_;
-				gint _tmp150_;
-				gint _tmp151_;
-				void* _tmp152_;
-				gint _tmp153_;
-				gboolean _tmp167_ = FALSE;
-				gint _tmp168_;
-				_tmp74_ = minimum_gallop;
-				if (_tmp74_ > 1) {
-					_tmp73_ = 1;
+				void* _tmp22_;
+				void** _tmp23_;
+				void** _tmp26_;
+				gint _tmp27_;
+				void* _tmp28_;
+				void* _tmp31_;
+				void** _tmp32_;
+				void** _tmp35_;
+				gint _tmp36_;
+				void* _tmp37_;
+				gboolean _tmp40_ = FALSE;
+				if (minimum_gallop > 1) {
+					_tmp21_ = 1;
 				} else {
-					_tmp73_ = 0;
+					_tmp21_ = 0;
 				}
-				_tmp75_ = minimum_gallop;
-				minimum_gallop = _tmp75_ - _tmp73_;
-				_tmp76_ = minimum_gallop;
-				self->priv->minimum_gallop = _tmp76_;
-				_tmp77_ = vala_tim_sort_slice_peek_last (b);
-				_tmp78_ = a->length;
-				k = vala_tim_sort_gallop_rightmost (self, _tmp77_, a, _tmp78_ - 1);
-				_tmp79_ = a->length;
-				_tmp80_ = k;
-				a_count = _tmp79_ - _tmp80_;
-				_tmp81_ = self->priv->list;
-				_tmp82_ = a->index;
-				_tmp83_ = k;
-				_tmp84_ = dest;
-				_tmp85_ = a_count;
-				_tmp86_ = a_count;
-				vala_tim_sort_slice_merge_in_reversed (a, _tmp81_, _tmp82_ + _tmp83_, _tmp84_ - _tmp85_, _tmp86_);
-				_tmp87_ = dest;
-				_tmp88_ = a_count;
-				dest = _tmp87_ - _tmp88_;
-				_tmp89_ = a_count;
-				vala_tim_sort_slice_shorten_end (a, _tmp89_);
-				_tmp90_ = a->length;
-				if (_tmp90_ == 0) {
+				minimum_gallop -= _tmp21_;
+				self->priv->minimum_gallop = minimum_gallop;
+				_tmp22_ = vala_tim_sort_slice_peek_last (b);
+				k = vala_tim_sort_gallop_rightmost (self, _tmp22_, a, a->length - 1);
+				a_count = a->length - k;
+				_tmp23_ = self->priv->list;
+				vala_tim_sort_slice_merge_in_reversed (a, _tmp23_, a->index + k, dest - a_count, a_count);
+				dest -= a_count;
+				vala_tim_sort_slice_shorten_end (a, a_count);
+				if (a->length == 0) {
 					{
-						gint _tmp91_;
-						gint _tmp92_;
-						void** _tmp93_;
-						gint _tmp94_;
-						gint _tmp95_;
-						gint _tmp96_;
-						gint _tmp97_;
-						void** _tmp98_;
-						gint _tmp99_;
-						gint _tmp100_;
-						gint _tmp101_;
-						gint _tmp102_;
-						gint _tmp103_;
-						_tmp91_ = a->length;
-						_vala_assert (_tmp91_ >= 0, "a.length >= 0");
-						_tmp92_ = b->length;
-						_vala_assert (_tmp92_ >= 0, "b.length >= 0");
-						_tmp93_ = self->priv->list;
-						_tmp94_ = a->index;
-						_tmp95_ = dest;
-						_tmp96_ = a->length;
-						_tmp97_ = a->length;
-						vala_tim_sort_slice_merge_in_reversed (a, _tmp93_, _tmp94_, _tmp95_ - _tmp96_, _tmp97_);
-						_tmp98_ = self->priv->list;
-						_tmp99_ = b->index;
-						_tmp100_ = dest;
-						_tmp101_ = a->length;
-						_tmp102_ = b->length;
-						_tmp103_ = b->length;
-						vala_tim_sort_slice_merge_in_reversed (b, _tmp98_, _tmp99_, (_tmp100_ - _tmp101_) - _tmp102_, _tmp103_);
+						void** _tmp24_;
+						void** _tmp25_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp24_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (a, _tmp24_, a->index, dest - a->length, a->length);
+						_tmp25_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (b, _tmp25_, b->index, (dest - a->length) - b->length, b->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp104_ = self->priv->list;
-				_tmp105_ = dest;
-				dest = _tmp105_ - 1;
-				_tmp106_ = dest;
-				_tmp107_ = vala_tim_sort_slice_pop_last (b);
-				_tmp104_[_tmp106_] = _tmp107_;
-				_tmp108_ = b->length;
-				if (_tmp108_ == 1) {
+				_tmp26_ = self->priv->list;
+				dest = dest - 1;
+				_tmp27_ = dest;
+				_tmp28_ = vala_tim_sort_slice_pop_last (b);
+				_tmp26_[_tmp27_] = _tmp28_;
+				if (b->length == 1) {
 					{
-						gint _tmp109_;
-						gint _tmp110_;
-						void** _tmp111_;
-						gint _tmp112_;
-						gint _tmp113_;
-						gint _tmp114_;
-						gint _tmp115_;
-						void** _tmp116_;
-						gint _tmp117_;
-						gint _tmp118_;
-						gint _tmp119_;
-						gint _tmp120_;
-						gint _tmp121_;
-						_tmp109_ = a->length;
-						_vala_assert (_tmp109_ >= 0, "a.length >= 0");
-						_tmp110_ = b->length;
-						_vala_assert (_tmp110_ >= 0, "b.length >= 0");
-						_tmp111_ = self->priv->list;
-						_tmp112_ = a->index;
-						_tmp113_ = dest;
-						_tmp114_ = a->length;
-						_tmp115_ = a->length;
-						vala_tim_sort_slice_merge_in_reversed (a, _tmp111_, _tmp112_, _tmp113_ - _tmp114_, _tmp115_);
-						_tmp116_ = self->priv->list;
-						_tmp117_ = b->index;
-						_tmp118_ = dest;
-						_tmp119_ = a->length;
-						_tmp120_ = b->length;
-						_tmp121_ = b->length;
-						vala_tim_sort_slice_merge_in_reversed (b, _tmp116_, _tmp117_, (_tmp118_ - _tmp119_) - _tmp120_, _tmp121_);
+						void** _tmp29_;
+						void** _tmp30_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp29_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (a, _tmp29_, a->index, dest - a->length, a->length);
+						_tmp30_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (b, _tmp30_, b->index, (dest - a->length) - b->length, b->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp122_ = vala_tim_sort_slice_peek_last (a);
-				_tmp123_ = b->length;
-				k = vala_tim_sort_gallop_leftmost (self, _tmp122_, b, _tmp123_ - 1);
-				_tmp124_ = b->length;
-				_tmp125_ = k;
-				b_count = _tmp124_ - _tmp125_;
-				_tmp126_ = self->priv->list;
-				_tmp127_ = b->index;
-				_tmp128_ = k;
-				_tmp129_ = dest;
-				_tmp130_ = b_count;
-				_tmp131_ = b_count;
-				vala_tim_sort_slice_merge_in_reversed (b, _tmp126_, _tmp127_ + _tmp128_, _tmp129_ - _tmp130_, _tmp131_);
-				_tmp132_ = dest;
-				_tmp133_ = b_count;
-				dest = _tmp132_ - _tmp133_;
-				_tmp134_ = b_count;
-				vala_tim_sort_slice_shorten_end (b, _tmp134_);
-				_tmp135_ = b->length;
-				if (_tmp135_ <= 1) {
+				_tmp31_ = vala_tim_sort_slice_peek_last (a);
+				k = vala_tim_sort_gallop_leftmost (self, _tmp31_, b, b->length - 1);
+				b_count = b->length - k;
+				_tmp32_ = self->priv->list;
+				vala_tim_sort_slice_merge_in_reversed (b, _tmp32_, b->index + k, dest - b_count, b_count);
+				dest -= b_count;
+				vala_tim_sort_slice_shorten_end (b, b_count);
+				if (b->length <= 1) {
 					{
-						gint _tmp136_;
-						gint _tmp137_;
-						void** _tmp138_;
-						gint _tmp139_;
-						gint _tmp140_;
-						gint _tmp141_;
-						gint _tmp142_;
-						void** _tmp143_;
-						gint _tmp144_;
-						gint _tmp145_;
-						gint _tmp146_;
-						gint _tmp147_;
-						gint _tmp148_;
-						_tmp136_ = a->length;
-						_vala_assert (_tmp136_ >= 0, "a.length >= 0");
-						_tmp137_ = b->length;
-						_vala_assert (_tmp137_ >= 0, "b.length >= 0");
-						_tmp138_ = self->priv->list;
-						_tmp139_ = a->index;
-						_tmp140_ = dest;
-						_tmp141_ = a->length;
-						_tmp142_ = a->length;
-						vala_tim_sort_slice_merge_in_reversed (a, _tmp138_, _tmp139_, _tmp140_ - _tmp141_, _tmp142_);
-						_tmp143_ = self->priv->list;
-						_tmp144_ = b->index;
-						_tmp145_ = dest;
-						_tmp146_ = a->length;
-						_tmp147_ = b->length;
-						_tmp148_ = b->length;
-						vala_tim_sort_slice_merge_in_reversed (b, _tmp143_, _tmp144_, (_tmp145_ - _tmp146_) - _tmp147_, _tmp148_);
+						void** _tmp33_;
+						void** _tmp34_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp33_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (a, _tmp33_, a->index, dest - a->length, a->length);
+						_tmp34_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (b, _tmp34_, b->index, (dest - a->length) - b->length, b->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp149_ = self->priv->list;
-				_tmp150_ = dest;
-				dest = _tmp150_ - 1;
-				_tmp151_ = dest;
-				_tmp152_ = vala_tim_sort_slice_pop_last (a);
-				_tmp149_[_tmp151_] = _tmp152_;
-				_tmp153_ = a->length;
-				if (_tmp153_ == 0) {
+				_tmp35_ = self->priv->list;
+				dest = dest - 1;
+				_tmp36_ = dest;
+				_tmp37_ = vala_tim_sort_slice_pop_last (a);
+				_tmp35_[_tmp36_] = _tmp37_;
+				if (a->length == 0) {
 					{
-						gint _tmp154_;
-						gint _tmp155_;
-						void** _tmp156_;
-						gint _tmp157_;
-						gint _tmp158_;
-						gint _tmp159_;
-						gint _tmp160_;
-						void** _tmp161_;
-						gint _tmp162_;
-						gint _tmp163_;
-						gint _tmp164_;
-						gint _tmp165_;
-						gint _tmp166_;
-						_tmp154_ = a->length;
-						_vala_assert (_tmp154_ >= 0, "a.length >= 0");
-						_tmp155_ = b->length;
-						_vala_assert (_tmp155_ >= 0, "b.length >= 0");
-						_tmp156_ = self->priv->list;
-						_tmp157_ = a->index;
-						_tmp158_ = dest;
-						_tmp159_ = a->length;
-						_tmp160_ = a->length;
-						vala_tim_sort_slice_merge_in_reversed (a, _tmp156_, _tmp157_, _tmp158_ - _tmp159_, _tmp160_);
-						_tmp161_ = self->priv->list;
-						_tmp162_ = b->index;
-						_tmp163_ = dest;
-						_tmp164_ = a->length;
-						_tmp165_ = b->length;
-						_tmp166_ = b->length;
-						vala_tim_sort_slice_merge_in_reversed (b, _tmp161_, _tmp162_, (_tmp163_ - _tmp164_) - _tmp165_, _tmp166_);
+						void** _tmp38_;
+						void** _tmp39_;
+						_vala_assert (a->length >= 0, "a.length >= 0");
+						_vala_assert (b->length >= 0, "b.length >= 0");
+						_tmp38_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (a, _tmp38_, a->index, dest - a->length, a->length);
+						_tmp39_ = self->priv->list;
+						vala_tim_sort_slice_merge_in_reversed (b, _tmp39_, b->index, (dest - a->length) - b->length, b->length);
 					}
 					_vala_tim_sort_slice_free0 (a);
 					_vala_tim_sort_slice_free0 (b);
 					return;
 				}
-				_tmp168_ = a_count;
-				if (_tmp168_ < VALA_TIM_SORT_MINIMUM_GALLOP) {
-					gint _tmp169_;
-					_tmp169_ = b_count;
-					_tmp167_ = _tmp169_ < VALA_TIM_SORT_MINIMUM_GALLOP;
+				if (a_count < VALA_TIM_SORT_MINIMUM_GALLOP) {
+					_tmp40_ = b_count < VALA_TIM_SORT_MINIMUM_GALLOP;
 				} else {
-					_tmp167_ = FALSE;
+					_tmp40_ = FALSE;
 				}
-				if (_tmp167_) {
+				if (_tmp40_) {
 					break;
 				}
 			}
-			_tmp170_ = minimum_gallop;
-			minimum_gallop = _tmp170_ + 1;
-			_tmp171_ = minimum_gallop;
-			self->priv->minimum_gallop = _tmp171_;
+			_tmp41_ = minimum_gallop;
+			minimum_gallop = _tmp41_ + 1;
+			self->priv->minimum_gallop = minimum_gallop;
 		}
 	}
-	__finally1:
+	__finally0:
 	{
-		gint _tmp172_;
-		gint _tmp173_;
-		void** _tmp174_;
-		gint _tmp175_;
-		gint _tmp176_;
-		gint _tmp177_;
-		gint _tmp178_;
-		void** _tmp179_;
-		gint _tmp180_;
-		gint _tmp181_;
-		gint _tmp182_;
-		gint _tmp183_;
-		gint _tmp184_;
-		_tmp172_ = a->length;
-		_vala_assert (_tmp172_ >= 0, "a.length >= 0");
-		_tmp173_ = b->length;
-		_vala_assert (_tmp173_ >= 0, "b.length >= 0");
-		_tmp174_ = self->priv->list;
-		_tmp175_ = a->index;
-		_tmp176_ = dest;
-		_tmp177_ = a->length;
-		_tmp178_ = a->length;
-		vala_tim_sort_slice_merge_in_reversed (a, _tmp174_, _tmp175_, _tmp176_ - _tmp177_, _tmp178_);
-		_tmp179_ = self->priv->list;
-		_tmp180_ = b->index;
-		_tmp181_ = dest;
-		_tmp182_ = a->length;
-		_tmp183_ = b->length;
-		_tmp184_ = b->length;
-		vala_tim_sort_slice_merge_in_reversed (b, _tmp179_, _tmp180_, (_tmp181_ - _tmp182_) - _tmp183_, _tmp184_);
+		void** _tmp42_;
+		void** _tmp43_;
+		_vala_assert (a->length >= 0, "a.length >= 0");
+		_vala_assert (b->length >= 0, "b.length >= 0");
+		_tmp42_ = self->priv->list;
+		vala_tim_sort_slice_merge_in_reversed (a, _tmp42_, a->index, dest - a->length, a->length);
+		_tmp43_ = self->priv->list;
+		vala_tim_sort_slice_merge_in_reversed (b, _tmp43_, b->index, (dest - a->length) - b->length, b->length);
 	}
 	_vala_tim_sort_slice_free0 (a);
 	_vala_tim_sort_slice_free0 (b);
-	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-	g_clear_error (&_inner_error_);
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
 	return;
 }
-
 
 G_GNUC_INTERNAL ValaTimSort*
 vala_tim_sort_construct (GType object_type,
@@ -2589,7 +1679,6 @@ vala_tim_sort_construct (GType object_type,
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValaTimSort*
 vala_tim_sort_new (GType g_type,
                    GBoxedCopyFunc g_dup_func,
@@ -2597,7 +1686,6 @@ vala_tim_sort_new (GType g_type,
 {
 	return vala_tim_sort_construct (VALA_TYPE_TIM_SORT, g_type, g_dup_func, g_destroy_func);
 }
-
 
 static ValaTimSortSlice*
 vala_tim_sort_slice_new (void** list,
@@ -2613,26 +1701,25 @@ vala_tim_sort_slice_new (void** list,
 	return self;
 }
 
-
 static void
 vala_tim_sort_slice_copy (ValaTimSortSlice* self)
 {
-	void** _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	void* _tmp3_;
-	void** _tmp4_;
+	gsize size = 0UL;
+	void* _tmp0_;
+	void** _tmp1_;
+	void** _tmp2_;
+	void** _tmp3_;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->list;
-	_tmp1_ = self->index;
-	_tmp2_ = self->length;
-	_tmp3_ = g_memdup (&_tmp0_[_tmp1_], ((guint) sizeof (gpointer)) * _tmp2_);
-	self->new_list = _tmp3_;
-	_tmp4_ = self->new_list;
-	self->list = _tmp4_;
+	size = (gsize) (sizeof (gpointer) * self->length);
+	_tmp0_ = g_malloc (size);
+	self->new_list = _tmp0_;
+	_tmp1_ = self->new_list;
+	_tmp2_ = self->list;
+	memcpy (_tmp1_, &_tmp2_[self->index], size);
+	_tmp3_ = self->new_list;
+	self->list = _tmp3_;
 	self->index = 0;
 }
-
 
 static inline void
 vala_tim_sort_slice_merge_in (ValaTimSortSlice* self,
@@ -2644,9 +1731,8 @@ vala_tim_sort_slice_merge_in (ValaTimSortSlice* self,
 	void** _tmp0_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->list;
-	g_memmove (&dest_array[dest_index], &_tmp0_[index], (gsize) (sizeof (gpointer) * count));
+	memmove (&dest_array[dest_index], &_tmp0_[index], (gsize) (sizeof (gpointer) * count));
 }
-
 
 static inline void
 vala_tim_sort_slice_merge_in_reversed (ValaTimSortSlice* self,
@@ -2658,43 +1744,34 @@ vala_tim_sort_slice_merge_in_reversed (ValaTimSortSlice* self,
 	void** _tmp0_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->list;
-	g_memmove (&dest_array[dest_index], &_tmp0_[index], (gsize) (sizeof (gpointer) * count));
+	memmove (&dest_array[dest_index], &_tmp0_[index], (gsize) (sizeof (gpointer) * count));
 }
-
 
 static inline void
 vala_tim_sort_slice_shorten_start (ValaTimSortSlice* self,
                                    gint n)
 {
-	gint _tmp0_;
-	gint _tmp1_;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->index;
-	self->index = _tmp0_ + n;
-	_tmp1_ = self->length;
-	self->length = _tmp1_ - n;
+	self->index = self->index + n;
+	self->length = self->length - n;
 }
-
 
 static inline void
 vala_tim_sort_slice_shorten_end (ValaTimSortSlice* self,
                                  gint n)
 {
-	gint _tmp0_;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->length;
-	self->length = _tmp0_ - n;
+	self->length = self->length - n;
 }
-
 
 static inline void*
 vala_tim_sort_slice_pop_first (ValaTimSortSlice* self)
 {
-	void* result = NULL;
 	gint _tmp0_;
 	void** _tmp1_;
 	gint _tmp2_;
 	void* _tmp3_;
+	void* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->length;
 	self->length = _tmp0_ - 1;
@@ -2706,94 +1783,69 @@ vala_tim_sort_slice_pop_first (ValaTimSortSlice* self)
 	return result;
 }
 
-
 static inline void*
 vala_tim_sort_slice_pop_last (ValaTimSortSlice* self)
 {
-	void* result = NULL;
 	gint _tmp0_;
 	void** _tmp1_;
-	gint _tmp2_;
-	gint _tmp3_;
-	void* _tmp4_;
+	void* _tmp2_;
+	void* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->length;
 	self->length = _tmp0_ - 1;
 	_tmp1_ = self->list;
-	_tmp2_ = self->index;
-	_tmp3_ = self->length;
-	_tmp4_ = _tmp1_[_tmp2_ + _tmp3_];
-	result = _tmp4_;
-	return result;
-}
-
-
-static inline void*
-vala_tim_sort_slice_peek_first (ValaTimSortSlice* self)
-{
-	void* result = NULL;
-	void** _tmp0_;
-	gint _tmp1_;
-	void* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->list;
-	_tmp1_ = self->index;
-	_tmp2_ = _tmp0_[_tmp1_];
+	_tmp2_ = _tmp1_[self->index + self->length];
 	result = _tmp2_;
 	return result;
 }
 
+static inline void*
+vala_tim_sort_slice_peek_first (ValaTimSortSlice* self)
+{
+	void** _tmp0_;
+	void* _tmp1_;
+	void* result = NULL;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->list;
+	_tmp1_ = _tmp0_[self->index];
+	result = _tmp1_;
+	return result;
+}
 
 static inline void*
 vala_tim_sort_slice_peek_last (ValaTimSortSlice* self)
 {
-	void* result = NULL;
 	void** _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	void* _tmp3_;
+	void* _tmp1_;
+	void* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->list;
-	_tmp1_ = self->index;
-	_tmp2_ = self->length;
-	_tmp3_ = _tmp0_[(_tmp1_ + _tmp2_) - 1];
-	result = _tmp3_;
+	_tmp1_ = _tmp0_[(self->index + self->length) - 1];
+	result = _tmp1_;
 	return result;
 }
-
 
 static void
 vala_tim_sort_slice_reverse (ValaTimSortSlice* self)
 {
 	gint low = 0;
-	gint _tmp0_;
 	gint high = 0;
-	gint _tmp1_;
-	gint _tmp2_;
 	g_return_if_fail (self != NULL);
-	_tmp0_ = self->index;
-	low = _tmp0_;
-	_tmp1_ = self->index;
-	_tmp2_ = self->length;
-	high = (_tmp1_ + _tmp2_) - 1;
+	low = self->index;
+	high = (self->index + self->length) - 1;
 	while (TRUE) {
-		gint _tmp3_;
-		gint _tmp4_;
-		gint _tmp5_;
-		gint _tmp6_;
-		_tmp3_ = low;
-		_tmp4_ = high;
-		if (!(_tmp3_ < _tmp4_)) {
+		gint _tmp0_;
+		gint _tmp1_;
+		if (!(low < high)) {
 			break;
 		}
-		_tmp5_ = low;
-		low = _tmp5_ + 1;
-		_tmp6_ = high;
-		high = _tmp6_ - 1;
-		vala_tim_sort_slice_swap (self, _tmp5_, _tmp6_);
+		_tmp0_ = low;
+		low = _tmp0_ + 1;
+		_tmp1_ = high;
+		high = _tmp1_ - 1;
+		vala_tim_sort_slice_swap (self, _tmp0_, _tmp1_);
 	}
 }
-
 
 static inline void
 vala_tim_sort_slice_swap (ValaTimSortSlice* self,
@@ -2819,12 +1871,10 @@ vala_tim_sort_slice_swap (ValaTimSortSlice* self,
 	_tmp5_[j] = temp;
 }
 
-
 static void
 vala_tim_sort_slice_instance_init (ValaTimSortSlice * self)
 {
 }
-
 
 static void
 vala_tim_sort_slice_free (ValaTimSortSlice * self)
@@ -2839,13 +1889,11 @@ vala_tim_sort_slice_free (ValaTimSortSlice * self)
 	g_slice_free (ValaTimSortSlice, self);
 }
 
-
 static void
 vala_value_tim_sort_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_tim_sort_free_value (GValue* value)
@@ -2854,7 +1902,6 @@ vala_value_tim_sort_free_value (GValue* value)
 		vala_tim_sort_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_tim_sort_copy_value (const GValue* src_value,
@@ -2867,13 +1914,11 @@ vala_value_tim_sort_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_tim_sort_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_tim_sort_collect_value (GValue* value,
@@ -2896,7 +1941,6 @@ vala_value_tim_sort_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_tim_sort_lcopy_value (const GValue* value,
                                  guint n_collect_values,
@@ -2918,7 +1962,6 @@ vala_value_tim_sort_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 G_GNUC_INTERNAL GParamSpec*
 vala_param_spec_tim_sort (const gchar* name,
                           const gchar* nick,
@@ -2933,14 +1976,12 @@ vala_param_spec_tim_sort (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 G_GNUC_INTERNAL gpointer
 vala_value_get_tim_sort (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_TIM_SORT), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 G_GNUC_INTERNAL void
 vala_value_set_tim_sort (GValue* value,
@@ -2962,7 +2003,6 @@ vala_value_set_tim_sort (GValue* value,
 	}
 }
 
-
 G_GNUC_INTERNAL void
 vala_value_take_tim_sort (GValue* value,
                           gpointer v_object)
@@ -2982,23 +2022,22 @@ vala_value_take_tim_sort (GValue* value,
 	}
 }
 
-
 static void
-vala_tim_sort_class_init (ValaTimSortClass * klass)
+vala_tim_sort_class_init (ValaTimSortClass * klass,
+                          gpointer klass_data)
 {
 	vala_tim_sort_parent_class = g_type_class_peek_parent (klass);
 	((ValaTimSortClass *) klass)->finalize = vala_tim_sort_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaTimSort_private_offset);
 }
 
-
 static void
-vala_tim_sort_instance_init (ValaTimSort * self)
+vala_tim_sort_instance_init (ValaTimSort * self,
+                             gpointer klass)
 {
 	self->priv = vala_tim_sort_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_tim_sort_finalize (ValaTimSort * obj)
@@ -3010,7 +2049,6 @@ vala_tim_sort_finalize (ValaTimSort * obj)
 	self->priv->array = (_vala_array_free (self->priv->array, self->priv->array_length1, (GDestroyNotify) self->priv->g_destroy_func), NULL);
 	self->priv->pending = (_vala_array_free (self->priv->pending, self->priv->pending_length1, (GDestroyNotify) vala_tim_sort_slice_free), NULL);
 }
-
 
 /**
  * A stable, adaptive, iterative mergesort that requires far fewer than n*lg(n)
@@ -3036,22 +2074,29 @@ vala_tim_sort_finalize (ValaTimSort * obj)
  *   SODA (Fourth Annual ACM-SIAM Symposium on Discrete Algorithms), pp
  *   467-474, Austin, Texas, 25-27 January 1993.
  */
+static GType
+vala_tim_sort_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_tim_sort_init, vala_value_tim_sort_free_value, vala_value_tim_sort_copy_value, vala_value_tim_sort_peek_pointer, "p", vala_value_tim_sort_collect_value, "p", vala_value_tim_sort_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaTimSortClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_tim_sort_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTimSort), 0, (GInstanceInitFunc) vala_tim_sort_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_tim_sort_type_id;
+	vala_tim_sort_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaTimSort", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaTimSort_private_offset = g_type_add_instance_private (vala_tim_sort_type_id, sizeof (ValaTimSortPrivate));
+	return vala_tim_sort_type_id;
+}
+
 G_GNUC_INTERNAL GType
 vala_tim_sort_get_type (void)
 {
 	static volatile gsize vala_tim_sort_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_tim_sort_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_tim_sort_init, vala_value_tim_sort_free_value, vala_value_tim_sort_copy_value, vala_value_tim_sort_peek_pointer, "p", vala_value_tim_sort_collect_value, "p", vala_value_tim_sort_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaTimSortClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_tim_sort_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTimSort), 0, (GInstanceInitFunc) vala_tim_sort_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_tim_sort_type_id;
-		vala_tim_sort_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaTimSort", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaTimSort_private_offset = g_type_add_instance_private (vala_tim_sort_type_id, sizeof (ValaTimSortPrivate));
+		vala_tim_sort_type_id = vala_tim_sort_get_type_once ();
 		g_once_init_leave (&vala_tim_sort_type_id__volatile, vala_tim_sort_type_id);
 	}
 	return vala_tim_sort_type_id__volatile;
 }
-
 
 G_GNUC_INTERNAL gpointer
 vala_tim_sort_ref (gpointer instance)
@@ -3061,7 +2106,6 @@ vala_tim_sort_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 G_GNUC_INTERNAL void
 vala_tim_sort_unref (gpointer instance)
@@ -3074,14 +2118,13 @@ vala_tim_sort_unref (gpointer instance)
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -3089,7 +2132,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -3100,7 +2142,6 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static void
 _vala_array_move (gpointer array,
                   gsize element_size,
@@ -3108,7 +2149,7 @@ _vala_array_move (gpointer array,
                   gint dest,
                   gint length)
 {
-	g_memmove (((char*) array) + (dest * element_size), ((char*) array) + (src * element_size), length * element_size);
+	memmove (((char*) array) + (dest * element_size), ((char*) array) + (src * element_size), length * element_size);
 	if ((src < dest) && ((src + length) > dest)) {
 		memset (((char*) array) + (src * element_size), 0, (dest - src) * element_size);
 	} else if ((src > dest) && (src < (dest + length))) {
@@ -3117,6 +2158,4 @@ _vala_array_move (gpointer array,
 		memset (((char*) array) + (src * element_size), 0, length * element_size);
 	}
 }
-
-
 

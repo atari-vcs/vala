@@ -23,17 +23,19 @@
  *  Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
+static GType valadoc_documentation_get_type_once (void);
 
-
-
-
+ValadocApiPackage*
+valadoc_documentation_get_package (ValadocDocumentation* self)
+{
+	g_return_val_if_fail (self != NULL, NULL);
+	return VALADOC_DOCUMENTATION_GET_INTERFACE (self)->get_package (self);
+}
 
 /**
  * The corresponding file name
@@ -45,17 +47,9 @@ valadoc_documentation_get_filename (ValadocDocumentation* self)
 	return VALADOC_DOCUMENTATION_GET_INTERFACE (self)->get_filename (self);
 }
 
-
-ValadocApiPackage*
-valadoc_documentation_get_package (ValadocDocumentation* self)
-{
-	g_return_val_if_fail (self != NULL, NULL);
-	return VALADOC_DOCUMENTATION_GET_INTERFACE (self)->get_package (self);
-}
-
-
 static void
-valadoc_documentation_default_init (ValadocDocumentationIface * iface)
+valadoc_documentation_default_init (ValadocDocumentationIface * iface,
+                                    gpointer iface_data)
 {
 	/**
 	 * The corresponding package
@@ -63,20 +57,25 @@ valadoc_documentation_default_init (ValadocDocumentationIface * iface)
 	g_object_interface_install_property (iface, g_param_spec_object ("package", "package", "package", VALADOC_API_TYPE_PACKAGE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
+static GType
+valadoc_documentation_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocDocumentationIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_documentation_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_documentation_type_id;
+	valadoc_documentation_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocDocumentation", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_documentation_type_id, G_TYPE_OBJECT);
+	return valadoc_documentation_type_id;
+}
 
 GType
 valadoc_documentation_get_type (void)
 {
 	static volatile gsize valadoc_documentation_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_documentation_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocDocumentationIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_documentation_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_documentation_type_id;
-		valadoc_documentation_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocDocumentation", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_documentation_type_id, G_TYPE_OBJECT);
+		valadoc_documentation_type_id = valadoc_documentation_get_type_once ();
 		g_once_init_leave (&valadoc_documentation_type_id__volatile, valadoc_documentation_type_id);
 	}
 	return valadoc_documentation_type_id__volatile;
 }
-
-
 

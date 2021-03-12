@@ -23,17 +23,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-
-
-
+static GType valadoc_scanner_get_type_once (void);
 
 void
 valadoc_scanner_set_parser (ValadocScanner* self,
@@ -43,14 +38,12 @@ valadoc_scanner_set_parser (ValadocScanner* self,
 	VALADOC_SCANNER_GET_INTERFACE (self)->set_parser (self, parser);
 }
 
-
 void
 valadoc_scanner_reset (ValadocScanner* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_SCANNER_GET_INTERFACE (self)->reset (self);
 }
-
 
 void
 valadoc_scanner_scan (ValadocScanner* self,
@@ -61,7 +54,6 @@ valadoc_scanner_scan (ValadocScanner* self,
 	VALADOC_SCANNER_GET_INTERFACE (self)->scan (self, content, error);
 }
 
-
 void
 valadoc_scanner_end (ValadocScanner* self,
                      GError** error)
@@ -70,14 +62,12 @@ valadoc_scanner_end (ValadocScanner* self,
 	VALADOC_SCANNER_GET_INTERFACE (self)->end (self, error);
 }
 
-
 void
 valadoc_scanner_stop (ValadocScanner* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_SCANNER_GET_INTERFACE (self)->stop (self);
 }
-
 
 gchar*
 valadoc_scanner_get_line_content (ValadocScanner* self)
@@ -86,26 +76,31 @@ valadoc_scanner_get_line_content (ValadocScanner* self)
 	return VALADOC_SCANNER_GET_INTERFACE (self)->get_line_content (self);
 }
 
-
 static void
-valadoc_scanner_default_init (ValadocScannerIface * iface)
+valadoc_scanner_default_init (ValadocScannerIface * iface,
+                              gpointer iface_data)
 {
 }
 
+static GType
+valadoc_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocScannerIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_scanner_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_scanner_type_id;
+	valadoc_scanner_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocScanner", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_scanner_type_id, G_TYPE_OBJECT);
+	return valadoc_scanner_type_id;
+}
 
 GType
 valadoc_scanner_get_type (void)
 {
 	static volatile gsize valadoc_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocScannerIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_scanner_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_scanner_type_id;
-		valadoc_scanner_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocScanner", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_scanner_type_id, G_TYPE_OBJECT);
+		valadoc_scanner_type_id = valadoc_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_scanner_type_id__volatile, valadoc_scanner_type_id);
 	}
 	return valadoc_scanner_type_id__volatile;
 }
-
-
 

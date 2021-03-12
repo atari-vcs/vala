@@ -1,42 +1,1132 @@
-Vala 0.42.5
+Vala 0.48.14
+============
+ * Highlights:
+  - Add further support for params arrays in constructors [#128]
+
+ * Various improvements and bug fixes:
+  - codegen:
+    + Improve support of SimpleType struct constructors
+    + Improve handling of "NoWrapper" attribute
+    + Allow CCode.type_cname for classes and use get_ccode_type_name()
+    + Always use G_TYPE_INSTANCE_GET_CLASS/INTERFACE for external symbols
+    + Also check array type of variable argument for ref parameters
+    + Don't leak array memory after it was implicitly copied
+    + Use g_boxed_free in free-wrapper for heap-allocated GLib.Value
+    + Don't leak GLib.Value when implicitly unboxing it
+    + Don't leak memory moving heap-allocated struct to stack
+    + Chain up to base struct destroy function
+    + Correctly retrieve symbol_reference of nested cast expressions [#1134]
+    + Strip all nested occurances of CCodeCastExpression [#1134]
+    + Don't wrongly emit declaration for default-handler of signals
+    + Include "string.h" for strcmp() (POSIX)
+  - vala:
+    + Improve detection of duplicate package source files
+    + Apply stricter condition for lambda to delegate assignment
+    + Don't allow disposable SimpleType structs
+    + GLib.Value unboxing returns unowned value
+    + Don't allow GLib.Value casting to nullable struct/simple types
+    + Check type-arguments in base-types/prerequisites of class/interface [#404]
+    + Capturing va_list parameters/variables is not allowed [#1136]
+    + Generics value holding struct pointer requires casting on access [#347]
+    + Infer needle type for "in" expression on enum [#1138]
+    + Improve context check whether property is writeable on assignments
+    + Include "stdlib.h" for Enum.to_string() (POSIX) [#1143]
+    + Set proper source_reference for implicit "this" and "result" variables
+    + Report error for invalid inner operand of unary expressions
+  - codewriter: Don't write trailing ";" after body of WithStatement
+  - girparser:
+    + Apply "delegate_target" metadata for methods and parameters
+    + Apply "destroy_notify_cname" metadata for fields
+    + Apply "type_get_function" metadata for classes and inferfaces
+    + Set CCode.type_cname for classes if it doesn't match our default
+  - girwriter: Write instance-parameter elements [#1128]
+  - girwriter: Output default handler of signals
+  - libvaladoc/html: Don't sort struct fields to keep their original order
+  - libvaladoc: Correctly retrieve value for Api.Class.is_compact
+  - libvaladoc: Add wrapper for "agedge" of graphviz
+
+ * Bindings:
+  - Fix several bindings which lead to invalid code by using them in:
+    cairo, gobject-2.0, pango, goocanvas-2.0, curses, alsa, bzlib, sqlite3,
+    libgvc, posix, gstreamer-1.0, gdk-3.0, gdk-x11-3.0, gtk+-3.0, gtk4,
+    fuse, libxml-2.0
+  - gdk-pixbuf-2.0: Fix Pixbuf.save_to_streamv_async()
+  - gio-2.0: Fix binding of PollableOutputStream.write*_nonblocking()
+  - gio-2.0,gtk+-3.0,gtk4: Drop explicit c-type attributes of va_list parameters
+  - gio-2.0: Pick up missing invoker for some AppInfo/File.*() methods
+  - gstreamer-1.0: Set CCode.type_id of MiniObject to G_TYPE_BOXED [#1133]
+  - gtk+-2.0,javascriptcoregtk-4.0: Wrong usage of CCode.type_cname attribute
+  - gtk+-3.0,gtk4: Fix some delegate return values and parameters
+  - gtk4: Update to 4.0.2
+
+Vala 0.48.13
+============
+ * Various improvements and bug fixes:
+  - codegen:
+    + Use CCodeInvalidExpression instead of place holders
+    + Don't leak memory of already assigned out-parameter on error [#1123]
+    + Don't leak memory on internal value comparison of property setter
+    + Fix assignment of casted struct value to property [#1126]
+  - vala:
+    + Report an error if gio-2.0 is missing for DBus support
+    + Add missing TraverseVisitor.visit_addressof_expression()
+    + value_type of PointerIndirection expressions must not be owned [#1118]
+    + SliceExpression need to return heap-allocated or unowned references [#1120]
+    + Accept "unowned var" as type for foreach variable declaration [#152]
+    + Ownership transfer of inline-allocated array is not allowed [#931]
+  - tests: Use Automake’s parallel test driver to speed up running tests [#1094]
+  - testrunner: A lot of simplifications
+
+ * Bindings:
+  - gio-2.0: Fix DBusSubtreeIntrospectFunc binding
+  - gstreamer-1.0: Fix direction of GLib.Value typed parameters [#1014]
+  - gtk4: Use correct cheader_include for wayland/x11 gdk backend [#1112]
+  - gtk4: Don't rename binding for gtk_css_provider_load_from_data [#1117]
+  - gtk4: Update to 4.0.1
+  - webkit2gtk-4.0: Update to 2.30.3
+
+Vala 0.48.12
+============
+ * Various improvements and bug fixes:
+  - codegen:
+    + More use of delegate_target_type and delegate_target_destroy_type
+    + Reduce get_delegate_target/get_delegate_target_destroy_notify calls
+    + Don't use inferred type for temp-value to access generic property [#1088]
+    + Update outdated array _size_ variable of captured local-variable [#1090]
+    + Report internal error for unsupported collection type in foreach
+  - vala:
+    + Issue an error on void initializer for local-variable
+    + Allow markup-reader to accept spaces around '=' of attribute assignment
+    + CodeNode.source_reference is optional, so let the API respect that
+    + Use DataType.compatible() to check for string concatenation [#1100]
+  - valadoc: Don't call CodeContext.pop() on empty stack [#1064]
+  - libvaladoc: Don't filter-out generic type-parameters of delegates
+  - libvaladoc/girimporter: Skip "docsection" elements in <namespace>
+  - testrunner: Add "-Werror=return-local-addr" flag
+  - manual: Update from wiki.gnome.org
+
+ * Bindings:
+  - alsa: Fix PcmDevice.set_poll_descriptors_revents() binding [#1092]
+  - curses: Add Terminfo API set, function keycodes F(n) and minor changes
+  - curses: Correctly use [PrintfFormat] attribute
+  - glib-2.0: Add return codes to FileStream.putc/puts(), like posix
+  - glib-2.0: Add GenericArray.find_custom(), variant of find_with_equal_func()
+  - glib-2.0: Improve GenericArray.length property
+  - gio-2.0: Fix binding of Resolver.lookup_service*()
+  - gtk4: Attribute Gsk.ShaderArgsBuilder.free_to_args with DestroysInstance
+  - gtk4: Update to 3.99.4+7551f85d [#1089]
+  - linux: Add missing struct in cname for Spi.IocTransfer
+  - posix: Declare fstat, stat, lstat and fstatat as public [#1086]
+  - posix: Add freopen binding, as FILE.reopen()
+  - rest-0.7: Fix ParamsIter.next() binding
+  - vapi: Update GIR-based bindings
+
+Vala 0.48.11
+============
+ * Various improvements and bug fixes:
+  - codegen:
+    + The actual struct size is required for calloc (POSIX) [#1068]
+    + Don't pass CCodeFunctionCall to NULL-aware free macro
+  - g-i: Fix a couple of C compiler warnings
+  - libvaladoc: Fix a couple of C compiler warnings
+  - testrunner: Pass --enable-checking to increase coverage, Filter external
+    -0X flags to preserve current default -O0
+
+ * Bindings:
+  - gstreamer: Update from 1.18.0+ git master
+  - gtk4: Don't skip LayoutManager.create_layout_child() [#1071]
+  - gtk4: Update to 3.99.1+15b635d7
+  - poppler-glib: Update to 20.09.0
+  - vapi: Update GIR-based bindings
+  - webkit2gtk-4.0: Update to 2.30.1
+
+Vala 0.48.10
+============
+ * Various improvements and bug fixes:
+  - tests: Don't rely on undefined use-after-free behaviour of glibc
+  - Add TraverseVisitor for traversing the tree with a callback
+  - Force usage of temporary variables for "tainted" member accesses [#1061]
+  - vala: Move transformation of unary increment/decrement to codegen
+  - vala: Set parent_node for child nodes of lambda-expression [#1062]
+  - codegen: Don't append unreachable clean-up section of Block [#169] [#838]
+  - codegen: Always include base_struct declaration if available [#464]
+  - vala: Additionally break on ObjectCreationExpression in "tainted" check
+  - vala: Add ObjectCreationExpression.to_string()
+  - manual: Update from wiki.gnome.org
+  - Don't use locale dependent string functions on syntax strings [#1067]
+  - girparser: Additionally fallback to "glib:type-name" to retrieve the cname
+  - libvaladoc/girimporter:
+    + Fallback to "name" for callback
+    + Fallback to "glib:type-name" for class, interface and record
+    + Improve parse_symbol_doc() and don't use parse_doc()
+    + Skip "attribute" elements
+  - libvaladoc/gtkdoc-importer:
+    + Correctly retrieve "url" from "ulink" elements
+    + Don't let parse_block_taglet() return null
+
+ * Bindings:
+  - gstreamer: Update from 1.17.2+ git master
+  - gtk4: Update to 3.99.1
+  - gtk4: Resolve a few conflicts of methods with virtual-methods
+  - pango: Update from 1.46.0
+  - webkit2gtk-4.0: Update to 2.29.91
+
+Vala 0.48.9
+===========
+ * Regression and bug fixes:
+  - codegen: Include header for base-symbols when connecting vfuncs
+  - vala:
+    + Inherit CCode.returns_floating_reference attribute from base [#1053]
+    + Mark tranformed member-access as qualified [#57]
+  - girparser: Add support for string "feature_test_macro" metadata
+  - Revert "girwriter: Use appropriate get_ccode_* functions" [#1059]
+
+ * Bindings:
+  - gio-unix-2.0: Fix "g_unix_mount_for" binding [#1052]
+  - gio-2.0: Include "gio/gsettingsbackend.h" for GLib.SettingsBackend
+    members [#1054]
+  - goocanvas-2.0: Fix some field ownerships and types [#1057]
+  - gstreamer: Update from 1.17.2+ git master
+  - gtk4: Update to 3.99.0+358b698e
+  - pango: Update from 1.45.4+
+  - posix: Add missing "has_typedef" attribute for some delegates
+  - posix: Declare WRDE_APPEND constant as public
+
+Vala 0.48.8
 ===========
  * Various improvements and bug fixes:
   - codegen:
+    + Handle "gtk_param_spec_expression" in get_param_spec()
+    + Properly compare string if binary-expression contains string-literal
+    + Inline allocated and constant arrays are never NULL
+    + Check param for null before using it
+    + Properly destroy elements of an inline struct array [#365]
+  - vala:
+    + Avoid subsequent critical caused by invalid array type for constant
+    + Improve error handling of nested initializer lists
+    + Don't allow "resize" invocation on variable with unowned array type [#928]
+    + Property must be writable when invoking ReturnsModifiedPointer method [#1023]
+    + Recursive check of assignment target to recognize constants [#944]
+    + Return copy of constant type in get_value_type_for_symbol()
+    + Handle parameter initializer without value-type
+    + Fully qualify member-access when using-directive was used to resolve [#57]
+    + Tranform instance member-access to a static one if possible [#270]
+    + Improve check of expression passed to yield
+    + Allow prototype access to signal with emitter
+    + Check error-type accessibility of creation methods and delegates
+  - girparser: Warn about conflicting signals and properties
+  - girparser: Skip 'docsection' elements in <namespace>
+  - girwriter:
+    + Add c:identifier-prefixes to <namespace>
+    + Write c:type="void" when name="none"
+    + Write c:symbol-prefix on supported elements
+    + Don't include symbols outside of a namespace [#241]
+    + Use appropriate get_ccode_* functions
+  - libvaladoc: Support exporting the `class` modifier on methods and fields
+  - Disable deprecation warnings when checking bindings
+  - tests: Fix "methods/extern" test with -Werror=address and gcc 5.4.0
+
+ * Bindings:
+   - glib-2.0: Add AtomicUint, an alternation of AtomicInt for uint [#915]
+   - gstreamer: Update from 1.17.2+ git master
+   - gtk+-3.0: Update to 3.24.21+ffe2df7b
+   - gtk+-3.0: Resolve conflicts of signals with properties
+   - gtk4: Resolve conflict of DropTarget.drop signal with property [#1033]
+   - gtk4: Improve Gtk.ParamSpecExpression binding
+   - gtk4: Fix binding of CClosureExpression ctor [#1024]
+   - gtk4,gtk4-unix-print: Update to 3.98.5+23dcf36e
+   - webkit2gtk-4.0: Update to 2.29.4
+
+Vala 0.48.7
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Improve array-dup-wrapper for empty arrays [#999]
+    + Don't call get_ccode_finish_instance() with non-async methods
+    + Cast initializer-list to struct for non-constant/-array assignment [#1013]
+    + Consistently use get_ccode_lower_case_prefix() for function names [#1008]
+  - vala:
+    + Correctly handle qualified struct type in initializer list [#1004]
+    + Reduce calls of CodeContext.get()
+    + Fix value-type for ArrayCreationExpression used as argument [#1009]
+    + Improve parameter check of "get" method used for foreach [#1017]
+    + Don't carry floating reference into unknown target type expression [#1018]
+  - girparser: Actually respect given cprefix metadata for enumerations
+  - girwriter: Append symbol-attributes to callback field [#1006]
+  - parser: Avoid mitigation for missing token if it follows DOT or
+    DOUBLE_COLON [#987]
+  - libvaladoc/girimporter: Skip "function-macro" elements
+  - build: Update git-version-gen to latest upstream
+  - tests: Build typelib if g-ir-compiler is available
+
+ * Bindings:
+  - gstreamer-audio-1.0: Adjustments for Gst.Audio.Sink class extension
+  - gstreamer: Update from 1.17.1+ git master
+  - gtk+-3.0: Deprecated abstract methods are not required to be implemented
+  - gtk4: Prefix value names of PaintableFlags with "STATIC_" [#1011]
+  - gtk4: Mark optional methods of Gdk.Paintable interface as virtual [#1021]
+  - gtk4: Update to 3.98.5+fca2ba96
+  - harfbuzz-gobject: Update to 2.6.8
+  - pango: Update from 1.45.2
+  - webkit2gtk-4.0: Update to 2.29.2
+  - vapi: Update GIR-based bindings
+
+Vala 0.48.6
+===========
+ * Regression and bug fixes:
+  - codegen:
+    + Correctly handle cast-expression of real struct to nullable struct [#991]
+    + Use loop index instead of get_ccode_pos() for ellipsis parameter [#995]
+  - vala:
+    + Allow node_ref being null in SemanticAnalyzer.get_instance_base_type()
+    + SemanticAnalyzer.get_instance_base_type() is not allowed to return null
+    + params-array parameter is not allowed in abstract/virtual method [#985]
+    + Use stable hash for methods in HashMap of implicit_implementations [#990]
+      and Use "str_equal" as equal_func for ArrayList<string> instances
+    + Set value_type of undefined member-access to avoid further criticals
+    + Transform cast from floating-type to boxed-type [#991]
+    + Transform cast from integer-type to boxed-type [#992]
+    + Explicit "new" method may be incompatible with a posssible base method
+  - valadoc: Add implicit "Posix" using-directive for POSIX profile
+  - girparser: Add support for boolean "new" argument for methods
+
+ * Bindings:
+  - gtk4: Update to 3.98.3+028942c8
+
+Vala 0.48.5
+===========
+ * Regression and bug fixes:
+  - Revert "vala: Set default_construction_method in semantic-analyzer check
+    if required" [#982]
+  - tests: Fix make dist
+
+Vala 0.48.4
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Fix binary 'in' operator on array with boxed value-typed needle [#951]
+    + Use get_value_*_function() in GSignalModule.generate_marshaller() [#468]
+    + Correctly handle signals returning real non-nullable struct [#466]
+    + Use specified indices to access multidimensional array constants [#905]
+    + Fix base-access to non-abstract/non-virtual properties [#204]
+    + Fix default of CCode.pos for parameters in async methods
+  - vala:
+    + Set default_construction_method in semantic-analyzer check if required
+    + Fix cleaning of output in CodeContext.pkg_config_modversion()
+    + Don't use possibly uninitialized backing field of package_name [#971]
+    + Add SourceReference.contains() and SourceLocation.to_string()
+    + Check assigned handler of dynamic signal before proceeding further
+    + Don't perform version check on internal lambda method
+    + Perform version check for types of non-external variable declarations
+    + Quote symbol on report by version attribute check
+    + Ensure non-empty argument list for "disconnect" before accessing it
+  - girparser
+    + Move special handling for certain parameters to process_callable()
+    + Drop special handling of GLib.Data, GLib.PtrArray and GLib.String
+    + Improve detection of AsyncReadyCallback/AsyncResult parameters [#340]
+  - parser: Handle incomplete expression statements
+
+ * Bindings:
+  - gio-2.0: Add "async_result_pos" attributes to *.call_with_unix_fd_list()
+    [#340]
+  - glib-2.0: Fix Filename.canonicalize() binding of g_canonicalize_filename
+  - glib-2.0: Guard Pid.to_string() with GLIB_2_50 to deal with G_PID_FORMAT
+  - gstreamer-app-1.0: Don't merge Src.push_buffer_*() signal with its method
+    [#968]
+  - gstreamer-1.0: Don't skip GST_*_FORMAT strings [#970]
+  - gtk4: Update to 3.98.3
+  - vapi: Update GIR-based bindings
+
+Vala 0.48.3
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Append initializer for "_*_size_" of array field in internal struct
+    + Avoid critical trying to serialize an unsupported type to Variant [#952]
+    + Don't free value if property setter takes ownership [#953]
+    + Correct field declaration for captured inline-allocated array [#954]
+    + Include "glib.h" for G_BEGIN_DECLS/G_END_DECLS usage
+    + Correctly handle transformation of translated string-literal constants
+    + Don't pass CCodeCastExpression to NULL-aware free macro [#953]
+  - vala:
+    + Support struct initializer list in non-constant array [#949]
+    + Handle unlock() statement in CodeWriter
+    + Handle all ctors and dtors in CodeWriter
+    + Consider boolean types are compatible with each other
+    + Parse standalone integer/real literals as expression statement [#961]
+    + Warn about usage of override to implement abstract interface methods
+
+ * Bindings:
+  - gio-2.0: Update to 2.65.0~a136776e
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.98.2+11495027
+
+Vala 0.48.2
+===========
+ * Various improvements and bug fixes:
+  - vapigen: Define "GOBJECT" corresponding to set profile of CodeContext [#933]
+  - codegen:
+    + Reset outdated array _size_ variable after use as ref parameter [#929]
+    + Emit postconditions before free'ing local variables
+    + Correctly access captured parameter in precondition of method [#144]
+    + Use correctly typed array-length variable for property-getter
+    + Use correctly typed array-length variable for delegate invocation
+    + Inherit "array_length_type" from (base-) parameter/property/method [#938]
+    + Improve handling of "array_length_type" attribute [#938]
+    + Use memset to init inline-allocated array with non-constant size [#910]
+    + Initialize temp-var for property array length before calling getter
+    + Include "glib.h" for g_return_*() usage [#940]
+  - vala:
+    + Use error() instead of Report.error() inside of CodeContext.get()
+    + Accept enum-values as length for inline allocated arrays [#935]
+    + Improve copy of required attributes from delegate to lamdba method
+    + Inherit lambda parameter attributes from delegate
+    + Inline-allocated array aren't instantiated with creation expression [#926]
+  - valadoc: Create and register current Vala.CodeContext properly
+  - parser: Improve error message for invalid ArrayCreationExpression [#939]
+  - tests: Drop usage of "--main main" and avoid ambigious entry-points
+  - manual: Update from wiki.gnome.org
+
+ * Bindings:
+  - Add cairo-gobject binding
+  - cairo: Add missing type_id attributes guarded by GOBJECT define
+  - glib-2.0: Add binding for g_poll() [#924]
+  - glib-2.0: Add binding for g_win32_ftruncate()
+  - glib-2.0: Add missing IOChannel's win32 API
+  - gio-2.0: Add binding for g_io_error_from_win32_error()
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.98.1
+  - posix: Add pathconf and fpathconf bindings
+  - vapi: Update GIR-based bindings
+
+Vala 0.48.1
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Replace hard-coded "gsize" with resolved "size_t"
+    + Add destroy of parameter in vfunc of delegate property setter [#919]
+    + Inherit "array" attributes from (base/-interface) property
+    + Inherit "delegate_target" from (base/-interface) parameter/property/method
+    + Actually respect "delegate_target" attribute of method/parameter
+    + Move ObjectTypeSymbol casting to GTypeModule
+    + Factor out GValueModule and GLibValue into a separate source-files
+    + Avoid symbol clashes with "va_*" from "stdarg.h"
+  - vala:
+    + Fix search for Parameter.base_parameter
+    + Real struct-type without type_id can't be used for GObject property [#921]
+  - codewriter: Output inner interface declarations [#918]
+
+ * Bindings:
+  - glib-2.0: Add missing "type_id"/"has_type_id" attributes to structs [#921]
+  - glib-2.0: Memory profiling ("g_mem_*") is deprecated since 2.46
+  - linux: Don't depend on GLib.Time when using POSIX profile
+  - gtk4: Update to 3.98+2da445f9
+  - poppler-glib: Update to 0.85
+  - vapi: Update GIR-based bindings
+
+Vala 0.48.0
+===========
+ * Various improvements and bug fixes:
+  - vala:
+    + Fix circular reference in Property/EnumValueType
+    + Report an internal error for unavailable context and bail
+    + Prevent possible stack-overflow in Class.is_subtype_of()
+  - Add missing CodeContext.pop() calls
+  - codegen: Add more "low-level" includes of "glib.h"
+  - girparser: Decrease return_array_length_idx for transformed function
+  - girparser: Delay adding of "GLib.Object" prerequisite to interfaces
+  - manual: Update from wiki.gnome.org
+
+ * Bindings:
+  - vapi: Update GIR-based bindings
+
+ * Contributors:
+   Alberto Fanjul, Arnaud Bonatti, Corentin Noël, Evan Nemerson, Florian Brosch,
+   Jeremy Philippe, Michael Gratton, Ole André Vadla Ravnås, Princeton Ferro,
+   Rico Tzschichholz, Simon Werbeck
+
+Vala 0.47.92
+============
+ * Various improvements and bug fixes:
+  - Add support for sealed classes in bindings [#278]
+  - codegen: Don't initialize stack-allocated array with local-constant
+    length [#910]
+  - vala: Improve robustness of analyzer pass for language-servers [#911]
+  - vala: Add local-variables to current scope regardless its error state
+  - testrunner: Pass G_DEBUG=fatal-warnings to invalid test
+
+ * Bindings:
+  - Add some fundamental deps files to improve --nostdpkg support [#911]
+
+Vala 0.47.91
+============
+ * Various improvements and bug fixes:
+  - vala:
+    + Fix base-access check for compact classes (2)
+    + Don't ignore errors in Parameter and acknowledge them further
+    + Properly set CodeNode.error when reporting an error
+  - girparser: Report a warning for conflicting class and instance methods
+  - testrunner: Invalid tests and therefore expected failures must return 1
+  - manual: Update from wiki.gnome.org
+
+ * Bindings:
+  - Add harfbuzz-gobject binding [#909]
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk+-*.0,gtk4: Fix iter parameter of TextIter.order() [#908]
+  - gtk4: Update to 3.98.0+410dbdf6
+  - pango: Update and add harfbuzz-gobject as dependency
+  - webkit2gtk-4.0: Update to 2.27.90
+
+Vala 0.47.4
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Skip StructRegisterFunction for boolean/integer/floating types [#901]
+    + Handle different type-symbols in visit_base_access() [#901]
+    + Explicitly include header for length-type of arrays
+    + Explicitly include <glib.h> as needed for null-literal
+    + Make *_try_id specific to emit-context instead being global states
+  - vala:
+    + Improve detection of recursive struct declarations [#902]
+    + Inline allocated arrays require length or initializer [#903]
+  - parser: Improve robustness and behavior of --keep-going
+
+ * Bindings:
+  - javascriptcoregtk-4.0: Make JSC.Class usable by defining the right callback
+  - gtk4: Update to 3.96.0+4ab12ab7
+  - vapi: Update GIR-based bindings
+
+Vala 0.47.3
+===========
+ * Highlights:
+  - Add further support for params arrays [#128]
+
+ * Various improvements and bug fixes:
+  - codegen:
+    + Don't set implemenation of interface property to its own [#891]
+    + Use result value of assignment rather than its computation [#895]
+    + Cast instance parameter in member-initializer for base-properties [#899]
+  - vala:
+    + Infer target_type in coalescing expressions [#892]
+    + Non-nullable value-type in coalesce expression needs to be copied [#893]
+    + Fix short-circuiting behavior of coalescing operator [#534]
+    + Always bail if there are semantic errors
+  - girparser: Apply explicitly given ctype metadata attributes on callables
+
+ * Bindings:
+  - glib-2.0: Let (u)int.try_parse() return false if there is an unparsed part
+  - gtk4: Update to 3.96.0+7e2e92a8
+  - gstreamer: Update from 1.17.0+ git master
+  - vapi: Update GIR-based bindings
+  - webkit2gtk-4.0: Update to 2.27.4
+
+Vala 0.47.2
+===========
+ * Highlights:
+  - compiler: Add "--depfile" option writing package dependencies to given file
+
+ * Various improvements and bug fixes:
+  - codegen:
+    + Fix support of dynamic DBus methods
+    + Fix vfunc signature of delegate-typed property in interface
+    + Fix precondition in creation method of structs
+    + Remove unreachable code in TypeRegisterFunction.init_from_type()
+    + Improve *_get_type() fast path (requires glib >= 2.58) [#879]
+  - vala:
+    + Report error for async creation expression without yield
+    + Don't require constant initializer in fast-vapi [#461]
+    + VoidType is actually compatible with itself [#878]
+    + Improve handling of "void" as generic type [#878]
+    + Keep formal_target_type on transform of method-call/object-creation [#835]
+    + Add a basic parameter check for [Print] methods
+    + Let the parser have set namespace members as static
+    + Don't ignore inner errors in Block and acknowledge them further
+    + Improve error message for unsupported inner types and declarations
+    + Don't allow "va_list" as return-type or type of fields [#884]
+    + Check before accessing "name" of parent_symbol which might be null
+    + Allow to override base interface properties explicitly
+  - gidl/girparser: Creation methods must not be marked as static
+  - parser: Implicit "main" method of main-block is public and static
+  - scanner: "\x" requires two hex digits at most
+  - scanner: Improve check of "\u" escape sequence
+  - genie: Fix parser's inner state when a struct is declared after a class
+
+ * Bindings:
+  - glib-2.0: Add to_string() for GLib.PollFd and GLib.Pid
+  - glib-2.0: Add new symbols from 2.64
+  - glib-2.0: Reset errno before calling strto*() functions.
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.96.0+448a4023
+  - pango: Update to 1.44+
+  - vapi: Update GIR-based bindings
+  - webkit2gtk-4.0: Update to 2.27.3
+
+Vala 0.47.1
+===========
+ * Highlights:
+  - Various improvements for the POSIX profile
+  - codegen:
+    + Allow passing/retrieving any delegate to/from varargs parameter
+    + Support gobject property of null-terminated array without length [#855]
+    + Support gobject property of delegates not carrying their target [#856]
+    + Warn when directly accessing member of silent cast-expression
+  - vala:
+    + Add DelegateType.target/destroy fields to access its user-data [#857]
+    + Accept interface as inner type for object-type symbols [#697]
+    + Add GenericType.dup/destroy fields [#190]
+    + Support "unowned var" to declare local variables [#152]
+  - compiler: Add "--list-sources" options to output list of all sources [#872]
+
+ * Various improvements and bug fixes:
+  - codegen:
+    + Move type-argument checks to SemanticAnalyzer
+    + Make CCodeBaseModule.generate_method_declaration() return bool
+    + Fix custom reference-counting for compact classes
+    + G_DEFINE_AUTOPTR_CLEANUP_FUNC must not declared more than once
+    + Use SemanticAnalyzer.get_data_type_for_symbol()
+    + Commonize the determining of return-type for delegates and methods
+  - vala:
+    + Rename DataType.data_type property to DataType.type_symbol
+    + Unify backing symbol instance of data-types
+    + Respect --abi-stability in Class/Interface.accept_children()
+    + Don't mark method as used on recursive usage of itself [#100]
+    + Set GLib.Error as symbol of error-types if no error-domain was given
+    + Make Callable derive from Symbol
+  - libvaladoc: Remove TypeReference.pass_ownership API
+  - valadoc: Rename FormalParameter to Parameter
+  - girwriter: Fix position of priv field (--abi-stability) [#850]
+
+ * Bindings:
+  - glib-2.0: Add binding for "gettext()" [#864]
+  - glib-2.0: Add new symbols from 2.64
+  - glib-2.0: Add optional "base" parameter to *.parse/try_parse() of integers
+    and check errno for EINVAL and ERANGE in *.try_parse() [#223]
+  - glib-2.0: Add (u)int.try_parse() [#649]
+  - glib-2.0: Add "has_typedef = false" to custom MarkupParser*Func delegates
+  - gtk+-*.0: Fix iter parameter of TextBuffer.backspace()
+  - gtksourceview-2.0: Fix iter parameter in SourceBuffer.backward/forward/...
+  - libusb-1.0: Use a wrapper for Context.get_device_list() [#151]
+
+Vala 0.46.4
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Use G_TYPE_INSTANCE_GET_INTERFACE to get vtable for base-access
+    + Fix setting of generic-type properties for gobject chain up [#654702]
+    + Make type-parameter properties readable [#190]
+    + Reduce code duplications when generation base-access
+  - vala:
+    + Warn when passing arrays to typeof(), except for "string[]" [#868]
+    + Don't falsely resolve binary-expression to bool [#869]
+    + Do not allow += for arrays with fixed length
+    + Infer array length of inline allocated arrays for fields [#644046]
+    + Do not allow to .resize() on arrays with fixed length
+    + Do not allow to change .length of arrays with fixed length
+    + Improve error message for arrays as type arguments
+    + Improve error reporting for invalid interface prerequisites [#437]
+    + Write value of constants/enums in fast-vapi if constant only [#461]
+    + Restore DestroysInstance behaviour for non-compact classes [#873]
+  - parser: `owned` is not allowed on Constants
+  - girparser: Detect and replace "-" in parameter names
+  - girwriter: Add readable="0"/private="1" attribute to type-specific fields
+  - gidl:
+    + Calculate size correctly, avoid use-after-free
+    + Avoid use of uninitialized "markup" warning
+    + Ignore flags like -mfpmath=sse, -msse or -msse2
+  - valadoc:
+    + libvaladoc: Fix parameter and property ownership declarations
+    + Fix ownership declarations of Constants
+  - pkg-config:
+    + vala: Add missing gmodule-2.0 to Requires.private of pkg-config file
+    + libvaladoc: Move gmodule-2.0 to Requires.private of pkg-config file
+
+ * Bindings:
+  - glib-2.0: Guard against passing null source to GLib.Memory.copy()
+  - gio-2.0: Use custom TaskReadyCallback delegate in Task.report*_error()
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk+-3.0: Skip _MountOperationHandler* symbols
+  - gtk4,gtk4-unix-print: Update to 3.96.0+ab407ba5
+  - libusb-1.0: Don't depend on glib-2.0
+  - libusb-1.0: Remove unused private "malloc" binding
+  - linux: Add memfd_create(2)
+  - posix: Bind some essential memory allocation functions
+  - webkit2gtk-4.0: Update to 2.27.2
+
+Vala 0.46.3
+===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + Accept children after generating type specific declarations
+    + Preserve full access to delegate variables and its target/destroy cvalues
+    + Initialize delegate temp-var which is assigned by property getter
+    + Silence warning about copying if delegate doesn't carry its target
+    + Use gtype-boxed API for structs with "g_boxed_free" attribute [#863]
+  - ccode: Implicitly register declaration for added CCodeFunction
+  - vala: Fix compatible/disposable check between structs and their subtypes
+  - vala: Don't issue a warning for non-public struct fields in bindings
+  - girparser: Add required copy/free attributes for gtype-boxed structs
+    and regenerate GIR-based bindings to pick up copy/free attributes [#863]
+  - docs: Mention requirement of autoconf-archive as build-dependency
+  - vapi: Perform syntax and semantic check for all bindings on "make check"
+
+ * Bindings:
+  - avahi-client: Fix "use of possibly unassigned parameter" warnings
+  - glib-2.0: Set default_value attribute for GLib.pointer
+  - gnutls: Fix "use of possibly unassigned parameter" warnings
+  - tokyocabinet: Fix deprecation warnings
+  - xcb: Fix "missing return statement at end of subroutine body" errors
+
+Vala 0.46.2
+===========
+ * Various improvements and bug fixes:
+  - vala:
+    + Report dedicated error message for params-array parameter mismatch
+    + Output "params" qualifier of parameters
+    + Allow to override virtual interface implementations [#852]
+    + Perform stricter compatibility check for delegates
+  - codegen: Directly use "memmove()" while g_memmove() is deprecated
+  - valadoc: Explicitly pass --pkg libgvc
+  - tests: Add more tests to increase coverage
+
+ * Bindings:
+  - gio-unix-2.0: Fix DesktopAppInfo.get_string(), UnixFDMessage.steal_fds()
+  - glib-2.0: DateTime.from_iso8601() can take a null TimeZone
+  - gobject-2.0: Some cherry-picking from GIR generated binding
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.96.0+bcea9652
+  - gtk4: Constructors of Gtk.MediaFile needs to be static functions
+  - sqlite3: Fix use of possibly unassigned parameter `errmsg'
+
+Vala 0.46.1
+===========
+ * Regression and bug fixes:
+  - vala: Run FlowAnalyzer on all given source-files [#843]
+  - valadoc: Explicitly pass --pkg libvala@PACKAGE_SUFFIX@ as for doclets/tests
+
+ * Bindings:
+  - gio-unix-2.0: Add UnixMountEntry.get_root_path() since 2.60
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.96.0+97231ca2
+  - gtk+-3.0: Ownership mismatch of ColorButton.rgba property-accessor [#844]
+  - vapi: Update GIR-based bindings
+
+Vala 0.46.0
+===========
+ * Highlights:
+  - Add boolean CodeContext.keep_going and corresponding compiler option
+
+ * Various improvements and bug fixes:
+  - vala:
+    + Move find_parent_type_symbol/get_this_type() to SemanticAnalyzer
+    + Exclude nullable simple-type structs from gobject-property support
+    + Reject unary operations on nullable integer/floating/boolean type [#772]
+  - codegen:
+    + Don't append unreachable clean-up section of Block [#838]
+    + Don't cause double-free due append_local_free() in uncaught-errors [#838]
+    + Don't unconditionally add/return internal "result" variable [#838]
+  - codewriter: Write "weak" modifier for properties
+  - girparser: Improve evalution of instance-parameter information [#836]
+    (Regenerate GIR-based bindings to pick up out/ref instance-parameters)
+  - girparser/gidlparser: "value_owned = true" by default for property types
+  - libvaladoc: Don't traverse into close circles with parent [#829]
+  - genie: Creation methods should not be static
+
+ * Bindings:
+  - glib-2.0: Fix MutexLocker binding
+  - glib-2.0: Add missing "DestroysInstance" attributes to Mutex/Locker API
+  - glib-2.0: Use 'GStatBuf' as ctype for 'Stat'
+  - glib-2.0: Add new symbols from 2.62
+  - gio-2.0: Drop metadata for NativeSocketAddress
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Regenerate to pick up DestroyInstance attributes
+  - json-glib-1.0: Change abstract methods of Serializable to virtual [#840]
+  - libsoup-2.4: soup_auth_new is not a constructor but a factory method [#791]
+  - vapi: Update GIR-based bindings
+
+Vala 0.45.91
+============
+ * Various improvements and bug fixes:
+  - vala: Init formal_target_type of built ArrayCreationExpression from
+    InitializerList [#835]
+  - vala: Add missing closing brace/bracket in to_string() of
+    ArrayCreationExpression and InitializerList
+
+ * Bindings:
+  - cairo: Add 1.16 symbols
+  - linux: Add more Input and update UserspaceInput bindings [#830]
+  - sqlite3: Bind sqlite3_expanded_sql() and sqlite3_normalised_sql()
+
+Vala 0.45.90
+============
+ * Various improvements and bug fixes:
+  - vala:
+    + Support static methods in error-domains [#829]
+    + Fix mixup of target_glib_major/minor in set_target_glib_version() [#825]
+    + Implicit GValue cast requires GOBJECT profile
+    + NoAccessorMethod checks require GOBJECT profile
+    + 'construct' is not supported in POSIX profile
+  - codegen:
+    + Use G_TYPE_CHECK_INSTANCE_CAST for comparisons with interfaces
+    + Append line-break after G_DEFINE_AUTOPTR_CLEANUP_FUNC
+    + Move private type-struct to type-definition section
+    + Include required type-definition when casting from generic pointer [#828]
+  - girparser: Handle "function-macro" by skipping them [gi#159]
+  - valadoc: Install icons and doclets to API dependent folders
+
+ * Bindings:
+  - glib-2.0: Add new symbols and deprecations from 2.62
+  - glib-2.0: Add MappedFile.from_fd constructor [#824]
+  - gstreamer: Update from 1.17.0+ git master
+  - posix: Fix return-value of mknod() and c-include for tcgetsid()
+  - posix: Add *at() calls and related constants [#823]
+  - webkit2gtk-4.0: Fix WebContext.initialize_notification_permissions()
+  - x11: Fix return type of XInternAtoms and XGetAtomNames bindings
+  - vapi: Update GIR-based bindings
+
+Vala 0.45.3
+===========
+ * Various improvements and bug fixes:
+  - vala: Add Symbol.is_extern and use/set is accordingly (#745)
+  - codegen:
+    + Don't write declaration of extern symbols with given header (#745)
+    + Real structs are allowed by simple generics and passed as reference (#819)
+    + Assign GValue result of function calls to temp-var on copy_value (#819)
+  - build: Pass -no-undefined when linking libvalaccodegen (#820)
+
+ * Bindings:
+  - glib-2.0: Add binding for g_strv_equal() (since 2.60)
+  - glib-2.0: Bind strcmp0 as GLib.CompareFunc<string?> (#810)
+  - glib-2.0: Fix RecMutexLocker binding
+  - glib-2.0: Add new symbols from 2.62
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.96.0+b05d1676
+  - xtst: Fix signature of XTest.fake_relative_motion_event()
+  - vapi: Update GIR-based bindings
+
+Vala 0.45.2
+===========
+ * Various improvements and bug fixes:
+  - Only warn about imcompatible type of external construct property [#803]
+  - codegen: Use array_length of collection variable instead of expression
+  - girparser: Skip 'attribute' elements
+  - girwriter: Report error on secondary top-level namespace [#805]
+  - genie: Drop unused "writeonly" token
+  - genie: Make 'self' match its TokenType name
+  - tests: Null-terminate arrays for compatibility test of uint8 / uchar [#809]
+
+ * Bindings:
+  - gmodule-2.0: Build from GIR
+  - glib-2.0: Add Unicode 12.0 symbols
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk+-3.0: Update to 3.24.9~18177388
+  - gtk4: Update to 3.96.0+8cfdd6c5
+  - webkit2gtk-4.0: Update to 2.25.1
+  - vapi: Update GIR-based bindings
+
+Vala 0.45.1
+===========
+ * Highlights:
+  - Require and target GLib >= 2.48 [#671]
+  - Add support for --target-glib=auto [#761]
+  - Report error for public creation methods of abstract classes [#766]
+  - Report error for yield statements without async context
+  - Write "Source" attribute in fast-vapi mode
+  - No-accessor struct properties in GLib.Object class must be owned
+  - Support GObject properties with nullable GType-based struct type [#792]
+  - Always use G_TYPE_CHECK_INSTANCE_TYPE for external symbols
+  - valadoc: Drop obsolete "Driver" API
+
+ * Various improvements and bug fixes:
+  - parser: Multiple corrections for source-location of code-nodes
+  - build: Pass some useful G_LOG_DOMAIN definitions
+  - girwriter: Mention that this file is generated and not meant to be modified
+  - girwriter: Properly resolve GLib.TypeInterface instead of hardcoding it
+  - girwriter: Multiple improvements and fixes for e.g. GType classes
+  - girparser: Add support for string "ctype" metadata [#793]
+  - codegen: Move GObject property validity checks to SemanticAnalyzer
+  - When freeing local variables don't stop at "switch" on "continue" [#799]
+  - compiler: Add OptionFlags.NO_ARG to deprecated "--thread" option
+
+ * Bindings:
+  - Remove vte, vte-2.90 bindings [#584]
+  - Rename graphene-1.0 to graphene-gobject-1.0
+  - glib-2.0: Don't annotate dedicated GLib.assert_*() functions with [Assert]
+    [#769]
+  - clutter-1.0: Bind Margin, PaintVolume, Point, Rect and Size as struct [#795]
+  - cogl-1.0: Fix out-params in Cogl.get_modelview_matrix/projection_matrix/
+    bitmasks [#794]
+  - gstreamer: Update from 1.17.0+ git master
+  - gtk4: Update to 3.96.0+322507f2
+  - vapi: Update GIR-based bindings
+
+Vala 0.44.3
+===========
+ * Regression and bug fixes:
+  - codegen: Always assign original variable when consuming instance to destroy
+    [#781]
+  - build: Require --with-cgraph configure flag when cross-compiling [#775]
+
+ * Bindings:
+  - gdk-3.0,gtk+-3.0: Update from 3.24.7+
+  - gtk4: Update to 3.94.0+2594593d
+  - gstreamer: Update from 1.15.2+ git master
+  - pango: Fix StringBuilder parameter of scan_word()
+
+Vala 0.44.2
+===========
+ * Various improvements and bug fixes:
+  - ccodegen:
+    + Resolve generics in sizeof-expression of parameter initializer
+    + Move implicit GValue cast for comparison to BinaryExpression [#585063]
+    + Use available *_unref functions in G_DEFINE_AUTOPTR_CLEANUP_FUNC
+    + Move get_type_signature() to DataType
+    + Move try_cast_variant_to_type() to GVariantModule.visit_cast_expression()
+    + Don't create special GArray clear-func for non-null structs
+    + Implement silent-cast for GLib.Variant [#767]
+  - vala: Variadic parameters are not supported for async methods
+  - vala: Report error for unsupported operator instead of assertion
+  - girparser: Create correct output in get_default_lower_case_suffix() [#778]
+  - libvaladoc: Handle missing Content.List.Bullet.ORDERED in switch
+  - libvaladoc: Handle missing Run.Style.NONE in switch
+  - Add explicit "default: break;" statements for coverage of enum-typed switch
+
+ * Bindings:
+  - glib-2.0: Don't annotate dedicated GLib.assert_*() with [Assert] [#769]
+  - gio-2.0: Revert enum-typed flags parameters in Socket API [glib!728]
+  - gobject-introspection-1.0: Fix TypeInfo and TypeTag method references
+  - gstreamer: Update from 1.15.2+ git master
+  - gstreamer-1.0: Fix TypeFind and TypeFindFactory method references [#778]
+  - gtk4: Update to 3.94.0+f273eca7
+  - vapi: Update GIR-based bindings
+
+Vala 0.44.1
+===========
+ * Various improvements and bug fixes:
+  - ccodegen:
+    + Use unsigned default value for flags-enum
+    + Use guint to represent flags-enum in custom GMarshalFunc
+  - Move disconnect error from signal-module to semantic-analyzer pass
+  - Mark defined constructors of abstract classes as protected
+  - parser: Implicit creation method of abstract classes must be protected
+  - vala: Allow assignment of 0U to enum types
+  - libvaladoc: Don't try to create a Content.ListItem when there is none
+
+ * Bindings:
+  - gio-2.0: SocketAddress.from_native() is a factory method not a constructor
+  - glib-2.0: Add string.validate_len() since 2.60
+  - gstreamer: Update from 1.15.2+ git master
+  - gtk4: Update to 3.94.0+f14d998c
+  - libgvc: Some additions and ownership/return-type fixes
+  - vte-2.90: Mark as deprecated, it was replaced by vte-2.91
+  - vapi: Update GIR-based bindings
+
+Vala 0.44.0
+===========
+ * Various improvements and bug fixes:
+  - parser: Adjust various source references
+  - vala: More regular invocations of check() on inferred Expression.value_type
+
+ * Bindings:
+  - gstreamer: Update from 1.15.2+ git master
+  - gtk4: Update to 3.94.0+eacbeb9e
+  - vapi: Update GIR-based bindings
+
+Vala 0.43.92
+============
+ * Various improvements and bug fixes:
+  - codegen:
+    + Allow to associate CCodeFile to actual SourceFile
+    + Only emit declaration of *_register_type if needed
+    + Add get_variable_array_length_cname() and use as possible
+    + Respect array_length_cname attribute for global fields
+    + Replace gvaluecollector_h_needed with dedidated add_include() calls
+    + Respect finish[_vfunc]_name attributes defined in vala sources
+    + Include "glib-object.h" for typeof expression
+  - vala:
+    + Correctly perform compatibility check of array length-type [#607]
+    + Don't ignore qualified parent when inferring type of enum member [#666035]
+  - girwriter:
+    + Support transfer-ownership="container" for arrays
+    + Always use get_gir_name() for TypeSymbols
+  - testrunner: Add support for Genie source files (.gs)
+  - tests: Add some Genie tests to increase coverage
+  - genie: Allow main function "init" to return integer as exit status [#402]
+
+ * Bindings:
+  - gobject-2.0: Add SignalHandler.disconnect_by_data()
+  - poppler-glib: Update to 0.74
+  - gtk4: Update to 3.94.0+b4ae491b
+  - vapi: Update GIR-based bindings
+
+Vala 0.43.91
+============
+ * Various improvements and bug fixes:
+  - Revert "valadoc: Drop duplicated code to add source files and use
+    CodeContext API" and "valadoc: Update API tests" (#748)
+  - valadoc: Report warning if resources for doclet could not be copied
+  - libvaladoc: Properly support the output of async constructors (#753)
+  - girparser: Correctly set array_length_type for delegates returning an array
+  - Revert "vala: Don't replace assignments for local variables with non-null
+    simple-types" (#755)
+
+ * Bindings:
+  - Follow GTK upstream rename to gtk4 and gtk4-unix-print
+  - gtk4,gtk4-unix-printer: Update to 3.94.0+02e856f6
+  - gtk+-unix-print-*.0: Fix PrintJob.get_page_ranges(),
+    Printer.get_hard_margins()
+  - atk-1.0: Adjust for upstream revert of Implementor using G_DEFINE_INTERFACE
+  - clutter-1.0: Drop deprecated from Actor.pick() (#625)
+  - glib-2.0: Add "delegate_target = false" to Log.writer_journald/
+    _standard_streams/_default
+  - gio-unix-2.0: Add DesktopAppInfo.get_string_list() since 2.60
+  - gstreamer: Update from 1.15.1+ git master
+  - webkit2gtk-4.0: Update to 2.23.91
+  - vapi: Update GIR-based bindings
+
+Vala 0.43.90
+============
+ * Various improvements and bug fixes:
+  - codegen: Replace some unfortunate asserts with internal error reports
+  - codegen: Properly handle and catch inner-error of finally-block (#742)
+  - codegen: Pass lambda expression of variable initializer to signal connect
+  - vala: Check inferred variable_type of LocalVariables
+  - vala: Parser doesn't ensure "protected" to be applied on TypeSymbol members
+  - libvaladoc: Don't change the size of an array in-parameter
+  - g-i: Fix return value on error in start_discriminator()
+
+ * Bindings:
+  - Add goocanvas-2.0 bindings (#739)
+  - gdk-3.0: Update to 3.24.4+a0129f55
+  - glib-2.0: Bind g_log_writer_journald/_standard_streams/_default as
+    LogWriterFunc (#559)
+  - goocanvas: Update from 1.0.0+af07af5d
+  - gstreamer: Update from 1.15.1+
+  - gtk+-4.0: Update to 3.94.0+a7fa1cf6
+  - vapi: Update GIR-based bindings
+
+Vala 0.43.6
+===========
+ * Various improvements and bug fixes:
+  - codegen: Don't apply address-of operator on literals when casting to array
+  - vala: Don't tweak closure on static lambdas [#740]
+  - Revert "codegen: Use copies of error_variable of catch-clauses for nested
+    usage" and add asynchronous "catch-error-scope" regression test [#741]
+  - libvaladoc: Build backing Vala.SourceFile for GIRs processed by importer
+  - libvaladoc/girimporter: Skip "source-position" elements
+  - genie: Support "protected" accessibility and allow explicit "public" [#346]
+
+ * Bindings:
+  - gst-editing-services-1.0: Fix some construtors and (un)hide symbols
+  - javascriptcoregtk-4.0: Fix GLib.Callback parameters which can't hold target
+
+Vala 0.43.5
+===========
+ * Various improvements and bug fixes:
+  - vala:
+    + Use dedicated error message for assignments to literals
+    + Async methods don't allow out-parameters before in-parameters [#636]
+    + Allow direct access to the integer constants of an error-domain [#732]
+    + Multiple lamdba arguments in method call should all use same scope [#59]
+  - codegen:
+    + Use a parameter-map for creation of delegate declaration [#728]
+    + Add "error_pos" CCode attribute and use it as needed [#728]
+    + Emit struct declaration typedef before resolving its fields [#318]
+    + Add "destroy_notify_cname" CCode attribute
+    + Use get_ccode_*name/get_parameter_cexpression() for Parameters
+    + Set owner for ValaDestroyNotify (POSIX) [#730]
+    + Include "stddef.h" in CCodeBaseModule.destroy_value() (POSIX) [#730]
+  - girparser: Recognize error parameter before delegate target parameter [#265]
+  - compiler: Report deprecated command-line option "--thread"
+  - valadoc: Specify that the "--driver" option is deprecated [#736]
+
+ * Bindings:
+  - atk: Don't use a custom SignalEmissionHook while it is part of gobject-2.0
+  - gdk-pixbuf-2.0: Make PixbufSaveFunc usable [#728]
+  - gio-2.0: Make DBusInterface[GS]etPropertyFunc usable [#728]
+  - gio-2.0: Add CancellableSource ctor and update PollableSource ctors
+  - glib-2.0: Add Queue.clear_full() since 2.60
+  - gstreamer: Update from 1.15+ git master
+  - gdk-3.0,gtk+-3.0: Update to 3.24.3+9c8f1478
+  - gtk+-4.0: Update to 3.94.0+9b15c690
+  - libsoup-2.4: Fix Message.add_*_handler() [#731]
+  - vapi: Update GIR-based bindings
+
+Vala 0.43.4
+===========
+ * Various improvements and bug fixes:
+  - vala:
+    + Array with fixed length don't require explicit instantiation (#720)
+    + Add GenericType.get_actual_type()
+    + Allow get_actual_type() to be used for expected failures
+    + Add Method.compatible_no_error()
+    + Don't just guess and check for a matching base_interface_method (#548)
+    + Search in all interfaces for an implementation match (#548)
+    + Allow explicit interface methods to be virtual (#548)
+    + Report invalid instance member access to property (#605)
+  - codegen:
+    + Use properly checked implicit interface implementations (#548)
     + Use temp-var for MethodCall with out/ref arguments (#722)
     + Use temp-vars for ellipsis out-arguments to fix memory management (#722)
     + Add default_value for CType to initialize variables if needed (#724)
     + Cast instance parameter for property access in object-initializer
     + Don't check boolean values for (in)equality in GTask API (#726)
+    + Add missing data parameter to GTypeInfo callbacks
     + Properly set annotations field of GDBus*Info struct to NULL
     + Cast instance and result of g_async_initable_new_finish() call
-    + Use a parameter-map for creation of delegate declaration [#728]
-    + Emit struct declaration typedef before resolving its fields [#318]
-    + Don't apply address-of operator on literals when casting to array
-  - vala: Report invalid instance member access to property (#605)
-  - girparser: Async methods don't allow out-parameters before in-parameters
-  - libvaladoc: Build backing Vala.SourceFile for GIRs processed by importer
-  - libvaladoc/girimporter: Skip "source-position" elements
-  - valadoc: Specify that the "--driver" option is deprecated [#736]
-  - compiler: Report deprecated command-line option "--thread"
+  - valadoc: Drop duplicated code to add source files and use CodeContext API
+  - libvaladoc: Skip empty Version.replacement attribute to avoid critical
   - build: Don't leak libvalaccode symbols to libvaladoc
   - Add a basic CONTRIBUTING.md file that links to the relevant Wiki page
-  - tests: Fix try_parse() tests to not compare to already free'd memory
+  - tests:
+    + Fix try_parse() tests to not compare to already free'd memory
+    + Warnings and criticals should be fatal on compile time too
 
  * Bindings:
-  - clutter-1.0: Fix BindingPool.override_action()
-  - gdk-3.0,gtk+-3.0: Update to 3.24.3+9c8f1478
   - glib-2.0: Use correct array-length-type for returned arrays (#171)
+  - glib-2.0: Add RecMutexLocker since 2.60
   - gio-2.0: Fix File.replace_contents_bytes_async() (!37)
-  - gobject-2.0: Minor syncing from GIR
   - gobject-2.0: Use correct array-length-type for returned arrays
+  - poppler-glib: Update to 0.71
   - gstreamer: Update from 1.15+ git master
-  - gtk+-4.0: Update to 3.94.0+9b15c690
-  - javascriptcoregtk-4.0: Fix GLib.Callback parameters which can't hold target
-  - libsoup-2.4: Fix Message.add_*_handler() [#731]
+  - gtk+-3.0: Update to 3.24.2+a8e07254
+  - gtk+-4.0: Update to 3.94.0+4404afc9
   - sqlite3: Correct return C type of Statement.column_text & Value.to_text
+  - webkitgtk-4.0: Update to 2.23.1
+  - vapi: Update GIR-based bindings
 
-Vala 0.42.4
+Vala 0.43.2
 ===========
+ * Various improvements and bug fixes:
+  - codegen:
+    + GType classes and interfaces require including "glib-object.h"
+    + Handle non-default AsyncResult parameter position [#709]
+      and regenerate GIR-based bindings to fix non-standard async methods
+    + Always emit constants with initializer-list [#81]
+    + Emit delegate/enum typedefs to type-declaration section [#318]
+  - Break possible endless loop in SymbolResolver.get_type_for_struct() [#444]
+
+ * Bindings:
+  - gobject-introspection-1.0: Pick up version attribute fixes
+
+Vala 0.43.1
+===========
+ * Highlights:
+  - Emit G_DEFINE_AUTOPTR_CLEANUP_FUNC() for classes (requires glib 2.44) [#670]
+  - Enforce "return yield ..." syntax to be expected [#675]
+  - Drop deprecated syntax support of += and -= for signals [#676]
+  - Drop deprecated syntax support of # modifier and operator [#677]
+  - Allow disabling the build of valadoc [#596]
+  - Add support for SingleInstance attribute for GObject classes [#647]
+  - Don't allow to declare array parameters with "type array[]" [#163]
+  - Collect error_types on demand to allow transformations
+  - Check for matching ownership of type-arguments [#696]
+  - Add profile specific delegate target/destroy types
+  - Don't explicitly add glib headers, the use of symbols will do that [#623]
+  - Add --enable-debug configure option
+  - Move setting of default defines for VALA_0_XX and GLIB_2_XX to CodeContext
+  - Add support for delegate parameters in signals [#205]
+  - Admit that structs are emtpy even with a static property [#446]
+
  * Various improvements and bug fixes:
   - codegen:
     + Fix method pointer cast if instance isn't at first position
@@ -50,9 +1140,10 @@ Vala 0.42.4
     + Mark needle parameter of internal array-contains methods as const [#504]
     + Emit initializer for enum-value into wanted declaration space [#167]
     + Add void to delegate typedef declarations without parameters
-    + Emit delegate/enum typedefs to type-declaration section [#318]
-    + Always emit constants with initializer-list [#81]
-    + Handle non-default AsyncResult parameter position [#709]
+    + Deprecate "finish_function" and "ctype" ccode-attribute
+    + Fix get_ccode_name() for properties
+    + Add ccode getters for GType functions of Classes and Interfaces
+    + Don't allow more than one consecutive empty lines in generated code
   - vala:
     + Copy instance_pos argument from virtual/abstract base methods [#540483]
     + Compact classes don't allow private/class fields and to lock fields
@@ -62,7 +1153,11 @@ Vala 0.42.4
     + Make check_arguments() more verbose and don't bail on first error [#438]
     + Don't emit member access of assignments on static properties [#573]
     + Use clearer error message for automatic properties in interfaces [#656]
-    + Break possible endless loop in SymbolResolver.get_type_for_struct() [#444]
+    + Admit that structs are emtpy even with a static property [#684]
+    + Let UsingDirective hold reference to UnresolvedSymbol instances only
+    + Add ArrayType.length_type and ArrayCreationExpression.length_type [#607]
+    + Remove hardcoded "int" length type and use ArrayType.length_type [#607]
+    + Use is_weak() for type-arguments in DataType.to_qualified_string()
   - girwriter: Write glib-type attributes for Enums/Structs with type_id
   - girparser: Skip "source-position" elements and docs in transparent union
   - valadoc:
@@ -73,20 +1168,23 @@ Vala 0.42.4
     + Skip package dependency if target directory already exists
     + Fix a few errors and warnings in stylesheet
     + Adjust stylesheet to unbreak Epiphany [#644]
+    + Several API clean ups
+    + Add --fatal-warnings command line option
   - docs: Use Markdown for README and include build instructions
-  - testrunner: Pass buildsystem's CC through to valac
+  - testrunner: Compile and run tests separately and pass buildsystem's CC
+    through to valac, add various -Werror=* build cflags
 
  * Bindings:
   - gio-2.0: Add missing File.new_build_filename()
   - glib-2.0: Add missing Array.set_clear_func() binding
   - glib-2.0: Avoid double-free in GLib.Array if clear_func is set
-  - glib-2.0: Add GLib.pointer aka gpointer binding
+  - glib-2.0: Drop g_object_unref which is part of gobject-2.0
   - gobject-2.0: Attribute all symbols with cheader_filename = "glib-object.h"
-  - gobject-introspection-1.0: Pick up version attribute fixes
-  - gdk-x11-3.0,gtk+-3.0: Update to 3.24.2+eb821cb8
-  - gtk+-4.0: Update to 3.94.0+a99bd2a4
+  - gdk-x11-3.0,gtk+-3.0: Update to 3.24.1+356f1f59
+  - gtk+-3.0: Treat Gtk.IconInfo as GLib.Object which it is since 3.8 [#663]
+  - gtk+-4.0: Update to 3.94.0+8de1ba2c
   - gstreamer: Update from 1.15+ git master
-  - poppler-glib: Update to 0.71
+  - posix: Add CommandPipe as a sub-type of FILE [#645]
 
 Vala 0.42.3
 ===========
