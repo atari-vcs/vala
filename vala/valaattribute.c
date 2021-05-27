@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 #include <float.h>
 #include <math.h>
 
@@ -42,14 +41,13 @@ struct _ValaAttributePrivate {
 	ValaMap* _args;
 };
 
-
 static gint ValaAttribute_private_offset;
 static gpointer vala_attribute_parent_class = NULL;
 
 static void vala_attribute_set_args (ValaAttribute* self,
                               ValaMap* value);
 static void vala_attribute_finalize (ValaCodeNode * obj);
-
+static GType vala_attribute_get_type_once (void);
 
 static inline gpointer
 vala_attribute_get_instance_private (ValaAttribute* self)
@@ -57,6 +55,55 @@ vala_attribute_get_instance_private (ValaAttribute* self)
 	return G_STRUCT_MEMBER_P (self, ValaAttribute_private_offset);
 }
 
+const gchar*
+vala_attribute_get_name (ValaAttribute* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_attribute_set_name (ValaAttribute* self,
+                         const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
+
+ValaMap*
+vala_attribute_get_args (ValaAttribute* self)
+{
+	ValaMap* result;
+	ValaMap* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_args;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_map_ref0 (gpointer self)
+{
+	return self ? vala_map_ref (self) : NULL;
+}
+
+static void
+vala_attribute_set_args (ValaAttribute* self,
+                         ValaMap* value)
+{
+	ValaMap* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_map_ref0 (value);
+	_vala_map_unref0 (self->priv->_args);
+	self->priv->_args = _tmp0_;
+}
 
 /**
  * Creates a new attribute.
@@ -112,14 +159,12 @@ vala_attribute_construct (GType object_type,
 	return self;
 }
 
-
 ValaAttribute*
 vala_attribute_new (const gchar* name,
                     ValaSourceReference* source_reference)
 {
 	return vala_attribute_construct (VALA_TYPE_ATTRIBUTE, name, source_reference);
 }
-
 
 /**
  * Adds an attribute argument.
@@ -140,7 +185,6 @@ vala_attribute_add_argument (ValaAttribute* self,
 	vala_map_set (_tmp0_, key, value);
 }
 
-
 /**
  * Returns whether this attribute has the specified named argument.
  *
@@ -151,15 +195,14 @@ gboolean
 vala_attribute_has_argument (ValaAttribute* self,
                              const gchar* name)
 {
-	gboolean result = FALSE;
 	ValaMap* _tmp0_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (name != NULL, FALSE);
 	_tmp0_ = self->priv->_args;
 	result = vala_map_contains (_tmp0_, name);
 	return result;
 }
-
 
 /**
  * Returns the string value of the specified named argument.
@@ -171,10 +214,10 @@ static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -189,17 +232,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -216,34 +257,25 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 gchar*
 vala_attribute_get_string (ValaAttribute* self,
                            const gchar* name,
                            const gchar* default_value)
 {
-	gchar* result = NULL;
 	gchar* value = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
@@ -256,6 +288,7 @@ vala_attribute_get_string (ValaAttribute* self,
 	gchar* _tmp8_;
 	const gchar* _tmp9_;
 	gchar* _tmp10_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->_args;
@@ -283,7 +316,6 @@ vala_attribute_get_string (ValaAttribute* self,
 	return result;
 }
 
-
 /**
  * Returns the integer value of the specified named argument.
  *
@@ -295,12 +327,12 @@ vala_attribute_get_integer (ValaAttribute* self,
                             const gchar* name,
                             gint default_value)
 {
-	gint result = 0;
 	gchar* value = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (name != NULL, 0);
 	_tmp0_ = self->priv->_args;
@@ -318,7 +350,6 @@ vala_attribute_get_integer (ValaAttribute* self,
 	return result;
 }
 
-
 /**
  * Returns the double value of the specified named argument.
  *
@@ -334,18 +365,17 @@ double_parse (const gchar* str)
 	return result;
 }
 
-
 gdouble
 vala_attribute_get_double (ValaAttribute* self,
                            const gchar* name,
                            gdouble default_value)
 {
-	gdouble result = 0.0;
 	gchar* value = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
+	gdouble result = 0.0;
 	g_return_val_if_fail (self != NULL, 0.0);
 	g_return_val_if_fail (name != NULL, 0.0);
 	_tmp0_ = self->priv->_args;
@@ -362,7 +392,6 @@ vala_attribute_get_double (ValaAttribute* self,
 	_g_free0 (value);
 	return result;
 }
-
 
 /**
  * Returns the boolean value of the specified named argument.
@@ -384,18 +413,17 @@ bool_parse (const gchar* str)
 	}
 }
 
-
 gboolean
 vala_attribute_get_bool (ValaAttribute* self,
                          const gchar* name,
                          gboolean default_value)
 {
-	gboolean result = FALSE;
 	gchar* value = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (name != NULL, FALSE);
 	_tmp0_ = self->priv->_args;
@@ -413,77 +441,21 @@ vala_attribute_get_bool (ValaAttribute* self,
 	return result;
 }
 
-
-const gchar*
-vala_attribute_get_name (ValaAttribute* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_attribute_set_name (ValaAttribute* self,
-                         const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
-ValaMap*
-vala_attribute_get_args (ValaAttribute* self)
-{
-	ValaMap* result;
-	ValaMap* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_args;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_map_ref0 (gpointer self)
-{
-	return self ? vala_map_ref (self) : NULL;
-}
-
-
 static void
-vala_attribute_set_args (ValaAttribute* self,
-                         ValaMap* value)
-{
-	ValaMap* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_map_ref0 (value);
-	_vala_map_unref0 (self->priv->_args);
-	self->priv->_args = _tmp0_;
-}
-
-
-static void
-vala_attribute_class_init (ValaAttributeClass * klass)
+vala_attribute_class_init (ValaAttributeClass * klass,
+                           gpointer klass_data)
 {
 	vala_attribute_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_attribute_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaAttribute_private_offset);
 }
 
-
 static void
-vala_attribute_instance_init (ValaAttribute * self)
+vala_attribute_instance_init (ValaAttribute * self,
+                              gpointer klass)
 {
 	self->priv = vala_attribute_get_instance_private (self);
 }
-
 
 static void
 vala_attribute_finalize (ValaCodeNode * obj)
@@ -495,23 +467,28 @@ vala_attribute_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_attribute_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an attribute specified in the source code.
  */
+static GType
+vala_attribute_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaAttribute), 0, (GInstanceInitFunc) vala_attribute_instance_init, NULL };
+	GType vala_attribute_type_id;
+	vala_attribute_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaAttribute", &g_define_type_info, 0);
+	ValaAttribute_private_offset = g_type_add_instance_private (vala_attribute_type_id, sizeof (ValaAttributePrivate));
+	return vala_attribute_type_id;
+}
+
 GType
 vala_attribute_get_type (void)
 {
 	static volatile gsize vala_attribute_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_attribute_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaAttributeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_attribute_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaAttribute), 0, (GInstanceInitFunc) vala_attribute_instance_init, NULL };
 		GType vala_attribute_type_id;
-		vala_attribute_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaAttribute", &g_define_type_info, 0);
-		ValaAttribute_private_offset = g_type_add_instance_private (vala_attribute_type_id, sizeof (ValaAttributePrivate));
+		vala_attribute_type_id = vala_attribute_get_type_once ();
 		g_once_init_leave (&vala_attribute_type_id__volatile, vala_attribute_type_id);
 	}
 	return vala_attribute_type_id__volatile;
 }
-
-
 

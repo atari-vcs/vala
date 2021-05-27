@@ -24,14 +24,13 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
+#include <vala.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vala.h>
 
 enum  {
 	VALADOC_API_SYMBOL_0_PROPERTY,
@@ -45,29 +44,46 @@ enum  {
 };
 static GParamSpec* valadoc_api_symbol_properties[VALADOC_API_SYMBOL_NUM_PROPERTIES];
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
+#define _valadoc_api_source_comment_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_source_comment_unref (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
+#define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 
 struct _ValadocApiSymbolPrivate {
 	ValaArrayList* attributes;
+	ValadocApiSourceComment* source_comment;
 	gboolean _is_deprecated;
-	ValadocApiSymbolAccessibility _accessibility;
+	ValaSymbolAccessibility _accessibility;
 };
-
 
 static gint ValadocApiSymbol_private_offset;
 static gpointer valadoc_api_symbol_parent_class = NULL;
 
+G_GNUC_INTERNAL void valadoc_api_item_parse_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
+G_GNUC_INTERNAL void valadoc_api_item_check_comments (ValadocApiItem* self,
+                                      ValadocSettings* settings,
+                                      ValadocDocumentationParser* parser);
+static void valadoc_api_symbol_set_is_deprecated (ValadocApiSymbol* self,
+                                           gboolean value);
 static void valadoc_api_symbol_set_accessibility (ValadocApiSymbol* self,
-                                           ValadocApiSymbolAccessibility value);
+                                           ValaSymbolAccessibility value);
 G_GNUC_INTERNAL void valadoc_api_package_register_deprecated_symbol (ValadocApiPackage* self,
                                                      ValadocApiSymbol* symbol,
                                                      const gchar* version);
-static void valadoc_api_symbol_set_is_deprecated (ValadocApiSymbol* self,
-                                           gboolean value);
 static gboolean valadoc_api_symbol_real_is_browsable (ValadocApiNode* base,
                                                ValadocSettings* settings);
+static void valadoc_api_symbol_real_parse_comments (ValadocApiItem* base,
+                                             ValadocSettings* settings,
+                                             ValadocDocumentationParser* parser);
+G_GNUC_INTERNAL void valadoc_api_node_set_documentation (ValadocApiNode* self,
+                                         ValadocContentComment* value);
+static void valadoc_api_symbol_real_check_comments (ValadocApiItem* base,
+                                             ValadocSettings* settings,
+                                             ValadocDocumentationParser* parser);
 static void valadoc_api_symbol_finalize (GObject * obj);
+static GType valadoc_api_symbol_get_type_once (void);
 static void _vala_valadoc_api_symbol_get_property (GObject * object,
                                             guint property_id,
                                             GValue * value,
@@ -77,40 +93,80 @@ static void _vala_valadoc_api_symbol_set_property (GObject * object,
                                             const GValue * value,
                                             GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_symbol_get_instance_private (ValadocApiSymbol* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiSymbol_private_offset);
 }
 
+gboolean
+valadoc_api_symbol_get_is_deprecated (ValadocApiSymbol* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_deprecated;
+	return result;
+}
+
+static void
+valadoc_api_symbol_set_is_deprecated (ValadocApiSymbol* self,
+                                      gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_symbol_get_is_deprecated (self);
+	if (old_value != value) {
+		self->priv->_is_deprecated = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_IS_DEPRECATED_PROPERTY]);
+	}
+}
+
+static gpointer
+_valadoc_api_source_comment_ref0 (gpointer self)
+{
+	return self ? valadoc_api_source_comment_ref (self) : NULL;
+}
 
 ValadocApiSymbol*
 valadoc_api_symbol_construct (GType object_type,
                               ValadocApiNode* parent,
                               ValadocApiSourceFile* file,
                               const gchar* name,
-                              ValadocApiSymbolAccessibility accessibility,
+                              ValaSymbolAccessibility accessibility,
+                              ValadocApiSourceComment* comment,
                               ValaSymbol* data)
 {
 	ValadocApiSymbol * self = NULL;
+	ValadocApiSourceComment* _tmp0_;
 	g_return_val_if_fail (parent != NULL, NULL);
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
 	self = (ValadocApiSymbol*) valadoc_api_node_construct (object_type, parent, file, name, (ValaCodeNode*) data);
 	valadoc_api_symbol_set_accessibility (self, accessibility);
+	_tmp0_ = _valadoc_api_source_comment_ref0 (comment);
+	_valadoc_api_source_comment_unref0 (self->priv->source_comment);
+	self->priv->source_comment = _tmp0_;
 	return self;
 }
 
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
 
 void
 valadoc_api_symbol_add_attribute (ValadocApiSymbol* self,
                                   ValadocApiAttribute* att)
 {
 	ValaArrayList* _tmp0_;
-	const gchar* _tmp3_;
-	const gchar* _tmp4_;
-	ValaArrayList* _tmp31_;
+	ValaAttribute* attr = NULL;
+	ValaCodeNode* _tmp3_;
+	ValaCodeNode* _tmp4_;
+	ValaAttribute* _tmp5_;
+	const gchar* _tmp6_;
+	const gchar* _tmp7_;
+	ValaArrayList* _tmp23_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (att != NULL);
 	_tmp0_ = self->priv->attributes;
@@ -122,112 +178,69 @@ valadoc_api_symbol_add_attribute (ValadocApiSymbol* self,
 		_vala_iterable_unref0 (self->priv->attributes);
 		self->priv->attributes = _tmp2_;
 	}
-	_tmp3_ = valadoc_api_attribute_get_name (att);
+	_tmp3_ = valadoc_api_item_get_data ((ValadocApiItem*) att);
 	_tmp4_ = _tmp3_;
-	if (g_strcmp0 (_tmp4_, "Version") == 0) {
-		ValadocApiAttributeArgument* deprecated = NULL;
-		ValadocApiAttributeArgument* _tmp5_;
-		ValadocApiAttributeArgument* version = NULL;
-		ValadocApiAttributeArgument* _tmp6_;
-		gboolean _tmp7_ = FALSE;
-		gboolean _tmp8_ = FALSE;
-		ValadocApiAttributeArgument* _tmp9_;
-		_tmp5_ = valadoc_api_attribute_get_argument (att, "deprecated");
-		deprecated = _tmp5_;
-		_tmp6_ = valadoc_api_attribute_get_argument (att, "deprecated_since");
-		version = _tmp6_;
-		_tmp9_ = deprecated;
-		if (_tmp9_ != NULL) {
-			ValadocApiAttributeArgument* _tmp10_;
-			_tmp10_ = deprecated;
-			_tmp8_ = valadoc_api_attribute_argument_get_value_as_boolean (_tmp10_);
+	_tmp5_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp4_, VALA_TYPE_ATTRIBUTE, ValaAttribute));
+	attr = _tmp5_;
+	_tmp6_ = valadoc_api_attribute_get_name (att);
+	_tmp7_ = _tmp6_;
+	if (g_strcmp0 (_tmp7_, "Version") == 0) {
+		gboolean deprecated = FALSE;
+		ValaAttribute* _tmp8_;
+		gchar* version = NULL;
+		ValaAttribute* _tmp9_;
+		gchar* _tmp10_;
+		gboolean _tmp11_ = FALSE;
+		_tmp8_ = attr;
+		deprecated = vala_attribute_get_bool (_tmp8_, "deprecated", FALSE);
+		_tmp9_ = attr;
+		_tmp10_ = vala_attribute_get_string (_tmp9_, "deprecated_since", NULL);
+		version = _tmp10_;
+		if (deprecated) {
+			_tmp11_ = TRUE;
 		} else {
-			_tmp8_ = FALSE;
+			const gchar* _tmp12_;
+			_tmp12_ = version;
+			_tmp11_ = _tmp12_ != NULL;
 		}
-		if (_tmp8_) {
-			_tmp7_ = TRUE;
-		} else {
-			ValadocApiAttributeArgument* _tmp11_;
-			_tmp11_ = version;
-			_tmp7_ = _tmp11_ != NULL;
-		}
-		if (_tmp7_) {
-			gchar* _tmp12_ = NULL;
-			ValadocApiAttributeArgument* _tmp13_;
-			gchar* version_str = NULL;
-			gchar* _tmp16_;
-			ValadocApiPackage* _tmp17_;
-			ValadocApiPackage* _tmp18_;
-			const gchar* _tmp19_;
-			_tmp13_ = version;
-			if (_tmp13_ != NULL) {
-				ValadocApiAttributeArgument* _tmp14_;
-				gchar* _tmp15_;
-				_tmp14_ = version;
-				_tmp15_ = valadoc_api_attribute_argument_get_value_as_string (_tmp14_);
-				_g_free0 (_tmp12_);
-				_tmp12_ = _tmp15_;
-			} else {
-				_g_free0 (_tmp12_);
-				_tmp12_ = NULL;
-			}
-			_tmp16_ = g_strdup (_tmp12_);
-			version_str = _tmp16_;
-			_tmp17_ = valadoc_documentation_get_package ((ValadocDocumentation*) self);
-			_tmp18_ = _tmp17_;
-			_tmp19_ = version_str;
-			valadoc_api_package_register_deprecated_symbol (_tmp18_, self, _tmp19_);
+		if (_tmp11_) {
+			ValadocApiPackage* _tmp13_;
+			ValadocApiPackage* _tmp14_;
+			const gchar* _tmp15_;
+			_tmp13_ = valadoc_documentation_get_package ((ValadocDocumentation*) self);
+			_tmp14_ = _tmp13_;
+			_tmp15_ = version;
+			valadoc_api_package_register_deprecated_symbol (_tmp14_, self, _tmp15_);
 			valadoc_api_symbol_set_is_deprecated (self, TRUE);
-			_g_free0 (version_str);
-			_g_free0 (_tmp12_);
 		}
-		_g_object_unref0 (version);
-		_g_object_unref0 (deprecated);
+		_g_free0 (version);
 	} else {
-		const gchar* _tmp20_;
-		const gchar* _tmp21_;
-		_tmp20_ = valadoc_api_attribute_get_name (att);
-		_tmp21_ = _tmp20_;
-		if (g_strcmp0 (_tmp21_, "Deprecated") == 0) {
-			ValadocApiAttributeArgument* version = NULL;
-			ValadocApiAttributeArgument* _tmp22_;
-			gchar* _tmp23_ = NULL;
-			ValadocApiAttributeArgument* _tmp24_;
-			gchar* version_str = NULL;
-			gchar* _tmp27_;
-			ValadocApiPackage* _tmp28_;
-			ValadocApiPackage* _tmp29_;
-			const gchar* _tmp30_;
-			_tmp22_ = valadoc_api_attribute_get_argument (att, "version");
-			version = _tmp22_;
-			_tmp24_ = version;
-			if (_tmp24_ != NULL) {
-				ValadocApiAttributeArgument* _tmp25_;
-				gchar* _tmp26_;
-				_tmp25_ = version;
-				_tmp26_ = valadoc_api_attribute_argument_get_value_as_string (_tmp25_);
-				_g_free0 (_tmp23_);
-				_tmp23_ = _tmp26_;
-			} else {
-				_g_free0 (_tmp23_);
-				_tmp23_ = NULL;
-			}
-			_tmp27_ = g_strdup (_tmp23_);
-			version_str = _tmp27_;
-			_tmp28_ = valadoc_documentation_get_package ((ValadocDocumentation*) self);
-			_tmp29_ = _tmp28_;
-			_tmp30_ = version_str;
-			valadoc_api_package_register_deprecated_symbol (_tmp29_, self, _tmp30_);
+		const gchar* _tmp16_;
+		const gchar* _tmp17_;
+		_tmp16_ = valadoc_api_attribute_get_name (att);
+		_tmp17_ = _tmp16_;
+		if (g_strcmp0 (_tmp17_, "Deprecated") == 0) {
+			gchar* version = NULL;
+			ValaAttribute* _tmp18_;
+			gchar* _tmp19_;
+			ValadocApiPackage* _tmp20_;
+			ValadocApiPackage* _tmp21_;
+			const gchar* _tmp22_;
+			_tmp18_ = attr;
+			_tmp19_ = vala_attribute_get_string (_tmp18_, "version", NULL);
+			version = _tmp19_;
+			_tmp20_ = valadoc_documentation_get_package ((ValadocDocumentation*) self);
+			_tmp21_ = _tmp20_;
+			_tmp22_ = version;
+			valadoc_api_package_register_deprecated_symbol (_tmp21_, self, _tmp22_);
 			valadoc_api_symbol_set_is_deprecated (self, TRUE);
-			_g_free0 (version_str);
-			_g_free0 (_tmp23_);
-			_g_object_unref0 (version);
+			_g_free0 (version);
 		}
 	}
-	_tmp31_ = self->priv->attributes;
-	vala_collection_add ((ValaCollection*) _tmp31_, att);
+	_tmp23_ = self->priv->attributes;
+	vala_collection_add ((ValaCollection*) _tmp23_, att);
+	_vala_code_node_unref0 (attr);
 }
-
 
 static gpointer
 _vala_iterable_ref0 (gpointer self)
@@ -235,12 +248,11 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 ValaCollection*
 valadoc_api_symbol_get_attributes (ValadocApiSymbol* self)
 {
-	ValaCollection* result = NULL;
 	ValaArrayList* _tmp0_;
+	ValaCollection* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->attributes;
 	if (_tmp0_ == NULL) {
@@ -260,13 +272,12 @@ valadoc_api_symbol_get_attributes (ValadocApiSymbol* self)
 	}
 }
 
-
 ValadocApiAttribute*
 valadoc_api_symbol_get_attribute (ValadocApiSymbol* self,
                                   const gchar* name)
 {
-	ValadocApiAttribute* result = NULL;
 	ValaArrayList* _tmp0_;
+	ValadocApiAttribute* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->attributes;
@@ -291,29 +302,25 @@ valadoc_api_symbol_get_attribute (ValadocApiSymbol* self,
 			while (TRUE) {
 				gint _tmp6_;
 				gint _tmp7_;
-				gint _tmp8_;
 				ValadocApiAttribute* att = NULL;
-				ValaArrayList* _tmp9_;
-				gint _tmp10_;
-				gpointer _tmp11_;
-				ValadocApiAttribute* _tmp12_;
-				const gchar* _tmp13_;
-				const gchar* _tmp14_;
+				ValaArrayList* _tmp8_;
+				gpointer _tmp9_;
+				ValadocApiAttribute* _tmp10_;
+				const gchar* _tmp11_;
+				const gchar* _tmp12_;
+				_att_index = _att_index + 1;
 				_tmp6_ = _att_index;
-				_att_index = _tmp6_ + 1;
-				_tmp7_ = _att_index;
-				_tmp8_ = _att_size;
-				if (!(_tmp7_ < _tmp8_)) {
+				_tmp7_ = _att_size;
+				if (!(_tmp6_ < _tmp7_)) {
 					break;
 				}
-				_tmp9_ = _att_list;
-				_tmp10_ = _att_index;
-				_tmp11_ = vala_list_get ((ValaList*) _tmp9_, _tmp10_);
-				att = (ValadocApiAttribute*) _tmp11_;
-				_tmp12_ = att;
-				_tmp13_ = valadoc_api_attribute_get_name (_tmp12_);
-				_tmp14_ = _tmp13_;
-				if (g_strcmp0 (_tmp14_, name) == 0) {
+				_tmp8_ = _att_list;
+				_tmp9_ = vala_list_get ((ValaList*) _tmp8_, _att_index);
+				att = (ValadocApiAttribute*) _tmp9_;
+				_tmp10_ = att;
+				_tmp11_ = valadoc_api_attribute_get_name (_tmp10_);
+				_tmp12_ = _tmp11_;
+				if (g_strcmp0 (_tmp12_, name) == 0) {
 					result = att;
 					_vala_iterable_unref0 (_att_list);
 					return result;
@@ -327,7 +334,6 @@ valadoc_api_symbol_get_attribute (ValadocApiSymbol* self,
 	return result;
 }
 
-
 /**
  * {@inheritDoc}
  */
@@ -337,32 +343,27 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static gboolean
 valadoc_api_symbol_real_is_browsable (ValadocApiNode* base,
                                       ValadocSettings* settings)
 {
 	ValadocApiSymbol * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_;
-	gboolean _tmp4_ = FALSE;
-	gboolean _tmp5_;
-	gboolean _tmp8_ = FALSE;
-	gboolean _tmp9_;
+	gboolean _tmp3_ = FALSE;
+	gboolean _tmp6_ = FALSE;
 	ValadocApiItem* pos = NULL;
-	ValadocApiItem* _tmp12_;
-	ValadocApiItem* _tmp13_;
-	ValadocApiItem* _tmp14_;
+	ValadocApiItem* _tmp9_;
+	ValadocApiItem* _tmp10_;
+	ValadocApiItem* _tmp11_;
+	gboolean result = FALSE;
 	self = (ValadocApiSymbol*) base;
 	g_return_val_if_fail (settings != NULL, FALSE);
-	_tmp1_ = settings->_private;
-	if (!_tmp1_) {
+	if (!settings->_private) {
+		gboolean _tmp1_;
 		gboolean _tmp2_;
-		gboolean _tmp3_;
-		_tmp2_ = valadoc_api_symbol_get_is_private (self);
-		_tmp3_ = _tmp2_;
-		_tmp0_ = _tmp3_;
+		_tmp1_ = valadoc_api_symbol_get_is_private (self);
+		_tmp2_ = _tmp1_;
+		_tmp0_ = _tmp2_;
 	} else {
 		_tmp0_ = FALSE;
 	}
@@ -370,191 +371,223 @@ valadoc_api_symbol_real_is_browsable (ValadocApiNode* base,
 		result = FALSE;
 		return result;
 	}
-	_tmp5_ = settings->_internal;
-	if (!_tmp5_) {
-		gboolean _tmp6_;
+	if (!settings->_internal) {
+		gboolean _tmp4_;
+		gboolean _tmp5_;
+		_tmp4_ = valadoc_api_symbol_get_is_internal (self);
+		_tmp5_ = _tmp4_;
+		_tmp3_ = _tmp5_;
+	} else {
+		_tmp3_ = FALSE;
+	}
+	if (_tmp3_) {
+		result = FALSE;
+		return result;
+	}
+	if (!settings->_protected) {
 		gboolean _tmp7_;
-		_tmp6_ = valadoc_api_symbol_get_is_internal (self);
-		_tmp7_ = _tmp6_;
-		_tmp4_ = _tmp7_;
+		gboolean _tmp8_;
+		_tmp7_ = valadoc_api_symbol_get_is_protected (self);
+		_tmp8_ = _tmp7_;
+		_tmp6_ = _tmp8_;
 	} else {
-		_tmp4_ = FALSE;
+		_tmp6_ = FALSE;
 	}
-	if (_tmp4_) {
+	if (_tmp6_) {
 		result = FALSE;
 		return result;
 	}
-	_tmp9_ = settings->_protected;
-	if (!_tmp9_) {
-		gboolean _tmp10_;
-		gboolean _tmp11_;
-		_tmp10_ = valadoc_api_symbol_get_is_protected (self);
-		_tmp11_ = _tmp10_;
-		_tmp8_ = _tmp11_;
-	} else {
-		_tmp8_ = FALSE;
-	}
-	if (_tmp8_) {
-		result = FALSE;
-		return result;
-	}
-	_tmp12_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = _g_object_ref0 (_tmp13_);
-	pos = _tmp14_;
+	_tmp9_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = _g_object_ref0 (_tmp10_);
+	pos = _tmp11_;
 	while (TRUE) {
-		gboolean _tmp15_ = FALSE;
-		gboolean _tmp16_ = FALSE;
+		gboolean _tmp12_ = FALSE;
+		gboolean _tmp13_ = FALSE;
+		ValadocApiItem* _tmp14_;
 		ValadocApiItem* _tmp17_;
+		ValadocApiItem* _tmp18_;
+		ValadocApiItem* _tmp19_;
 		ValadocApiItem* _tmp20_;
 		ValadocApiItem* _tmp21_;
-		ValadocApiItem* _tmp22_;
-		ValadocApiItem* _tmp23_;
-		ValadocApiItem* _tmp24_;
-		_tmp17_ = pos;
-		if (_tmp17_ != NULL) {
-			ValadocApiItem* _tmp18_;
-			_tmp18_ = pos;
-			_tmp16_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp18_, VALADOC_API_TYPE_SYMBOL);
+		_tmp14_ = pos;
+		if (_tmp14_ != NULL) {
+			ValadocApiItem* _tmp15_;
+			_tmp15_ = pos;
+			_tmp13_ = VALADOC_API_IS_SYMBOL (_tmp15_);
 		} else {
-			_tmp16_ = FALSE;
+			_tmp13_ = FALSE;
 		}
-		if (_tmp16_) {
-			ValadocApiItem* _tmp19_;
-			_tmp19_ = pos;
-			_tmp15_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp19_, VALADOC_API_TYPE_NAMESPACE) == FALSE;
+		if (_tmp13_) {
+			ValadocApiItem* _tmp16_;
+			_tmp16_ = pos;
+			_tmp12_ = VALADOC_API_IS_NAMESPACE (_tmp16_) == FALSE;
 		} else {
-			_tmp15_ = FALSE;
+			_tmp12_ = FALSE;
 		}
-		if (!_tmp15_) {
+		if (!_tmp12_) {
 			break;
 		}
-		_tmp20_ = pos;
-		if (valadoc_api_node_is_browsable ((ValadocApiNode*) G_TYPE_CHECK_INSTANCE_CAST (_tmp20_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings) == FALSE) {
+		_tmp17_ = pos;
+		if (valadoc_api_node_is_browsable ((ValadocApiNode*) G_TYPE_CHECK_INSTANCE_CAST (_tmp17_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), settings) == FALSE) {
 			result = FALSE;
 			_g_object_unref0 (pos);
 			return result;
 		}
-		_tmp21_ = pos;
-		_tmp22_ = valadoc_api_item_get_parent (_tmp21_);
-		_tmp23_ = _tmp22_;
-		_tmp24_ = _g_object_ref0 (_tmp23_);
+		_tmp18_ = pos;
+		_tmp19_ = valadoc_api_item_get_parent (_tmp18_);
+		_tmp20_ = _tmp19_;
+		_tmp21_ = _g_object_ref0 (_tmp20_);
 		_g_object_unref0 (pos);
-		pos = _tmp24_;
+		pos = _tmp21_;
 	}
 	result = TRUE;
 	_g_object_unref0 (pos);
 	return result;
 }
 
-
-gboolean
-valadoc_api_symbol_get_is_deprecated (ValadocApiSymbol* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_deprecated;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_symbol_set_is_deprecated (ValadocApiSymbol* self,
-                                      gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_symbol_get_is_deprecated (self) != value) {
-		self->priv->_is_deprecated = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_IS_DEPRECATED_PROPERTY]);
-	}
-}
-
-
-ValadocApiSymbolAccessibility
+ValaSymbolAccessibility
 valadoc_api_symbol_get_accessibility (ValadocApiSymbol* self)
 {
-	ValadocApiSymbolAccessibility result;
-	ValadocApiSymbolAccessibility _tmp0_;
+	ValaSymbolAccessibility result;
+	ValaSymbolAccessibility _tmp0_;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = self->priv->_accessibility;
 	result = _tmp0_;
 	return result;
 }
 
-
 static void
 valadoc_api_symbol_set_accessibility (ValadocApiSymbol* self,
-                                      ValadocApiSymbolAccessibility value)
+                                      ValaSymbolAccessibility value)
 {
+	ValaSymbolAccessibility old_value;
 	g_return_if_fail (self != NULL);
-	if (valadoc_api_symbol_get_accessibility (self) != value) {
+	old_value = valadoc_api_symbol_get_accessibility (self);
+	if (old_value != value) {
 		self->priv->_accessibility = value;
 		g_object_notify_by_pspec ((GObject *) self, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_ACCESSIBILITY_PROPERTY]);
 	}
 }
 
-
 gboolean
 valadoc_api_symbol_get_is_public (ValadocApiSymbol* self)
 {
 	gboolean result;
-	ValadocApiSymbolAccessibility _tmp0_;
+	ValaSymbolAccessibility _tmp0_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->_accessibility;
-	result = _tmp0_ == VALADOC_API_SYMBOL_ACCESSIBILITY_PUBLIC;
+	result = _tmp0_ == VALA_SYMBOL_ACCESSIBILITY_PUBLIC;
 	return result;
 }
-
 
 gboolean
 valadoc_api_symbol_get_is_protected (ValadocApiSymbol* self)
 {
 	gboolean result;
-	ValadocApiSymbolAccessibility _tmp0_;
+	ValaSymbolAccessibility _tmp0_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->_accessibility;
-	result = _tmp0_ == VALADOC_API_SYMBOL_ACCESSIBILITY_PROTECTED;
+	result = _tmp0_ == VALA_SYMBOL_ACCESSIBILITY_PROTECTED;
 	return result;
 }
-
 
 gboolean
 valadoc_api_symbol_get_is_internal (ValadocApiSymbol* self)
 {
 	gboolean result;
-	ValadocApiSymbolAccessibility _tmp0_;
+	ValaSymbolAccessibility _tmp0_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->_accessibility;
-	result = _tmp0_ == VALADOC_API_SYMBOL_ACCESSIBILITY_INTERNAL;
+	result = _tmp0_ == VALA_SYMBOL_ACCESSIBILITY_INTERNAL;
 	return result;
 }
-
 
 gboolean
 valadoc_api_symbol_get_is_private (ValadocApiSymbol* self)
 {
 	gboolean result;
-	ValadocApiSymbolAccessibility _tmp0_;
+	ValaSymbolAccessibility _tmp0_;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->_accessibility;
-	result = _tmp0_ == VALADOC_API_SYMBOL_ACCESSIBILITY_PRIVATE;
+	result = _tmp0_ == VALA_SYMBOL_ACCESSIBILITY_PRIVATE;
 	return result;
 }
 
+/**
+ * {@inheritDoc}
+ */
+static void
+valadoc_api_symbol_real_parse_comments (ValadocApiItem* base,
+                                        ValadocSettings* settings,
+                                        ValadocDocumentationParser* parser)
+{
+	ValadocApiSymbol * self;
+	ValadocContentComment* _tmp0_;
+	ValadocContentComment* _tmp1_;
+	ValadocApiSourceComment* _tmp2_;
+	self = (ValadocApiSymbol*) base;
+	g_return_if_fail (settings != NULL);
+	g_return_if_fail (parser != NULL);
+	_tmp0_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
+	_tmp1_ = _tmp0_;
+	if (_tmp1_ != NULL) {
+		return;
+	}
+	_tmp2_ = self->priv->source_comment;
+	if (_tmp2_ != NULL) {
+		ValadocApiSourceComment* _tmp3_;
+		ValadocContentComment* _tmp4_;
+		ValadocContentComment* _tmp5_;
+		_tmp3_ = self->priv->source_comment;
+		_tmp4_ = valadoc_documentation_parser_parse (parser, (ValadocApiNode*) self, _tmp3_);
+		_tmp5_ = _tmp4_;
+		valadoc_api_node_set_documentation ((ValadocApiNode*) self, _tmp5_);
+		_g_object_unref0 (_tmp5_);
+	}
+	VALADOC_API_ITEM_CLASS (valadoc_api_symbol_parent_class)->parse_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_NODE, ValadocApiNode), settings, parser);
+}
+
+/**
+ * {@inheritDoc}
+ */
+static void
+valadoc_api_symbol_real_check_comments (ValadocApiItem* base,
+                                        ValadocSettings* settings,
+                                        ValadocDocumentationParser* parser)
+{
+	ValadocApiSymbol * self;
+	ValadocContentComment* _tmp0_;
+	ValadocContentComment* _tmp1_;
+	self = (ValadocApiSymbol*) base;
+	g_return_if_fail (settings != NULL);
+	g_return_if_fail (parser != NULL);
+	_tmp0_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
+	_tmp1_ = _tmp0_;
+	if (_tmp1_ != NULL) {
+		ValadocContentComment* _tmp2_;
+		ValadocContentComment* _tmp3_;
+		_tmp2_ = valadoc_api_node_get_documentation ((ValadocApiNode*) self);
+		_tmp3_ = _tmp2_;
+		valadoc_documentation_parser_check (parser, (ValadocApiNode*) self, _tmp3_);
+	}
+	VALADOC_API_ITEM_CLASS (valadoc_api_symbol_parent_class)->check_comments ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_API_TYPE_NODE, ValadocApiNode), settings, parser);
+}
 
 static void
-valadoc_api_symbol_class_init (ValadocApiSymbolClass * klass)
+valadoc_api_symbol_class_init (ValadocApiSymbolClass * klass,
+                               gpointer klass_data)
 {
 	valadoc_api_symbol_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiSymbol_private_offset);
 	((ValadocApiNodeClass *) klass)->is_browsable = (gboolean (*) (ValadocApiNode*, ValadocSettings*)) valadoc_api_symbol_real_is_browsable;
+	((ValadocApiItemClass *) klass)->parse_comments = (void (*) (ValadocApiItem*, ValadocSettings*, ValadocDocumentationParser*)) valadoc_api_symbol_real_parse_comments;
+	((ValadocApiItemClass *) klass)->check_comments = (void (*) (ValadocApiItem*, ValadocSettings*, ValadocDocumentationParser*)) valadoc_api_symbol_real_check_comments;
 	G_OBJECT_CLASS (klass)->get_property = _vala_valadoc_api_symbol_get_property;
 	G_OBJECT_CLASS (klass)->set_property = _vala_valadoc_api_symbol_set_property;
 	G_OBJECT_CLASS (klass)->finalize = valadoc_api_symbol_finalize;
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_SYMBOL_IS_DEPRECATED_PROPERTY, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_IS_DEPRECATED_PROPERTY] = g_param_spec_boolean ("is-deprecated", "is-deprecated", "is-deprecated", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
-	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_SYMBOL_ACCESSIBILITY_PROPERTY, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_ACCESSIBILITY_PROPERTY] = g_param_spec_enum ("accessibility", "accessibility", "accessibility", VALADOC_API_TYPE_SYMBOL_ACCESSIBILITY, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
+	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_SYMBOL_ACCESSIBILITY_PROPERTY, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_ACCESSIBILITY_PROPERTY] = g_param_spec_enum ("accessibility", "accessibility", "accessibility", VALA_TYPE_SYMBOL_ACCESSIBILITY, 0, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 	/**
 	 * Specifies whether this symbol is public.
 	 */
@@ -573,14 +606,13 @@ valadoc_api_symbol_class_init (ValadocApiSymbolClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_SYMBOL_IS_PRIVATE_PROPERTY, valadoc_api_symbol_properties[VALADOC_API_SYMBOL_IS_PRIVATE_PROPERTY] = g_param_spec_boolean ("is-private", "is-private", "is-private", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_symbol_instance_init (ValadocApiSymbol * self)
+valadoc_api_symbol_instance_init (ValadocApiSymbol * self,
+                                  gpointer klass)
 {
 	self->priv = valadoc_api_symbol_get_instance_private (self);
 	self->priv->_is_deprecated = FALSE;
 }
-
 
 static void
 valadoc_api_symbol_finalize (GObject * obj)
@@ -588,27 +620,34 @@ valadoc_api_symbol_finalize (GObject * obj)
 	ValadocApiSymbol * self;
 	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol);
 	_vala_iterable_unref0 (self->priv->attributes);
+	_valadoc_api_source_comment_unref0 (self->priv->source_comment);
 	G_OBJECT_CLASS (valadoc_api_symbol_parent_class)->finalize (obj);
 }
-
 
 /**
  * Represents a node in the symbol tree.
  */
+static GType
+valadoc_api_symbol_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSymbolClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_symbol_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSymbol), 0, (GInstanceInitFunc) valadoc_api_symbol_instance_init, NULL };
+	GType valadoc_api_symbol_type_id;
+	valadoc_api_symbol_type_id = g_type_register_static (VALADOC_API_TYPE_NODE, "ValadocApiSymbol", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValadocApiSymbol_private_offset = g_type_add_instance_private (valadoc_api_symbol_type_id, sizeof (ValadocApiSymbolPrivate));
+	return valadoc_api_symbol_type_id;
+}
+
 GType
 valadoc_api_symbol_get_type (void)
 {
 	static volatile gsize valadoc_api_symbol_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_symbol_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSymbolClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_symbol_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSymbol), 0, (GInstanceInitFunc) valadoc_api_symbol_instance_init, NULL };
 		GType valadoc_api_symbol_type_id;
-		valadoc_api_symbol_type_id = g_type_register_static (VALADOC_API_TYPE_NODE, "ValadocApiSymbol", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValadocApiSymbol_private_offset = g_type_add_instance_private (valadoc_api_symbol_type_id, sizeof (ValadocApiSymbolPrivate));
+		valadoc_api_symbol_type_id = valadoc_api_symbol_get_type_once ();
 		g_once_init_leave (&valadoc_api_symbol_type_id__volatile, valadoc_api_symbol_type_id);
 	}
 	return valadoc_api_symbol_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_symbol_get_property (GObject * object,
@@ -643,7 +682,6 @@ _vala_valadoc_api_symbol_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_symbol_set_property (GObject * object,
                                        guint property_id,
@@ -664,6 +702,4 @@ _vala_valadoc_api_symbol_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

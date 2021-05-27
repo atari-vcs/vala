@@ -23,15 +23,9 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
+#include "valadoc.h"
 #include <glib.h>
 #include <glib-object.h>
-#include "valadoc.h"
-
-
-
-
-
 
 void
 valadoc_taglets_init (ValadocModuleLoader* loader)
@@ -46,6 +40,4 @@ valadoc_taglets_init (ValadocModuleLoader* loader)
 	valadoc_module_loader_register_taglet (loader, "deprecated", VALADOC_TAGLETS_TYPE_DEPRECATED);
 	valadoc_module_loader_register_taglet (loader, "inheritDoc", VALADOC_TAGLETS_TYPE_INHERIT_DOC);
 }
-
-
 

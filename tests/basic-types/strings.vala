@@ -47,6 +47,9 @@ void test_string_joinv () {
 
 	s = string.joinv ("-", null);
 	assert (s == "");
+
+	// LeakSanitizer -fsanitize=address
+	sa.length = 3;
 }
 
 void test_string_replace () {
@@ -70,6 +73,9 @@ void test_string_slice () {
 
 	r = s.slice (-7, -5);
 	assert (r == "my");
+
+	r = s.slice (0, 0);
+	assert (r == "");
 }
 
 void test_string_splice () {
@@ -88,6 +94,12 @@ void test_string_splice () {
 	assert (s == "hellowholewideworld");
 
 	s = s.splice (-14, -5);
+	assert (s == "helloworld");
+
+	s = "hello".splice (0, 0);
+	assert (s == "hello");
+
+	s = "world".splice (0, 0, "hello");
 	assert (s == "helloworld");
 }
 

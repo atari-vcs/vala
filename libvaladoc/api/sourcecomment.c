@@ -23,12 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
@@ -48,24 +46,23 @@ struct _ValadocApiParamSpecSourceComment {
 	GParamSpec parent_instance;
 };
 
-
 static gint ValadocApiSourceComment_private_offset;
 static gpointer valadoc_api_source_comment_parent_class = NULL;
 
-static void valadoc_api_source_comment_set_first_column (ValadocApiSourceComment* self,
-                                                  gint value);
-static void valadoc_api_source_comment_set_last_column (ValadocApiSourceComment* self,
-                                                 gint value);
-static void valadoc_api_source_comment_set_first_line (ValadocApiSourceComment* self,
-                                                gint value);
-static void valadoc_api_source_comment_set_last_line (ValadocApiSourceComment* self,
-                                               gint value);
-static void valadoc_api_source_comment_set_content (ValadocApiSourceComment* self,
-                                             const gchar* value);
 static void valadoc_api_source_comment_set_file (ValadocApiSourceComment* self,
                                           ValadocApiSourceFile* value);
+static void valadoc_api_source_comment_set_content (ValadocApiSourceComment* self,
+                                             const gchar* value);
+static void valadoc_api_source_comment_set_first_line (ValadocApiSourceComment* self,
+                                                gint value);
+static void valadoc_api_source_comment_set_first_column (ValadocApiSourceComment* self,
+                                                  gint value);
+static void valadoc_api_source_comment_set_last_line (ValadocApiSourceComment* self,
+                                               gint value);
+static void valadoc_api_source_comment_set_last_column (ValadocApiSourceComment* self,
+                                                 gint value);
 static void valadoc_api_source_comment_finalize (ValadocApiSourceComment * obj);
-
+static GType valadoc_api_source_comment_get_type_once (void);
 
 static inline gpointer
 valadoc_api_source_comment_get_instance_private (ValadocApiSourceComment* self)
@@ -73,6 +70,123 @@ valadoc_api_source_comment_get_instance_private (ValadocApiSourceComment* self)
 	return G_STRUCT_MEMBER_P (self, ValadocApiSourceComment_private_offset);
 }
 
+ValadocApiSourceFile*
+valadoc_api_source_comment_get_file (ValadocApiSourceComment* self)
+{
+	ValadocApiSourceFile* result;
+	ValadocApiSourceFile* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_file;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+static void
+valadoc_api_source_comment_set_file (ValadocApiSourceComment* self,
+                                     ValadocApiSourceFile* value)
+{
+	ValadocApiSourceFile* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _g_object_ref0 (value);
+	_g_object_unref0 (self->priv->_file);
+	self->priv->_file = _tmp0_;
+}
+
+const gchar*
+valadoc_api_source_comment_get_content (ValadocApiSourceComment* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_content;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_api_source_comment_set_content (ValadocApiSourceComment* self,
+                                        const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_content);
+	self->priv->_content = _tmp0_;
+}
+
+gint
+valadoc_api_source_comment_get_first_line (ValadocApiSourceComment* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_first_line;
+	return result;
+}
+
+static void
+valadoc_api_source_comment_set_first_line (ValadocApiSourceComment* self,
+                                           gint value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_first_line = value;
+}
+
+gint
+valadoc_api_source_comment_get_first_column (ValadocApiSourceComment* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_first_column;
+	return result;
+}
+
+static void
+valadoc_api_source_comment_set_first_column (ValadocApiSourceComment* self,
+                                             gint value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_first_column = value;
+}
+
+gint
+valadoc_api_source_comment_get_last_line (ValadocApiSourceComment* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_last_line;
+	return result;
+}
+
+static void
+valadoc_api_source_comment_set_last_line (ValadocApiSourceComment* self,
+                                          gint value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_last_line = value;
+}
+
+gint
+valadoc_api_source_comment_get_last_column (ValadocApiSourceComment* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_last_column;
+	return result;
+}
+
+static void
+valadoc_api_source_comment_set_last_column (ValadocApiSourceComment* self,
+                                            gint value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_last_column = value;
+}
 
 ValadocApiSourceComment*
 valadoc_api_source_comment_construct (GType object_type,
@@ -96,7 +210,6 @@ valadoc_api_source_comment_construct (GType object_type,
 	return self;
 }
 
-
 ValadocApiSourceComment*
 valadoc_api_source_comment_new (const gchar* content,
                                 ValadocApiSourceFile* file,
@@ -108,152 +221,11 @@ valadoc_api_source_comment_new (const gchar* content,
 	return valadoc_api_source_comment_construct (VALADOC_API_TYPE_SOURCE_COMMENT, content, file, first_line, first_column, last_line, last_column);
 }
 
-
-ValadocApiSourceFile*
-valadoc_api_source_comment_get_file (ValadocApiSourceComment* self)
-{
-	ValadocApiSourceFile* result;
-	ValadocApiSourceFile* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_file;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
-static void
-valadoc_api_source_comment_set_file (ValadocApiSourceComment* self,
-                                     ValadocApiSourceFile* value)
-{
-	ValadocApiSourceFile* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _g_object_ref0 (value);
-	_g_object_unref0 (self->priv->_file);
-	self->priv->_file = _tmp0_;
-}
-
-
-const gchar*
-valadoc_api_source_comment_get_content (ValadocApiSourceComment* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_content;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_source_comment_set_content (ValadocApiSourceComment* self,
-                                        const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_content);
-	self->priv->_content = _tmp0_;
-}
-
-
-gint
-valadoc_api_source_comment_get_first_line (ValadocApiSourceComment* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_first_line;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_source_comment_set_first_line (ValadocApiSourceComment* self,
-                                           gint value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_first_line = value;
-}
-
-
-gint
-valadoc_api_source_comment_get_first_column (ValadocApiSourceComment* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_first_column;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_source_comment_set_first_column (ValadocApiSourceComment* self,
-                                             gint value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_first_column = value;
-}
-
-
-gint
-valadoc_api_source_comment_get_last_line (ValadocApiSourceComment* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_last_line;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_source_comment_set_last_line (ValadocApiSourceComment* self,
-                                          gint value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_last_line = value;
-}
-
-
-gint
-valadoc_api_source_comment_get_last_column (ValadocApiSourceComment* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_last_column;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_api_source_comment_set_last_column (ValadocApiSourceComment* self,
-                                            gint value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_last_column = value;
-}
-
-
 static void
 valadoc_api_value_source_comment_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 valadoc_api_value_source_comment_free_value (GValue* value)
@@ -262,7 +234,6 @@ valadoc_api_value_source_comment_free_value (GValue* value)
 		valadoc_api_source_comment_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 valadoc_api_value_source_comment_copy_value (const GValue* src_value,
@@ -275,13 +246,11 @@ valadoc_api_value_source_comment_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 valadoc_api_value_source_comment_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 valadoc_api_value_source_comment_collect_value (GValue* value,
@@ -304,7 +273,6 @@ valadoc_api_value_source_comment_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 valadoc_api_value_source_comment_lcopy_value (const GValue* value,
                                               guint n_collect_values,
@@ -326,7 +294,6 @@ valadoc_api_value_source_comment_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 valadoc_api_param_spec_source_comment (const gchar* name,
                                        const gchar* nick,
@@ -341,14 +308,12 @@ valadoc_api_param_spec_source_comment (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 valadoc_api_value_get_source_comment (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_API_TYPE_SOURCE_COMMENT), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 valadoc_api_value_set_source_comment (GValue* value,
@@ -370,7 +335,6 @@ valadoc_api_value_set_source_comment (GValue* value,
 	}
 }
 
-
 void
 valadoc_api_value_take_source_comment (GValue* value,
                                        gpointer v_object)
@@ -390,23 +354,22 @@ valadoc_api_value_take_source_comment (GValue* value,
 	}
 }
 
-
 static void
-valadoc_api_source_comment_class_init (ValadocApiSourceCommentClass * klass)
+valadoc_api_source_comment_class_init (ValadocApiSourceCommentClass * klass,
+                                       gpointer klass_data)
 {
 	valadoc_api_source_comment_parent_class = g_type_class_peek_parent (klass);
 	((ValadocApiSourceCommentClass *) klass)->finalize = valadoc_api_source_comment_finalize;
 	g_type_class_adjust_private_offset (klass, &ValadocApiSourceComment_private_offset);
 }
 
-
 static void
-valadoc_api_source_comment_instance_init (ValadocApiSourceComment * self)
+valadoc_api_source_comment_instance_init (ValadocApiSourceComment * self,
+                                          gpointer klass)
 {
 	self->priv = valadoc_api_source_comment_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 valadoc_api_source_comment_finalize (ValadocApiSourceComment * obj)
@@ -418,26 +381,32 @@ valadoc_api_source_comment_finalize (ValadocApiSourceComment * obj)
 	_g_free0 (self->priv->_content);
 }
 
-
 /**
  * A documentation comment used by valadoc
  */
+static GType
+valadoc_api_source_comment_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { valadoc_api_value_source_comment_init, valadoc_api_value_source_comment_free_value, valadoc_api_value_source_comment_copy_value, valadoc_api_value_source_comment_peek_pointer, "p", valadoc_api_value_source_comment_collect_value, "p", valadoc_api_value_source_comment_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSourceCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_source_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSourceComment), 0, (GInstanceInitFunc) valadoc_api_source_comment_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_api_source_comment_type_id;
+	valadoc_api_source_comment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocApiSourceComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValadocApiSourceComment_private_offset = g_type_add_instance_private (valadoc_api_source_comment_type_id, sizeof (ValadocApiSourceCommentPrivate));
+	return valadoc_api_source_comment_type_id;
+}
+
 GType
 valadoc_api_source_comment_get_type (void)
 {
 	static volatile gsize valadoc_api_source_comment_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_source_comment_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_api_value_source_comment_init, valadoc_api_value_source_comment_free_value, valadoc_api_value_source_comment_copy_value, valadoc_api_value_source_comment_peek_pointer, "p", valadoc_api_value_source_comment_collect_value, "p", valadoc_api_value_source_comment_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiSourceCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_source_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiSourceComment), 0, (GInstanceInitFunc) valadoc_api_source_comment_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType valadoc_api_source_comment_type_id;
-		valadoc_api_source_comment_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocApiSourceComment", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValadocApiSourceComment_private_offset = g_type_add_instance_private (valadoc_api_source_comment_type_id, sizeof (ValadocApiSourceCommentPrivate));
+		valadoc_api_source_comment_type_id = valadoc_api_source_comment_get_type_once ();
 		g_once_init_leave (&valadoc_api_source_comment_type_id__volatile, valadoc_api_source_comment_type_id);
 	}
 	return valadoc_api_source_comment_type_id__volatile;
 }
-
 
 gpointer
 valadoc_api_source_comment_ref (gpointer instance)
@@ -447,7 +416,6 @@ valadoc_api_source_comment_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 valadoc_api_source_comment_unref (gpointer instance)
@@ -459,6 +427,4 @@ valadoc_api_source_comment_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

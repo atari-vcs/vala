@@ -20,7 +20,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class Collection<G> : Vala.Iterable<G> {
-		public Collection ();
+		protected Collection ();
 		public abstract bool add (G item);
 		public virtual bool add_all (Vala.Collection<G> collection);
 		public abstract void clear ();
@@ -61,13 +61,13 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class Iterable<G> {
-		public Iterable ();
+		protected Iterable ();
 		public abstract GLib.Type get_element_type ();
 		public abstract Vala.Iterator<G> iterator ();
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class Iterator<G> {
-		public Iterator ();
+		protected Iterator ();
 		public abstract G @get ();
 		public abstract bool has_next ();
 		public abstract bool next ();
@@ -76,7 +76,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class List<G> : Vala.Collection<G> {
-		public List ();
+		protected List ();
 		public virtual G first ();
 		public abstract G @get (int index);
 		public abstract int index_of (G item);
@@ -89,7 +89,7 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class Map<K,V> {
-		public Map ();
+		protected Map ();
 		public abstract void clear ();
 		public abstract bool contains (K key);
 		public abstract V @get (K key);
@@ -102,13 +102,13 @@ namespace Vala {
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class MapIterator<K,V> {
-		public MapIterator ();
+		protected MapIterator ();
 		public abstract K get_key ();
 		public abstract V get_value ();
 		public abstract bool next ();
 	}
 	[CCode (cheader_filename = "valagee.h")]
 	public abstract class Set<G> : Vala.Collection<G> {
-		public Set ();
+		protected Set ();
 	}
 }

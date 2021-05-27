@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_CONTENT_PARAGRAPH_0_PROPERTY,
@@ -49,7 +48,6 @@ struct _ValadocContentParagraphPrivate {
 	ValadocContentVerticalAlign _vertical_align;
 	gchar* _style;
 };
-
 
 static gint ValadocContentParagraph_private_offset;
 static gpointer valadoc_content_paragraph_parent_class = NULL;
@@ -72,6 +70,7 @@ static ValadocContentContentElement* valadoc_content_paragraph_real_copy (Valado
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 static void valadoc_content_paragraph_finalize (GObject * obj);
+static GType valadoc_content_paragraph_get_type_once (void);
 static void _vala_valadoc_content_paragraph_get_property (GObject * object,
                                                    guint property_id,
                                                    GValue * value,
@@ -81,13 +80,92 @@ static void _vala_valadoc_content_paragraph_set_property (GObject * object,
                                                    const GValue * value,
                                                    GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_content_paragraph_get_instance_private (ValadocContentParagraph* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocContentParagraph_private_offset);
 }
 
+static ValadocContentHorizontalAlign
+valadoc_content_paragraph_real_get_horizontal_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentHorizontalAlign result;
+	ValadocContentParagraph* self;
+	ValadocContentHorizontalAlign _tmp0_;
+	self = (ValadocContentParagraph*) base;
+	_tmp0_ = self->priv->_horizontal_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_paragraph_real_set_horizontal_align (ValadocContentStyleAttributes* base,
+                                                     ValadocContentHorizontalAlign value)
+{
+	ValadocContentParagraph* self;
+	ValadocContentHorizontalAlign old_value;
+	self = (ValadocContentParagraph*) base;
+	old_value = valadoc_content_paragraph_real_get_horizontal_align (base);
+	if (old_value != value) {
+		self->priv->_horizontal_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_HORIZONTAL_ALIGN_PROPERTY]);
+	}
+}
+
+static ValadocContentVerticalAlign
+valadoc_content_paragraph_real_get_vertical_align (ValadocContentStyleAttributes* base)
+{
+	ValadocContentVerticalAlign result;
+	ValadocContentParagraph* self;
+	ValadocContentVerticalAlign _tmp0_;
+	self = (ValadocContentParagraph*) base;
+	_tmp0_ = self->priv->_vertical_align;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_paragraph_real_set_vertical_align (ValadocContentStyleAttributes* base,
+                                                   ValadocContentVerticalAlign value)
+{
+	ValadocContentParagraph* self;
+	ValadocContentVerticalAlign old_value;
+	self = (ValadocContentParagraph*) base;
+	old_value = valadoc_content_paragraph_real_get_vertical_align (base);
+	if (old_value != value) {
+		self->priv->_vertical_align = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_VERTICAL_ALIGN_PROPERTY]);
+	}
+}
+
+static const gchar*
+valadoc_content_paragraph_real_get_style (ValadocContentStyleAttributes* base)
+{
+	const gchar* result;
+	ValadocContentParagraph* self;
+	const gchar* _tmp0_;
+	self = (ValadocContentParagraph*) base;
+	_tmp0_ = self->priv->_style;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_content_paragraph_real_set_style (ValadocContentStyleAttributes* base,
+                                          const gchar* value)
+{
+	ValadocContentParagraph* self;
+	gchar* old_value;
+	self = (ValadocContentParagraph*) base;
+	old_value = valadoc_content_paragraph_real_get_style (base);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_style);
+		self->priv->_style = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_STYLE_PROPERTY]);
+	}
+}
 
 G_GNUC_INTERNAL ValadocContentParagraph*
 valadoc_content_paragraph_construct (GType object_type)
@@ -97,13 +175,11 @@ valadoc_content_paragraph_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentParagraph*
 valadoc_content_paragraph_new (void)
 {
 	return valadoc_content_paragraph_construct (VALADOC_CONTENT_TYPE_PARAGRAPH);
 }
-
 
 static void
 valadoc_content_paragraph_real_check (ValadocContentContentElement* base,
@@ -123,7 +199,6 @@ valadoc_content_paragraph_real_check (ValadocContentContentElement* base,
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_content_paragraph_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_INLINE_CONTENT, ValadocContentInlineContent), api_root, container, file_path, reporter, settings);
 }
 
-
 static void
 valadoc_content_paragraph_real_accept (ValadocContentContentElement* base,
                                        ValadocContentContentVisitor* visitor)
@@ -134,20 +209,17 @@ valadoc_content_paragraph_real_accept (ValadocContentContentElement* base,
 	valadoc_content_content_visitor_visit_paragraph (visitor, self);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_paragraph_real_copy (ValadocContentContentElement* base,
                                      ValadocContentContentElement* new_parent)
 {
 	ValadocContentParagraph * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentParagraph* p = NULL;
 	ValadocContentParagraph* _tmp0_;
 	ValadocContentParagraph* _tmp1_;
@@ -160,6 +232,7 @@ valadoc_content_paragraph_real_copy (ValadocContentContentElement* base,
 	ValadocContentParagraph* _tmp8_;
 	const gchar* _tmp9_;
 	const gchar* _tmp10_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentParagraph*) base;
 	_tmp0_ = valadoc_content_paragraph_new ();
 	p = _tmp0_;
@@ -199,44 +272,40 @@ valadoc_content_paragraph_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp17_;
 			gint _tmp18_;
-			gint _tmp19_;
 			ValadocContentInline* element = NULL;
-			ValaList* _tmp20_;
-			gint _tmp21_;
-			gpointer _tmp22_;
+			ValaList* _tmp19_;
+			gpointer _tmp20_;
 			ValadocContentInline* copy = NULL;
-			ValadocContentInline* _tmp23_;
-			ValadocContentParagraph* _tmp24_;
-			ValadocContentContentElement* _tmp25_;
-			ValadocContentInline* _tmp26_;
-			ValadocContentParagraph* _tmp27_;
-			ValaList* _tmp28_;
-			ValaList* _tmp29_;
-			ValadocContentInline* _tmp30_;
+			ValadocContentInline* _tmp21_;
+			ValadocContentParagraph* _tmp22_;
+			ValadocContentContentElement* _tmp23_;
+			ValadocContentInline* _tmp24_;
+			ValadocContentParagraph* _tmp25_;
+			ValaList* _tmp26_;
+			ValaList* _tmp27_;
+			ValadocContentInline* _tmp28_;
+			_element_index = _element_index + 1;
 			_tmp17_ = _element_index;
-			_element_index = _tmp17_ + 1;
-			_tmp18_ = _element_index;
-			_tmp19_ = _element_size;
-			if (!(_tmp18_ < _tmp19_)) {
+			_tmp18_ = _element_size;
+			if (!(_tmp17_ < _tmp18_)) {
 				break;
 			}
-			_tmp20_ = _element_list;
-			_tmp21_ = _element_index;
-			_tmp22_ = vala_list_get (_tmp20_, _tmp21_);
-			element = (ValadocContentInline*) _tmp22_;
-			_tmp23_ = element;
-			_tmp24_ = p;
-			_tmp25_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp23_, (ValadocContentContentElement*) _tmp24_);
-			_tmp26_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp25_, VALADOC_CONTENT_TYPE_INLINE) ? ((ValadocContentInline*) _tmp25_) : NULL;
-			if (_tmp26_ == NULL) {
-				_g_object_unref0 (_tmp25_);
+			_tmp19_ = _element_list;
+			_tmp20_ = vala_list_get (_tmp19_, _element_index);
+			element = (ValadocContentInline*) _tmp20_;
+			_tmp21_ = element;
+			_tmp22_ = p;
+			_tmp23_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp21_, (ValadocContentContentElement*) _tmp22_);
+			_tmp24_ = VALADOC_CONTENT_IS_INLINE (_tmp23_) ? ((ValadocContentInline*) _tmp23_) : NULL;
+			if (_tmp24_ == NULL) {
+				_g_object_unref0 (_tmp23_);
 			}
-			copy = _tmp26_;
-			_tmp27_ = p;
-			_tmp28_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp27_);
-			_tmp29_ = _tmp28_;
-			_tmp30_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp29_, _tmp30_);
+			copy = _tmp24_;
+			_tmp25_ = p;
+			_tmp26_ = valadoc_content_inline_content_get_content ((ValadocContentInlineContent*) _tmp25_);
+			_tmp27_ = _tmp26_;
+			_tmp28_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp27_, _tmp28_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -246,90 +315,9 @@ valadoc_content_paragraph_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-static ValadocContentHorizontalAlign
-valadoc_content_paragraph_real_get_horizontal_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentHorizontalAlign result;
-	ValadocContentParagraph* self;
-	ValadocContentHorizontalAlign _tmp0_;
-	self = (ValadocContentParagraph*) base;
-	_tmp0_ = self->priv->_horizontal_align;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_content_paragraph_real_set_horizontal_align (ValadocContentStyleAttributes* base,
-                                                     ValadocContentHorizontalAlign value)
-{
-	ValadocContentParagraph* self;
-	self = (ValadocContentParagraph*) base;
-	if (valadoc_content_paragraph_real_get_horizontal_align (base) != value) {
-		self->priv->_horizontal_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_HORIZONTAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static ValadocContentVerticalAlign
-valadoc_content_paragraph_real_get_vertical_align (ValadocContentStyleAttributes* base)
-{
-	ValadocContentVerticalAlign result;
-	ValadocContentParagraph* self;
-	ValadocContentVerticalAlign _tmp0_;
-	self = (ValadocContentParagraph*) base;
-	_tmp0_ = self->priv->_vertical_align;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_paragraph_real_set_vertical_align (ValadocContentStyleAttributes* base,
-                                                   ValadocContentVerticalAlign value)
-{
-	ValadocContentParagraph* self;
-	self = (ValadocContentParagraph*) base;
-	if (valadoc_content_paragraph_real_get_vertical_align (base) != value) {
-		self->priv->_vertical_align = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_VERTICAL_ALIGN_PROPERTY]);
-	}
-}
-
-
-static const gchar*
-valadoc_content_paragraph_real_get_style (ValadocContentStyleAttributes* base)
-{
-	const gchar* result;
-	ValadocContentParagraph* self;
-	const gchar* _tmp0_;
-	self = (ValadocContentParagraph*) base;
-	_tmp0_ = self->priv->_style;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_content_paragraph_real_set_style (ValadocContentStyleAttributes* base,
-                                          const gchar* value)
-{
-	ValadocContentParagraph* self;
-	self = (ValadocContentParagraph*) base;
-	if (g_strcmp0 (value, valadoc_content_paragraph_real_get_style (base)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_style);
-		self->priv->_style = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_STYLE_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_content_paragraph_class_init (ValadocContentParagraphClass * klass)
+valadoc_content_paragraph_class_init (ValadocContentParagraphClass * klass,
+                                      gpointer klass_data)
 {
 	valadoc_content_paragraph_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentParagraph_private_offset);
@@ -344,16 +332,16 @@ valadoc_content_paragraph_class_init (ValadocContentParagraphClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_PARAGRAPH_STYLE_PROPERTY, valadoc_content_paragraph_properties[VALADOC_CONTENT_PARAGRAPH_STYLE_PROPERTY] = g_param_spec_string ("style", "style", "style", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_content_paragraph_valadoc_content_block_interface_init (ValadocContentBlockIface * iface)
+valadoc_content_paragraph_valadoc_content_block_interface_init (ValadocContentBlockIface * iface,
+                                                                gpointer iface_data)
 {
 	valadoc_content_paragraph_valadoc_content_block_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_paragraph_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface)
+valadoc_content_paragraph_valadoc_content_style_attributes_interface_init (ValadocContentStyleAttributesIface * iface,
+                                                                           gpointer iface_data)
 {
 	valadoc_content_paragraph_valadoc_content_style_attributes_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_horizontal_align = valadoc_content_paragraph_real_get_horizontal_align;
@@ -364,13 +352,12 @@ valadoc_content_paragraph_valadoc_content_style_attributes_interface_init (Valad
 	iface->set_style = valadoc_content_paragraph_real_set_style;
 }
 
-
 static void
-valadoc_content_paragraph_instance_init (ValadocContentParagraph * self)
+valadoc_content_paragraph_instance_init (ValadocContentParagraph * self,
+                                         gpointer klass)
 {
 	self->priv = valadoc_content_paragraph_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_paragraph_finalize (GObject * obj)
@@ -381,25 +368,31 @@ valadoc_content_paragraph_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_paragraph_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_paragraph_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentParagraphClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_paragraph_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentParagraph), 0, (GInstanceInitFunc) valadoc_content_paragraph_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_paragraph_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_paragraph_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_paragraph_type_id;
+	valadoc_content_paragraph_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentParagraph", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_paragraph_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
+	g_type_add_interface_static (valadoc_content_paragraph_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
+	ValadocContentParagraph_private_offset = g_type_add_instance_private (valadoc_content_paragraph_type_id, sizeof (ValadocContentParagraphPrivate));
+	return valadoc_content_paragraph_type_id;
+}
 
 GType
 valadoc_content_paragraph_get_type (void)
 {
 	static volatile gsize valadoc_content_paragraph_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_paragraph_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentParagraphClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_paragraph_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentParagraph), 0, (GInstanceInitFunc) valadoc_content_paragraph_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_paragraph_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
-		static const GInterfaceInfo valadoc_content_style_attributes_info = { (GInterfaceInitFunc) valadoc_content_paragraph_valadoc_content_style_attributes_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_paragraph_type_id;
-		valadoc_content_paragraph_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_INLINE_CONTENT, "ValadocContentParagraph", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_paragraph_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
-		g_type_add_interface_static (valadoc_content_paragraph_type_id, VALADOC_CONTENT_TYPE_STYLE_ATTRIBUTES, &valadoc_content_style_attributes_info);
-		ValadocContentParagraph_private_offset = g_type_add_instance_private (valadoc_content_paragraph_type_id, sizeof (ValadocContentParagraphPrivate));
+		valadoc_content_paragraph_type_id = valadoc_content_paragraph_get_type_once ();
 		g_once_init_leave (&valadoc_content_paragraph_type_id__volatile, valadoc_content_paragraph_type_id);
 	}
 	return valadoc_content_paragraph_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_paragraph_get_property (GObject * object,
@@ -425,7 +418,6 @@ _vala_valadoc_content_paragraph_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_content_paragraph_set_property (GObject * object,
                                               guint property_id,
@@ -449,6 +441,4 @@ _vala_valadoc_content_paragraph_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

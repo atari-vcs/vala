@@ -23,19 +23,15 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <valagee.h>
-
-
-
+#include <glib-object.h>
 
 static ValaList* valadoc_content_taglet_real_get_inheritable_documentation (ValadocContentTaglet* self);
 static gboolean valadoc_content_taglet_real_inheritable (ValadocContentTaglet* self,
                                                   ValadocContentTaglet* taglet);
-
+static GType valadoc_content_taglet_get_type_once (void);
 
 ValadocRule*
 valadoc_content_taglet_get_parser_rule (ValadocContentTaglet* self,
@@ -45,7 +41,6 @@ valadoc_content_taglet_get_parser_rule (ValadocContentTaglet* self,
 	return VALADOC_CONTENT_TAGLET_GET_INTERFACE (self)->get_parser_rule (self, run_rule);
 }
 
-
 static ValaList*
 valadoc_content_taglet_real_get_inheritable_documentation (ValadocContentTaglet* self)
 {
@@ -54,14 +49,12 @@ valadoc_content_taglet_real_get_inheritable_documentation (ValadocContentTaglet*
 	return result;
 }
 
-
 ValaList*
 valadoc_content_taglet_get_inheritable_documentation (ValadocContentTaglet* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALADOC_CONTENT_TAGLET_GET_INTERFACE (self)->get_inheritable_documentation (self);
 }
-
 
 static gboolean
 valadoc_content_taglet_real_inheritable (ValadocContentTaglet* self,
@@ -73,7 +66,6 @@ valadoc_content_taglet_real_inheritable (ValadocContentTaglet* self,
 	return result;
 }
 
-
 gboolean
 valadoc_content_taglet_inheritable (ValadocContentTaglet* self,
                                     ValadocContentTaglet* taglet)
@@ -82,28 +74,33 @@ valadoc_content_taglet_inheritable (ValadocContentTaglet* self,
 	return VALADOC_CONTENT_TAGLET_GET_INTERFACE (self)->inheritable (self, taglet);
 }
 
-
 static void
-valadoc_content_taglet_default_init (ValadocContentTagletIface * iface)
+valadoc_content_taglet_default_init (ValadocContentTagletIface * iface,
+                                     gpointer iface_data)
 {
 	iface->get_inheritable_documentation = valadoc_content_taglet_real_get_inheritable_documentation;
 	iface->inheritable = valadoc_content_taglet_real_inheritable;
 }
 
+static GType
+valadoc_content_taglet_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTagletIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_taglet_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType valadoc_content_taglet_type_id;
+	valadoc_content_taglet_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocContentTaglet", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (valadoc_content_taglet_type_id, VALADOC_CONTENT_TYPE_CONTENT_ELEMENT);
+	return valadoc_content_taglet_type_id;
+}
 
 GType
 valadoc_content_taglet_get_type (void)
 {
 	static volatile gsize valadoc_content_taglet_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_taglet_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTagletIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_taglet_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType valadoc_content_taglet_type_id;
-		valadoc_content_taglet_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValadocContentTaglet", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (valadoc_content_taglet_type_id, VALADOC_CONTENT_TYPE_CONTENT_ELEMENT);
+		valadoc_content_taglet_type_id = valadoc_content_taglet_get_type_once ();
 		g_once_init_leave (&valadoc_content_taglet_type_id__volatile, valadoc_content_taglet_type_id);
 	}
 	return valadoc_content_taglet_type_id__volatile;
 }
-
-
 

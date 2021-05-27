@@ -79,20 +79,40 @@ public class Vala.LocalVariable : Variable {
 
 		checked = true;
 
-		if (variable_type != null) {
+		if (variable_type == null) {
+			variable_type = new VarType ();
+		}
+
+		if (!context.experimental_non_null) {
+			// local reference variables are considered nullable
+			// except when using experimental non-null enhancements
+			if (variable_type is ReferenceType) {
+				unowned ArrayType? array_type = variable_type as ArrayType;
+				if (array_type != null && array_type.fixed_length) {
+					// local fixed length arrays are not nullable
+				} else {
+					variable_type.nullable = true;
+				}
+			}
+		}
+
+		if (!(variable_type is VarType)) {
 			if (variable_type is VoidType) {
 				error = true;
 				Report.error (source_reference, "'void' not supported as variable type");
-				return false;
+			} else if (!variable_type.check (context)) {
+				error = true;
 			}
-			variable_type.check (context);
+			if (!external_package) {
+				context.analyzer.check_type (variable_type);
+			}
 		}
 
 		// Catch initializer list transformation:
 		bool is_initializer_list = false;
 		int initializer_size = -1;
 
-		if (initializer != null) {
+		if (initializer != null && !error) {
 			initializer.target_type = variable_type;
 
 			if (initializer is InitializerList) {
@@ -100,10 +120,22 @@ public class Vala.LocalVariable : Variable {
 				is_initializer_list = true;
 			}
 
-			initializer.check (context);
+			if (!initializer.check (context)) {
+				error = true;
+			} else if (initializer.value_type is VoidType) {
+				error = true;
+				Report.error (initializer.source_reference, "'void' not supported as initializer type");
+			}
 		}
 
-		if (variable_type == null) {
+		// local variables are defined even on errors
+		context.analyzer.current_symbol.scope.add (name, this);
+
+		if (error) {
+			return false;
+		}
+
+		if (variable_type is VarType) {
 			/* var type */
 
 			if (initializer == null) {
@@ -122,35 +154,52 @@ public class Vala.LocalVariable : Variable {
 				return false;
 			}
 
+			bool value_owned = variable_type.value_owned;
 			variable_type = initializer.value_type.copy ();
-			variable_type.value_owned = true;
+			variable_type.value_owned = value_owned;
 			variable_type.floating_reference = false;
 
 			initializer.target_type = variable_type;
+			variable_type.check (context);
+		}
+
+		if (!external_package) {
+			// check symbol availability
+			if (variable_type.type_symbol != null) {
+				variable_type.type_symbol.version.check (source_reference);
+			}
+		}
+
+		unowned ArrayType? variable_array_type = variable_type as ArrayType;
+		if (variable_array_type != null && variable_array_type.inline_allocated
+		    && initializer is ArrayCreationExpression && ((ArrayCreationExpression) initializer).initializer_list == null) {
+			Report.warning (source_reference, "Inline allocated arrays don't require an explicit instantiation");
+			initializer = null;
+		}
+
+		if (variable_array_type != null && variable_array_type.inline_allocated
+		    && variable_array_type.length == null && !(initializer is ArrayCreationExpression)) {
+			error = true;
+			Report.error (source_reference, "Inline allocated array requires either a given length or an initializer");
 		}
 
 		if (initializer != null && !initializer.error) {
-			if (initializer.value_type == null) {
+			if (initializer.value_type is MethodType) {
 				if (!(initializer is MemberAccess) && !(initializer is LambdaExpression)) {
 					error = true;
 					Report.error (source_reference, "expression type not allowed as initializer");
 					return false;
 				}
 
-				if (initializer.symbol_reference is Method &&
-				    variable_type is DelegateType) {
-					var m = (Method) initializer.symbol_reference;
-					var dt = (DelegateType) variable_type;
-					var cb = dt.delegate_symbol;
-
+				if (variable_type is DelegateType) {
 					/* check whether method matches callback type */
-					if (!cb.matches_method (m, dt)) {
+					if (!initializer.value_type.compatible (variable_type)) {
+						unowned Method m = (Method) initializer.symbol_reference;
+						unowned Delegate cb = ((DelegateType) variable_type).delegate_symbol;
 						error = true;
-						Report.error (source_reference, "declaration of method `%s' doesn't match declaration of callback `%s'".printf (m.get_full_name (), cb.get_full_name ()));
+						Report.error (source_reference, "Declaration of method `%s' is not compatible with delegate `%s'".printf (m.get_full_name (), cb.get_full_name ()));
 						return false;
 					}
-
-					initializer.value_type = variable_type;
 				} else {
 					error = true;
 					Report.error (source_reference, "expression type not allowed as initializer");
@@ -164,8 +213,6 @@ public class Vala.LocalVariable : Variable {
 				return false;
 			}
 
-
-			ArrayType variable_array_type = variable_type as ArrayType;
 			if (variable_array_type != null && variable_array_type.inline_allocated && !variable_array_type.fixed_length && is_initializer_list) {
 				variable_array_type.length = new IntegerLiteral (initializer_size.to_string ());
 				variable_array_type.fixed_length = true;
@@ -189,11 +236,9 @@ public class Vala.LocalVariable : Variable {
 			}
 		}
 
-		context.analyzer.current_symbol.scope.add (name, this);
-
 		// current_symbol is a Method if this is the `result'
 		// variable used for postconditions
-		var block = context.analyzer.current_symbol as Block;
+		unowned Block? block = context.analyzer.current_symbol as Block;
 		if (block != null) {
 			block.add_local_variable (this);
 		}

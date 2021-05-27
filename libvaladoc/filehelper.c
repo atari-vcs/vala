@@ -23,23 +23,16 @@
  * 	Brosch Florian <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <stdio.h>
 #include <glib/gstdio.h>
 
 #define _fclose0(var) ((var == NULL) ? NULL : (var = (fclose (var), NULL)))
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_dir_close0(var) ((var == NULL) ? NULL : (var = (g_dir_close (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
-
-
-
-
 
 /**
  * Makes a copy of the file src to dest.
@@ -51,13 +44,13 @@ gboolean
 valadoc_copy_file (const gchar* src,
                    const gchar* dest)
 {
-	gboolean result = FALSE;
 	FILE* fsrc = NULL;
 	FILE* _tmp0_;
 	FILE* _tmp1_;
 	FILE* fdest = NULL;
 	FILE* _tmp2_;
 	FILE* _tmp3_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (src != NULL, FALSE);
 	g_return_val_if_fail (dest != NULL, FALSE);
 	_tmp0_ = g_fopen (src, "rb");
@@ -88,7 +81,6 @@ valadoc_copy_file (const gchar* src,
 			while (TRUE) {
 				FILE* _tmp7_;
 				FILE* _tmp8_;
-				gint _tmp9_;
 				if (!_tmp5_) {
 					FILE* _tmp6_;
 					_tmp6_ = fsrc;
@@ -100,8 +92,7 @@ valadoc_copy_file (const gchar* src,
 					break;
 				}
 				_tmp8_ = fdest;
-				_tmp9_ = c;
-				fputc ((gchar) _tmp9_, _tmp8_);
+				fputc ((gchar) c, _tmp8_);
 			}
 		}
 	}
@@ -110,7 +101,6 @@ valadoc_copy_file (const gchar* src,
 	_fclose0 (fsrc);
 	return result;
 }
-
 
 /**
  * Makes a copy of the directory src to dest.
@@ -122,22 +112,22 @@ gboolean
 valadoc_copy_directory (const gchar* src,
                         const gchar* dest)
 {
+	GError* _inner_error0_ = NULL;
 	gboolean result = FALSE;
-	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (src != NULL, FALSE);
 	g_return_val_if_fail (dest != NULL, FALSE);
 	{
 		GDir* dir = NULL;
 		GDir* _tmp0_;
-		_tmp0_ = g_dir_open (src, (guint) 0, &_inner_error_);
+		_tmp0_ = g_dir_open (src, (guint) 0, &_inner_error0_);
 		dir = _tmp0_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			gboolean _tmp1_ = FALSE;
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch1_g_file_error;
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp1_;
 		}
 		{
@@ -217,27 +207,23 @@ valadoc_copy_directory (const gchar* src,
 		}
 		_g_dir_close0 (dir);
 	}
-	goto __finally1;
-	__catch1_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
-		GError* err = NULL;
-		err = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		result = FALSE;
-		_g_error_free0 (err);
 		return result;
 	}
-	__finally1:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gboolean _tmp18_ = FALSE;
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp18_;
 	}
 	result = TRUE;
 	return result;
 }
-
 
 /**
  * A recursive directory delete function
@@ -247,22 +233,22 @@ valadoc_copy_directory (const gchar* src,
 gboolean
 valadoc_remove_directory (const gchar* rpath)
 {
+	GError* _inner_error0_ = NULL;
 	gboolean result = FALSE;
-	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (rpath != NULL, FALSE);
 	{
 		GDir* dir = NULL;
 		GDir* _tmp0_;
 		GDir* _tmp2_;
-		_tmp0_ = g_dir_open (rpath, (guint) 0, &_inner_error_);
+		_tmp0_ = g_dir_open (rpath, (guint) 0, &_inner_error0_);
 		dir = _tmp0_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			gboolean _tmp1_ = FALSE;
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch2_g_file_error;
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp1_;
 		}
 		_tmp2_ = dir;
@@ -288,7 +274,6 @@ valadoc_remove_directory (const gchar* rpath)
 					gchar* _tmp10_;
 					gboolean is_dir = FALSE;
 					const gchar* _tmp11_;
-					gboolean _tmp12_;
 					if (!_tmp5_) {
 						GDir* _tmp6_;
 						const gchar* _tmp7_;
@@ -306,15 +291,12 @@ valadoc_remove_directory (const gchar* rpath)
 					path = _tmp10_;
 					_tmp11_ = path;
 					is_dir = g_file_test (_tmp11_, G_FILE_TEST_IS_DIR);
-					_tmp12_ = is_dir;
-					if (_tmp12_ == TRUE) {
+					if (is_dir == TRUE) {
 						gboolean tmp = FALSE;
-						const gchar* _tmp13_;
-						gboolean _tmp14_;
-						_tmp13_ = path;
-						tmp = valadoc_remove_directory (_tmp13_);
-						_tmp14_ = tmp;
-						if (_tmp14_ == FALSE) {
+						const gchar* _tmp12_;
+						_tmp12_ = path;
+						tmp = valadoc_remove_directory (_tmp12_);
+						if (tmp == FALSE) {
 							result = FALSE;
 							_g_free0 (path);
 							_g_dir_close0 (dir);
@@ -322,12 +304,10 @@ valadoc_remove_directory (const gchar* rpath)
 						}
 					} else {
 						gint tmp = 0;
-						const gchar* _tmp15_;
-						gint _tmp16_;
-						_tmp15_ = path;
-						tmp = g_unlink (_tmp15_);
-						_tmp16_ = tmp;
-						if (_tmp16_ > 0) {
+						const gchar* _tmp13_;
+						_tmp13_ = path;
+						tmp = g_unlink (_tmp13_);
+						if (tmp > 0) {
 							result = FALSE;
 							_g_free0 (path);
 							_g_dir_close0 (dir);
@@ -340,26 +320,21 @@ valadoc_remove_directory (const gchar* rpath)
 		}
 		_g_dir_close0 (dir);
 	}
-	goto __finally2;
-	__catch2_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
-		GError* err = NULL;
-		err = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		result = FALSE;
-		_g_error_free0 (err);
 		return result;
 	}
-	__finally2:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		gboolean _tmp17_ = FALSE;
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return _tmp17_;
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		gboolean _tmp14_ = FALSE;
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
+		return _tmp14_;
 	}
 	result = TRUE;
 	return result;
 }
-
-
 

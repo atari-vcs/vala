@@ -69,7 +69,7 @@ public class Vala.ObjectCreationExpression : Expression {
 	 * @param source_reference reference to source code
 	 * @return                 newly created object creation expression
 	 */
-	public ObjectCreationExpression (MemberAccess? member_name, SourceReference source_reference) {
+	public ObjectCreationExpression (MemberAccess? member_name, SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 		this.member_name = member_name;
 	}
@@ -85,11 +85,11 @@ public class Vala.ObjectCreationExpression : Expression {
 	}
 
 	/**
-	 * Returns a copy of the argument list.
+	 * Returns the argument list.
 	 *
 	 * @return argument list
 	 */
-	public List<Expression> get_argument_list () {
+	public unowned List<Expression> get_argument_list () {
 		return argument_list;
 	}
 
@@ -108,7 +108,7 @@ public class Vala.ObjectCreationExpression : Expression {
 	 *
 	 * @return member initializer list
 	 */
-	public List<MemberInitializer> get_object_initializer () {
+	public unowned List<MemberInitializer> get_object_initializer () {
 		return object_initializer;
 	}
 
@@ -188,7 +188,7 @@ public class Vala.ObjectCreationExpression : Expression {
 			}
 		}
 
-		TypeSymbol type = null;
+		TypeSymbol type;
 
 		if (type_reference == null) {
 			if (member_name == null) {
@@ -220,7 +220,7 @@ public class Vala.ObjectCreationExpression : Expression {
 				symbol_reference = constructor;
 
 				// inner expression can also be base access when chaining constructors
-				var ma = member_name.inner as MemberAccess;
+				unowned MemberAccess? ma = member_name.inner as MemberAccess;
 				if (ma != null) {
 					type_args = ma.get_type_arguments ();
 				}
@@ -237,6 +237,7 @@ public class Vala.ObjectCreationExpression : Expression {
 				type = (TypeSymbol) type_sym;
 				type_reference = new StructValueType ((Struct) type);
 			} else if (type_sym is ErrorCode) {
+				type = (TypeSymbol) type_sym;
 				type_reference = new ErrorType ((ErrorDomain) type_sym.parent_symbol, (ErrorCode) type_sym, source_reference);
 				symbol_reference = type_sym;
 			} else {
@@ -249,13 +250,11 @@ public class Vala.ObjectCreationExpression : Expression {
 				type_reference.add_type_argument (type_arg);
 			}
 		} else {
-			type = type_reference.data_type;
+			type = type_reference.type_symbol;
 		}
 
 		value_type = type_reference.copy ();
 		value_type.value_owned = true;
-
-		bool may_throw = false;
 
 		int given_num_type_args = type_reference.get_type_arguments ().size;
 		int expected_num_type_args = 0;
@@ -348,7 +347,7 @@ public class Vala.ObjectCreationExpression : Expression {
 			return false;
 		}
 
-		if (symbol_reference == null && get_argument_list ().size != 0) {
+		if (symbol_reference == null && argument_list.size != 0) {
 			value_type = null;
 			error = true;
 			Report.error (source_reference, "No arguments allowed when constructing type `%s'".printf (type.get_full_name ()));
@@ -367,20 +366,36 @@ public class Vala.ObjectCreationExpression : Expression {
 					error = true;
 					Report.error (source_reference, "yield expression not available outside async method");
 				}
+			} else if (m is CreationMethod) {
+				if (m.coroutine) {
+					error = true;
+					Report.error (source_reference, "missing `yield' before async creation expression");
+				}
 			}
 
 			// FIXME partial code duplication of MethodCall.check
 
 			Expression last_arg = null;
 
-			var args = get_argument_list ();
-			Iterator<Expression> arg_it = args.iterator ();
+			Iterator<Expression> arg_it = argument_list.iterator ();
 			foreach (Parameter param in m.get_parameters ()) {
 				if (!param.check (context)) {
 					error = true;
 				}
 
 				if (param.ellipsis) {
+					break;
+				}
+
+				if (param.params_array) {
+					var array_type = (ArrayType) param.variable_type;
+					while (arg_it.next ()) {
+						Expression arg = arg_it.get ();
+
+						/* store expected type for callback parameters */
+						arg.target_type = array_type.element_type;
+						arg.target_type.value_owned = array_type.value_owned;
+					}
 					break;
 				}
 
@@ -403,16 +418,16 @@ public class Vala.ObjectCreationExpression : Expression {
 				} else if (last_arg != null) {
 					// use last argument as format string
 					format_literal = StringLiteral.get_format_literal (last_arg);
-					if (format_literal == null && args.size == m.get_parameters ().size - 1) {
+					if (format_literal == null && argument_list.size == m.get_parameters ().size - 1) {
 						// insert "%s" to avoid issues with embedded %
 						format_literal = new StringLiteral ("\"%s\"");
 						format_literal.target_type = context.analyzer.string_type.copy ();
-						argument_list.insert (args.size - 1, format_literal);
+						argument_list.insert (argument_list.size - 1, format_literal);
 
 						// recreate iterator and skip to right position
 						arg_it = argument_list.iterator ();
 						foreach (Parameter param in m.get_parameters ()) {
-							if (param.ellipsis) {
+							if (param.ellipsis || param.params_array) {
 								break;
 							}
 							arg_it.next ();
@@ -427,21 +442,11 @@ public class Vala.ObjectCreationExpression : Expression {
 				}
 			}
 
-			foreach (Expression arg in args) {
+			foreach (Expression arg in argument_list) {
 				arg.check (context);
 			}
 
-			context.analyzer.check_arguments (this, new MethodType (m), m.get_parameters (), args);
-
-			foreach (DataType error_type in m.get_error_types ()) {
-				may_throw = true;
-
-				// ensure we can trace back which expression may throw errors of this type
-				var call_error_type = error_type.copy ();
-				call_error_type.source_reference = source_reference;
-
-				add_error_type (call_error_type);
-			}
+			context.analyzer.check_arguments (this, new MethodType (m), m.get_parameters (), argument_list);
 		} else if (type_reference is ErrorType) {
 			if (type_reference != null) {
 				type_reference.check (context);
@@ -459,11 +464,11 @@ public class Vala.ObjectCreationExpression : Expression {
 				init.check (context);
 			}
 
-			if (get_argument_list ().size == 0) {
+			if (argument_list.size == 0) {
 				error = true;
 				Report.error (source_reference, "Too few arguments, errors need at least 1 argument");
 			} else {
-				Iterator<Expression> arg_it = get_argument_list ().iterator ();
+				Iterator<Expression> arg_it = argument_list.iterator ();
 				arg_it.next ();
 				var ex = arg_it.get ();
 				if (ex.value_type == null || !ex.value_type.compatible (context.analyzer.string_type)) {
@@ -480,7 +485,7 @@ public class Vala.ObjectCreationExpression : Expression {
 					}
 				}
 
-				arg_it = get_argument_list ().iterator ();
+				arg_it = argument_list.iterator ();
 				arg_it.next ();
 				if (!context.analyzer.check_variadic_arguments (arg_it, 1, source_reference)) {
 					error = true;
@@ -489,11 +494,25 @@ public class Vala.ObjectCreationExpression : Expression {
 			}
 		}
 
+		//Resolve possible generic-type in SizeofExpression used as parameter default-value
+		foreach (Expression arg in argument_list) {
+			unowned SizeofExpression sizeof_expr = arg as SizeofExpression;
+			if (sizeof_expr != null && sizeof_expr.type_reference is GenericType) {
+				var sizeof_type = sizeof_expr.type_reference.get_actual_type (type_reference, type_reference.get_type_arguments (), this);
+				replace_expression (arg, new SizeofExpression (sizeof_type, source_reference));
+			}
+		}
+
+		if (!type.external_package) {
+			context.analyzer.check_type (type_reference);
+		}
+
 		foreach (MemberInitializer init in get_object_initializer ()) {
 			context.analyzer.visit_member_initializer (init, type_reference);
 		}
 
-		if (may_throw) {
+		// FIXME code duplication in MethodCall.check
+		if (tree_can_fail) {
 			if (parent_node is LocalVariable || parent_node is ExpressionStatement) {
 				// simple statements, no side effects after method call
 			} else if (!(context.analyzer.current_symbol is Block)) {
@@ -509,6 +528,8 @@ public class Vala.ObjectCreationExpression : Expression {
 				insert_statement (context.analyzer.insert_block, decl);
 
 				var temp_access = SemanticAnalyzer.create_temp_access (local, target_type);
+				temp_access.formal_target_type = formal_target_type;
+
 				// don't set initializer earlier as this changes parent_node and parent_statement
 				local.initializer = this;
 				decl.check (context);
@@ -526,6 +547,16 @@ public class Vala.ObjectCreationExpression : Expression {
 		}
 
 		return !error;
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		if (symbol_reference is Method) {
+			if (source_reference == null) {
+				source_reference = this.source_reference;
+			}
+			var m = (Method) symbol_reference;
+			m.get_error_types (collection, source_reference);
+		}
 	}
 
 	public override void emit (CodeGenerator codegen) {

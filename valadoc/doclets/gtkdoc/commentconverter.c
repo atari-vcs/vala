@@ -23,16 +23,14 @@
  * 	Luca Bruno <lethalman88@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <valadoc.h>
+#include <glib-object.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <valagee.h>
 #include <float.h>
 #include <math.h>
-
 
 #define GTKDOC_TYPE_COMMENT_CONVERTER (gtkdoc_comment_converter_get_type ())
 #define GTKDOC_COMMENT_CONVERTER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTKDOC_TYPE_COMMENT_CONVERTER, GtkdocCommentConverter))
@@ -89,11 +87,11 @@ struct _GtkdocCommentConverterPrivate {
 	ValadocErrorReporter* reporter;
 };
 
-
 static gint GtkdocCommentConverter_private_offset;
 static gpointer gtkdoc_comment_converter_parent_class = NULL;
 
 GType gtkdoc_comment_converter_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocCommentConverter, g_object_unref)
 gpointer gtkdoc_header_ref (gpointer instance);
 void gtkdoc_header_unref (gpointer instance);
 GParamSpec* gtkdoc_param_spec_header (const gchar* name,
@@ -107,6 +105,7 @@ void gtkdoc_value_take_header (GValue* value,
                                gpointer v_object);
 gpointer gtkdoc_value_get_header (const GValue* value);
 GType gtkdoc_header_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocHeader, gtkdoc_header_unref)
 GtkdocCommentConverter* gtkdoc_comment_converter_new (ValadocErrorReporter* reporter,
                                                       ValadocApiNode* node_reference);
 GtkdocCommentConverter* gtkdoc_comment_converter_construct (GType object_type,
@@ -166,20 +165,21 @@ GtkdocHeader* gtkdoc_header_construct (GType object_type,
                                        gdouble pos,
                                        gboolean block);
 static gchar** _vala_array_dup1 (gchar** self,
-                          int length);
+                          gint length);
 static void _vala_array_add1 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static void _vala_array_add2 (gchar** * array,
-                       int* length,
-                       int* size,
+                       gint* length,
+                       gint* size,
                        gchar* value);
 static gchar** _vala_array_dup2 (gchar** self,
-                          int length);
+                          gint length);
 static void gtkdoc_comment_converter_real_visit_text (ValadocContentContentVisitor* base,
                                                ValadocContentText* t);
 static void gtkdoc_comment_converter_finalize (GObject * obj);
+static GType gtkdoc_comment_converter_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -187,20 +187,17 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 gtkdoc_comment_converter_get_instance_private (GtkdocCommentConverter* self)
 {
 	return G_STRUCT_MEMBER_P (self, GtkdocCommentConverter_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 GtkdocCommentConverter*
 gtkdoc_comment_converter_construct (GType object_type,
@@ -221,7 +218,6 @@ gtkdoc_comment_converter_construct (GType object_type,
 	return self;
 }
 
-
 GtkdocCommentConverter*
 gtkdoc_comment_converter_new (ValadocErrorReporter* reporter,
                               ValadocApiNode* node_reference)
@@ -229,23 +225,19 @@ gtkdoc_comment_converter_new (ValadocErrorReporter* reporter,
 	return gtkdoc_comment_converter_construct (GTKDOC_TYPE_COMMENT_CONVERTER, reporter, node_reference);
 }
 
-
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
-
 
 void
 gtkdoc_comment_converter_convert (GtkdocCommentConverter* self,
@@ -272,7 +264,6 @@ gtkdoc_comment_converter_convert (GtkdocCommentConverter* self,
 	}
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_comment (ValadocContentContentVisitor* base,
                                              ValadocContentComment* c)
@@ -282,7 +273,6 @@ gtkdoc_comment_converter_real_visit_comment (ValadocContentContentVisitor* base,
 	g_return_if_fail (c != NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) c, (ValadocContentContentVisitor*) self);
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_embedded (ValadocContentContentVisitor* base,
@@ -336,7 +326,6 @@ gtkdoc_comment_converter_real_visit_embedded (ValadocContentContentVisitor* base
 	g_string_append (_tmp15_, "</figure>");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_headline (ValadocContentContentVisitor* base,
                                               ValadocContentHeadline* hl)
@@ -355,7 +344,6 @@ gtkdoc_comment_converter_real_visit_headline (ValadocContentContentVisitor* base
 	_tmp2_ = self->priv->current_builder;
 	g_string_append (_tmp2_, "\n");
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_wiki_link (ValadocContentContentVisitor* base,
@@ -385,7 +373,6 @@ gtkdoc_comment_converter_real_visit_wiki_link (ValadocContentContentVisitor* bas
 	}
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_link (ValadocContentContentVisitor* base,
                                           ValadocContentLink* link)
@@ -405,7 +392,6 @@ gtkdoc_comment_converter_real_visit_link (ValadocContentContentVisitor* base,
 	_tmp3_ = self->priv->current_builder;
 	g_string_append (_tmp3_, "</ulink>");
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_symbol_link (ValadocContentContentVisitor* base,
@@ -475,66 +461,61 @@ gtkdoc_comment_converter_real_visit_symbol_link (ValadocContentContentVisitor* b
 			ValadocApiNode* _tmp23_;
 			ValadocApiItem* _tmp24_;
 			ValadocApiItem* _tmp25_;
-			gboolean _tmp26_;
-			gchar* _tmp27_;
-			GString* _tmp31_;
+			gchar* _tmp26_;
+			GString* _tmp30_;
 			_tmp22_ = valadoc_content_symbol_link_get_symbol (sl);
 			_tmp23_ = _tmp22_;
 			_tmp24_ = valadoc_api_item_get_parent ((ValadocApiItem*) G_TYPE_CHECK_INSTANCE_CAST (_tmp23_, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
 			_tmp25_ = _tmp24_;
-			_tmp26_ = self->is_dbus;
-			_tmp27_ = gtkdoc_get_docbook_link (_tmp25_, _tmp26_, FALSE);
-			_tmp21_ = _tmp27_;
+			_tmp26_ = gtkdoc_get_docbook_link (_tmp25_, self->is_dbus, FALSE);
+			_tmp21_ = _tmp26_;
 			if (_tmp21_ == NULL) {
+				const gchar* _tmp27_;
 				const gchar* _tmp28_;
-				const gchar* _tmp29_;
-				gchar* _tmp30_;
-				_tmp28_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
-				_tmp29_ = _tmp28_;
-				_tmp30_ = g_strdup (_tmp29_);
+				gchar* _tmp29_;
+				_tmp27_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
+				_tmp28_ = _tmp27_;
+				_tmp29_ = g_strdup (_tmp28_);
 				_g_free0 (_tmp21_);
-				_tmp21_ = _tmp30_;
+				_tmp21_ = _tmp29_;
 			}
-			_tmp31_ = self->priv->current_builder;
-			g_string_append (_tmp31_, _tmp21_);
+			_tmp30_ = self->priv->current_builder;
+			g_string_append (_tmp30_, _tmp21_);
 			_g_free0 (_tmp21_);
 		} else {
-			gchar* _tmp32_ = NULL;
+			gchar* _tmp31_ = NULL;
+			ValadocApiNode* _tmp32_;
 			ValadocApiNode* _tmp33_;
-			ValadocApiNode* _tmp34_;
-			gboolean _tmp35_;
-			gchar* _tmp36_;
-			GString* _tmp40_;
-			_tmp33_ = valadoc_content_symbol_link_get_symbol (sl);
-			_tmp34_ = _tmp33_;
-			_tmp35_ = self->is_dbus;
-			_tmp36_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp34_, _tmp35_, FALSE);
-			_tmp32_ = _tmp36_;
-			if (_tmp32_ == NULL) {
-				const gchar* _tmp37_;
-				const gchar* _tmp38_;
-				gchar* _tmp39_;
-				_tmp37_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
-				_tmp38_ = _tmp37_;
-				_tmp39_ = g_strdup (_tmp38_);
-				_g_free0 (_tmp32_);
-				_tmp32_ = _tmp39_;
+			gchar* _tmp34_;
+			GString* _tmp38_;
+			_tmp32_ = valadoc_content_symbol_link_get_symbol (sl);
+			_tmp33_ = _tmp32_;
+			_tmp34_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp33_, self->is_dbus, FALSE);
+			_tmp31_ = _tmp34_;
+			if (_tmp31_ == NULL) {
+				const gchar* _tmp35_;
+				const gchar* _tmp36_;
+				gchar* _tmp37_;
+				_tmp35_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
+				_tmp36_ = _tmp35_;
+				_tmp37_ = g_strdup (_tmp36_);
+				_g_free0 (_tmp31_);
+				_tmp31_ = _tmp37_;
 			}
-			_tmp40_ = self->priv->current_builder;
-			g_string_append (_tmp40_, _tmp32_);
-			_g_free0 (_tmp32_);
+			_tmp38_ = self->priv->current_builder;
+			g_string_append (_tmp38_, _tmp31_);
+			_g_free0 (_tmp31_);
 		}
 	} else {
-		GString* _tmp41_;
-		const gchar* _tmp42_;
-		const gchar* _tmp43_;
-		_tmp41_ = self->priv->current_builder;
-		_tmp42_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
-		_tmp43_ = _tmp42_;
-		g_string_append (_tmp41_, _tmp43_);
+		GString* _tmp39_;
+		const gchar* _tmp40_;
+		const gchar* _tmp41_;
+		_tmp39_ = self->priv->current_builder;
+		_tmp40_ = valadoc_content_symbol_link_get_given_symbol_name (sl);
+		_tmp41_ = _tmp40_;
+		g_string_append (_tmp39_, _tmp41_);
 	}
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_list (ValadocContentContentVisitor* base,
@@ -639,7 +620,6 @@ gtkdoc_comment_converter_real_visit_list (ValadocContentContentVisitor* base,
 	_g_free0 (tag);
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_list_item (ValadocContentContentVisitor* base,
                                                ValadocContentListItem* item)
@@ -656,45 +636,39 @@ gtkdoc_comment_converter_real_visit_list_item (ValadocContentContentVisitor* bas
 	g_string_append (_tmp1_, "</listitem>");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_paragraph (ValadocContentContentVisitor* base,
                                                ValadocContentParagraph* para)
 {
 	GtkdocCommentConverter * self;
-	gboolean _tmp0_;
-	gboolean _tmp2_;
 	self = (GtkdocCommentConverter*) base;
 	g_return_if_fail (para != NULL);
-	_tmp0_ = self->priv->in_brief_comment;
-	if (!_tmp0_) {
-		GString* _tmp1_;
-		_tmp1_ = self->priv->current_builder;
-		g_string_append (_tmp1_, "<para>");
+	if (!self->priv->in_brief_comment) {
+		GString* _tmp0_;
+		_tmp0_ = self->priv->current_builder;
+		g_string_append (_tmp0_, "<para>");
 	}
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) para, (ValadocContentContentVisitor*) self);
-	_tmp2_ = self->priv->in_brief_comment;
-	if (_tmp2_) {
-		GString* _tmp3_;
-		const gchar* _tmp4_;
-		gchar* _tmp5_;
-		GString* _tmp6_;
-		_tmp3_ = self->priv->current_builder;
-		_tmp4_ = _tmp3_->str;
-		_tmp5_ = g_strdup (_tmp4_);
+	if (self->priv->in_brief_comment) {
+		GString* _tmp1_;
+		const gchar* _tmp2_;
+		gchar* _tmp3_;
+		GString* _tmp4_;
+		_tmp1_ = self->priv->current_builder;
+		_tmp2_ = _tmp1_->str;
+		_tmp3_ = g_strdup (_tmp2_);
 		_g_free0 (self->brief_comment);
-		self->brief_comment = _tmp5_;
-		_tmp6_ = g_string_new ("");
+		self->brief_comment = _tmp3_;
+		_tmp4_ = g_string_new ("");
 		_g_string_free0 (self->priv->current_builder);
-		self->priv->current_builder = _tmp6_;
+		self->priv->current_builder = _tmp4_;
 		self->priv->in_brief_comment = FALSE;
 	} else {
-		GString* _tmp7_;
-		_tmp7_ = self->priv->current_builder;
-		g_string_append (_tmp7_, "</para>");
+		GString* _tmp5_;
+		_tmp5_ = self->priv->current_builder;
+		g_string_append (_tmp5_, "</para>");
 	}
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_warning (ValadocContentContentVisitor* base,
@@ -712,7 +686,6 @@ gtkdoc_comment_converter_real_visit_warning (ValadocContentContentVisitor* base,
 	g_string_append (_tmp1_, "</warning>");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_note (ValadocContentContentVisitor* base,
                                           ValadocContentNote* element)
@@ -729,7 +702,6 @@ gtkdoc_comment_converter_real_visit_note (ValadocContentContentVisitor* base,
 	g_string_append (_tmp1_, "</note>");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_page (ValadocContentContentVisitor* base,
                                           ValadocContentPage* page)
@@ -739,7 +711,6 @@ gtkdoc_comment_converter_real_visit_page (ValadocContentContentVisitor* base,
 	g_return_if_fail (page != NULL);
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) page, (ValadocContentContentVisitor*) self);
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_run (ValadocContentContentVisitor* base,
@@ -801,7 +772,9 @@ gtkdoc_comment_converter_real_visit_run (ValadocContentContentVisitor* base,
 			break;
 		}
 		default:
-		break;
+		{
+			break;
+		}
 	}
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) run, (ValadocContentContentVisitor*) self);
 	_tmp10_ = tag;
@@ -814,7 +787,6 @@ gtkdoc_comment_converter_real_visit_run (ValadocContentContentVisitor* base,
 	}
 	_g_free0 (tag);
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_source_code (ValadocContentContentVisitor* base,
@@ -843,7 +815,6 @@ gtkdoc_comment_converter_real_visit_source_code (ValadocContentContentVisitor* b
 	g_string_append (_tmp6_, "\n]|\n");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_table (ValadocContentContentVisitor* base,
                                            ValadocContentTable* t)
@@ -859,7 +830,6 @@ gtkdoc_comment_converter_real_visit_table (ValadocContentContentVisitor* base,
 	_tmp1_ = self->priv->current_builder;
 	g_string_append (_tmp1_, "</table>");
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_table_row (ValadocContentContentVisitor* base,
@@ -877,7 +847,6 @@ gtkdoc_comment_converter_real_visit_table_row (ValadocContentContentVisitor* bas
 	g_string_append (_tmp1_, "</tr>");
 }
 
-
 static void
 gtkdoc_comment_converter_real_visit_table_cell (ValadocContentContentVisitor* base,
                                                 ValadocContentTableCell* cell)
@@ -894,27 +863,28 @@ gtkdoc_comment_converter_real_visit_table_cell (ValadocContentContentVisitor* ba
 	g_string_append (_tmp1_, "</td>");
 }
 
-
 static gchar**
 _vala_array_dup1 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 _vala_array_add1 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -924,12 +894,11 @@ _vala_array_add1 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add2 (gchar** * array,
-                  int* length,
-                  int* size,
+                  gint* length,
+                  gint* size,
                   gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -940,22 +909,23 @@ _vala_array_add2 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gchar**
 _vala_array_dup2 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_taglet (ValadocContentContentVisitor* base,
@@ -965,7 +935,7 @@ gtkdoc_comment_converter_real_visit_taglet (ValadocContentContentVisitor* base,
 	GString* old_builder = NULL;
 	GString* _tmp0_;
 	GString* _tmp1_;
-	GString* _tmp73_;
+	GString* _tmp69_;
 	self = (GtkdocCommentConverter*) base;
 	g_return_if_fail (t != NULL);
 	_tmp0_ = self->priv->current_builder;
@@ -986,10 +956,9 @@ gtkdoc_comment_converter_real_visit_taglet (ValadocContentContentVisitor* base,
 		const gchar* _tmp8_;
 		GString* _tmp9_;
 		const gchar* _tmp10_;
-		gdouble _tmp11_;
-		GtkdocHeader* _tmp12_;
-		ValaList* _tmp13_;
-		GtkdocHeader* _tmp14_;
+		GtkdocHeader* _tmp11_;
+		ValaList* _tmp12_;
+		GtkdocHeader* _tmp13_;
 		pos = DBL_MAX;
 		_tmp2_ = valadoc_taglets_param_get_parameter_name (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_PARAM, ValadocTagletsParam));
 		_tmp3_ = _tmp2_;
@@ -1006,208 +975,198 @@ gtkdoc_comment_converter_real_visit_taglet (ValadocContentContentVisitor* base,
 		_tmp8_ = param_name;
 		_tmp9_ = self->priv->current_builder;
 		_tmp10_ = _tmp9_->str;
-		_tmp11_ = pos;
-		_tmp12_ = gtkdoc_header_new (_tmp8_, _tmp10_, _tmp11_, TRUE);
-		header = _tmp12_;
-		_tmp13_ = self->parameters;
-		_tmp14_ = header;
-		vala_collection_add ((ValaCollection*) _tmp13_, _tmp14_);
+		_tmp11_ = gtkdoc_header_new (_tmp8_, _tmp10_, pos, TRUE);
+		header = _tmp11_;
+		_tmp12_ = self->parameters;
+		_tmp13_ = header;
+		vala_collection_add ((ValaCollection*) _tmp12_, _tmp13_);
 		_gtkdoc_header_unref0 (header);
 		_g_free0 (param_name);
 	} else {
 		if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_INHERIT_DOC)) {
+			ValadocContentContentElement* _tmp14_;
 			ValadocContentContentElement* _tmp15_;
-			ValadocContentContentElement* _tmp16_;
-			_tmp15_ = valadoc_content_inline_taglet_produce_content ((ValadocContentInlineTaglet*) G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_INHERIT_DOC, ValadocTagletsInheritDoc));
-			_tmp16_ = _tmp15_;
-			valadoc_content_content_element_accept (_tmp16_, (ValadocContentContentVisitor*) self);
-			_g_object_unref0 (_tmp16_);
+			_tmp14_ = valadoc_content_inline_taglet_produce_content ((ValadocContentInlineTaglet*) G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_INHERIT_DOC, ValadocTagletsInheritDoc));
+			_tmp15_ = _tmp14_;
+			valadoc_content_content_element_accept (_tmp15_, (ValadocContentContentVisitor*) self);
+			_g_object_unref0 (_tmp15_);
 		} else {
 			if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_RETURN)) {
-				GString* _tmp17_;
-				const gchar* _tmp18_;
-				gchar* _tmp19_;
-				_tmp17_ = self->priv->current_builder;
-				_tmp18_ = _tmp17_->str;
-				_tmp19_ = g_strdup (_tmp18_);
+				GString* _tmp16_;
+				const gchar* _tmp17_;
+				gchar* _tmp18_;
+				_tmp16_ = self->priv->current_builder;
+				_tmp17_ = _tmp16_->str;
+				_tmp18_ = g_strdup (_tmp17_);
 				_g_free0 (self->returns);
-				self->returns = _tmp19_;
+				self->returns = _tmp18_;
 			} else {
 				if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_SINCE)) {
 					GtkdocHeader* header = NULL;
+					const gchar* _tmp19_;
 					const gchar* _tmp20_;
-					const gchar* _tmp21_;
-					GtkdocHeader* _tmp22_;
-					ValaList* _tmp23_;
-					GtkdocHeader* _tmp24_;
-					_tmp20_ = valadoc_taglets_since_get_version (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_SINCE, ValadocTagletsSince));
-					_tmp21_ = _tmp20_;
-					_tmp22_ = gtkdoc_header_new ("Since", _tmp21_, DBL_MAX, TRUE);
-					header = _tmp22_;
-					_tmp23_ = self->versioning;
-					_tmp24_ = header;
-					vala_collection_add ((ValaCollection*) _tmp23_, _tmp24_);
+					GtkdocHeader* _tmp21_;
+					ValaList* _tmp22_;
+					GtkdocHeader* _tmp23_;
+					_tmp19_ = valadoc_taglets_since_get_version (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_SINCE, ValadocTagletsSince));
+					_tmp20_ = _tmp19_;
+					_tmp21_ = gtkdoc_header_new ("Since", _tmp20_, DBL_MAX, TRUE);
+					header = _tmp21_;
+					_tmp22_ = self->versioning;
+					_tmp23_ = header;
+					vala_collection_add ((ValaCollection*) _tmp22_, _tmp23_);
 					_gtkdoc_header_unref0 (header);
 				} else {
 					if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_DEPRECATED)) {
 						GtkdocHeader* header = NULL;
-						GString* _tmp25_;
-						const gchar* _tmp26_;
-						GtkdocHeader* _tmp27_;
-						ValaList* _tmp28_;
-						GtkdocHeader* _tmp29_;
-						_tmp25_ = self->priv->current_builder;
-						_tmp26_ = _tmp25_->str;
-						_tmp27_ = gtkdoc_header_new ("Deprecated", _tmp26_, DBL_MAX, TRUE);
-						header = _tmp27_;
-						_tmp28_ = self->versioning;
-						_tmp29_ = header;
-						vala_collection_add ((ValaCollection*) _tmp28_, _tmp29_);
+						GString* _tmp24_;
+						const gchar* _tmp25_;
+						GtkdocHeader* _tmp26_;
+						ValaList* _tmp27_;
+						GtkdocHeader* _tmp28_;
+						_tmp24_ = self->priv->current_builder;
+						_tmp25_ = _tmp24_->str;
+						_tmp26_ = gtkdoc_header_new ("Deprecated", _tmp25_, DBL_MAX, TRUE);
+						header = _tmp26_;
+						_tmp27_ = self->versioning;
+						_tmp28_ = header;
+						vala_collection_add ((ValaCollection*) _tmp27_, _tmp28_);
 						_gtkdoc_header_unref0 (header);
 					} else {
 						if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_SEE)) {
 							ValadocTagletsSee* see = NULL;
-							ValadocTagletsSee* _tmp30_;
+							ValadocTagletsSee* _tmp29_;
 							gchar** see_also = NULL;
+							gchar** _tmp30_;
+							gint _tmp30__length1;
 							gchar** _tmp31_;
 							gint _tmp31__length1;
-							gchar** _tmp32_;
-							gint _tmp32__length1;
 							gint see_also_length1;
 							gint _see_also_size_;
-							ValadocTagletsSee* _tmp33_;
+							ValadocTagletsSee* _tmp32_;
+							ValadocApiNode* _tmp33_;
 							ValadocApiNode* _tmp34_;
-							ValadocApiNode* _tmp35_;
-							gchar** _tmp53_;
-							gint _tmp53__length1;
-							gchar** _tmp54_;
-							gint _tmp54__length1;
-							_tmp30_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_SEE, ValadocTagletsSee));
-							see = _tmp30_;
-							_tmp31_ = self->see_also;
-							_tmp31__length1 = self->see_also_length1;
-							_tmp32_ = (_tmp31_ != NULL) ? _vala_array_dup1 (_tmp31_, _tmp31__length1) : ((gpointer) _tmp31_);
-							_tmp32__length1 = _tmp31__length1;
-							see_also = _tmp32_;
-							see_also_length1 = _tmp32__length1;
+							gchar** _tmp49_;
+							gint _tmp49__length1;
+							gchar** _tmp50_;
+							gint _tmp50__length1;
+							_tmp29_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_SEE, ValadocTagletsSee));
+							see = _tmp29_;
+							_tmp30_ = self->see_also;
+							_tmp30__length1 = self->see_also_length1;
+							_tmp31_ = (_tmp30_ != NULL) ? _vala_array_dup1 (_tmp30_, _tmp30__length1) : ((gpointer) _tmp30_);
+							_tmp31__length1 = _tmp30__length1;
+							see_also = _tmp31_;
+							see_also_length1 = _tmp31__length1;
 							_see_also_size_ = see_also_length1;
-							_tmp33_ = see;
-							_tmp34_ = valadoc_taglets_see_get_symbol (_tmp33_);
-							_tmp35_ = _tmp34_;
-							if (_tmp35_ != NULL) {
-								gchar* _tmp36_ = NULL;
-								ValadocTagletsSee* _tmp37_;
+							_tmp32_ = see;
+							_tmp33_ = valadoc_taglets_see_get_symbol (_tmp32_);
+							_tmp34_ = _tmp33_;
+							if (_tmp34_ != NULL) {
+								gchar* _tmp35_ = NULL;
+								ValadocTagletsSee* _tmp36_;
+								ValadocApiNode* _tmp37_;
 								ValadocApiNode* _tmp38_;
-								ValadocApiNode* _tmp39_;
-								gboolean _tmp40_;
-								gchar* _tmp41_;
-								gchar** _tmp46_;
-								gint _tmp46__length1;
-								gchar* _tmp47_;
-								_tmp37_ = see;
-								_tmp38_ = valadoc_taglets_see_get_symbol (_tmp37_);
-								_tmp39_ = _tmp38_;
-								_tmp40_ = self->is_dbus;
-								_tmp41_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp39_, _tmp40_, FALSE);
-								_tmp36_ = _tmp41_;
-								if (_tmp36_ == NULL) {
-									ValadocTagletsSee* _tmp42_;
-									const gchar* _tmp43_;
-									const gchar* _tmp44_;
-									gchar* _tmp45_;
-									_tmp42_ = see;
-									_tmp43_ = valadoc_taglets_see_get_symbol_name (_tmp42_);
-									_tmp44_ = _tmp43_;
-									_tmp45_ = g_strdup (_tmp44_);
-									_g_free0 (_tmp36_);
-									_tmp36_ = _tmp45_;
+								gchar* _tmp39_;
+								gchar* _tmp44_;
+								_tmp36_ = see;
+								_tmp37_ = valadoc_taglets_see_get_symbol (_tmp36_);
+								_tmp38_ = _tmp37_;
+								_tmp39_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp38_, self->is_dbus, FALSE);
+								_tmp35_ = _tmp39_;
+								if (_tmp35_ == NULL) {
+									ValadocTagletsSee* _tmp40_;
+									const gchar* _tmp41_;
+									const gchar* _tmp42_;
+									gchar* _tmp43_;
+									_tmp40_ = see;
+									_tmp41_ = valadoc_taglets_see_get_symbol_name (_tmp40_);
+									_tmp42_ = _tmp41_;
+									_tmp43_ = g_strdup (_tmp42_);
+									_g_free0 (_tmp35_);
+									_tmp35_ = _tmp43_;
 								}
-								_tmp46_ = see_also;
-								_tmp46__length1 = see_also_length1;
-								_tmp47_ = _tmp36_;
-								_tmp36_ = NULL;
-								_vala_array_add1 (&see_also, &see_also_length1, &_see_also_size_, _tmp47_);
-								_g_free0 (_tmp36_);
+								_tmp44_ = _tmp35_;
+								_tmp35_ = NULL;
+								_vala_array_add1 (&see_also, &see_also_length1, &_see_also_size_, _tmp44_);
+								_g_free0 (_tmp35_);
 							} else {
-								gchar** _tmp48_;
-								gint _tmp48__length1;
-								ValadocTagletsSee* _tmp49_;
-								const gchar* _tmp50_;
-								const gchar* _tmp51_;
-								gchar* _tmp52_;
-								_tmp48_ = see_also;
-								_tmp48__length1 = see_also_length1;
-								_tmp49_ = see;
-								_tmp50_ = valadoc_taglets_see_get_symbol_name (_tmp49_);
-								_tmp51_ = _tmp50_;
-								_tmp52_ = g_strdup (_tmp51_);
-								_vala_array_add2 (&see_also, &see_also_length1, &_see_also_size_, _tmp52_);
+								ValadocTagletsSee* _tmp45_;
+								const gchar* _tmp46_;
+								const gchar* _tmp47_;
+								gchar* _tmp48_;
+								_tmp45_ = see;
+								_tmp46_ = valadoc_taglets_see_get_symbol_name (_tmp45_);
+								_tmp47_ = _tmp46_;
+								_tmp48_ = g_strdup (_tmp47_);
+								_vala_array_add2 (&see_also, &see_also_length1, &_see_also_size_, _tmp48_);
 							}
-							_tmp53_ = see_also;
-							_tmp53__length1 = see_also_length1;
-							_tmp54_ = (_tmp53_ != NULL) ? _vala_array_dup2 (_tmp53_, _tmp53__length1) : ((gpointer) _tmp53_);
-							_tmp54__length1 = _tmp53__length1;
+							_tmp49_ = see_also;
+							_tmp49__length1 = see_also_length1;
+							_tmp50_ = (_tmp49_ != NULL) ? _vala_array_dup2 (_tmp49_, _tmp49__length1) : ((gpointer) _tmp49_);
+							_tmp50__length1 = _tmp49__length1;
 							self->see_also = (_vala_array_free (self->see_also, self->see_also_length1, (GDestroyNotify) g_free), NULL);
-							self->see_also = _tmp54_;
-							self->see_also_length1 = _tmp54__length1;
+							self->see_also = _tmp50_;
+							self->see_also_length1 = _tmp50__length1;
 							see_also = (_vala_array_free (see_also, see_also_length1, (GDestroyNotify) g_free), NULL);
 							_g_object_unref0 (see);
 						} else {
 							if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_LINK)) {
-								ValadocContentContentElement* _tmp55_;
-								ValadocContentContentElement* _tmp56_;
-								_tmp55_ = valadoc_content_inline_taglet_produce_content ((ValadocContentInlineTaglet*) G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_LINK, ValadocTagletsLink));
-								_tmp56_ = _tmp55_;
-								valadoc_content_content_element_accept (_tmp56_, (ValadocContentContentVisitor*) self);
-								_g_object_unref0 (_tmp56_);
+								ValadocContentContentElement* _tmp51_;
+								ValadocContentContentElement* _tmp52_;
+								_tmp51_ = valadoc_content_inline_taglet_produce_content ((ValadocContentInlineTaglet*) G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_LINK, ValadocTagletsLink));
+								_tmp52_ = _tmp51_;
+								valadoc_content_content_element_accept (_tmp52_, (ValadocContentContentVisitor*) self);
+								_g_object_unref0 (_tmp52_);
 							} else {
 								if (G_TYPE_CHECK_INSTANCE_TYPE (t, VALADOC_TAGLETS_TYPE_THROWS)) {
 									ValadocTagletsThrows* taglet = NULL;
-									ValadocTagletsThrows* _tmp57_;
-									gchar* _tmp58_ = NULL;
-									ValadocTagletsThrows* _tmp59_;
-									ValadocApiNode* _tmp60_;
-									ValadocApiNode* _tmp61_;
-									gchar* _tmp62_;
+									ValadocTagletsThrows* _tmp53_;
+									gchar* _tmp54_ = NULL;
+									ValadocTagletsThrows* _tmp55_;
+									ValadocApiNode* _tmp56_;
+									ValadocApiNode* _tmp57_;
+									gchar* _tmp58_;
 									gchar* link = NULL;
-									gchar* _tmp67_;
-									GString* _tmp68_;
-									const gchar* _tmp69_;
-									GString* _tmp70_;
-									const gchar* _tmp71_;
-									_tmp57_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_THROWS, ValadocTagletsThrows));
-									taglet = _tmp57_;
-									_tmp59_ = taglet;
-									_tmp60_ = valadoc_taglets_throws_get_error_domain (_tmp59_);
-									_tmp61_ = _tmp60_;
-									_tmp62_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp61_, FALSE, FALSE);
-									_tmp58_ = _tmp62_;
-									if (_tmp58_ == NULL) {
-										ValadocTagletsThrows* _tmp63_;
-										const gchar* _tmp64_;
-										const gchar* _tmp65_;
-										gchar* _tmp66_;
-										_tmp63_ = taglet;
-										_tmp64_ = valadoc_taglets_throws_get_error_domain_name (_tmp63_);
-										_tmp65_ = _tmp64_;
-										_tmp66_ = g_strdup (_tmp65_);
-										_g_free0 (_tmp58_);
-										_tmp58_ = _tmp66_;
+									gchar* _tmp63_;
+									GString* _tmp64_;
+									const gchar* _tmp65_;
+									GString* _tmp66_;
+									const gchar* _tmp67_;
+									_tmp53_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_CAST (t, VALADOC_TAGLETS_TYPE_THROWS, ValadocTagletsThrows));
+									taglet = _tmp53_;
+									_tmp55_ = taglet;
+									_tmp56_ = valadoc_taglets_throws_get_error_domain (_tmp55_);
+									_tmp57_ = _tmp56_;
+									_tmp58_ = gtkdoc_get_docbook_link ((ValadocApiItem*) _tmp57_, FALSE, FALSE);
+									_tmp54_ = _tmp58_;
+									if (_tmp54_ == NULL) {
+										ValadocTagletsThrows* _tmp59_;
+										const gchar* _tmp60_;
+										const gchar* _tmp61_;
+										gchar* _tmp62_;
+										_tmp59_ = taglet;
+										_tmp60_ = valadoc_taglets_throws_get_error_domain_name (_tmp59_);
+										_tmp61_ = _tmp60_;
+										_tmp62_ = g_strdup (_tmp61_);
+										_g_free0 (_tmp54_);
+										_tmp54_ = _tmp62_;
 									}
-									_tmp67_ = g_strdup (_tmp58_);
-									link = _tmp67_;
-									_tmp68_ = old_builder;
-									_tmp69_ = link;
-									_tmp70_ = self->priv->current_builder;
-									_tmp71_ = _tmp70_->str;
-									g_string_append_printf (_tmp68_, "\n<para>%s will be returned in @error %s</para>", _tmp69_, _tmp71_);
+									_tmp63_ = _tmp54_;
+									_tmp54_ = NULL;
+									link = _tmp63_;
+									_tmp64_ = old_builder;
+									_tmp65_ = link;
+									_tmp66_ = self->priv->current_builder;
+									_tmp67_ = _tmp66_->str;
+									g_string_append_printf (_tmp64_, "\n<para>%s will be returned in @error %s</para>", _tmp65_, _tmp67_);
 									_g_free0 (link);
-									_g_free0 (_tmp58_);
+									_g_free0 (_tmp54_);
 									_g_object_unref0 (taglet);
 								} else {
-									ValadocErrorReporter* _tmp72_;
-									_tmp72_ = self->priv->reporter;
-									valadoc_error_reporter_simple_warning (_tmp72_, "GtkDoc", "Taglet not supported");
+									ValadocErrorReporter* _tmp68_;
+									_tmp68_ = self->priv->reporter;
+									valadoc_error_reporter_simple_warning (_tmp68_, "GtkDoc", "Taglet not supported");
 								}
 							}
 						}
@@ -1216,13 +1175,12 @@ gtkdoc_comment_converter_real_visit_taglet (ValadocContentContentVisitor* base,
 			}
 		}
 	}
-	_tmp73_ = old_builder;
+	_tmp69_ = old_builder;
 	old_builder = NULL;
 	_g_string_free0 (self->priv->current_builder);
-	self->priv->current_builder = _tmp73_;
+	self->priv->current_builder = _tmp69_;
 	_g_string_free0 (old_builder);
 }
-
 
 static void
 gtkdoc_comment_converter_real_visit_text (ValadocContentContentVisitor* base,
@@ -1246,9 +1204,9 @@ gtkdoc_comment_converter_real_visit_text (ValadocContentContentVisitor* base,
 	valadoc_content_content_element_accept_children ((ValadocContentContentElement*) t, (ValadocContentContentVisitor*) self);
 }
 
-
 static void
-gtkdoc_comment_converter_class_init (GtkdocCommentConverterClass * klass)
+gtkdoc_comment_converter_class_init (GtkdocCommentConverterClass * klass,
+                                     gpointer klass_data)
 {
 	gtkdoc_comment_converter_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &GtkdocCommentConverter_private_offset);
@@ -1274,9 +1232,9 @@ gtkdoc_comment_converter_class_init (GtkdocCommentConverterClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = gtkdoc_comment_converter_finalize;
 }
 
-
 static void
-gtkdoc_comment_converter_instance_init (GtkdocCommentConverter * self)
+gtkdoc_comment_converter_instance_init (GtkdocCommentConverter * self,
+                                        gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -1299,7 +1257,6 @@ gtkdoc_comment_converter_instance_init (GtkdocCommentConverter * self)
 	self->priv->in_brief_comment = TRUE;
 }
 
-
 static void
 gtkdoc_comment_converter_finalize (GObject * obj)
 {
@@ -1317,21 +1274,27 @@ gtkdoc_comment_converter_finalize (GObject * obj)
 	G_OBJECT_CLASS (gtkdoc_comment_converter_parent_class)->finalize (obj);
 }
 
+static GType
+gtkdoc_comment_converter_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocCommentConverterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_comment_converter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocCommentConverter), 0, (GInstanceInitFunc) gtkdoc_comment_converter_instance_init, NULL };
+	GType gtkdoc_comment_converter_type_id;
+	gtkdoc_comment_converter_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_VISITOR, "GtkdocCommentConverter", &g_define_type_info, 0);
+	GtkdocCommentConverter_private_offset = g_type_add_instance_private (gtkdoc_comment_converter_type_id, sizeof (GtkdocCommentConverterPrivate));
+	return gtkdoc_comment_converter_type_id;
+}
 
 GType
 gtkdoc_comment_converter_get_type (void)
 {
 	static volatile gsize gtkdoc_comment_converter_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_comment_converter_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocCommentConverterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_comment_converter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocCommentConverter), 0, (GInstanceInitFunc) gtkdoc_comment_converter_instance_init, NULL };
 		GType gtkdoc_comment_converter_type_id;
-		gtkdoc_comment_converter_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_VISITOR, "GtkdocCommentConverter", &g_define_type_info, 0);
-		GtkdocCommentConverter_private_offset = g_type_add_instance_private (gtkdoc_comment_converter_type_id, sizeof (GtkdocCommentConverterPrivate));
+		gtkdoc_comment_converter_type_id = gtkdoc_comment_converter_get_type_once ();
 		g_once_init_leave (&gtkdoc_comment_converter_type_id__volatile, gtkdoc_comment_converter_type_id);
 	}
 	return gtkdoc_comment_converter_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -1339,7 +1302,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1347,7 +1310,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1357,6 +1319,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

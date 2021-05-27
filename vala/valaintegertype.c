@@ -23,12 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
@@ -38,7 +36,6 @@ struct _ValaIntegerTypePrivate {
 	gchar* literal_type_name;
 };
 
-
 static gint ValaIntegerType_private_offset;
 static gpointer vala_integer_type_parent_class = NULL;
 
@@ -46,14 +43,13 @@ static ValaDataType* vala_integer_type_real_copy (ValaDataType* base);
 static gboolean vala_integer_type_real_compatible (ValaDataType* base,
                                             ValaDataType* target_type);
 static void vala_integer_type_finalize (ValaCodeNode * obj);
-
+static GType vala_integer_type_get_type_once (void);
 
 static inline gpointer
 vala_integer_type_get_instance_private (ValaIntegerType* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaIntegerType_private_offset);
 }
-
 
 ValaIntegerType*
 vala_integer_type_construct (GType object_type,
@@ -75,7 +71,6 @@ vala_integer_type_construct (GType object_type,
 	return self;
 }
 
-
 ValaIntegerType*
 vala_integer_type_new (ValaStruct* type_symbol,
                        const gchar* literal_value,
@@ -84,12 +79,10 @@ vala_integer_type_new (ValaStruct* type_symbol,
 	return vala_integer_type_construct (VALA_TYPE_INTEGER_TYPE, type_symbol, literal_value, literal_type_name);
 }
 
-
 static ValaDataType*
 vala_integer_type_real_copy (ValaDataType* base)
 {
 	ValaIntegerType * self;
-	ValaDataType* result = NULL;
 	ValaIntegerType* _result_ = NULL;
 	ValaTypeSymbol* _tmp0_;
 	ValaTypeSymbol* _tmp1_;
@@ -102,8 +95,9 @@ vala_integer_type_real_copy (ValaDataType* base)
 	gboolean _tmp8_;
 	gboolean _tmp9_;
 	gboolean _tmp10_;
+	ValaDataType* result = NULL;
 	self = (ValaIntegerType*) base;
-	_tmp0_ = vala_value_type_get_type_symbol ((ValaValueType*) self);
+	_tmp0_ = vala_data_type_get_type_symbol ((ValaDataType*) self);
 	_tmp1_ = _tmp0_;
 	_tmp2_ = self->priv->literal_value;
 	_tmp3_ = self->priv->literal_type_name;
@@ -122,28 +116,26 @@ vala_integer_type_real_copy (ValaDataType* base)
 	return result;
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
 
-
 static gboolean
 vala_integer_type_real_compatible (ValaDataType* base,
                                    ValaDataType* target_type)
 {
 	ValaIntegerType * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	ValaTypeSymbol* _tmp1_;
 	ValaTypeSymbol* _tmp2_;
+	gboolean result = FALSE;
 	self = (ValaIntegerType*) base;
 	g_return_val_if_fail (target_type != NULL, FALSE);
-	_tmp1_ = vala_data_type_get_data_type (target_type);
+	_tmp1_ = vala_data_type_get_type_symbol (target_type);
 	_tmp2_ = _tmp1_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALA_TYPE_STRUCT)) {
+	if (VALA_IS_STRUCT (_tmp2_)) {
 		const gchar* _tmp3_;
 		_tmp3_ = self->priv->literal_type_name;
 		_tmp0_ = g_strcmp0 (_tmp3_, "int") == 0;
@@ -156,7 +148,7 @@ vala_integer_type_real_compatible (ValaDataType* base,
 		ValaTypeSymbol* _tmp5_;
 		ValaStruct* _tmp6_;
 		ValaStruct* _tmp7_;
-		_tmp4_ = vala_data_type_get_data_type (target_type);
+		_tmp4_ = vala_data_type_get_type_symbol (target_type);
 		_tmp5_ = _tmp4_;
 		_tmp6_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALA_TYPE_STRUCT, ValaStruct));
 		target_st = _tmp6_;
@@ -192,18 +184,14 @@ vala_integer_type_real_compatible (ValaDataType* base,
 				gint val = 0;
 				const gchar* _tmp16_;
 				gboolean _tmp17_ = FALSE;
-				gint _tmp18_;
-				ValaAttribute* _tmp19_;
+				ValaAttribute* _tmp18_;
 				_tmp16_ = self->priv->literal_value;
 				val = atoi (_tmp16_);
-				_tmp18_ = val;
-				_tmp19_ = int_attr;
-				if (_tmp18_ >= vala_attribute_get_integer (_tmp19_, "min", 0)) {
-					gint _tmp20_;
-					ValaAttribute* _tmp21_;
-					_tmp20_ = val;
-					_tmp21_ = int_attr;
-					_tmp17_ = _tmp20_ <= vala_attribute_get_integer (_tmp21_, "max", 0);
+				_tmp18_ = int_attr;
+				if (val >= vala_attribute_get_integer (_tmp18_, "min", 0)) {
+					ValaAttribute* _tmp19_;
+					_tmp19_ = int_attr;
+					_tmp17_ = val <= vala_attribute_get_integer (_tmp19_, "max", 0);
 				} else {
 					_tmp17_ = FALSE;
 				}
@@ -221,19 +209,27 @@ vala_integer_type_real_compatible (ValaDataType* base,
 		}
 		_vala_code_node_unref0 (target_st);
 	} else {
-		gboolean _tmp22_ = FALSE;
-		ValaTypeSymbol* _tmp23_;
-		ValaTypeSymbol* _tmp24_;
-		_tmp23_ = vala_data_type_get_data_type (target_type);
-		_tmp24_ = _tmp23_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp24_, VALA_TYPE_ENUM)) {
-			const gchar* _tmp25_;
-			_tmp25_ = self->priv->literal_type_name;
-			_tmp22_ = g_strcmp0 (_tmp25_, "int") == 0;
+		gboolean _tmp20_ = FALSE;
+		ValaTypeSymbol* _tmp21_;
+		ValaTypeSymbol* _tmp22_;
+		_tmp21_ = vala_data_type_get_type_symbol (target_type);
+		_tmp22_ = _tmp21_;
+		if (VALA_IS_ENUM (_tmp22_)) {
+			gboolean _tmp23_ = FALSE;
+			const gchar* _tmp24_;
+			_tmp24_ = self->priv->literal_type_name;
+			if (g_strcmp0 (_tmp24_, "int") == 0) {
+				_tmp23_ = TRUE;
+			} else {
+				const gchar* _tmp25_;
+				_tmp25_ = self->priv->literal_type_name;
+				_tmp23_ = g_strcmp0 (_tmp25_, "uint") == 0;
+			}
+			_tmp20_ = _tmp23_;
 		} else {
-			_tmp22_ = FALSE;
+			_tmp20_ = FALSE;
 		}
-		if (_tmp22_) {
+		if (_tmp20_) {
 			const gchar* _tmp26_;
 			_tmp26_ = self->priv->literal_value;
 			if (atoi (_tmp26_) == 0) {
@@ -246,9 +242,9 @@ vala_integer_type_real_compatible (ValaDataType* base,
 	return result;
 }
 
-
 static void
-vala_integer_type_class_init (ValaIntegerTypeClass * klass)
+vala_integer_type_class_init (ValaIntegerTypeClass * klass,
+                              gpointer klass_data)
 {
 	vala_integer_type_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_integer_type_finalize;
@@ -257,13 +253,12 @@ vala_integer_type_class_init (ValaIntegerTypeClass * klass)
 	((ValaDataTypeClass *) klass)->compatible = (gboolean (*) (ValaDataType*, ValaDataType*)) vala_integer_type_real_compatible;
 }
 
-
 static void
-vala_integer_type_instance_init (ValaIntegerType * self)
+vala_integer_type_instance_init (ValaIntegerType * self,
+                                 gpointer klass)
 {
 	self->priv = vala_integer_type_get_instance_private (self);
 }
-
 
 static void
 vala_integer_type_finalize (ValaCodeNode * obj)
@@ -275,23 +270,28 @@ vala_integer_type_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_integer_type_parent_class)->finalize (obj);
 }
 
-
 /**
  * An integer type.
  */
+static GType
+vala_integer_type_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaIntegerTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_integer_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIntegerType), 0, (GInstanceInitFunc) vala_integer_type_instance_init, NULL };
+	GType vala_integer_type_type_id;
+	vala_integer_type_type_id = g_type_register_static (VALA_TYPE_VALUE_TYPE, "ValaIntegerType", &g_define_type_info, 0);
+	ValaIntegerType_private_offset = g_type_add_instance_private (vala_integer_type_type_id, sizeof (ValaIntegerTypePrivate));
+	return vala_integer_type_type_id;
+}
+
 GType
 vala_integer_type_get_type (void)
 {
 	static volatile gsize vala_integer_type_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_integer_type_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaIntegerTypeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_integer_type_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaIntegerType), 0, (GInstanceInitFunc) vala_integer_type_instance_init, NULL };
 		GType vala_integer_type_type_id;
-		vala_integer_type_type_id = g_type_register_static (VALA_TYPE_VALUE_TYPE, "ValaIntegerType", &g_define_type_info, 0);
-		ValaIntegerType_private_offset = g_type_add_instance_private (vala_integer_type_type_id, sizeof (ValaIntegerTypePrivate));
+		vala_integer_type_type_id = vala_integer_type_get_type_once ();
 		g_once_init_leave (&vala_integer_type_type_id__volatile, vala_integer_type_type_id);
 	}
 	return vala_integer_type_type_id__volatile;
 }
-
-
 

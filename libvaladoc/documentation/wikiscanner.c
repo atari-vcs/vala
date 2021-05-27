@@ -23,12 +23,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <vala.h>
 
 enum  {
@@ -57,7 +56,6 @@ struct _ValadocWikiScannerPrivate {
 	gint _skip;
 	GString* _current_string;
 };
-
 
 static gint ValadocWikiScanner_private_offset;
 static gpointer valadoc_wiki_scanner_parent_class = NULL;
@@ -117,7 +115,7 @@ static void valadoc_wiki_scanner_get_end (ValadocWikiScanner* self,
 static void valadoc_wiki_scanner_emit_current_word (ValadocWikiScanner* self,
                                              GError** error);
 static void valadoc_wiki_scanner_finalize (GObject * obj);
-
+static GType valadoc_wiki_scanner_get_type_once (void);
 
 static inline gpointer
 valadoc_wiki_scanner_get_instance_private (ValadocWikiScanner* self)
@@ -125,13 +123,11 @@ valadoc_wiki_scanner_get_instance_private (ValadocWikiScanner* self)
 	return G_STRUCT_MEMBER_P (self, ValadocWikiScanner_private_offset);
 }
 
-
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 ValadocWikiScanner*
 valadoc_wiki_scanner_construct (GType object_type,
@@ -147,20 +143,17 @@ valadoc_wiki_scanner_construct (GType object_type,
 	return self;
 }
 
-
 ValadocWikiScanner*
 valadoc_wiki_scanner_new (ValadocSettings* settings)
 {
 	return valadoc_wiki_scanner_construct (VALADOC_TYPE_WIKI_SCANNER, settings);
 }
 
-
 static gpointer
 _valadoc_parser_ref0 (gpointer self)
 {
 	return self ? valadoc_parser_ref (self) : NULL;
 }
-
 
 static void
 valadoc_wiki_scanner_real_set_parser (ValadocScanner* base,
@@ -174,7 +167,6 @@ valadoc_wiki_scanner_real_set_parser (ValadocScanner* base,
 	_valadoc_parser_unref0 (self->priv->_parser);
 	self->priv->_parser = _tmp0_;
 }
-
 
 static void
 valadoc_wiki_scanner_real_reset (ValadocWikiScanner* self)
@@ -193,14 +185,12 @@ valadoc_wiki_scanner_real_reset (ValadocWikiScanner* self)
 	g_string_erase (_tmp0_, (gssize) 0, (gssize) -1);
 }
 
-
 void
 valadoc_wiki_scanner_reset (ValadocWikiScanner* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_WIKI_SCANNER_GET_CLASS (self)->reset (self);
 }
-
 
 static gunichar
 string_get_char (const gchar* self,
@@ -212,7 +202,6 @@ string_get_char (const gchar* self,
 	return result;
 }
 
-
 static void
 valadoc_wiki_scanner_real_scan (ValadocScanner* base,
                                 const gchar* content,
@@ -220,7 +209,7 @@ valadoc_wiki_scanner_real_scan (ValadocScanner* base,
 {
 	ValadocWikiScanner * self;
 	gchar* _tmp0_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = (ValadocWikiScanner*) base;
 	g_return_if_fail (content != NULL);
 	_tmp0_ = g_strdup (content);
@@ -234,10 +223,8 @@ valadoc_wiki_scanner_real_scan (ValadocScanner* base,
 		_tmp2_ = TRUE;
 		while (TRUE) {
 			gboolean _tmp5_ = FALSE;
-			gboolean _tmp6_;
 			gunichar c = 0U;
-			const gchar* _tmp8_;
-			gunichar _tmp9_;
+			const gchar* _tmp7_;
 			if (!_tmp2_) {
 				const gchar* _tmp3_;
 				const gchar* _tmp4_;
@@ -246,28 +233,26 @@ valadoc_wiki_scanner_real_scan (ValadocScanner* base,
 				self->priv->_index = _tmp4_;
 			}
 			_tmp2_ = FALSE;
-			_tmp6_ = self->priv->_stop;
-			if (!_tmp6_) {
-				const gchar* _tmp7_;
-				_tmp7_ = self->priv->_index;
-				_tmp5_ = string_get_char (_tmp7_, (glong) 0) != ((gunichar) 0);
+			if (!self->priv->_stop) {
+				const gchar* _tmp6_;
+				_tmp6_ = self->priv->_index;
+				_tmp5_ = string_get_char (_tmp6_, (glong) 0) != ((gunichar) 0);
 			} else {
 				_tmp5_ = FALSE;
 			}
 			if (!_tmp5_) {
 				break;
 			}
-			_tmp8_ = self->priv->_index;
-			c = string_get_char (_tmp8_, (glong) 0);
-			_tmp9_ = c;
-			valadoc_wiki_scanner_accept (self, _tmp9_, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					g_propagate_error (error, _inner_error_);
+			_tmp7_ = self->priv->_index;
+			c = string_get_char (_tmp7_, (glong) 0);
+			valadoc_wiki_scanner_accept (self, c, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					g_propagate_error (error, _inner_error0_);
 					return;
 				} else {
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
 					return;
 				}
 			}
@@ -275,29 +260,27 @@ valadoc_wiki_scanner_real_scan (ValadocScanner* base,
 	}
 }
 
-
 static void
 valadoc_wiki_scanner_real_end (ValadocScanner* base,
                                GError** error)
 {
 	ValadocWikiScanner * self;
 	ValadocTokenType* _tmp0_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	self = (ValadocWikiScanner*) base;
 	_tmp0_ = valadoc_token_type_EOF;
-	valadoc_wiki_scanner_emit_token (self, _tmp0_, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_wiki_scanner_emit_token (self, _tmp0_, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 static void
 valadoc_wiki_scanner_real_stop (ValadocWikiScanner* self)
@@ -305,14 +288,12 @@ valadoc_wiki_scanner_real_stop (ValadocWikiScanner* self)
 	self->priv->_stop = TRUE;
 }
 
-
 void
 valadoc_wiki_scanner_stop (ValadocWikiScanner* self)
 {
 	g_return_if_fail (self != NULL);
 	VALADOC_WIKI_SCANNER_GET_CLASS (self)->stop (self);
 }
-
 
 void
 valadoc_wiki_scanner_set_url_escape_mode (ValadocWikiScanner* self,
@@ -322,7 +303,6 @@ valadoc_wiki_scanner_set_url_escape_mode (ValadocWikiScanner* self,
 	self->priv->_url_escape_mode = escape_mode;
 }
 
-
 void
 valadoc_wiki_scanner_set_code_escape_mode (ValadocWikiScanner* self,
                                            gboolean escape_mode)
@@ -331,31 +311,27 @@ valadoc_wiki_scanner_set_code_escape_mode (ValadocWikiScanner* self,
 	self->priv->_code_escape_mode = escape_mode;
 }
 
-
 gint
 valadoc_wiki_scanner_get_line (ValadocWikiScanner* self)
 {
 	gint result = 0;
-	gint _tmp0_;
 	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_line;
-	result = _tmp0_;
+	result = self->priv->_line;
 	return result;
 }
-
 
 static gchar*
 valadoc_wiki_scanner_real_get_line_content (ValadocWikiScanner* self)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	const gchar* line_start = NULL;
 	const gchar* _tmp1_;
 	gunichar c = 0U;
-	GString* _tmp19_;
-	const gchar* _tmp20_;
-	gchar* _tmp21_;
+	GString* _tmp15_;
+	const gchar* _tmp16_;
+	gchar* _tmp17_;
+	gchar* result = NULL;
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
 	_tmp1_ = self->priv->_index;
@@ -387,47 +363,38 @@ valadoc_wiki_scanner_real_get_line_content (ValadocWikiScanner* self)
 	while (TRUE) {
 		gboolean _tmp9_ = FALSE;
 		const gchar* _tmp10_;
-		gunichar _tmp11_;
-		gunichar _tmp13_;
-		const gchar* _tmp17_;
-		const gchar* _tmp18_;
+		const gchar* _tmp13_;
+		const gchar* _tmp14_;
 		_tmp10_ = line_start;
 		c = string_get_char (_tmp10_, (glong) 0);
-		_tmp11_ = c;
-		if (_tmp11_ != ((gunichar) '\n')) {
-			gunichar _tmp12_;
-			_tmp12_ = c;
-			_tmp9_ = _tmp12_ != ((gunichar) '\0');
+		if (c != ((gunichar) '\n')) {
+			_tmp9_ = c != ((gunichar) '\0');
 		} else {
 			_tmp9_ = FALSE;
 		}
 		if (!_tmp9_) {
 			break;
 		}
-		_tmp13_ = c;
-		if (_tmp13_ == ((gunichar) '\t')) {
-			GString* _tmp14_;
-			_tmp14_ = builder;
-			g_string_append_c (_tmp14_, ' ');
+		if (c == ((gunichar) '\t')) {
+			GString* _tmp11_;
+			_tmp11_ = builder;
+			g_string_append_c (_tmp11_, ' ');
 		} else {
-			GString* _tmp15_;
-			gunichar _tmp16_;
-			_tmp15_ = builder;
-			_tmp16_ = c;
-			g_string_append_unichar (_tmp15_, _tmp16_);
+			GString* _tmp12_;
+			_tmp12_ = builder;
+			g_string_append_unichar (_tmp12_, c);
 		}
-		_tmp17_ = line_start;
-		_tmp18_ = g_utf8_next_char (_tmp17_);
-		line_start = _tmp18_;
+		_tmp13_ = line_start;
+		_tmp14_ = g_utf8_next_char (_tmp13_);
+		line_start = _tmp14_;
 	}
-	_tmp19_ = builder;
-	_tmp20_ = _tmp19_->str;
-	_tmp21_ = g_strdup (_tmp20_);
-	result = _tmp21_;
+	_tmp15_ = builder;
+	_tmp16_ = _tmp15_->str;
+	_tmp17_ = g_strdup (_tmp16_);
+	result = _tmp17_;
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 gchar*
 valadoc_wiki_scanner_get_line_content (ValadocWikiScanner* self)
@@ -436,27 +403,25 @@ valadoc_wiki_scanner_get_line_content (ValadocWikiScanner* self)
 	return VALADOC_WIKI_SCANNER_GET_CLASS (self)->get_line_content (self);
 }
 
-
 static gint
 string_index_of_nth_char (const gchar* self,
                           glong c)
 {
-	gint result = 0;
 	gchar* _tmp0_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_offset_to_pointer (self, c);
 	result = (gint) (_tmp0_ - ((gchar*) self));
 	return result;
 }
 
-
 gunichar
 valadoc_wiki_scanner_get_next_char (ValadocWikiScanner* self,
                                     gint offset)
 {
-	gunichar result = 0U;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
+	gunichar result = 0U;
 	g_return_val_if_fail (self != NULL, 0U);
 	_tmp0_ = self->priv->_index;
 	_tmp1_ = self->priv->_index;
@@ -464,46 +429,41 @@ valadoc_wiki_scanner_get_next_char (ValadocWikiScanner* self,
 	return result;
 }
 
-
 static void
 valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
                                   gunichar c,
                                   GError** error)
 {
 	gint _tmp0_;
-	gint _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	_tmp0_ = self->priv->_column;
 	self->priv->_column = _tmp0_ + 1;
-	_tmp1_ = self->priv->_skip;
-	if (_tmp1_ == 0) {
-		gboolean _tmp2_;
-		_tmp2_ = self->priv->_code_escape_mode;
-		if (_tmp2_) {
-			gboolean _tmp3_ = FALSE;
-			gboolean _tmp4_ = FALSE;
+	if (self->priv->_skip == 0) {
+		if (self->priv->_code_escape_mode) {
+			gboolean _tmp1_ = FALSE;
+			gboolean _tmp2_ = FALSE;
 			if (c == ((gunichar) '}')) {
-				_tmp4_ = valadoc_wiki_scanner_get_next_char (self, 1) == ((gunichar) '}');
+				_tmp2_ = valadoc_wiki_scanner_get_next_char (self, 1) == ((gunichar) '}');
 			} else {
-				_tmp4_ = FALSE;
+				_tmp2_ = FALSE;
 			}
-			if (_tmp4_) {
-				_tmp3_ = valadoc_wiki_scanner_get_next_char (self, 2) == ((gunichar) '}');
+			if (_tmp2_) {
+				_tmp1_ = valadoc_wiki_scanner_get_next_char (self, 2) == ((gunichar) '}');
 			} else {
-				_tmp3_ = FALSE;
+				_tmp1_ = FALSE;
 			}
-			if (_tmp3_) {
-				ValadocTokenType* _tmp5_;
+			if (_tmp1_) {
+				ValadocTokenType* _tmp3_;
 				self->priv->_code_escape_mode = FALSE;
-				_tmp5_ = valadoc_token_type_TRIPLE_CLOSED_BRACE;
-				valadoc_wiki_scanner_emit_token (self, _tmp5_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				_tmp3_ = valadoc_token_type_TRIPLE_CLOSED_BRACE;
+				valadoc_wiki_scanner_emit_token (self, _tmp3_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -513,9 +473,7 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			return;
 		} else {
-			gboolean _tmp6_;
-			_tmp6_ = self->priv->_url_escape_mode;
-			if (_tmp6_) {
+			if (self->priv->_url_escape_mode) {
 				switch (c) {
 					case ';':
 					case '/':
@@ -550,16 +508,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 		switch (c) {
 			case '@':
 			{
-				ValadocTokenType* _tmp7_;
-				_tmp7_ = valadoc_token_type_AROBASE;
-				valadoc_wiki_scanner_emit_token (self, _tmp7_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp4_;
+				_tmp4_ = valadoc_token_type_AROBASE;
+				valadoc_wiki_scanner_emit_token (self, _tmp4_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -567,20 +525,20 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '{':
 			{
-				ValadocTokenType* _tmp8_;
-				ValadocTokenType* _tmp9_;
-				ValadocTokenType* _tmp10_;
-				_tmp8_ = valadoc_token_type_OPEN_BRACE;
-				_tmp9_ = valadoc_token_type_DOUBLE_OPEN_BRACE;
-				_tmp10_ = valadoc_token_type_TRIPLE_OPEN_BRACE;
-				valadoc_wiki_scanner_look_for_three (self, c, _tmp8_, _tmp9_, _tmp10_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp5_;
+				ValadocTokenType* _tmp6_;
+				ValadocTokenType* _tmp7_;
+				_tmp5_ = valadoc_token_type_OPEN_BRACE;
+				_tmp6_ = valadoc_token_type_DOUBLE_OPEN_BRACE;
+				_tmp7_ = valadoc_token_type_TRIPLE_OPEN_BRACE;
+				valadoc_wiki_scanner_look_for_three (self, c, _tmp5_, _tmp6_, _tmp7_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -588,20 +546,20 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '}':
 			{
-				ValadocTokenType* _tmp11_;
-				ValadocTokenType* _tmp12_;
-				ValadocTokenType* _tmp13_;
-				_tmp11_ = valadoc_token_type_CLOSED_BRACE;
-				_tmp12_ = valadoc_token_type_DOUBLE_CLOSED_BRACE;
-				_tmp13_ = valadoc_token_type_TRIPLE_CLOSED_BRACE;
-				valadoc_wiki_scanner_look_for_three (self, c, _tmp11_, _tmp12_, _tmp13_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp8_;
+				ValadocTokenType* _tmp9_;
+				ValadocTokenType* _tmp10_;
+				_tmp8_ = valadoc_token_type_CLOSED_BRACE;
+				_tmp9_ = valadoc_token_type_DOUBLE_CLOSED_BRACE;
+				_tmp10_ = valadoc_token_type_TRIPLE_CLOSED_BRACE;
+				valadoc_wiki_scanner_look_for_three (self, c, _tmp8_, _tmp9_, _tmp10_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -609,16 +567,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '[':
 			{
-				ValadocTokenType* _tmp14_;
-				_tmp14_ = valadoc_token_type_DOUBLE_OPEN_BRACKET;
-				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp14_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp11_;
+				_tmp11_ = valadoc_token_type_DOUBLE_OPEN_BRACKET;
+				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp11_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -626,16 +584,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case ']':
 			{
-				ValadocTokenType* _tmp15_;
-				_tmp15_ = valadoc_token_type_DOUBLE_CLOSED_BRACKET;
-				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp15_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp12_;
+				_tmp12_ = valadoc_token_type_DOUBLE_CLOSED_BRACKET;
+				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp12_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -643,18 +601,18 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '|':
 			{
-				ValadocTokenType* _tmp16_;
-				ValadocTokenType* _tmp17_;
-				_tmp16_ = valadoc_token_type_PIPE;
-				_tmp17_ = valadoc_token_type_DOUBLE_PIPE;
-				valadoc_wiki_scanner_look_for_two (self, c, _tmp16_, _tmp17_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp13_;
+				ValadocTokenType* _tmp14_;
+				_tmp13_ = valadoc_token_type_PIPE;
+				_tmp14_ = valadoc_token_type_DOUBLE_PIPE;
+				valadoc_wiki_scanner_look_for_two (self, c, _tmp13_, _tmp14_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -663,32 +621,32 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			case ')':
 			{
 				if (valadoc_wiki_scanner_get_next_char (self, 1) == ((gunichar) ')')) {
-					ValadocTokenType* _tmp18_;
-					_tmp18_ = valadoc_token_type_ALIGN_RIGHT;
-					valadoc_wiki_scanner_emit_token (self, _tmp18_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					ValadocTokenType* _tmp15_;
+					_tmp15_ = valadoc_token_type_ALIGN_RIGHT;
+					valadoc_wiki_scanner_emit_token (self, _tmp15_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
 					self->priv->_skip = 1;
 				} else {
 					if (valadoc_wiki_scanner_get_next_char (self, 1) == ((gunichar) '(')) {
-						ValadocTokenType* _tmp19_;
-						_tmp19_ = valadoc_token_type_ALIGN_CENTER;
-						valadoc_wiki_scanner_emit_token (self, _tmp19_, &_inner_error_);
-						if (G_UNLIKELY (_inner_error_ != NULL)) {
-							if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-								g_propagate_error (error, _inner_error_);
+						ValadocTokenType* _tmp16_;
+						_tmp16_ = valadoc_token_type_ALIGN_CENTER;
+						valadoc_wiki_scanner_emit_token (self, _tmp16_, &_inner_error0_);
+						if (G_UNLIKELY (_inner_error0_ != NULL)) {
+							if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+								g_propagate_error (error, _inner_error0_);
 								return;
 							} else {
-								g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-								g_clear_error (&_inner_error_);
+								g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+								g_clear_error (&_inner_error0_);
 								return;
 							}
 						}
@@ -701,16 +659,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '-':
 			{
-				ValadocTokenType* _tmp20_;
-				_tmp20_ = valadoc_token_type_MINUS;
-				valadoc_wiki_scanner_emit_token (self, _tmp20_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp17_;
+				_tmp17_ = valadoc_token_type_MINUS;
+				valadoc_wiki_scanner_emit_token (self, _tmp17_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -718,24 +676,24 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '=':
 			{
+				ValadocTokenType* _tmp18_;
+				ValadocTokenType* _tmp19_;
+				ValadocTokenType* _tmp20_;
 				ValadocTokenType* _tmp21_;
 				ValadocTokenType* _tmp22_;
-				ValadocTokenType* _tmp23_;
-				ValadocTokenType* _tmp24_;
-				ValadocTokenType* _tmp25_;
-				_tmp21_ = valadoc_token_type_EQUAL_1;
-				_tmp22_ = valadoc_token_type_EQUAL_2;
-				_tmp23_ = valadoc_token_type_EQUAL_3;
-				_tmp24_ = valadoc_token_type_EQUAL_4;
-				_tmp25_ = valadoc_token_type_EQUAL_5;
-				valadoc_wiki_scanner_look_for_five (self, c, _tmp21_, _tmp22_, _tmp23_, _tmp24_, _tmp25_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				_tmp18_ = valadoc_token_type_EQUAL_1;
+				_tmp19_ = valadoc_token_type_EQUAL_2;
+				_tmp20_ = valadoc_token_type_EQUAL_3;
+				_tmp21_ = valadoc_token_type_EQUAL_4;
+				_tmp22_ = valadoc_token_type_EQUAL_5;
+				valadoc_wiki_scanner_look_for_five (self, c, _tmp18_, _tmp19_, _tmp20_, _tmp21_, _tmp22_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -743,31 +701,31 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '<':
 			{
-				gboolean _tmp26_ = FALSE;
-				ValadocTokenType* _tmp27_;
-				_tmp27_ = valadoc_token_type_BREAK;
-				_tmp26_ = valadoc_wiki_scanner_look_for (self, "<<BR>>", _tmp27_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				gboolean _tmp23_ = FALSE;
+				ValadocTokenType* _tmp24_;
+				_tmp24_ = valadoc_token_type_BREAK;
+				_tmp23_ = valadoc_wiki_scanner_look_for (self, "<<BR>>", _tmp24_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
-				if (!_tmp26_) {
-					ValadocTokenType* _tmp28_;
-					_tmp28_ = valadoc_token_type_LESS_THAN;
-					valadoc_wiki_scanner_emit_token (self, _tmp28_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+				if (!_tmp23_) {
+					ValadocTokenType* _tmp25_;
+					_tmp25_ = valadoc_token_type_LESS_THAN;
+					valadoc_wiki_scanner_emit_token (self, _tmp25_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -776,16 +734,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '>':
 			{
-				ValadocTokenType* _tmp29_;
-				_tmp29_ = valadoc_token_type_GREATER_THAN;
-				valadoc_wiki_scanner_emit_token (self, _tmp29_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp26_;
+				_tmp26_ = valadoc_token_type_GREATER_THAN;
+				valadoc_wiki_scanner_emit_token (self, _tmp26_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -793,16 +751,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '^':
 			{
-				ValadocTokenType* _tmp30_;
-				_tmp30_ = valadoc_token_type_ALIGN_TOP;
-				valadoc_wiki_scanner_emit_token (self, _tmp30_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp27_;
+				_tmp27_ = valadoc_token_type_ALIGN_TOP;
+				valadoc_wiki_scanner_emit_token (self, _tmp27_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -811,46 +769,38 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			case 'v':
 			{
 				gunichar next_char = 0U;
-				gboolean _tmp31_ = FALSE;
-				gboolean _tmp32_ = FALSE;
-				gboolean _tmp33_ = FALSE;
-				gunichar _tmp34_;
+				gboolean _tmp28_ = FALSE;
+				gboolean _tmp29_ = FALSE;
+				gboolean _tmp30_ = FALSE;
 				next_char = valadoc_wiki_scanner_get_next_char (self, 1);
-				_tmp34_ = self->priv->_last_char;
-				if (g_unichar_isalnum (_tmp34_)) {
-					_tmp33_ = TRUE;
+				if (g_unichar_isalnum (self->priv->_last_char)) {
+					_tmp30_ = TRUE;
 				} else {
-					gunichar _tmp35_;
-					_tmp35_ = self->priv->_last_char;
-					_tmp33_ = _tmp35_ == ((gunichar) ' ');
+					_tmp30_ = self->priv->_last_char == ((gunichar) ' ');
 				}
-				if (_tmp33_) {
-					_tmp32_ = TRUE;
+				if (_tmp30_) {
+					_tmp29_ = TRUE;
 				} else {
-					gunichar _tmp36_;
-					_tmp36_ = next_char;
-					_tmp32_ = g_unichar_isalnum (_tmp36_);
+					_tmp29_ = g_unichar_isalnum (next_char);
 				}
-				if (_tmp32_) {
-					_tmp31_ = TRUE;
+				if (_tmp29_) {
+					_tmp28_ = TRUE;
 				} else {
-					gunichar _tmp37_;
-					_tmp37_ = next_char;
-					_tmp31_ = _tmp37_ == ((gunichar) ' ');
+					_tmp28_ = next_char == ((gunichar) ' ');
 				}
-				if (_tmp31_) {
+				if (_tmp28_) {
 					valadoc_wiki_scanner_append_char (self, c);
 				} else {
-					ValadocTokenType* _tmp38_;
-					_tmp38_ = valadoc_token_type_ALIGN_BOTTOM;
-					valadoc_wiki_scanner_emit_token (self, _tmp38_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					ValadocTokenType* _tmp31_;
+					_tmp31_ = valadoc_token_type_ALIGN_BOTTOM;
+					valadoc_wiki_scanner_emit_token (self, _tmp31_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -859,16 +809,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '\'':
 			{
-				ValadocTokenType* _tmp39_;
-				_tmp39_ = valadoc_token_type_SINGLE_QUOTE_2;
-				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp39_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp32_;
+				_tmp32_ = valadoc_token_type_SINGLE_QUOTE_2;
+				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp32_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -876,16 +826,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '/':
 			{
-				ValadocTokenType* _tmp40_;
-				_tmp40_ = valadoc_token_type_SLASH_2;
-				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp40_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp33_;
+				_tmp33_ = valadoc_token_type_SLASH_2;
+				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp33_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -893,16 +843,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '_':
 			{
-				ValadocTokenType* _tmp41_;
-				_tmp41_ = valadoc_token_type_UNDERSCORE_2;
-				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp41_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp34_;
+				_tmp34_ = valadoc_token_type_UNDERSCORE_2;
+				valadoc_wiki_scanner_look_for_two_or_append (self, c, _tmp34_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -911,16 +861,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			case '`':
 			{
 				if (valadoc_wiki_scanner_get_next_char (self, 1) == ((gunichar) '`')) {
-					ValadocTokenType* _tmp42_;
-					_tmp42_ = valadoc_token_type_BACK_QUOTE_2;
-					valadoc_wiki_scanner_emit_token (self, _tmp42_, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					ValadocTokenType* _tmp35_;
+					_tmp35_ = valadoc_token_type_BACK_QUOTE_2;
+					valadoc_wiki_scanner_emit_token (self, _tmp35_, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
@@ -932,16 +882,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '\t':
 			{
-				ValadocTokenType* _tmp43_;
-				_tmp43_ = valadoc_token_type_TAB;
-				valadoc_wiki_scanner_emit_token (self, _tmp43_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp36_;
+				_tmp36_ = valadoc_token_type_TAB;
+				valadoc_wiki_scanner_emit_token (self, _tmp36_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -949,16 +899,16 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case ' ':
 			{
-				ValadocTokenType* _tmp44_;
-				_tmp44_ = valadoc_token_type_SPACE;
-				valadoc_wiki_scanner_emit_token (self, _tmp44_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp37_;
+				_tmp37_ = valadoc_token_type_SPACE;
+				valadoc_wiki_scanner_emit_token (self, _tmp37_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
@@ -970,22 +920,22 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 			case '\n':
 			{
-				ValadocTokenType* _tmp45_;
-				gint _tmp46_;
-				_tmp45_ = valadoc_token_type_EOL;
-				valadoc_wiki_scanner_emit_token (self, _tmp45_, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				ValadocTokenType* _tmp38_;
+				gint _tmp39_;
+				_tmp38_ = valadoc_token_type_EOL;
+				valadoc_wiki_scanner_emit_token (self, _tmp38_, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
-				_tmp46_ = self->priv->_line;
-				self->priv->_line = _tmp46_ + 1;
+				_tmp39_ = self->priv->_line;
+				self->priv->_line = _tmp39_ + 1;
 				self->priv->_column = 0;
 				self->priv->_last_column = 0;
 				break;
@@ -997,13 +947,12 @@ valadoc_wiki_scanner_real_accept (ValadocWikiScanner* self,
 			}
 		}
 	} else {
-		gint _tmp47_;
-		_tmp47_ = self->priv->_skip;
-		self->priv->_skip = _tmp47_ - 1;
+		gint _tmp40_;
+		_tmp40_ = self->priv->_skip;
+		self->priv->_skip = _tmp40_ - 1;
 	}
 	self->priv->_last_char = c;
 }
-
 
 void
 valadoc_wiki_scanner_accept (ValadocWikiScanner* self,
@@ -1013,7 +962,6 @@ valadoc_wiki_scanner_accept (ValadocWikiScanner* self,
 	g_return_if_fail (self != NULL);
 	VALADOC_WIKI_SCANNER_GET_CLASS (self)->accept (self, c, error);
 }
-
 
 static void
 valadoc_wiki_scanner_append_char (ValadocWikiScanner* self,
@@ -1025,7 +973,6 @@ valadoc_wiki_scanner_append_char (ValadocWikiScanner* self,
 	g_string_append_unichar (_tmp0_, c);
 }
 
-
 static gint
 valadoc_wiki_scanner_real_get_line_start_column (ValadocWikiScanner* self)
 {
@@ -1034,7 +981,6 @@ valadoc_wiki_scanner_real_get_line_start_column (ValadocWikiScanner* self)
 	return result;
 }
 
-
 gint
 valadoc_wiki_scanner_get_line_start_column (ValadocWikiScanner* self)
 {
@@ -1042,24 +988,18 @@ valadoc_wiki_scanner_get_line_start_column (ValadocWikiScanner* self)
 	return VALADOC_WIKI_SCANNER_GET_CLASS (self)->get_line_start_column (self);
 }
 
-
 static void
 valadoc_wiki_scanner_get_begin (ValadocWikiScanner* self,
                                 ValaSourceLocation* result)
 {
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp1_ = {0};
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_index;
-	_tmp1_ = self->priv->_last_line;
-	_tmp2_ = self->priv->_last_column;
-	vala_source_location_init (&_tmp3_, _tmp0_, _tmp1_, valadoc_wiki_scanner_get_line_start_column (self) + _tmp2_);
-	*result = _tmp3_;
+	vala_source_location_init (&_tmp1_, _tmp0_, self->priv->_last_line, valadoc_wiki_scanner_get_line_start_column (self) + self->priv->_last_column);
+	*result = _tmp1_;
 	return;
 }
-
 
 static void
 valadoc_wiki_scanner_get_end (ValadocWikiScanner* self,
@@ -1067,68 +1007,56 @@ valadoc_wiki_scanner_get_end (ValadocWikiScanner* self,
                               ValaSourceLocation* result)
 {
 	const gchar* _tmp0_;
-	gint _tmp1_;
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp1_ = {0};
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_index;
-	_tmp1_ = self->priv->_line;
-	_tmp2_ = self->priv->_column;
-	vala_source_location_init (&_tmp3_, _tmp0_, _tmp1_, (valadoc_wiki_scanner_get_line_start_column (self) + _tmp2_) + offset);
-	*result = _tmp3_;
+	vala_source_location_init (&_tmp1_, _tmp0_, self->priv->_line, (valadoc_wiki_scanner_get_line_start_column (self) + self->priv->_column) + offset);
+	*result = _tmp1_;
 	return;
 }
-
 
 static void
 valadoc_wiki_scanner_emit_current_word (ValadocWikiScanner* self,
                                         GError** error)
 {
 	GString* _tmp0_;
-	gssize _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->_current_string;
-	_tmp1_ = _tmp0_->len;
-	if (_tmp1_ > ((gssize) 0)) {
-		ValadocParser* _tmp2_;
-		GString* _tmp3_;
-		const gchar* _tmp4_;
+	if (_tmp0_->len > ((gssize) 0)) {
+		ValadocParser* _tmp1_;
+		GString* _tmp2_;
+		const gchar* _tmp3_;
+		ValaSourceLocation _tmp4_ = {0};
 		ValaSourceLocation _tmp5_ = {0};
-		ValaSourceLocation _tmp6_ = {0};
+		ValadocToken* _tmp6_;
 		ValadocToken* _tmp7_;
-		ValadocToken* _tmp8_;
-		GString* _tmp9_;
-		gint _tmp10_;
-		gint _tmp11_;
-		_tmp2_ = self->priv->_parser;
-		_tmp3_ = self->priv->_current_string;
-		_tmp4_ = _tmp3_->str;
-		valadoc_wiki_scanner_get_begin (self, &_tmp5_);
-		valadoc_wiki_scanner_get_end (self, -1, &_tmp6_);
-		_tmp7_ = valadoc_token_new_from_word (_tmp4_, &_tmp5_, &_tmp6_);
-		_tmp8_ = _tmp7_;
-		valadoc_parser_accept_token (_tmp2_, _tmp8_, &_inner_error_);
-		_g_object_unref0 (_tmp8_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		GString* _tmp8_;
+		_tmp1_ = self->priv->_parser;
+		_tmp2_ = self->priv->_current_string;
+		_tmp3_ = _tmp2_->str;
+		valadoc_wiki_scanner_get_begin (self, &_tmp4_);
+		valadoc_wiki_scanner_get_end (self, -1, &_tmp5_);
+		_tmp6_ = valadoc_token_new_from_word (_tmp3_, &_tmp4_, &_tmp5_);
+		_tmp7_ = _tmp6_;
+		valadoc_parser_accept_token (_tmp1_, _tmp7_, &_inner_error0_);
+		_g_object_unref0 (_tmp7_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
-		_tmp9_ = self->priv->_current_string;
-		g_string_erase (_tmp9_, (gssize) 0, (gssize) -1);
-		_tmp10_ = self->priv->_line;
-		self->priv->_last_line = _tmp10_;
-		_tmp11_ = self->priv->_column;
-		self->priv->_last_column = _tmp11_ - 1;
+		_tmp8_ = self->priv->_current_string;
+		g_string_erase (_tmp8_, (gssize) 0, (gssize) -1);
+		self->priv->_last_line = self->priv->_line;
+		self->priv->_last_column = self->priv->_column - 1;
 	}
 }
-
 
 static void
 valadoc_wiki_scanner_emit_token (ValadocWikiScanner* self,
@@ -1137,50 +1065,43 @@ valadoc_wiki_scanner_emit_token (ValadocWikiScanner* self,
 {
 	ValadocParser* _tmp0_;
 	ValaSourceLocation _tmp1_ = {0};
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
+	ValaSourceLocation _tmp2_ = {0};
+	ValadocToken* _tmp3_;
 	ValadocToken* _tmp4_;
-	ValadocToken* _tmp5_;
-	gint _tmp6_;
-	gint _tmp7_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (type != NULL);
-	valadoc_wiki_scanner_emit_current_word (self, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_wiki_scanner_emit_current_word (self, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 	_tmp0_ = self->priv->_parser;
 	valadoc_wiki_scanner_get_begin (self, &_tmp1_);
-	_tmp2_ = self->priv->_skip;
-	valadoc_wiki_scanner_get_end (self, _tmp2_, &_tmp3_);
-	_tmp4_ = valadoc_token_new_from_type (type, &_tmp1_, &_tmp3_, NULL);
-	_tmp5_ = _tmp4_;
-	valadoc_parser_accept_token (_tmp0_, _tmp5_, &_inner_error_);
-	_g_object_unref0 (_tmp5_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			g_propagate_error (error, _inner_error_);
+	valadoc_wiki_scanner_get_end (self, self->priv->_skip, &_tmp2_);
+	_tmp3_ = valadoc_token_new_from_type (type, &_tmp1_, &_tmp2_, NULL);
+	_tmp4_ = _tmp3_;
+	valadoc_parser_accept_token (_tmp0_, _tmp4_, &_inner_error0_);
+	_g_object_unref0 (_tmp4_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			g_propagate_error (error, _inner_error0_);
 			return;
 		} else {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
-	_tmp6_ = self->priv->_line;
-	self->priv->_last_line = _tmp6_;
-	_tmp7_ = self->priv->_column;
-	self->priv->_last_column = _tmp7_;
+	self->priv->_last_line = self->priv->_line;
+	self->priv->_last_column = self->priv->_column;
 }
-
 
 static void
 valadoc_wiki_scanner_look_for_two_or_append (ValadocWikiScanner* self,
@@ -1188,18 +1109,18 @@ valadoc_wiki_scanner_look_for_two_or_append (ValadocWikiScanner* self,
                                              ValadocTokenType* type,
                                              GError** error)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (type != NULL);
 	if (valadoc_wiki_scanner_get_next_char (self, 1) == c) {
-		valadoc_wiki_scanner_emit_token (self, type, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		valadoc_wiki_scanner_emit_token (self, type, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
@@ -1209,7 +1130,6 @@ valadoc_wiki_scanner_look_for_two_or_append (ValadocWikiScanner* self,
 	}
 }
 
-
 static void
 valadoc_wiki_scanner_look_for_two (ValadocWikiScanner* self,
                                    gunichar c,
@@ -1217,38 +1137,37 @@ valadoc_wiki_scanner_look_for_two (ValadocWikiScanner* self,
                                    ValadocTokenType* two,
                                    GError** error)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (one != NULL);
 	g_return_if_fail (two != NULL);
 	if (valadoc_wiki_scanner_get_next_char (self, 1) == c) {
-		valadoc_wiki_scanner_emit_token (self, two, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		valadoc_wiki_scanner_emit_token (self, two, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 		self->priv->_skip = 1;
 	} else {
-		valadoc_wiki_scanner_emit_token (self, one, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		valadoc_wiki_scanner_emit_token (self, one, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
-
 
 static void
 valadoc_wiki_scanner_look_for_three (ValadocWikiScanner* self,
@@ -1258,54 +1177,53 @@ valadoc_wiki_scanner_look_for_three (ValadocWikiScanner* self,
                                      ValadocTokenType* three,
                                      GError** error)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (one != NULL);
 	g_return_if_fail (two != NULL);
 	g_return_if_fail (three != NULL);
 	if (valadoc_wiki_scanner_get_next_char (self, 1) == c) {
 		if (valadoc_wiki_scanner_get_next_char (self, 2) == c) {
-			valadoc_wiki_scanner_emit_token (self, three, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					g_propagate_error (error, _inner_error_);
+			valadoc_wiki_scanner_emit_token (self, three, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					g_propagate_error (error, _inner_error0_);
 					return;
 				} else {
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
 					return;
 				}
 			}
 			self->priv->_skip = 2;
 		} else {
-			valadoc_wiki_scanner_emit_token (self, two, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					g_propagate_error (error, _inner_error_);
+			valadoc_wiki_scanner_emit_token (self, two, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					g_propagate_error (error, _inner_error0_);
 					return;
 				} else {
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
 					return;
 				}
 			}
 			self->priv->_skip = 1;
 		}
 	} else {
-		valadoc_wiki_scanner_emit_token (self, one, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		valadoc_wiki_scanner_emit_token (self, one, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
-
 
 static void
 valadoc_wiki_scanner_look_for_five (ValadocWikiScanner* self,
@@ -1317,7 +1235,7 @@ valadoc_wiki_scanner_look_for_five (ValadocWikiScanner* self,
                                     ValadocTokenType* five,
                                     GError** error)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (one != NULL);
 	g_return_if_fail (two != NULL);
@@ -1328,88 +1246,86 @@ valadoc_wiki_scanner_look_for_five (ValadocWikiScanner* self,
 		if (valadoc_wiki_scanner_get_next_char (self, 2) == c) {
 			if (valadoc_wiki_scanner_get_next_char (self, 3) == c) {
 				if (valadoc_wiki_scanner_get_next_char (self, 4) == c) {
-					valadoc_wiki_scanner_emit_token (self, five, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					valadoc_wiki_scanner_emit_token (self, five, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
 					self->priv->_skip = 4;
 				} else {
-					valadoc_wiki_scanner_emit_token (self, four, &_inner_error_);
-					if (G_UNLIKELY (_inner_error_ != NULL)) {
-						if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-							g_propagate_error (error, _inner_error_);
+					valadoc_wiki_scanner_emit_token (self, four, &_inner_error0_);
+					if (G_UNLIKELY (_inner_error0_ != NULL)) {
+						if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+							g_propagate_error (error, _inner_error0_);
 							return;
 						} else {
-							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-							g_clear_error (&_inner_error_);
+							g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+							g_clear_error (&_inner_error0_);
 							return;
 						}
 					}
 					self->priv->_skip = 3;
 				}
 			} else {
-				valadoc_wiki_scanner_emit_token (self, three, &_inner_error_);
-				if (G_UNLIKELY (_inner_error_ != NULL)) {
-					if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-						g_propagate_error (error, _inner_error_);
+				valadoc_wiki_scanner_emit_token (self, three, &_inner_error0_);
+				if (G_UNLIKELY (_inner_error0_ != NULL)) {
+					if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+						g_propagate_error (error, _inner_error0_);
 						return;
 					} else {
-						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-						g_clear_error (&_inner_error_);
+						g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+						g_clear_error (&_inner_error0_);
 						return;
 					}
 				}
 				self->priv->_skip = 2;
 			}
 		} else {
-			valadoc_wiki_scanner_emit_token (self, two, &_inner_error_);
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
-				if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-					g_propagate_error (error, _inner_error_);
+			valadoc_wiki_scanner_emit_token (self, two, &_inner_error0_);
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
+				if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+					g_propagate_error (error, _inner_error0_);
 					return;
 				} else {
-					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-					g_clear_error (&_inner_error_);
+					g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+					g_clear_error (&_inner_error0_);
 					return;
 				}
 			}
 			self->priv->_skip = 1;
 		}
 	} else {
-		valadoc_wiki_scanner_emit_token (self, one, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-				g_propagate_error (error, _inner_error_);
+		valadoc_wiki_scanner_emit_token (self, one, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+				g_propagate_error (error, _inner_error0_);
 				return;
 			} else {
-				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 		}
 	}
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static gboolean
 valadoc_wiki_scanner_look_for (ValadocWikiScanner* self,
@@ -1417,10 +1333,10 @@ valadoc_wiki_scanner_look_for (ValadocWikiScanner* self,
                                ValadocTokenType* type,
                                GError** error)
 {
+	gint _tmp6_;
+	gint _tmp7_;
+	GError* _inner_error0_ = NULL;
 	gboolean result = FALSE;
-	gint _tmp9_;
-	gint _tmp10_;
-	GError * _inner_error_ = NULL;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
 	g_return_val_if_fail (type != NULL, FALSE);
@@ -1433,53 +1349,47 @@ valadoc_wiki_scanner_look_for (ValadocWikiScanner* self,
 			while (TRUE) {
 				gint _tmp2_;
 				gint _tmp3_;
-				gint _tmp4_;
-				gint _tmp5_;
-				gint _tmp6_;
 				if (!_tmp0_) {
 					gint _tmp1_;
 					_tmp1_ = i;
 					i = _tmp1_ + 1;
 				}
 				_tmp0_ = FALSE;
-				_tmp2_ = i;
-				_tmp3_ = strlen (str);
-				_tmp4_ = _tmp3_;
-				if (!(_tmp2_ < _tmp4_)) {
+				_tmp2_ = strlen (str);
+				_tmp3_ = _tmp2_;
+				if (!(i < _tmp3_)) {
 					break;
 				}
-				_tmp5_ = i;
-				_tmp6_ = i;
-				if (valadoc_wiki_scanner_get_next_char (self, _tmp5_) != ((gunichar) string_get (str, (glong) _tmp6_))) {
+				if (valadoc_wiki_scanner_get_next_char (self, i) != ((gunichar) string_get (str, (glong) i))) {
 					result = FALSE;
 					return result;
 				}
 			}
 		}
 	}
-	valadoc_wiki_scanner_emit_token (self, type, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
-			gboolean _tmp7_ = FALSE;
-			g_propagate_error (error, _inner_error_);
-			return _tmp7_;
+	valadoc_wiki_scanner_emit_token (self, type, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
+			gboolean _tmp4_ = FALSE;
+			g_propagate_error (error, _inner_error0_);
+			return _tmp4_;
 		} else {
-			gboolean _tmp8_ = FALSE;
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
-			return _tmp8_;
+			gboolean _tmp5_ = FALSE;
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
+			return _tmp5_;
 		}
 	}
-	_tmp9_ = strlen (str);
-	_tmp10_ = _tmp9_;
-	self->priv->_skip = (gint) (_tmp10_ - 1);
+	_tmp6_ = strlen (str);
+	_tmp7_ = _tmp6_;
+	self->priv->_skip = (gint) (_tmp7_ - 1);
 	result = TRUE;
 	return result;
 }
 
-
 static void
-valadoc_wiki_scanner_class_init (ValadocWikiScannerClass * klass)
+valadoc_wiki_scanner_class_init (ValadocWikiScannerClass * klass,
+                                 gpointer klass_data)
 {
 	valadoc_wiki_scanner_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocWikiScanner_private_offset);
@@ -1491,9 +1401,9 @@ valadoc_wiki_scanner_class_init (ValadocWikiScannerClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_wiki_scanner_finalize;
 }
 
-
 static void
-valadoc_wiki_scanner_valadoc_scanner_interface_init (ValadocScannerIface * iface)
+valadoc_wiki_scanner_valadoc_scanner_interface_init (ValadocScannerIface * iface,
+                                                     gpointer iface_data)
 {
 	valadoc_wiki_scanner_valadoc_scanner_parent_iface = g_type_interface_peek_parent (iface);
 	iface->set_parser = (void (*) (ValadocScanner*, ValadocParser*)) valadoc_wiki_scanner_real_set_parser;
@@ -1504,16 +1414,15 @@ valadoc_wiki_scanner_valadoc_scanner_interface_init (ValadocScannerIface * iface
 	iface->get_line_content = (gchar* (*) (ValadocScanner*)) valadoc_wiki_scanner_get_line_content;
 }
 
-
 static void
-valadoc_wiki_scanner_instance_init (ValadocWikiScanner * self)
+valadoc_wiki_scanner_instance_init (ValadocWikiScanner * self,
+                                    gpointer klass)
 {
 	GString* _tmp0_;
 	self->priv = valadoc_wiki_scanner_get_instance_private (self);
 	_tmp0_ = g_string_new ("");
 	self->priv->_current_string = _tmp0_;
 }
-
 
 static void
 valadoc_wiki_scanner_finalize (GObject * obj)
@@ -1527,22 +1436,27 @@ valadoc_wiki_scanner_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_wiki_scanner_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_wiki_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiScanner), 0, (GInstanceInitFunc) valadoc_wiki_scanner_instance_init, NULL };
+	static const GInterfaceInfo valadoc_scanner_info = { (GInterfaceInitFunc) valadoc_wiki_scanner_valadoc_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_wiki_scanner_type_id;
+	valadoc_wiki_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiScanner", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_wiki_scanner_type_id, VALADOC_TYPE_SCANNER, &valadoc_scanner_info);
+	ValadocWikiScanner_private_offset = g_type_add_instance_private (valadoc_wiki_scanner_type_id, sizeof (ValadocWikiScannerPrivate));
+	return valadoc_wiki_scanner_type_id;
+}
 
 GType
 valadoc_wiki_scanner_get_type (void)
 {
 	static volatile gsize valadoc_wiki_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_wiki_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiScanner), 0, (GInstanceInitFunc) valadoc_wiki_scanner_instance_init, NULL };
-		static const GInterfaceInfo valadoc_scanner_info = { (GInterfaceInitFunc) valadoc_wiki_scanner_valadoc_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_wiki_scanner_type_id;
-		valadoc_wiki_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiScanner", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_wiki_scanner_type_id, VALADOC_TYPE_SCANNER, &valadoc_scanner_info);
-		ValadocWikiScanner_private_offset = g_type_add_instance_private (valadoc_wiki_scanner_type_id, sizeof (ValadocWikiScannerPrivate));
+		valadoc_wiki_scanner_type_id = valadoc_wiki_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_wiki_scanner_type_id__volatile, valadoc_wiki_scanner_type_id);
 	}
 	return valadoc_wiki_scanner_type_id__volatile;
 }
-
-
 

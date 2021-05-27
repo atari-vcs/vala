@@ -77,7 +77,7 @@ public class Vala.ConditionalExpression : Expression {
 	 * @param false_expr expression to be evaluated if condition is false
 	 * @return           newly created conditional expression
 	 */
-	public ConditionalExpression (Expression cond, Expression true_expr, Expression false_expr, SourceReference source) {
+	public ConditionalExpression (Expression cond, Expression true_expr, Expression false_expr, SourceReference? source = null) {
 		condition = cond;
 		true_expression = true_expr;
 		false_expression = false_expr;
@@ -102,6 +102,12 @@ public class Vala.ConditionalExpression : Expression {
 
 	public override bool is_accessible (Symbol sym) {
 		return condition.is_accessible (sym) && true_expression.is_accessible (sym) && false_expression.is_accessible (sym);
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		condition.get_error_types (collection, source_reference);
+		true_expression.get_error_types (collection, source_reference);
+		false_expression.get_error_types (collection, source_reference);
 	}
 
 	public override string to_string () {
@@ -194,6 +200,7 @@ public class Vala.ConditionalExpression : Expression {
 
 		value_type.value_owned = (true_expression.value_type.value_owned || false_expression.value_type.value_owned);
 		value_type.floating_reference = false;
+		value_type.check (context);
 
 		local.variable_type = value_type;
 		decl.check (context);

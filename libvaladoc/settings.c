@@ -23,10 +23,9 @@
  * 	Brosch Florian <flo.brosch@gmail.com>
  */
 
-
+#include "valadoc.h"
 #include <glib.h>
 #include <glib-object.h>
-#include "valadoc.h"
 
 enum  {
 	VALADOC_SETTINGS_0_PROPERTY,
@@ -35,17 +34,16 @@ enum  {
 static GParamSpec* valadoc_settings_properties[VALADOC_SETTINGS_NUM_PROPERTIES];
 #define _g_free0(var) (var = (g_free (var), NULL))
 
-
 static gpointer valadoc_settings_parent_class = NULL;
 
 static void valadoc_settings_finalize (GObject * obj);
+static GType valadoc_settings_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
 static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
-
 
 ValadocSettings*
 valadoc_settings_construct (GType object_type)
@@ -55,24 +53,23 @@ valadoc_settings_construct (GType object_type)
 	return self;
 }
 
-
 ValadocSettings*
 valadoc_settings_new (void)
 {
 	return valadoc_settings_construct (VALADOC_TYPE_SETTINGS);
 }
 
-
 static void
-valadoc_settings_class_init (ValadocSettingsClass * klass)
+valadoc_settings_class_init (ValadocSettingsClass * klass,
+                             gpointer klass_data)
 {
 	valadoc_settings_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_settings_finalize;
 }
 
-
 static void
-valadoc_settings_instance_init (ValadocSettings * self)
+valadoc_settings_instance_init (ValadocSettings * self,
+                                gpointer klass)
 {
 	gchar* _tmp0_;
 	_tmp0_ = g_strdup ("documentation/");
@@ -86,7 +83,6 @@ valadoc_settings_instance_init (ValadocSettings * self)
 	self->verbose = FALSE;
 	self->use_svg_images = FALSE;
 }
-
 
 static void
 valadoc_settings_finalize (GObject * obj)
@@ -116,23 +112,29 @@ valadoc_settings_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_settings_parent_class)->finalize (obj);
 }
 
-
 /**
  * Contains information about output settings configuration
  */
+static GType
+valadoc_settings_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocSettingsClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_settings_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSettings), 0, (GInstanceInitFunc) valadoc_settings_instance_init, NULL };
+	GType valadoc_settings_type_id;
+	valadoc_settings_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocSettings", &g_define_type_info, 0);
+	return valadoc_settings_type_id;
+}
+
 GType
 valadoc_settings_get_type (void)
 {
 	static volatile gsize valadoc_settings_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_settings_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocSettingsClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_settings_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocSettings), 0, (GInstanceInitFunc) valadoc_settings_instance_init, NULL };
 		GType valadoc_settings_type_id;
-		valadoc_settings_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocSettings", &g_define_type_info, 0);
+		valadoc_settings_type_id = valadoc_settings_get_type_once ();
 		g_once_init_leave (&valadoc_settings_type_id__volatile, valadoc_settings_type_id);
 	}
 	return valadoc_settings_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -140,7 +142,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -148,7 +150,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -158,6 +159,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

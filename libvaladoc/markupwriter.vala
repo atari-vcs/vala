@@ -81,7 +81,7 @@ public class Valadoc.MarkupWriter {
 	}
 
 	/**
-	 * Writes text to a desination like a {@link GLib.StringBuilder} or a {@link GLib.FileStream}
+	 * Writes text to a destination like a {@link GLib.StringBuilder} or a {@link GLib.FileStream}
 	 */
 	public delegate void WriteFunc (string text);
 
@@ -114,8 +114,9 @@ public class Valadoc.MarkupWriter {
 		check_column (name);
 
 		if (attributes.length % 2 != 0) {
-			attributes.resize (attributes.length+1);
-			attributes[attributes.length-1] = "";
+			warning ("Given attributes array is not a list of pairs (name and value)");
+			// This only effects array length of this in-parameter in this scope
+			attributes.length -= 1;
 		}
 
 		var content = new StringBuilder ("<");
@@ -144,8 +145,9 @@ public class Valadoc.MarkupWriter {
 		check_column (name);
 
 		if (attributes.length % 2 != 0) {
-			attributes.resize (attributes.length+1);
-			attributes[attributes.length-1] = "";
+			warning ("Given attributes array is not a list of pairs (name and value)");
+			// This only effects array length of this in-parameter in this scope
+			attributes.length -= 1;
 		}
 
 		var content = new StringBuilder ("<");

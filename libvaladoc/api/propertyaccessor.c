@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <vala.h>
+#include <valacodegen.h>
 
 enum  {
 	VALADOC_API_PROPERTY_ACCESSOR_0_PROPERTY,
@@ -45,24 +44,24 @@ static GParamSpec* valadoc_api_property_accessor_properties[VALADOC_API_PROPERTY
 #define _valadoc_api_signature_builder_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_signature_builder_unref (var), NULL)))
 
 struct _ValadocApiPropertyAccessorPrivate {
-	ValadocApiPropertyAccessorType type;
 	ValadocApiOwnership ownership;
 	gchar* cname;
 };
 
-
 static gint ValadocApiPropertyAccessor_private_offset;
 static gpointer valadoc_api_property_accessor_parent_class = NULL;
 
+static ValadocApiOwnership valadoc_api_property_accessor_get_property_ownership (ValadocApiPropertyAccessor* self,
+                                                                          ValaPropertyAccessor* element);
 static void valadoc_api_property_accessor_real_accept (ValadocApiNode* base,
                                                 ValadocApiVisitor* visitor);
 static ValadocContentInline* valadoc_api_property_accessor_real_build_signature (ValadocApiItem* base);
 static void valadoc_api_property_accessor_finalize (GObject * obj);
+static GType valadoc_api_property_accessor_get_type_once (void);
 static void _vala_valadoc_api_property_accessor_get_property (GObject * object,
                                                        guint property_id,
                                                        GValue * value,
                                                        GParamSpec * pspec);
-
 
 static inline gpointer
 valadoc_api_property_accessor_get_instance_private (ValadocApiPropertyAccessor* self)
@@ -70,16 +69,12 @@ valadoc_api_property_accessor_get_instance_private (ValadocApiPropertyAccessor* 
 	return G_STRUCT_MEMBER_P (self, ValadocApiPropertyAccessor_private_offset);
 }
 
-
 ValadocApiPropertyAccessor*
 valadoc_api_property_accessor_construct (GType object_type,
                                          ValadocApiProperty* parent,
                                          ValadocApiSourceFile* file,
                                          const gchar* name,
-                                         ValadocApiSymbolAccessibility accessibility,
-                                         const gchar* cname,
-                                         ValadocApiPropertyAccessorType type,
-                                         ValadocApiOwnership ownership,
+                                         ValaSymbolAccessibility accessibility,
                                          ValaPropertyAccessor* data)
 {
 	ValadocApiPropertyAccessor * self = NULL;
@@ -88,29 +83,56 @@ valadoc_api_property_accessor_construct (GType object_type,
 	g_return_val_if_fail (file != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	g_return_val_if_fail (data != NULL, NULL);
-	self = (ValadocApiPropertyAccessor*) valadoc_api_symbol_construct (object_type, (ValadocApiNode*) parent, file, name, accessibility, (ValaSymbol*) data);
-	self->priv->ownership = ownership;
-	_tmp0_ = g_strdup (cname);
+	self = (ValadocApiPropertyAccessor*) valadoc_api_symbol_construct (object_type, (ValadocApiNode*) parent, file, name, accessibility, NULL, (ValaSymbol*) data);
+	self->priv->ownership = valadoc_api_property_accessor_get_property_ownership (self, data);
+	_tmp0_ = vala_get_ccode_name ((ValaCodeNode*) data);
 	_g_free0 (self->priv->cname);
 	self->priv->cname = _tmp0_;
-	self->priv->type = type;
 	return self;
 }
-
 
 ValadocApiPropertyAccessor*
 valadoc_api_property_accessor_new (ValadocApiProperty* parent,
                                    ValadocApiSourceFile* file,
                                    const gchar* name,
-                                   ValadocApiSymbolAccessibility accessibility,
-                                   const gchar* cname,
-                                   ValadocApiPropertyAccessorType type,
-                                   ValadocApiOwnership ownership,
+                                   ValaSymbolAccessibility accessibility,
                                    ValaPropertyAccessor* data)
 {
-	return valadoc_api_property_accessor_construct (VALADOC_API_TYPE_PROPERTY_ACCESSOR, parent, file, name, accessibility, cname, type, ownership, data);
+	return valadoc_api_property_accessor_construct (VALADOC_API_TYPE_PROPERTY_ACCESSOR, parent, file, name, accessibility, data);
 }
 
+static ValadocApiOwnership
+valadoc_api_property_accessor_get_property_ownership (ValadocApiPropertyAccessor* self,
+                                                      ValaPropertyAccessor* element)
+{
+	ValaDataType* _tmp0_;
+	ValaDataType* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
+	ValadocApiOwnership result = 0;
+	g_return_val_if_fail (self != NULL, 0);
+	g_return_val_if_fail (element != NULL, 0);
+	_tmp0_ = vala_property_accessor_get_value_type (element);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_data_type_get_value_owned (_tmp1_);
+	_tmp3_ = _tmp2_;
+	if (_tmp3_) {
+		result = VALADOC_API_OWNERSHIP_OWNED;
+		return result;
+	}
+	result = VALADOC_API_OWNERSHIP_UNOWNED;
+	return result;
+}
+
+static ValadocApiNodeType
+valadoc_api_property_accessor_real_get_node_type (ValadocApiNode* base)
+{
+	ValadocApiNodeType result;
+	ValadocApiPropertyAccessor* self;
+	self = (ValadocApiPropertyAccessor*) base;
+	result = VALADOC_API_NODE_TYPE_PROPERTY_ACCESSOR;
+	return result;
+}
 
 /**
  * Returns the name of this property accessor as it is used in C.
@@ -118,16 +140,15 @@ valadoc_api_property_accessor_new (ValadocApiProperty* parent,
 gchar*
 valadoc_api_property_accessor_get_cname (ValadocApiPropertyAccessor* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->cname;
 	_tmp1_ = g_strdup (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
 
 /**
  * {@inheritDoc}
@@ -141,175 +162,56 @@ valadoc_api_property_accessor_real_accept (ValadocApiNode* base,
 	g_return_if_fail (visitor != NULL);
 }
 
-
-/**
- * {@inheritDoc}
- */
-static ValadocContentInline*
-valadoc_api_property_accessor_real_build_signature (ValadocApiItem* base)
-{
-	ValadocApiPropertyAccessor * self;
-	ValadocContentInline* result = NULL;
-	ValadocApiSignatureBuilder* signature = NULL;
-	ValadocApiSignatureBuilder* _tmp0_;
-	gboolean _tmp1_;
-	ValadocApiItem* _tmp4_;
-	ValadocApiItem* _tmp5_;
-	ValadocApiSymbolAccessibility _tmp6_;
-	ValadocApiSymbolAccessibility _tmp7_;
-	ValadocApiSymbolAccessibility _tmp8_;
-	ValadocApiSymbolAccessibility _tmp9_;
-	gboolean _tmp14_ = FALSE;
-	gboolean _tmp15_;
-	gboolean _tmp16_;
-	ValadocApiSignatureBuilder* _tmp34_;
-	ValadocApiSignatureBuilder* _tmp35_;
-	ValadocContentRun* _tmp36_;
-	self = (ValadocApiPropertyAccessor*) base;
-	_tmp0_ = valadoc_api_signature_builder_new ();
-	signature = _tmp0_;
-	_tmp1_ = ((ValadocApiNode*) self)->do_document;
-	if (!_tmp1_) {
-		ValadocApiSignatureBuilder* _tmp2_;
-		ValadocContentRun* _tmp3_;
-		_tmp2_ = signature;
-		_tmp3_ = valadoc_api_signature_builder_get (_tmp2_);
-		result = (ValadocContentInline*) _tmp3_;
-		_valadoc_api_signature_builder_unref0 (signature);
-		return result;
-	}
-	_tmp4_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
-	_tmp5_ = _tmp4_;
-	_tmp6_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
-	_tmp7_ = _tmp6_;
-	_tmp8_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
-	_tmp9_ = _tmp8_;
-	if (_tmp7_ != _tmp9_) {
-		ValadocApiSignatureBuilder* _tmp10_;
-		ValadocApiSymbolAccessibility _tmp11_;
-		ValadocApiSymbolAccessibility _tmp12_;
-		const gchar* _tmp13_;
-		_tmp10_ = signature;
-		_tmp11_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
-		_tmp12_ = _tmp11_;
-		_tmp13_ = valadoc_api_symbol_accessibility_to_string (_tmp12_);
-		valadoc_api_signature_builder_append_keyword (_tmp10_, _tmp13_, TRUE);
-	}
-	_tmp15_ = valadoc_api_property_accessor_get_is_set (self);
-	_tmp16_ = _tmp15_;
-	if (_tmp16_) {
-		_tmp14_ = TRUE;
-	} else {
-		gboolean _tmp17_;
-		gboolean _tmp18_;
-		_tmp17_ = valadoc_api_property_accessor_get_is_construct (self);
-		_tmp18_ = _tmp17_;
-		_tmp14_ = _tmp18_;
-	}
-	if (_tmp14_) {
-		gboolean _tmp19_;
-		gboolean _tmp20_;
-		gboolean _tmp22_;
-		gboolean _tmp23_;
-		gboolean _tmp25_;
-		gboolean _tmp26_;
-		_tmp19_ = valadoc_api_property_accessor_get_is_owned (self);
-		_tmp20_ = _tmp19_;
-		if (_tmp20_) {
-			ValadocApiSignatureBuilder* _tmp21_;
-			_tmp21_ = signature;
-			valadoc_api_signature_builder_append_keyword (_tmp21_, "owned", TRUE);
-		}
-		_tmp22_ = valadoc_api_property_accessor_get_is_set (self);
-		_tmp23_ = _tmp22_;
-		if (_tmp23_) {
-			ValadocApiSignatureBuilder* _tmp24_;
-			_tmp24_ = signature;
-			valadoc_api_signature_builder_append_keyword (_tmp24_, "set", TRUE);
-		}
-		_tmp25_ = valadoc_api_property_accessor_get_is_construct (self);
-		_tmp26_ = _tmp25_;
-		if (_tmp26_) {
-			ValadocApiSignatureBuilder* _tmp27_;
-			_tmp27_ = signature;
-			valadoc_api_signature_builder_append_keyword (_tmp27_, "construct", TRUE);
-		}
-	} else {
-		gboolean _tmp28_;
-		gboolean _tmp29_;
-		_tmp28_ = valadoc_api_property_accessor_get_is_get (self);
-		_tmp29_ = _tmp28_;
-		if (_tmp29_) {
-			gboolean _tmp30_;
-			gboolean _tmp31_;
-			ValadocApiSignatureBuilder* _tmp33_;
-			_tmp30_ = valadoc_api_property_accessor_get_is_owned (self);
-			_tmp31_ = _tmp30_;
-			if (_tmp31_) {
-				ValadocApiSignatureBuilder* _tmp32_;
-				_tmp32_ = signature;
-				valadoc_api_signature_builder_append_keyword (_tmp32_, "owned", TRUE);
-			}
-			_tmp33_ = signature;
-			valadoc_api_signature_builder_append_keyword (_tmp33_, "get", TRUE);
-		}
-	}
-	_tmp34_ = signature;
-	valadoc_api_signature_builder_append (_tmp34_, ";", FALSE);
-	_tmp35_ = signature;
-	_tmp36_ = valadoc_api_signature_builder_get (_tmp35_);
-	result = (ValadocContentInline*) _tmp36_;
-	_valadoc_api_signature_builder_unref0 (signature);
-	return result;
-}
-
-
-static ValadocApiNodeType
-valadoc_api_property_accessor_real_get_node_type (ValadocApiNode* base)
-{
-	ValadocApiNodeType result;
-	ValadocApiPropertyAccessor* self;
-	self = (ValadocApiPropertyAccessor*) base;
-	result = VALADOC_API_NODE_TYPE_PROPERTY_ACCESSOR;
-	return result;
-}
-
-
 gboolean
 valadoc_api_property_accessor_get_is_construct (ValadocApiPropertyAccessor* self)
 {
 	gboolean result;
-	ValadocApiPropertyAccessorType _tmp0_;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->type;
-	result = (_tmp0_ & VALADOC_API_PROPERTY_ACCESSOR_TYPE_CONSTRUCT) != 0;
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_accessor_get_construction (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY_ACCESSOR, ValaPropertyAccessor));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
 	return result;
 }
-
 
 gboolean
 valadoc_api_property_accessor_get_is_set (ValadocApiPropertyAccessor* self)
 {
 	gboolean result;
-	ValadocApiPropertyAccessorType _tmp0_;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->type;
-	result = (_tmp0_ & VALADOC_API_PROPERTY_ACCESSOR_TYPE_SET) != 0;
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_accessor_get_writable (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY_ACCESSOR, ValaPropertyAccessor));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
 	return result;
 }
-
 
 gboolean
 valadoc_api_property_accessor_get_is_get (ValadocApiPropertyAccessor* self)
 {
 	gboolean result;
-	ValadocApiPropertyAccessorType _tmp0_;
+	ValaCodeNode* _tmp0_;
+	ValaCodeNode* _tmp1_;
+	gboolean _tmp2_;
+	gboolean _tmp3_;
 	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->type;
-	result = (_tmp0_ & VALADOC_API_PROPERTY_ACCESSOR_TYPE_GET) != 0;
+	_tmp0_ = valadoc_api_item_get_data ((ValadocApiItem*) self);
+	_tmp1_ = _tmp0_;
+	_tmp2_ = vala_property_accessor_get_readable (G_TYPE_CHECK_INSTANCE_CAST (_tmp1_, VALA_TYPE_PROPERTY_ACCESSOR, ValaPropertyAccessor));
+	_tmp3_ = _tmp2_;
+	result = _tmp3_;
 	return result;
 }
-
 
 gboolean
 valadoc_api_property_accessor_get_is_owned (ValadocApiPropertyAccessor* self)
@@ -322,9 +224,128 @@ valadoc_api_property_accessor_get_is_owned (ValadocApiPropertyAccessor* self)
 	return result;
 }
 
+/**
+ * {@inheritDoc}
+ */
+static ValadocContentInline*
+valadoc_api_property_accessor_real_build_signature (ValadocApiItem* base)
+{
+	ValadocApiPropertyAccessor * self;
+	ValadocApiSignatureBuilder* signature = NULL;
+	ValadocApiSignatureBuilder* _tmp0_;
+	ValadocApiItem* _tmp3_;
+	ValadocApiItem* _tmp4_;
+	ValaSymbolAccessibility _tmp5_;
+	ValaSymbolAccessibility _tmp6_;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	gboolean _tmp13_ = FALSE;
+	gboolean _tmp14_;
+	gboolean _tmp15_;
+	ValadocApiSignatureBuilder* _tmp33_;
+	ValadocApiSignatureBuilder* _tmp34_;
+	ValadocContentRun* _tmp35_;
+	ValadocContentInline* result = NULL;
+	self = (ValadocApiPropertyAccessor*) base;
+	_tmp0_ = valadoc_api_signature_builder_new ();
+	signature = _tmp0_;
+	if (!((ValadocApiNode*) self)->do_document) {
+		ValadocApiSignatureBuilder* _tmp1_;
+		ValadocContentRun* _tmp2_;
+		_tmp1_ = signature;
+		_tmp2_ = valadoc_api_signature_builder_get (_tmp1_);
+		result = (ValadocContentInline*) _tmp2_;
+		_valadoc_api_signature_builder_unref0 (signature);
+		return result;
+	}
+	_tmp3_ = valadoc_api_item_get_parent ((ValadocApiItem*) self);
+	_tmp4_ = _tmp3_;
+	_tmp5_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) G_TYPE_CHECK_INSTANCE_CAST (_tmp4_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
+	_tmp6_ = _tmp5_;
+	_tmp7_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
+	_tmp8_ = _tmp7_;
+	if (_tmp6_ != _tmp8_) {
+		ValadocApiSignatureBuilder* _tmp9_;
+		ValaSymbolAccessibility _tmp10_;
+		ValaSymbolAccessibility _tmp11_;
+		const gchar* _tmp12_;
+		_tmp9_ = signature;
+		_tmp10_ = valadoc_api_symbol_get_accessibility ((ValadocApiSymbol*) self);
+		_tmp11_ = _tmp10_;
+		_tmp12_ = vala_symbol_accessibility_to_string (_tmp11_);
+		valadoc_api_signature_builder_append_keyword (_tmp9_, _tmp12_, TRUE);
+	}
+	_tmp14_ = valadoc_api_property_accessor_get_is_set (self);
+	_tmp15_ = _tmp14_;
+	if (_tmp15_) {
+		_tmp13_ = TRUE;
+	} else {
+		gboolean _tmp16_;
+		gboolean _tmp17_;
+		_tmp16_ = valadoc_api_property_accessor_get_is_construct (self);
+		_tmp17_ = _tmp16_;
+		_tmp13_ = _tmp17_;
+	}
+	if (_tmp13_) {
+		gboolean _tmp18_;
+		gboolean _tmp19_;
+		gboolean _tmp21_;
+		gboolean _tmp22_;
+		gboolean _tmp24_;
+		gboolean _tmp25_;
+		_tmp18_ = valadoc_api_property_accessor_get_is_owned (self);
+		_tmp19_ = _tmp18_;
+		if (_tmp19_) {
+			ValadocApiSignatureBuilder* _tmp20_;
+			_tmp20_ = signature;
+			valadoc_api_signature_builder_append_keyword (_tmp20_, "owned", TRUE);
+		}
+		_tmp21_ = valadoc_api_property_accessor_get_is_set (self);
+		_tmp22_ = _tmp21_;
+		if (_tmp22_) {
+			ValadocApiSignatureBuilder* _tmp23_;
+			_tmp23_ = signature;
+			valadoc_api_signature_builder_append_keyword (_tmp23_, "set", TRUE);
+		}
+		_tmp24_ = valadoc_api_property_accessor_get_is_construct (self);
+		_tmp25_ = _tmp24_;
+		if (_tmp25_) {
+			ValadocApiSignatureBuilder* _tmp26_;
+			_tmp26_ = signature;
+			valadoc_api_signature_builder_append_keyword (_tmp26_, "construct", TRUE);
+		}
+	} else {
+		gboolean _tmp27_;
+		gboolean _tmp28_;
+		_tmp27_ = valadoc_api_property_accessor_get_is_get (self);
+		_tmp28_ = _tmp27_;
+		if (_tmp28_) {
+			gboolean _tmp29_;
+			gboolean _tmp30_;
+			ValadocApiSignatureBuilder* _tmp32_;
+			_tmp29_ = valadoc_api_property_accessor_get_is_owned (self);
+			_tmp30_ = _tmp29_;
+			if (_tmp30_) {
+				ValadocApiSignatureBuilder* _tmp31_;
+				_tmp31_ = signature;
+				valadoc_api_signature_builder_append_keyword (_tmp31_, "owned", TRUE);
+			}
+			_tmp32_ = signature;
+			valadoc_api_signature_builder_append_keyword (_tmp32_, "get", TRUE);
+		}
+	}
+	_tmp33_ = signature;
+	valadoc_api_signature_builder_append (_tmp33_, ";", FALSE);
+	_tmp34_ = signature;
+	_tmp35_ = valadoc_api_signature_builder_get (_tmp34_);
+	result = (ValadocContentInline*) _tmp35_;
+	_valadoc_api_signature_builder_unref0 (signature);
+	return result;
+}
 
 static void
-valadoc_api_property_accessor_class_init (ValadocApiPropertyAccessorClass * klass)
+valadoc_api_property_accessor_class_init (ValadocApiPropertyAccessorClass * klass,
+                                          gpointer klass_data)
 {
 	valadoc_api_property_accessor_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiPropertyAccessor_private_offset);
@@ -355,13 +376,12 @@ valadoc_api_property_accessor_class_init (ValadocApiPropertyAccessorClass * klas
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_PROPERTY_ACCESSOR_IS_OWNED_PROPERTY, valadoc_api_property_accessor_properties[VALADOC_API_PROPERTY_ACCESSOR_IS_OWNED_PROPERTY] = g_param_spec_boolean ("is-owned", "is-owned", "is-owned", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_api_property_accessor_instance_init (ValadocApiPropertyAccessor * self)
+valadoc_api_property_accessor_instance_init (ValadocApiPropertyAccessor * self,
+                                             gpointer klass)
 {
 	self->priv = valadoc_api_property_accessor_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_property_accessor_finalize (GObject * obj)
@@ -372,24 +392,30 @@ valadoc_api_property_accessor_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_property_accessor_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a get or set accessor of a property.
  */
+static GType
+valadoc_api_property_accessor_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPropertyAccessorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_property_accessor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiPropertyAccessor), 0, (GInstanceInitFunc) valadoc_api_property_accessor_instance_init, NULL };
+	GType valadoc_api_property_accessor_type_id;
+	valadoc_api_property_accessor_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiPropertyAccessor", &g_define_type_info, 0);
+	ValadocApiPropertyAccessor_private_offset = g_type_add_instance_private (valadoc_api_property_accessor_type_id, sizeof (ValadocApiPropertyAccessorPrivate));
+	return valadoc_api_property_accessor_type_id;
+}
+
 GType
 valadoc_api_property_accessor_get_type (void)
 {
 	static volatile gsize valadoc_api_property_accessor_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_property_accessor_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPropertyAccessorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_property_accessor_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiPropertyAccessor), 0, (GInstanceInitFunc) valadoc_api_property_accessor_instance_init, NULL };
 		GType valadoc_api_property_accessor_type_id;
-		valadoc_api_property_accessor_type_id = g_type_register_static (VALADOC_API_TYPE_SYMBOL, "ValadocApiPropertyAccessor", &g_define_type_info, 0);
-		ValadocApiPropertyAccessor_private_offset = g_type_add_instance_private (valadoc_api_property_accessor_type_id, sizeof (ValadocApiPropertyAccessorPrivate));
+		valadoc_api_property_accessor_type_id = valadoc_api_property_accessor_get_type_once ();
 		g_once_init_leave (&valadoc_api_property_accessor_type_id__volatile, valadoc_api_property_accessor_type_id);
 	}
 	return valadoc_api_property_accessor_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_property_accessor_get_property (GObject * object,
@@ -420,6 +446,4 @@ _vala_valadoc_api_property_accessor_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

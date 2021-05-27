@@ -16,6 +16,8 @@ namespace Atspi {
 		[CCode (has_construct_function = false)]
 		protected Accessible ();
 		public void clear_cache ();
+		[Version (since = "2.34")]
+		public string get_accessible_id () throws GLib.Error;
 		[Version (deprecated = true, deprecated_since = "2.10")]
 		public Atspi.Action get_action ();
 		public Atspi.Action get_action_iface ();
@@ -73,6 +75,21 @@ namespace Atspi {
 		public Atspi.Value get_value ();
 		public Atspi.Value get_value_iface ();
 		public void set_cache_mask (Atspi.Cache mask);
+		public virtual signal void mode_changed (int enabled, string why);
+		public virtual signal void region_changed (int current_offset, int last_offset);
+	}
+	[CCode (cheader_filename = "atspi/atspi.h", type_id = "atspi_application_get_type ()")]
+	public class Application : GLib.Object {
+		public weak string atspi_version;
+		public weak string bus_name;
+		public Atspi.Cache cache;
+		public weak GLib.HashTable<void*,void*> hash;
+		public void* root;
+		public void* time_added;
+		public weak string toolkit_name;
+		public weak string toolkit_version;
+		[CCode (has_construct_function = false)]
+		protected Application ();
 	}
 	[CCode (cheader_filename = "atspi/atspi.h", type_id = "atspi_device_listener_get_type ()")]
 	public class DeviceListener : GLib.Object {
@@ -93,6 +110,7 @@ namespace Atspi {
 		public GLib.Value any_data;
 		public int detail1;
 		public int detail2;
+		public weak Atspi.Accessible sender;
 		public weak Atspi.Accessible source;
 		public weak string type;
 		public static void main ();
@@ -153,7 +171,7 @@ namespace Atspi {
 	}
 	[CCode (cheader_filename = "atspi/atspi.h", type_id = "atspi_object_get_type ()")]
 	public class Object : GLib.Object {
-		public Atspi.Application app;
+		public weak Atspi.Application app;
 		public weak string path;
 		[CCode (has_construct_function = false)]
 		protected Object ();
@@ -365,6 +383,8 @@ namespace Atspi {
 		public GLib.HashTable<string,string> get_text_attributes (int offset, out int start_offset, out int end_offset) throws GLib.Error;
 		public Atspi.TextRange get_text_before_offset (int offset, Atspi.TextBoundaryType type) throws GLib.Error;
 		public bool remove_selection (int selection_num) throws GLib.Error;
+		public bool scroll_substring_to (int start_offset, int end_offset, Atspi.ScrollType type) throws GLib.Error;
+		public bool scroll_substring_to_point (int start_offset, int end_offset, Atspi.CoordType coords, int x, int y) throws GLib.Error;
 		public bool set_caret_offset (int new_offset) throws GLib.Error;
 		public bool set_selection (int selection_num, int start_offset, int end_offset) throws GLib.Error;
 	}
@@ -376,27 +396,11 @@ namespace Atspi {
 		public double get_minimum_value () throws GLib.Error;
 		public bool set_current_value (double new_value) throws GLib.Error;
 	}
-	[CCode (cheader_filename = "atspi/atspi.h", has_type_id = false)]
-	public struct Application {
-		public weak GLib.Object parent;
-		public weak GLib.HashTable<void*,void*> hash;
-		public weak string bus_name;
-		public void* root;
-		public Atspi.Cache cache;
-		public weak string toolkit_name;
-		public weak string toolkit_version;
-		public weak string atspi_version;
-		public void* time_added;
-	}
-	[CCode (cheader_filename = "atspi/atspi.h", has_type_id = false)]
-	public struct ApplicationClass {
-		public weak GLib.ObjectClass parent_class;
-	}
 	[CCode (cheader_filename = "atspi/atspi.h")]
 	[SimpleType]
 	public struct ControllerEventMask : uint {
 	}
-	[CCode (cheader_filename = "atspi/atspi.h", type_id = "atspi_device_event_get_type ()")]
+	[CCode (cheader_filename = "atspi/atspi.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "atspi_device_event_get_type ()")]
 	public struct DeviceEvent {
 		public Atspi.EventType type;
 		public uint id;
@@ -434,7 +438,6 @@ namespace Atspi {
 	[CCode (cheader_filename = "atspi/atspi.h", cprefix = "ATSPI_CACHE_", type_id = "atspi_cache_get_type ()")]
 	[Flags]
 	public enum Cache {
-		INTERFACES,
 		NONE,
 		PARENT,
 		CHILDREN,
@@ -442,6 +445,7 @@ namespace Atspi {
 		DESCRIPTION,
 		STATES,
 		ROLE,
+		INTERFACES,
 		ATTRIBUTES,
 		ALL,
 		DEFAULT,
@@ -518,7 +522,9 @@ namespace Atspi {
 		RELEASE,
 		PRESSRELEASE,
 		SYM,
-		STRING
+		STRING,
+		LOCKMODIFIERS,
+		UNLOCKMODIFIERS
 	}
 	[CCode (cheader_filename = "atspi/atspi.h", cprefix = "ATSPI_LOCALE_TYPE_", type_id = "atspi_locale_type_get_type ()")]
 	public enum LocaleType {
@@ -694,6 +700,10 @@ namespace Atspi {
 		DESCRIPTION_TERM,
 		DESCRIPTION_VALUE,
 		FOOTNOTE,
+		CONTENT_DELETION,
+		CONTENT_INSERTION,
+		MARK,
+		SUGGESTION,
 		LAST_DEFINED;
 		public string get_name ();
 	}
@@ -818,6 +828,8 @@ namespace Atspi {
 	public const string DBUS_INTERFACE_EVENT_MOUSE;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_INTERFACE_EVENT_OBJECT")]
 	public const string DBUS_INTERFACE_EVENT_OBJECT;
+	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_INTERFACE_EVENT_SCREEN_READER")]
+	public const string DBUS_INTERFACE_EVENT_SCREEN_READER;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_INTERFACE_HYPERLINK")]
 	public const string DBUS_INTERFACE_HYPERLINK;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_INTERFACE_HYPERTEXT")]
@@ -848,6 +860,8 @@ namespace Atspi {
 	public const string DBUS_PATH_REGISTRY;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_PATH_ROOT")]
 	public const string DBUS_PATH_ROOT;
+	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_DBUS_PATH_SCREEN_READER")]
+	public const string DBUS_PATH_SCREEN_READER;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_EVENTTYPE_COUNT")]
 	public const int EVENTTYPE_COUNT;
 	[CCode (cheader_filename = "atspi/atspi.h", cname = "ATSPI_KEYEVENTTYPE_COUNT")]
@@ -898,6 +912,8 @@ namespace Atspi {
 	public static bool register_keystroke_listener (Atspi.DeviceListener listener, GLib.Array<Atspi.KeyDefinition>? key_set, Atspi.KeyMaskType modmask, Atspi.KeyEventMask event_types, Atspi.KeyListenerSyncType sync_type) throws GLib.Error;
 	[CCode (cheader_filename = "atspi/atspi.h")]
 	public static void set_main_context (GLib.MainContext cnx);
+	[CCode (cheader_filename = "atspi/atspi.h")]
+	public static void set_reference_window (Atspi.Accessible accessible);
 	[CCode (cheader_filename = "atspi/atspi.h")]
 	public static void set_timeout (int val, int startup_time);
 }

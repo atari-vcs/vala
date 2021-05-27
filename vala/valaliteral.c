@@ -23,18 +23,14 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-
+#include <glib.h>
 
 static gpointer vala_literal_parent_class = NULL;
 
 static gboolean vala_literal_real_is_constant (ValaExpression* base);
 static gboolean vala_literal_real_is_pure (ValaExpression* base);
-
+static GType vala_literal_get_type_once (void);
 
 static gboolean
 vala_literal_real_is_constant (ValaExpression* base)
@@ -46,7 +42,6 @@ vala_literal_real_is_constant (ValaExpression* base)
 	return result;
 }
 
-
 static gboolean
 vala_literal_real_is_pure (ValaExpression* base)
 {
@@ -57,7 +52,6 @@ vala_literal_real_is_pure (ValaExpression* base)
 	return result;
 }
 
-
 ValaLiteral*
 vala_literal_construct (GType object_type)
 {
@@ -66,37 +60,42 @@ vala_literal_construct (GType object_type)
 	return self;
 }
 
-
 static void
-vala_literal_class_init (ValaLiteralClass * klass)
+vala_literal_class_init (ValaLiteralClass * klass,
+                         gpointer klass_data)
 {
 	vala_literal_parent_class = g_type_class_peek_parent (klass);
 	((ValaExpressionClass *) klass)->is_constant = (gboolean (*) (ValaExpression*)) vala_literal_real_is_constant;
 	((ValaExpressionClass *) klass)->is_pure = (gboolean (*) (ValaExpression*)) vala_literal_real_is_pure;
 }
 
-
 static void
-vala_literal_instance_init (ValaLiteral * self)
+vala_literal_instance_init (ValaLiteral * self,
+                            gpointer klass)
 {
 }
-
 
 /**
  * Base class for all literals in the source code.
  */
+static GType
+vala_literal_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaLiteral), 0, (GInstanceInitFunc) vala_literal_instance_init, NULL };
+	GType vala_literal_type_id;
+	vala_literal_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaLiteral", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	return vala_literal_type_id;
+}
+
 GType
 vala_literal_get_type (void)
 {
 	static volatile gsize vala_literal_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_literal_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaLiteralClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_literal_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaLiteral), 0, (GInstanceInitFunc) vala_literal_instance_init, NULL };
 		GType vala_literal_type_id;
-		vala_literal_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaLiteral", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+		vala_literal_type_id = vala_literal_get_type_once ();
 		g_once_init_leave (&vala_literal_type_id__volatile, vala_literal_type_id);
 	}
 	return vala_literal_type_id__volatile;
 }
-
-
 

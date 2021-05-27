@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <glib/gstdio.h>
 #include <valagee.h>
 
@@ -65,21 +64,21 @@ struct _ValadocWikiPageTreePrivate {
 	ValaArrayList* wikipages;
 };
 
-
 static gint ValadocWikiPage_private_offset;
 static gpointer valadoc_wiki_page_parent_class = NULL;
 static ValadocDocumentationIface * valadoc_wiki_page_valadoc_documentation_parent_iface = NULL;
 static gint ValadocWikiPageTree_private_offset;
 static gpointer valadoc_wiki_page_tree_parent_class = NULL;
 
-static gchar* valadoc_wiki_page_real_get_filename (ValadocDocumentation* base);
-static void valadoc_wiki_page_set_name (ValadocWikiPage* self,
-                                 const gchar* value);
-static void valadoc_wiki_page_set_path (ValadocWikiPage* self,
-                                 const gchar* value);
 static void valadoc_wiki_page_set_documentation_str (ValadocWikiPage* self,
                                               const gchar* value);
+static void valadoc_wiki_page_set_path (ValadocWikiPage* self,
+                                 const gchar* value);
+static void valadoc_wiki_page_set_name (ValadocWikiPage* self,
+                                 const gchar* value);
+static gchar* valadoc_wiki_page_real_get_filename (ValadocDocumentation* base);
 static void valadoc_wiki_page_finalize (GObject * obj);
+static GType valadoc_wiki_page_get_type_once (void);
 static void _vala_valadoc_wiki_page_get_property (GObject * object,
                                            guint property_id,
                                            GValue * value,
@@ -95,7 +94,7 @@ static void valadoc_wiki_page_tree_create_tree_from_path (ValadocWikiPageTree* s
                                                    const gchar* path,
                                                    const gchar* nameoffset);
 static void valadoc_wiki_page_tree_finalize (GObject * obj);
-
+static GType valadoc_wiki_page_tree_get_type_once (void);
 
 static inline gpointer
 valadoc_wiki_page_get_instance_private (ValadocWikiPage* self)
@@ -103,6 +102,131 @@ valadoc_wiki_page_get_instance_private (ValadocWikiPage* self)
 	return G_STRUCT_MEMBER_P (self, ValadocWikiPage_private_offset);
 }
 
+ValadocContentPage*
+valadoc_wiki_page_get_documentation (ValadocWikiPage* self)
+{
+	ValadocContentPage* result;
+	ValadocContentPage* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_documentation;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_wiki_page_set_documentation (ValadocWikiPage* self,
+                                     ValadocContentPage* value)
+{
+	ValadocContentPage* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_wiki_page_get_documentation (self);
+	if (old_value != value) {
+		ValadocContentPage* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_documentation);
+		self->priv->_documentation = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_DOCUMENTATION_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_wiki_page_get_documentation_str (ValadocWikiPage* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_documentation_str;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_wiki_page_set_documentation_str (ValadocWikiPage* self,
+                                         const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_wiki_page_get_documentation_str (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_documentation_str);
+		self->priv->_documentation_str = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_DOCUMENTATION_STR_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_wiki_page_get_path (ValadocWikiPage* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_path;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_wiki_page_set_path (ValadocWikiPage* self,
+                            const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_wiki_page_get_path (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_path);
+		self->priv->_path = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_PATH_PROPERTY]);
+	}
+}
+
+const gchar*
+valadoc_wiki_page_get_name (ValadocWikiPage* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_wiki_page_set_name (ValadocWikiPage* self,
+                            const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_wiki_page_get_name (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_name);
+		self->priv->_name = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_NAME_PROPERTY]);
+	}
+}
+
+static ValadocApiPackage*
+valadoc_wiki_page_real_get_package (ValadocDocumentation* base)
+{
+	ValadocApiPackage* result;
+	ValadocWikiPage* self;
+	ValadocApiPackage* _tmp0_;
+	self = (ValadocWikiPage*) base;
+	_tmp0_ = self->priv->_package;
+	result = _tmp0_;
+	return result;
+}
 
 /**
  * The corresponding file name
@@ -111,23 +235,15 @@ static gchar*
 valadoc_wiki_page_real_get_filename (ValadocDocumentation* base)
 {
 	ValadocWikiPage * self;
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	self = (ValadocWikiPage*) base;
 	_tmp0_ = self->priv->_path;
 	_tmp1_ = g_path_get_basename (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
 
 ValadocWikiPage*
 valadoc_wiki_page_construct (GType object_type,
@@ -149,7 +265,6 @@ valadoc_wiki_page_construct (GType object_type,
 	return self;
 }
 
-
 ValadocWikiPage*
 valadoc_wiki_page_new (const gchar* name,
                        const gchar* path,
@@ -158,12 +273,11 @@ valadoc_wiki_page_new (const gchar* name,
 	return valadoc_wiki_page_construct (VALADOC_TYPE_WIKI_PAGE, name, path, package);
 }
 
-
 void
 valadoc_wiki_page_read (ValadocWikiPage* self,
                         ValadocErrorReporter* reporter)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (reporter != NULL);
 	{
@@ -171,45 +285,43 @@ valadoc_wiki_page_read (ValadocWikiPage* self,
 		const gchar* _tmp0_;
 		gchar* _tmp1_ = NULL;
 		_tmp0_ = self->priv->_path;
-		g_file_get_contents (_tmp0_, &_tmp1_, NULL, &_inner_error_);
+		g_file_get_contents (_tmp0_, &_tmp1_, NULL, &_inner_error0_);
 		_g_free0 (content);
 		content = _tmp1_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			_g_free0 (content);
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch7_g_file_error;
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
-			_g_free0 (content);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 		valadoc_wiki_page_set_documentation_str (self, content);
 		_g_free0 (content);
 	}
-	goto __finally7;
-	__catch7_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
 		GError* err = NULL;
 		const gchar* _tmp2_;
 		GError* _tmp3_;
 		const gchar* _tmp4_;
-		err = _inner_error_;
-		_inner_error_ = NULL;
+		err = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp2_ = self->priv->_path;
 		_tmp3_ = err;
 		_tmp4_ = _tmp3_->message;
 		valadoc_error_reporter_simple_error (reporter, NULL, "Unable to read file '%s': %s", _tmp2_, _tmp4_);
 		_g_error_free0 (err);
 	}
-	__finally7:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
 }
-
 
 void
 valadoc_wiki_page_parse (ValadocWikiPage* self,
@@ -227,130 +339,9 @@ valadoc_wiki_page_parse (ValadocWikiPage* self,
 	_g_object_unref0 (_tmp1_);
 }
 
-
-ValadocContentPage*
-valadoc_wiki_page_get_documentation (ValadocWikiPage* self)
-{
-	ValadocContentPage* result;
-	ValadocContentPage* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_documentation;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-valadoc_wiki_page_set_documentation (ValadocWikiPage* self,
-                                     ValadocContentPage* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_wiki_page_get_documentation (self) != value) {
-		ValadocContentPage* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_documentation);
-		self->priv->_documentation = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_DOCUMENTATION_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_wiki_page_get_documentation_str (ValadocWikiPage* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_documentation_str;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_wiki_page_set_documentation_str (ValadocWikiPage* self,
-                                         const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_wiki_page_get_documentation_str (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_documentation_str);
-		self->priv->_documentation_str = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_DOCUMENTATION_STR_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_wiki_page_get_path (ValadocWikiPage* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_path;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_wiki_page_set_path (ValadocWikiPage* self,
-                            const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_wiki_page_get_path (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_path);
-		self->priv->_path = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_PATH_PROPERTY]);
-	}
-}
-
-
-const gchar*
-valadoc_wiki_page_get_name (ValadocWikiPage* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_wiki_page_set_name (ValadocWikiPage* self,
-                            const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_wiki_page_get_name (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_name);
-		self->priv->_name = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_NAME_PROPERTY]);
-	}
-}
-
-
-static ValadocApiPackage*
-valadoc_wiki_page_real_get_package (ValadocDocumentation* base)
-{
-	ValadocApiPackage* result;
-	ValadocWikiPage* self;
-	ValadocApiPackage* _tmp0_;
-	self = (ValadocWikiPage*) base;
-	_tmp0_ = self->priv->_package;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_wiki_page_class_init (ValadocWikiPageClass * klass)
+valadoc_wiki_page_class_init (ValadocWikiPageClass * klass,
+                              gpointer klass_data)
 {
 	valadoc_wiki_page_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocWikiPage_private_offset);
@@ -364,22 +355,21 @@ valadoc_wiki_page_class_init (ValadocWikiPageClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_WIKI_PAGE_PACKAGE_PROPERTY, valadoc_wiki_page_properties[VALADOC_WIKI_PAGE_PACKAGE_PROPERTY] = g_param_spec_object ("package", "package", "package", VALADOC_API_TYPE_PACKAGE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_wiki_page_valadoc_documentation_interface_init (ValadocDocumentationIface * iface)
+valadoc_wiki_page_valadoc_documentation_interface_init (ValadocDocumentationIface * iface,
+                                                        gpointer iface_data)
 {
 	valadoc_wiki_page_valadoc_documentation_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_filename = (gchar* (*) (ValadocDocumentation*)) valadoc_wiki_page_real_get_filename;
 	iface->get_package = valadoc_wiki_page_real_get_package;
 }
 
-
 static void
-valadoc_wiki_page_instance_init (ValadocWikiPage * self)
+valadoc_wiki_page_instance_init (ValadocWikiPage * self,
+                                 gpointer klass)
 {
 	self->priv = valadoc_wiki_page_get_instance_private (self);
 }
-
 
 static void
 valadoc_wiki_page_finalize (GObject * obj)
@@ -394,23 +384,29 @@ valadoc_wiki_page_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_wiki_page_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_wiki_page_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiPageClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_page_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiPage), 0, (GInstanceInitFunc) valadoc_wiki_page_instance_init, NULL };
+	static const GInterfaceInfo valadoc_documentation_info = { (GInterfaceInitFunc) valadoc_wiki_page_valadoc_documentation_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_wiki_page_type_id;
+	valadoc_wiki_page_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiPage", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_wiki_page_type_id, VALADOC_TYPE_DOCUMENTATION, &valadoc_documentation_info);
+	ValadocWikiPage_private_offset = g_type_add_instance_private (valadoc_wiki_page_type_id, sizeof (ValadocWikiPagePrivate));
+	return valadoc_wiki_page_type_id;
+}
 
 GType
 valadoc_wiki_page_get_type (void)
 {
 	static volatile gsize valadoc_wiki_page_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_wiki_page_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiPageClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_page_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiPage), 0, (GInstanceInitFunc) valadoc_wiki_page_instance_init, NULL };
-		static const GInterfaceInfo valadoc_documentation_info = { (GInterfaceInitFunc) valadoc_wiki_page_valadoc_documentation_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_wiki_page_type_id;
-		valadoc_wiki_page_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiPage", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_wiki_page_type_id, VALADOC_TYPE_DOCUMENTATION, &valadoc_documentation_info);
-		ValadocWikiPage_private_offset = g_type_add_instance_private (valadoc_wiki_page_type_id, sizeof (ValadocWikiPagePrivate));
+		valadoc_wiki_page_type_id = valadoc_wiki_page_get_type_once ();
 		g_once_init_leave (&valadoc_wiki_page_type_id__volatile, valadoc_wiki_page_type_id);
 	}
 	return valadoc_wiki_page_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_wiki_page_get_property (GObject * object,
@@ -442,7 +438,6 @@ _vala_valadoc_wiki_page_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_wiki_page_set_property (GObject * object,
                                       guint property_id,
@@ -470,13 +465,11 @@ _vala_valadoc_wiki_page_set_property (GObject * object,
 	}
 }
 
-
 static inline gpointer
 valadoc_wiki_page_tree_get_instance_private (ValadocWikiPageTree* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocWikiPageTree_private_offset);
 }
-
 
 ValadocWikiPageTree*
 valadoc_wiki_page_tree_construct (GType object_type)
@@ -486,13 +479,11 @@ valadoc_wiki_page_tree_construct (GType object_type)
 	return self;
 }
 
-
 ValadocWikiPageTree*
 valadoc_wiki_page_tree_new (void)
 {
 	return valadoc_wiki_page_tree_construct (VALADOC_TYPE_WIKI_PAGE_TREE);
 }
-
 
 static gpointer
 _vala_iterable_ref0 (gpointer self)
@@ -500,13 +491,12 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 ValaCollection*
 valadoc_wiki_page_tree_get_pages (ValadocWikiPageTree* self)
 {
-	ValaCollection* result = NULL;
 	ValaArrayList* _tmp0_ = NULL;
 	ValaArrayList* _tmp1_;
+	ValaCollection* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp1_ = self->priv->wikipages;
 	if (_tmp1_ == NULL) {
@@ -528,13 +518,12 @@ valadoc_wiki_page_tree_get_pages (ValadocWikiPageTree* self)
 	return result;
 }
 
-
 ValadocWikiPage*
 valadoc_wiki_page_tree_search (ValadocWikiPageTree* self,
                                const gchar* name)
 {
-	ValadocWikiPage* result = NULL;
 	ValaArrayList* _tmp0_;
+	ValadocWikiPage* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->wikipages;
@@ -562,29 +551,25 @@ valadoc_wiki_page_tree_search (ValadocWikiPageTree* self,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValadocWikiPage* page = NULL;
-			ValaArrayList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			ValadocWikiPage* _tmp12_;
-			const gchar* _tmp13_;
-			const gchar* _tmp14_;
+			ValaArrayList* _tmp8_;
+			gpointer _tmp9_;
+			ValadocWikiPage* _tmp10_;
+			const gchar* _tmp11_;
+			const gchar* _tmp12_;
+			_page_index = _page_index + 1;
 			_tmp6_ = _page_index;
-			_page_index = _tmp6_ + 1;
-			_tmp7_ = _page_index;
-			_tmp8_ = _page_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _page_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _page_list;
-			_tmp10_ = _page_index;
-			_tmp11_ = vala_list_get ((ValaList*) _tmp9_, _tmp10_);
-			page = (ValadocWikiPage*) _tmp11_;
-			_tmp12_ = page;
-			_tmp13_ = valadoc_wiki_page_get_name (_tmp12_);
-			_tmp14_ = _tmp13_;
-			if (g_strcmp0 (_tmp14_, name) == 0) {
+			_tmp8_ = _page_list;
+			_tmp9_ = vala_list_get ((ValaList*) _tmp8_, _page_index);
+			page = (ValadocWikiPage*) _tmp9_;
+			_tmp10_ = page;
+			_tmp11_ = valadoc_wiki_page_get_name (_tmp10_);
+			_tmp12_ = _tmp11_;
+			if (g_strcmp0 (_tmp12_, name) == 0) {
 				result = page;
 				_vala_iterable_unref0 (_page_list);
 				return result;
@@ -597,7 +582,6 @@ valadoc_wiki_page_tree_search (ValadocWikiPageTree* self,
 	return result;
 }
 
-
 static void
 valadoc_wiki_page_tree_create_tree_from_path (ValadocWikiPageTree* self,
                                               ValadocDocumentationParser* docparser,
@@ -606,7 +590,7 @@ valadoc_wiki_page_tree_create_tree_from_path (ValadocWikiPageTree* self,
                                               const gchar* path,
                                               const gchar* nameoffset)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (docparser != NULL);
 	g_return_if_fail (package != NULL);
@@ -615,14 +599,14 @@ valadoc_wiki_page_tree_create_tree_from_path (ValadocWikiPageTree* self,
 	{
 		GDir* dir = NULL;
 		GDir* _tmp0_;
-		_tmp0_ = g_dir_open (path, (guint) 0, &_inner_error_);
+		_tmp0_ = g_dir_open (path, (guint) 0, &_inner_error0_);
 		dir = _tmp0_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_FILE_ERROR) {
-				goto __catch8_g_file_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			if (_inner_error0_->domain == G_FILE_ERROR) {
+				goto __catch0_g_file_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 		{
@@ -736,27 +720,26 @@ valadoc_wiki_page_tree_create_tree_from_path (ValadocWikiPageTree* self,
 		}
 		_g_dir_close0 (dir);
 	}
-	goto __finally8;
-	__catch8_g_file_error:
+	goto __finally0;
+	__catch0_g_file_error:
 	{
 		GError* err = NULL;
 		GError* _tmp31_;
 		const gchar* _tmp32_;
-		err = _inner_error_;
-		_inner_error_ = NULL;
+		err = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp31_ = err;
 		_tmp32_ = _tmp31_->message;
 		valadoc_error_reporter_simple_error (reporter, NULL, "Unable to open directory '%s': %s", path, _tmp32_);
 		_g_error_free0 (err);
 	}
-	__finally8:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return;
 	}
 }
-
 
 void
 valadoc_wiki_page_tree_parse (ValadocWikiPageTree* self,
@@ -808,31 +791,26 @@ valadoc_wiki_page_tree_parse (ValadocWikiPageTree* self,
 		while (TRUE) {
 			gint _tmp10_;
 			gint _tmp11_;
-			gint _tmp12_;
 			ValadocWikiPage* page = NULL;
-			ValaArrayList* _tmp13_;
-			gint _tmp14_;
-			gpointer _tmp15_;
-			ValadocWikiPage* _tmp16_;
+			ValaArrayList* _tmp12_;
+			gpointer _tmp13_;
+			ValadocWikiPage* _tmp14_;
+			_page_index = _page_index + 1;
 			_tmp10_ = _page_index;
-			_page_index = _tmp10_ + 1;
-			_tmp11_ = _page_index;
-			_tmp12_ = _page_size;
-			if (!(_tmp11_ < _tmp12_)) {
+			_tmp11_ = _page_size;
+			if (!(_tmp10_ < _tmp11_)) {
 				break;
 			}
-			_tmp13_ = _page_list;
-			_tmp14_ = _page_index;
-			_tmp15_ = vala_list_get ((ValaList*) _tmp13_, _tmp14_);
-			page = (ValadocWikiPage*) _tmp15_;
-			_tmp16_ = page;
-			valadoc_wiki_page_parse (_tmp16_, docparser, package);
+			_tmp12_ = _page_list;
+			_tmp13_ = vala_list_get ((ValaList*) _tmp12_, _page_index);
+			page = (ValadocWikiPage*) _tmp13_;
+			_tmp14_ = page;
+			valadoc_wiki_page_parse (_tmp14_, docparser, package);
 			_g_object_unref0 (page);
 		}
 		_vala_iterable_unref0 (_page_list);
 	}
 }
-
 
 void
 valadoc_wiki_page_tree_check (ValadocWikiPageTree* self,
@@ -869,47 +847,42 @@ valadoc_wiki_page_tree_check (ValadocWikiPageTree* self,
 		while (TRUE) {
 			gint _tmp6_;
 			gint _tmp7_;
-			gint _tmp8_;
 			ValadocWikiPage* page = NULL;
-			ValaArrayList* _tmp9_;
-			gint _tmp10_;
-			gpointer _tmp11_;
-			ValadocWikiPage* _tmp12_;
+			ValaArrayList* _tmp8_;
+			gpointer _tmp9_;
+			ValadocWikiPage* _tmp10_;
+			_page_index = _page_index + 1;
 			_tmp6_ = _page_index;
-			_page_index = _tmp6_ + 1;
-			_tmp7_ = _page_index;
-			_tmp8_ = _page_size;
-			if (!(_tmp7_ < _tmp8_)) {
+			_tmp7_ = _page_size;
+			if (!(_tmp6_ < _tmp7_)) {
 				break;
 			}
-			_tmp9_ = _page_list;
-			_tmp10_ = _page_index;
-			_tmp11_ = vala_list_get ((ValaList*) _tmp9_, _tmp10_);
-			page = (ValadocWikiPage*) _tmp11_;
-			_tmp12_ = page;
-			valadoc_documentation_parser_check_wikipage (docparser, pkg, _tmp12_);
+			_tmp8_ = _page_list;
+			_tmp9_ = vala_list_get ((ValaList*) _tmp8_, _page_index);
+			page = (ValadocWikiPage*) _tmp9_;
+			_tmp10_ = page;
+			valadoc_documentation_parser_check_wikipage (docparser, pkg, _tmp10_);
 			_g_object_unref0 (page);
 		}
 		_vala_iterable_unref0 (_page_list);
 	}
 }
 
-
 static void
-valadoc_wiki_page_tree_class_init (ValadocWikiPageTreeClass * klass)
+valadoc_wiki_page_tree_class_init (ValadocWikiPageTreeClass * klass,
+                                   gpointer klass_data)
 {
 	valadoc_wiki_page_tree_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocWikiPageTree_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_wiki_page_tree_finalize;
 }
 
-
 static void
-valadoc_wiki_page_tree_instance_init (ValadocWikiPageTree * self)
+valadoc_wiki_page_tree_instance_init (ValadocWikiPageTree * self,
+                                      gpointer klass)
 {
 	self->priv = valadoc_wiki_page_tree_get_instance_private (self);
 }
-
 
 static void
 valadoc_wiki_page_tree_finalize (GObject * obj)
@@ -920,20 +893,25 @@ valadoc_wiki_page_tree_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_wiki_page_tree_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_wiki_page_tree_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiPageTreeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_page_tree_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiPageTree), 0, (GInstanceInitFunc) valadoc_wiki_page_tree_instance_init, NULL };
+	GType valadoc_wiki_page_tree_type_id;
+	valadoc_wiki_page_tree_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiPageTree", &g_define_type_info, 0);
+	ValadocWikiPageTree_private_offset = g_type_add_instance_private (valadoc_wiki_page_tree_type_id, sizeof (ValadocWikiPageTreePrivate));
+	return valadoc_wiki_page_tree_type_id;
+}
 
 GType
 valadoc_wiki_page_tree_get_type (void)
 {
 	static volatile gsize valadoc_wiki_page_tree_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_wiki_page_tree_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocWikiPageTreeClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_wiki_page_tree_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocWikiPageTree), 0, (GInstanceInitFunc) valadoc_wiki_page_tree_instance_init, NULL };
 		GType valadoc_wiki_page_tree_type_id;
-		valadoc_wiki_page_tree_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocWikiPageTree", &g_define_type_info, 0);
-		ValadocWikiPageTree_private_offset = g_type_add_instance_private (valadoc_wiki_page_tree_type_id, sizeof (ValadocWikiPageTreePrivate));
+		valadoc_wiki_page_tree_type_id = valadoc_wiki_page_tree_get_type_once ();
 		g_once_init_leave (&valadoc_wiki_page_tree_type_id__volatile, valadoc_wiki_page_tree_type_id);
 	}
 	return valadoc_wiki_page_tree_type_id__volatile;
 }
-
-
 

@@ -51,7 +51,7 @@ public class Vala.CodeWriter : CodeVisitor {
 
 	/**
 	 * Allows overriding of a specific cheader in the output
-	 * @param original orignal cheader to override
+	 * @param original original cheader to override
 	 * @param replacement cheader to replace original with
 	 */
 	public void set_cheader_override (string original, string replacement)
@@ -246,6 +246,9 @@ public class Vala.CodeWriter : CodeVisitor {
 		if (cl.is_abstract) {
 			write_string ("abstract ");
 		}
+		if (cl.is_sealed) {
+			write_string ("sealed ");
+		}
 		write_string ("class ");
 		write_identifier (cl.name);
 
@@ -270,6 +273,7 @@ public class Vala.CodeWriter : CodeVisitor {
 		current_scope = cl.scope;
 
 		visit_sorted (cl.get_classes ());
+		visit_sorted (cl.get_interfaces ());
 		visit_sorted (cl.get_structs ());
 		visit_sorted (cl.get_enums ());
 		visit_sorted (cl.get_delegates ());
@@ -281,6 +285,26 @@ public class Vala.CodeWriter : CodeVisitor {
 
 		if (cl.constructor != null) {
 			cl.constructor.accept (this);
+		}
+
+		if (cl.class_constructor != null) {
+			cl.class_constructor.accept (this);
+		}
+
+		if (cl.static_constructor != null) {
+			cl.static_constructor.accept (this);
+		}
+
+		if (cl.destructor != null) {
+			cl.destructor.accept (this);
+		}
+
+		if (cl.static_destructor != null) {
+			cl.static_destructor.accept (this);
+		}
+
+		if (cl.class_destructor != null) {
+			cl.class_destructor.accept (this);
 		}
 
 		current_scope = current_scope.parent_scope;
@@ -299,25 +323,8 @@ public class Vala.CodeWriter : CodeVisitor {
 		}
 
 		var sorted_symbols = new ArrayList<Symbol> ();
-		foreach (Symbol sym in symbols) {
-			int left = 0;
-			int right = sorted_symbols.size - 1;
-			if (left > right || sym.name < sorted_symbols[left].name) {
-				sorted_symbols.insert (0, sym);
-			} else if (sym.name > sorted_symbols[right].name) {
-				sorted_symbols.add (sym);
-			} else {
-				while (right - left > 1) {
-					int i = (right + left) / 2;
-					if (sym.name > sorted_symbols[i].name) {
-						left = i;
-					} else {
-						right = i;
-					}
-				}
-				sorted_symbols.insert (left + 1, sym);
-			}
-		}
+		sorted_symbols.add_all (symbols);
+		sorted_symbols.sort ((a, b) => strcmp (a.name, b.name));
 		foreach (Symbol sym in sorted_symbols) {
 			sym.accept (this);
 		}
@@ -408,6 +415,7 @@ public class Vala.CodeWriter : CodeVisitor {
 		current_scope = iface.scope;
 
 		visit_sorted (iface.get_classes ());
+		visit_sorted (iface.get_interfaces ());
 		visit_sorted (iface.get_structs ());
 		visit_sorted (iface.get_enums ());
 		visit_sorted (iface.get_delegates ());
@@ -462,7 +470,7 @@ public class Vala.CodeWriter : CodeVisitor {
 			write_indent ();
 			write_identifier (ev.name);
 
-			if (type == CodeWriterType.FAST && ev.value != null) {
+			if (type == CodeWriterType.FAST && ev.value != null && ev.value.is_constant ()) {
 				write_string(" = ");
 				ev.value.accept (this);
 			}
@@ -574,7 +582,7 @@ public class Vala.CodeWriter : CodeVisitor {
 		write_string (" ");
 		write_identifier (c.name);
 		write_type_suffix (c.type_reference);
-		if (type == CodeWriterType.FAST && c.value != null) {
+		if (type == CodeWriterType.FAST && c.value != null && c.value.is_constant ()) {
 			write_string(" = ");
 			c.value.accept (this);
 		}
@@ -723,7 +731,9 @@ public class Vala.CodeWriter : CodeVisitor {
 
 		write_params (cb.get_parameters ());
 
-		write_error_domains (cb.get_error_types ());
+		var error_types = new ArrayList<DataType> ();
+		cb.get_error_types (error_types);
+		write_error_domains (error_types);
 
 		write_string (";");
 
@@ -740,8 +750,36 @@ public class Vala.CodeWriter : CodeVisitor {
 		}
 
 		write_indent ();
+		if (c.binding == MemberBinding.STATIC) {
+			write_string ("static ");
+		} else if (c.binding == MemberBinding.CLASS) {
+			write_string ("class ");
+		}
 		write_string ("construct");
 		write_code_block (c.body);
+		write_newline ();
+	}
+
+	public override void visit_destructor (Destructor d) {
+		if (type != CodeWriterType.DUMP) {
+			return;
+		}
+
+		if (context.vapi_comments && d.comment != null) {
+			write_comment (d.comment);
+		}
+
+		write_indent ();
+		if (d.binding == MemberBinding.STATIC) {
+			write_string ("static ");
+		} else if (d.binding == MemberBinding.CLASS) {
+			write_string ("class ");
+		}
+		write_string ("~");
+		var datatype = (TypeSymbol) d.parent_symbol;
+		write_identifier (datatype.name);
+		write_string (" () ");
+		write_code_block (d.body);
 		write_newline ();
 	}
 
@@ -811,7 +849,9 @@ public class Vala.CodeWriter : CodeVisitor {
 
 		write_params (m.get_parameters ());
 
-		write_error_domains (m.get_error_types ());
+		var error_types = new ArrayList<DataType> ();
+		m.get_error_types (error_types);
+		write_error_domains (error_types);
 
 		write_code_block (m.body);
 
@@ -850,6 +890,10 @@ public class Vala.CodeWriter : CodeVisitor {
 			write_string ("override ");
 		}
 
+		if (prop.property_type.is_weak ()) {
+			write_string ("weak ");
+		}
+
 		write_type (prop.property_type);
 
 		write_string (" ");
@@ -860,7 +904,7 @@ public class Vala.CodeWriter : CodeVisitor {
 
 			write_property_accessor_accessibility (prop.get_accessor);
 
-			if (prop.get_accessor.value_type.is_disposable ()) {
+			if (prop.get_accessor.value_type.value_owned) {
 				write_string (" owned");
 			}
 
@@ -934,6 +978,9 @@ public class Vala.CodeWriter : CodeVisitor {
 		}
 
 		write_end_block ();
+		if (b.parent_node is Block) {
+			write_newline ();
+		}
 	}
 
 	public override void visit_empty_statement (EmptyStatement stmt) {
@@ -1120,10 +1167,6 @@ public class Vala.CodeWriter : CodeVisitor {
 	public override void visit_yield_statement (YieldStatement y) {
 		write_indent ();
 		write_string ("yield");
-		if (y.yield_expression != null) {
-			write_string (" ");
-			y.yield_expression.accept (this);
-		}
 		write_string (";");
 		write_newline ();
 	}
@@ -1170,6 +1213,14 @@ public class Vala.CodeWriter : CodeVisitor {
 		} else {
 			stmt.body.accept (this);
 		}
+		write_newline ();
+	}
+
+	public override void visit_unlock_statement (UnlockStatement stmt) {
+		write_indent ();
+		write_string ("unlock (");
+		stmt.resource.accept (this);
+		write_string (");");
 		write_newline ();
 	}
 
@@ -1340,34 +1391,7 @@ public class Vala.CodeWriter : CodeVisitor {
 	}
 
 	public override void visit_unary_expression (UnaryExpression expr) {
-		switch (expr.operator) {
-		case UnaryOperator.PLUS:
-			write_string ("+");
-			break;
-		case UnaryOperator.MINUS:
-			write_string ("-");
-			break;
-		case UnaryOperator.LOGICAL_NEGATION:
-			write_string ("!");
-			break;
-		case UnaryOperator.BITWISE_COMPLEMENT:
-			write_string ("~");
-			break;
-		case UnaryOperator.INCREMENT:
-			write_string ("++");
-			break;
-		case UnaryOperator.DECREMENT:
-			write_string ("--");
-			break;
-		case UnaryOperator.REF:
-			write_string ("ref ");
-			break;
-		case UnaryOperator.OUT:
-			write_string ("out ");
-			break;
-		default:
-			assert_not_reached ();
-		}
+		write_string (expr.operator.to_string ());
 		expr.inner.accept (this);
 	}
 
@@ -1409,72 +1433,9 @@ public class Vala.CodeWriter : CodeVisitor {
 
 	public override void visit_binary_expression (BinaryExpression expr) {
 		expr.left.accept (this);
-
-		switch (expr.operator) {
-		case BinaryOperator.PLUS:
-			write_string (" + ");
-			break;
-		case BinaryOperator.MINUS:
-			write_string (" - ");
-			break;
-		case BinaryOperator.MUL:
-			write_string (" * ");
-			break;
-		case BinaryOperator.DIV:
-			write_string (" / ");
-			break;
-		case BinaryOperator.MOD:
-			write_string (" % ");
-			break;
-		case BinaryOperator.SHIFT_LEFT:
-			write_string (" << ");
-			break;
-		case BinaryOperator.SHIFT_RIGHT:
-			write_string (" >> ");
-			break;
-		case BinaryOperator.LESS_THAN:
-			write_string (" < ");
-			break;
-		case BinaryOperator.GREATER_THAN:
-			write_string (" > ");
-			break;
-		case BinaryOperator.LESS_THAN_OR_EQUAL:
-			write_string (" <= ");
-			break;
-		case BinaryOperator.GREATER_THAN_OR_EQUAL:
-			write_string (" >= ");
-			break;
-		case BinaryOperator.EQUALITY:
-			write_string (" == ");
-			break;
-		case BinaryOperator.INEQUALITY:
-			write_string (" != ");
-			break;
-		case BinaryOperator.BITWISE_AND:
-			write_string (" & ");
-			break;
-		case BinaryOperator.BITWISE_OR:
-			write_string (" | ");
-			break;
-		case BinaryOperator.BITWISE_XOR:
-			write_string (" ^ ");
-			break;
-		case BinaryOperator.AND:
-			write_string (" && ");
-			break;
-		case BinaryOperator.OR:
-			write_string (" || ");
-			break;
-		case BinaryOperator.IN:
-			write_string (" in ");
-			break;
-		case BinaryOperator.COALESCE:
-			write_string (" ?? ");
-			break;
-		default:
-			assert_not_reached ();
-		}
-
+		write_string (" ");
+		write_string (expr.operator.to_string ());
+		write_string (" ");
 		expr.right.accept (this);
 	}
 
@@ -1579,7 +1540,7 @@ public class Vala.CodeWriter : CodeVisitor {
 	}
 
 	private void write_type_suffix (DataType type) {
-		var array_type = type as ArrayType;
+		unowned ArrayType? array_type = type as ArrayType;
 		if (array_type != null && array_type.fixed_length) {
 			write_string ("[");
 			array_type.length.accept (this);
@@ -1658,7 +1619,7 @@ public class Vala.CodeWriter : CodeVisitor {
 	}
 
 	private void write_attributes (CodeNode node) {
-		var sym = node as Symbol;
+		unowned Symbol? sym = node as Symbol;
 
 		var need_cheaders = type != CodeWriterType.FAST && sym != null && !(sym is Namespace) && sym.parent_symbol is Namespace;
 
@@ -1688,6 +1649,10 @@ public class Vala.CodeWriter : CodeVisitor {
 
 			if (attr.name == "CCode" && keys.get_length () == 0) {
 				// only cheader_filename on namespace
+				continue;
+			}
+
+			if (attr.name == "Source") {
 				continue;
 			}
 
@@ -1728,18 +1693,24 @@ public class Vala.CodeWriter : CodeVisitor {
 				write_newline ();
 			}
 		}
+
+		if (type == CodeWriterType.FAST && !(node is Parameter || node is PropertyAccessor)) {
+			var source_reference = node.source_reference;
+			if (source_reference != null) {
+				write_indent ();
+				string filename = source_reference.file.filename;
+				if (filename.has_prefix (context.basedir)) {
+					filename = filename.substring (context.basedir.length + 1);
+				}
+				stream.puts ("[Source (filename = \"%s\", line = %i, column = %i)]".printf (filename, source_reference.begin.line, source_reference.begin.column));
+				write_newline ();
+			}
+		}
 	}
 
 	private void write_accessibility (Symbol sym) {
-		if (sym.access == SymbolAccessibility.PUBLIC) {
-			write_string ("public ");
-		} else if (sym.access == SymbolAccessibility.PROTECTED) {
-			write_string ("protected ");
-		} else if (sym.access == SymbolAccessibility.INTERNAL) {
-			write_string ("internal ");
-		} else if (sym.access == SymbolAccessibility.PRIVATE) {
-			write_string ("private ");
-		}
+		write_string (sym.access.to_string ());
+		write_string (" ");
 
 		if (type != CodeWriterType.EXTERNAL && type != CodeWriterType.VAPIGEN && sym.external && !sym.external_package) {
 			write_string ("extern ");
@@ -1747,13 +1718,12 @@ public class Vala.CodeWriter : CodeVisitor {
 	}
 
 	void write_property_accessor_accessibility (Symbol sym) {
-		if (sym.access == SymbolAccessibility.PROTECTED) {
-			write_string (" protected");
-		} else if (sym.access == SymbolAccessibility.INTERNAL) {
-			write_string (" internal");
-		} else if (sym.access == SymbolAccessibility.PRIVATE) {
-			write_string (" private");
+		if (sym.access == SymbolAccessibility.PUBLIC) {
+			return;
 		}
+
+		write_string (" ");
+		write_string (sym.access.to_string ());
 	}
 
 	void write_type_parameters (List<TypeParameter> type_params) {

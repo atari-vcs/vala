@@ -23,10 +23,9 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
+#include "valadoc.h"
 #include <glib.h>
 #include <glib-object.h>
-#include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -40,7 +39,6 @@ static GParamSpec* valadoc_stub_rule_properties[VALADOC_STUB_RULE_NUM_PROPERTIES
 struct _ValadocStubRulePrivate {
 	ValadocRule* _rule;
 };
-
 
 static gint ValadocStubRule_private_offset;
 static gpointer valadoc_stub_rule_parent_class = NULL;
@@ -62,14 +60,13 @@ static gboolean valadoc_stub_rule_real_would_reduce (ValadocRule* base,
 static gchar* valadoc_stub_rule_real_to_string (ValadocRule* base,
                                          GObject* state);
 static void valadoc_stub_rule_finalize (GObject * obj);
-
+static GType valadoc_stub_rule_get_type_once (void);
 
 static inline gpointer
 valadoc_stub_rule_get_instance_private (ValadocStubRule* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocStubRule_private_offset);
 }
-
 
 ValadocStubRule*
 valadoc_stub_rule_construct (GType object_type)
@@ -79,13 +76,11 @@ valadoc_stub_rule_construct (GType object_type)
 	return self;
 }
 
-
 ValadocStubRule*
 valadoc_stub_rule_new (void)
 {
 	return valadoc_stub_rule_construct (VALADOC_TYPE_STUB_RULE);
 }
-
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -93,14 +88,13 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocRule*
 valadoc_stub_rule_set_rule (ValadocStubRule* self,
                             ValadocRule* rule)
 {
-	ValadocRule* result = NULL;
 	ValadocRule* _tmp0_;
 	ValadocRule* _tmp1_;
+	ValadocRule* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (rule != NULL, NULL);
 	_tmp0_ = _g_object_ref0 (rule);
@@ -111,34 +105,31 @@ valadoc_stub_rule_set_rule (ValadocStubRule* self,
 	return result;
 }
 
-
 static gboolean
 valadoc_stub_rule_real_is_optional (ValadocRule* base)
 {
 	ValadocStubRule * self;
-	gboolean result = FALSE;
 	ValadocRule* _tmp0_;
+	gboolean result = FALSE;
 	self = (ValadocStubRule*) base;
 	_tmp0_ = self->priv->_rule;
 	result = valadoc_rule_is_optional (_tmp0_);
 	return result;
 }
 
-
 static gboolean
 valadoc_stub_rule_real_starts_with_token (ValadocRule* base,
                                           ValadocToken* token)
 {
 	ValadocStubRule * self;
-	gboolean result = FALSE;
 	ValadocRule* _tmp0_;
+	gboolean result = FALSE;
 	self = (ValadocStubRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
 	_tmp0_ = self->priv->_rule;
 	result = valadoc_rule_starts_with_token (_tmp0_, token);
 	return result;
 }
-
 
 static gboolean
 valadoc_stub_rule_real_accept_token (ValadocRule* base,
@@ -148,24 +139,24 @@ valadoc_stub_rule_real_accept_token (ValadocRule* base,
                                      GError** error)
 {
 	ValadocStubRule * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	ValadocRule* _tmp1_;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	self = (ValadocStubRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
 	g_return_val_if_fail (parser != NULL, FALSE);
 	_tmp1_ = self->priv->_rule;
-	_tmp0_ = valadoc_rule_accept_token (_tmp1_, token, parser, forward, &_inner_error_);
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		if (_inner_error_->domain == VALADOC_PARSER_ERROR) {
+	_tmp0_ = valadoc_rule_accept_token (_tmp1_, token, parser, forward, &_inner_error0_);
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
+		if (_inner_error0_->domain == VALADOC_PARSER_ERROR) {
 			gboolean _tmp2_ = FALSE;
-			g_propagate_error (error, _inner_error_);
+			g_propagate_error (error, _inner_error0_);
 			return _tmp2_;
 		} else {
 			gboolean _tmp3_ = FALSE;
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp3_;
 		}
 	}
@@ -173,15 +164,14 @@ valadoc_stub_rule_real_accept_token (ValadocRule* base,
 	return result;
 }
 
-
 static gboolean
 valadoc_stub_rule_real_would_accept_token (ValadocRule* base,
                                            ValadocToken* token,
                                            GObject* state)
 {
 	ValadocStubRule * self;
-	gboolean result = FALSE;
 	ValadocRule* _tmp0_;
+	gboolean result = FALSE;
 	self = (ValadocStubRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
 	_tmp0_ = self->priv->_rule;
@@ -189,15 +179,14 @@ valadoc_stub_rule_real_would_accept_token (ValadocRule* base,
 	return result;
 }
 
-
 static gboolean
 valadoc_stub_rule_real_would_reduce (ValadocRule* base,
                                      ValadocToken* token,
                                      GObject* state)
 {
 	ValadocStubRule * self;
-	gboolean result = FALSE;
 	ValadocRule* _tmp0_;
+	gboolean result = FALSE;
 	self = (ValadocStubRule*) base;
 	g_return_val_if_fail (token != NULL, FALSE);
 	_tmp0_ = self->priv->_rule;
@@ -205,15 +194,14 @@ valadoc_stub_rule_real_would_reduce (ValadocRule* base,
 	return result;
 }
 
-
 static gchar*
 valadoc_stub_rule_real_to_string (ValadocRule* base,
                                   GObject* state)
 {
 	ValadocStubRule * self;
-	gchar* result = NULL;
 	ValadocRule* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	self = (ValadocStubRule*) base;
 	_tmp0_ = self->priv->_rule;
 	_tmp1_ = valadoc_rule_to_string (_tmp0_, state);
@@ -221,9 +209,9 @@ valadoc_stub_rule_real_to_string (ValadocRule* base,
 	return result;
 }
 
-
 static void
-valadoc_stub_rule_class_init (ValadocStubRuleClass * klass)
+valadoc_stub_rule_class_init (ValadocStubRuleClass * klass,
+                              gpointer klass_data)
 {
 	valadoc_stub_rule_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocStubRule_private_offset);
@@ -236,13 +224,12 @@ valadoc_stub_rule_class_init (ValadocStubRuleClass * klass)
 	G_OBJECT_CLASS (klass)->finalize = valadoc_stub_rule_finalize;
 }
 
-
 static void
-valadoc_stub_rule_instance_init (ValadocStubRule * self)
+valadoc_stub_rule_instance_init (ValadocStubRule * self,
+                                 gpointer klass)
 {
 	self->priv = valadoc_stub_rule_get_instance_private (self);
 }
-
 
 static void
 valadoc_stub_rule_finalize (GObject * obj)
@@ -253,20 +240,25 @@ valadoc_stub_rule_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_stub_rule_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_stub_rule_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocStubRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_stub_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocStubRule), 0, (GInstanceInitFunc) valadoc_stub_rule_instance_init, NULL };
+	GType valadoc_stub_rule_type_id;
+	valadoc_stub_rule_type_id = g_type_register_static (VALADOC_TYPE_RULE, "ValadocStubRule", &g_define_type_info, 0);
+	ValadocStubRule_private_offset = g_type_add_instance_private (valadoc_stub_rule_type_id, sizeof (ValadocStubRulePrivate));
+	return valadoc_stub_rule_type_id;
+}
 
 GType
 valadoc_stub_rule_get_type (void)
 {
 	static volatile gsize valadoc_stub_rule_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_stub_rule_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocStubRuleClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_stub_rule_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocStubRule), 0, (GInstanceInitFunc) valadoc_stub_rule_instance_init, NULL };
 		GType valadoc_stub_rule_type_id;
-		valadoc_stub_rule_type_id = g_type_register_static (VALADOC_TYPE_RULE, "ValadocStubRule", &g_define_type_info, 0);
-		ValadocStubRule_private_offset = g_type_add_instance_private (valadoc_stub_rule_type_id, sizeof (ValadocStubRulePrivate));
+		valadoc_stub_rule_type_id = valadoc_stub_rule_get_type_once ();
 		g_once_init_leave (&valadoc_stub_rule_type_id__volatile, valadoc_stub_rule_type_id);
 	}
 	return valadoc_stub_rule_type_id__volatile;
 }
-
-
 

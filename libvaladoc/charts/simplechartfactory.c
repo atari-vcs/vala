@@ -23,11 +23,9 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <graphviz/gvc.h>
 #include "valadoc.h"
 
@@ -37,12 +35,13 @@ enum  {
 };
 static GParamSpec* valadoc_charts_simple_factory_properties[VALADOC_CHARTS_SIMPLE_FACTORY_NUM_PROPERTIES];
 #define _g_free0(var) (var = (g_free (var), NULL))
-#define _gvFreeContext0(var) ((var == NULL) ? NULL : (var = (gvFreeContext (var), NULL)))
-
 
 static gpointer valadoc_charts_simple_factory_parent_class = NULL;
 
 Agraph_t* valadoc_compat_gvc_graph_new (const gchar* name);
+Agedge_t* valadoc_compat_gvc_graph_create_edge (Agraph_t* graph,
+                                                Agnode_t* from,
+                                                Agnode_t* to);
 static Agnode_t* valadoc_charts_simple_factory_real_configure_type (ValadocChartsSimpleFactory* self,
                                                              Agnode_t* node,
                                                              ValadocApiNode* item);
@@ -75,16 +74,16 @@ static Agedge_t* valadoc_charts_simple_factory_real_add_children (ValadocChartsF
                                                            Agraph_t* graph,
                                                            Agnode_t* parent,
                                                            Agnode_t* child);
-
+static GType valadoc_charts_simple_factory_get_type_once (void);
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_configure_type (ValadocChartsSimpleFactory* self,
                                                    Agnode_t* node,
                                                    ValadocApiNode* item)
 {
-	Agnode_t* result = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	Agnode_t* result = NULL;
 	g_return_val_if_fail (node != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
 	agsafeset (node, (char*) "shape", (char*) "box", (char*) "");
@@ -97,7 +96,6 @@ valadoc_charts_simple_factory_real_configure_type (ValadocChartsSimpleFactory* s
 	return result;
 }
 
-
 Agnode_t*
 valadoc_charts_simple_factory_configure_type (ValadocChartsSimpleFactory* self,
                                               Agnode_t* node,
@@ -107,17 +105,16 @@ valadoc_charts_simple_factory_configure_type (ValadocChartsSimpleFactory* self,
 	return VALADOC_CHARTS_SIMPLE_FACTORY_GET_CLASS (self)->configure_type (self, node, item);
 }
 
-
 static Agraph_t*
 valadoc_charts_simple_factory_real_create_graph (ValadocChartsFactory* base,
                                                  ValadocApiNode* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agraph_t* result = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
 	Agraph_t* _tmp2_;
 	Agraph_t* _tmp3_;
+	Agraph_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (item != NULL, NULL);
 	_tmp0_ = valadoc_api_node_get_full_name (item);
@@ -129,15 +126,14 @@ valadoc_charts_simple_factory_real_create_graph (ValadocChartsFactory* base,
 	return result;
 }
 
-
 static GVC_t*
 valadoc_charts_simple_factory_real_create_context (ValadocChartsFactory* base,
                                                    Agraph_t* graph)
 {
 	ValadocChartsSimpleFactory * self;
-	GVC_t* result = NULL;
 	GVC_t* context = NULL;
 	GVC_t* _tmp0_;
+	GVC_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	_tmp0_ = gvContext ();
@@ -148,17 +144,16 @@ valadoc_charts_simple_factory_real_create_context (ValadocChartsFactory* base,
 	return result;
 }
 
-
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_class (ValadocChartsFactory* base,
                                                  Agraph_t* graph,
                                                  ValadocApiClass* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* node = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -169,7 +164,6 @@ valadoc_charts_simple_factory_real_create_class (ValadocChartsFactory* base,
 	result = node;
 	return result;
 }
-
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_struct (ValadocChartsFactory* base,
@@ -177,10 +171,10 @@ valadoc_charts_simple_factory_real_create_struct (ValadocChartsFactory* base,
                                                   ValadocApiStruct* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* node = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -192,16 +186,15 @@ valadoc_charts_simple_factory_real_create_struct (ValadocChartsFactory* base,
 	return result;
 }
 
-
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_interface (ValadocChartsFactory* base,
                                                      Agraph_t* graph,
                                                      ValadocApiInterface* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -210,7 +203,6 @@ valadoc_charts_simple_factory_real_create_interface (ValadocChartsFactory* base,
 	result = _tmp1_;
 	return result;
 }
-
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_enum (ValadocChartsFactory* base,
@@ -218,9 +210,9 @@ valadoc_charts_simple_factory_real_create_enum (ValadocChartsFactory* base,
                                                 ValadocApiEnum* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -229,7 +221,6 @@ valadoc_charts_simple_factory_real_create_enum (ValadocChartsFactory* base,
 	result = _tmp1_;
 	return result;
 }
-
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_delegate (ValadocChartsFactory* base,
@@ -237,9 +228,9 @@ valadoc_charts_simple_factory_real_create_delegate (ValadocChartsFactory* base,
                                                     ValadocApiDelegate* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -248,7 +239,6 @@ valadoc_charts_simple_factory_real_create_delegate (ValadocChartsFactory* base,
 	result = _tmp1_;
 	return result;
 }
-
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_errordomain (ValadocChartsFactory* base,
@@ -256,9 +246,9 @@ valadoc_charts_simple_factory_real_create_errordomain (ValadocChartsFactory* bas
                                                        ValadocApiErrorDomain* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -267,7 +257,6 @@ valadoc_charts_simple_factory_real_create_errordomain (ValadocChartsFactory* bas
 	result = _tmp1_;
 	return result;
 }
-
 
 static Agnode_t*
 valadoc_charts_simple_factory_real_create_namespace (ValadocChartsFactory* base,
@@ -275,9 +264,9 @@ valadoc_charts_simple_factory_real_create_namespace (ValadocChartsFactory* base,
                                                      ValadocApiNamespace* item)
 {
 	ValadocChartsSimpleFactory * self;
-	Agnode_t* result = NULL;
 	Agnode_t* _tmp0_;
 	Agnode_t* _tmp1_;
+	Agnode_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (item != NULL, NULL);
@@ -286,7 +275,6 @@ valadoc_charts_simple_factory_real_create_namespace (ValadocChartsFactory* base,
 	result = _tmp1_;
 	return result;
 }
-
 
 static Agedge_t*
 valadoc_charts_simple_factory_real_add_children (ValadocChartsFactory* base,
@@ -295,20 +283,19 @@ valadoc_charts_simple_factory_real_add_children (ValadocChartsFactory* base,
                                                  Agnode_t* child)
 {
 	ValadocChartsSimpleFactory * self;
-	Agedge_t* result = NULL;
 	Agedge_t* edge = NULL;
 	Agedge_t* _tmp0_;
+	Agedge_t* result = NULL;
 	self = (ValadocChartsSimpleFactory*) base;
 	g_return_val_if_fail (graph != NULL, NULL);
 	g_return_val_if_fail (parent != NULL, NULL);
 	g_return_val_if_fail (child != NULL, NULL);
-	_tmp0_ = agedge (graph, parent, child, NULL, 1);
+	_tmp0_ = valadoc_compat_gvc_graph_create_edge (graph, parent, child);
 	edge = _tmp0_;
 	agsafeset (edge, (char*) "dir", (char*) "back", (char*) "");
 	result = edge;
 	return result;
 }
-
 
 ValadocChartsSimpleFactory*
 valadoc_charts_simple_factory_construct (GType object_type)
@@ -318,16 +305,15 @@ valadoc_charts_simple_factory_construct (GType object_type)
 	return self;
 }
 
-
 ValadocChartsSimpleFactory*
 valadoc_charts_simple_factory_new (void)
 {
 	return valadoc_charts_simple_factory_construct (VALADOC_CHARTS_TYPE_SIMPLE_FACTORY);
 }
 
-
 static void
-valadoc_charts_simple_factory_class_init (ValadocChartsSimpleFactoryClass * klass)
+valadoc_charts_simple_factory_class_init (ValadocChartsSimpleFactoryClass * klass,
+                                          gpointer klass_data)
 {
 	valadoc_charts_simple_factory_parent_class = g_type_class_peek_parent (klass);
 	((ValadocChartsSimpleFactoryClass *) klass)->configure_type = (Agnode_t* (*) (ValadocChartsSimpleFactory*, Agnode_t*, ValadocApiNode*)) valadoc_charts_simple_factory_real_configure_type;
@@ -343,25 +329,30 @@ valadoc_charts_simple_factory_class_init (ValadocChartsSimpleFactoryClass * klas
 	((ValadocChartsFactoryClass *) klass)->add_children = (Agedge_t* (*) (ValadocChartsFactory*, Agraph_t*, Agnode_t*, Agnode_t*)) valadoc_charts_simple_factory_real_add_children;
 }
 
-
 static void
-valadoc_charts_simple_factory_instance_init (ValadocChartsSimpleFactory * self)
+valadoc_charts_simple_factory_instance_init (ValadocChartsSimpleFactory * self,
+                                             gpointer klass)
 {
 }
 
+static GType
+valadoc_charts_simple_factory_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsSimpleFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_simple_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsSimpleFactory), 0, (GInstanceInitFunc) valadoc_charts_simple_factory_instance_init, NULL };
+	GType valadoc_charts_simple_factory_type_id;
+	valadoc_charts_simple_factory_type_id = g_type_register_static (VALADOC_CHARTS_TYPE_FACTORY, "ValadocChartsSimpleFactory", &g_define_type_info, 0);
+	return valadoc_charts_simple_factory_type_id;
+}
 
 GType
 valadoc_charts_simple_factory_get_type (void)
 {
 	static volatile gsize valadoc_charts_simple_factory_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_charts_simple_factory_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocChartsSimpleFactoryClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_charts_simple_factory_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocChartsSimpleFactory), 0, (GInstanceInitFunc) valadoc_charts_simple_factory_instance_init, NULL };
 		GType valadoc_charts_simple_factory_type_id;
-		valadoc_charts_simple_factory_type_id = g_type_register_static (VALADOC_CHARTS_TYPE_FACTORY, "ValadocChartsSimpleFactory", &g_define_type_info, 0);
+		valadoc_charts_simple_factory_type_id = valadoc_charts_simple_factory_get_type_once ();
 		g_once_init_leave (&valadoc_charts_simple_factory_type_id__volatile, valadoc_charts_simple_factory_type_id);
 	}
 	return valadoc_charts_simple_factory_type_id__volatile;
 }
-
-
 

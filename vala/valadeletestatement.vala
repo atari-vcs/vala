@@ -21,7 +21,9 @@
  */
 
 /**
- * Represents a delete statement e.g. "delete a".
+ * Represents a delete statement.
+ *
+ * {{{ delete foo; }}}
  */
 public class Vala.DeleteStatement : CodeNode, Statement {
 	/**
@@ -65,6 +67,7 @@ public class Vala.DeleteStatement : CodeNode, Statement {
 
 		if (!expression.check (context)) {
 			// if there was an error in the inner expression, skip this check
+			error = true;
 			return false;
 		}
 

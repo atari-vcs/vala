@@ -9,7 +9,8 @@ SUBDIRS = \
 	$(NULL)
 
 AM_CFLAGS = \
-	-DPACKAGE_DATADIR=\"$(libdir)/valadoc\" \
+	-DG_LOG_DOMAIN=\"valadoc\" \
+	-DPACKAGE_VALADOC_LIBDIR=\"$(pkgdoclibdir)\" \
 	-DPACKAGE_VERSION=\"$(VERSION)\" \
 	-I$(top_srcdir)/libvaladoc/ \
 	-I$(top_srcdir)/gee \
@@ -27,7 +28,6 @@ BUILT_SOURCES = valadoc.vala.stamp
 bin_PROGRAMS = valadoc
 
 valadoc_VALASOURCES = \
-	driver.vala \
 	girwriter.vala \
 	initializerbuilder.vala \
 	symbolresolver.vala \
@@ -56,10 +56,11 @@ valadoc.vala.stamp: $(valadoc_VALASOURCES) $(top_srcdir)/vala/libvala@PACKAGE_SU
 		$(COVERAGE_VALAFLAGS) \
 		$(VALAFLAGS) \
 		-C \
-		--vapidir $(top_srcdir)/vala \
 		--vapidir $(top_srcdir)/vapi \
 		--pkg gmodule-2.0 \
 		--pkg gobject-2.0 \
+		--pkg libgvc \
+		--vapidir $(top_srcdir)/vala --pkg libvala@PACKAGE_SUFFIX@ \
 		--vapidir $(top_srcdir)/ccode --pkg ccode \
 		--vapidir $(top_srcdir)/codegen --pkg codegen \
 		--vapidir $(top_srcdir)/libvaladoc --pkg valadoc@PACKAGE_SUFFIX@ \

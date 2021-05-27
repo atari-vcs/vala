@@ -23,20 +23,16 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
-
-
+#include <glib.h>
 
 static gpointer vala_typeparameter_parent_class = NULL;
 
 static void vala_typeparameter_real_accept (ValaCodeNode* base,
                                      ValaCodeVisitor* visitor);
-
+static GType vala_typeparameter_get_type_once (void);
 
 /**
  * Creates a new generic type parameter.
@@ -52,11 +48,9 @@ vala_typeparameter_construct (GType object_type,
 {
 	ValaTypeParameter* self = NULL;
 	g_return_val_if_fail (name != NULL, NULL);
-	g_return_val_if_fail (source_reference != NULL, NULL);
 	self = (ValaTypeParameter*) vala_symbol_construct (object_type, name, source_reference, NULL);
 	return self;
 }
-
 
 ValaTypeParameter*
 vala_typeparameter_new (const gchar* name,
@@ -64,7 +58,6 @@ vala_typeparameter_new (const gchar* name,
 {
 	return vala_typeparameter_construct (VALA_TYPE_TYPEPARAMETER, name, source_reference);
 }
-
 
 static void
 vala_typeparameter_real_accept (ValaCodeNode* base,
@@ -75,7 +68,6 @@ vala_typeparameter_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_type_parameter (visitor, self);
 }
-
 
 /**
  * Checks two type parameters for equality.
@@ -88,7 +80,6 @@ gboolean
 vala_typeparameter_equals (ValaTypeParameter* self,
                            ValaTypeParameter* param2)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	ValaScope* _tmp1_;
 	ValaScope* _tmp2_;
@@ -99,6 +90,7 @@ vala_typeparameter_equals (ValaTypeParameter* self,
 	const gchar* _tmp13_;
 	const gchar* _tmp14_;
 	const gchar* _tmp15_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (param2 != NULL, FALSE);
 	_tmp1_ = vala_symbol_get_owner ((ValaSymbol*) self);
@@ -148,36 +140,41 @@ vala_typeparameter_equals (ValaTypeParameter* self,
 	return result;
 }
 
-
 static void
-vala_typeparameter_class_init (ValaTypeParameterClass * klass)
+vala_typeparameter_class_init (ValaTypeParameterClass * klass,
+                               gpointer klass_data)
 {
 	vala_typeparameter_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_typeparameter_real_accept;
 }
 
-
 static void
-vala_typeparameter_instance_init (ValaTypeParameter * self)
+vala_typeparameter_instance_init (ValaTypeParameter * self,
+                                  gpointer klass)
 {
 }
-
 
 /**
  * Represents a generic type parameter in the source code.
  */
+static GType
+vala_typeparameter_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaTypeParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_typeparameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTypeParameter), 0, (GInstanceInitFunc) vala_typeparameter_instance_init, NULL };
+	GType vala_typeparameter_type_id;
+	vala_typeparameter_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaTypeParameter", &g_define_type_info, 0);
+	return vala_typeparameter_type_id;
+}
+
 GType
 vala_typeparameter_get_type (void)
 {
 	static volatile gsize vala_typeparameter_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_typeparameter_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaTypeParameterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_typeparameter_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaTypeParameter), 0, (GInstanceInitFunc) vala_typeparameter_instance_init, NULL };
 		GType vala_typeparameter_type_id;
-		vala_typeparameter_type_id = g_type_register_static (VALA_TYPE_SYMBOL, "ValaTypeParameter", &g_define_type_info, 0);
+		vala_typeparameter_type_id = vala_typeparameter_get_type_once ();
 		g_once_init_leave (&vala_typeparameter_type_id__volatile, vala_typeparameter_type_id);
 	}
 	return vala_typeparameter_type_id__volatile;
 }
-
-
 

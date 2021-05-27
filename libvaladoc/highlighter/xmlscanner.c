@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_HIGHLIGHTER_XML_SCANNER_0_PROPERTY,
@@ -46,7 +45,6 @@ struct _ValadocHighlighterXmlScannerPrivate {
 	const gchar* content;
 	const gchar* pos;
 };
-
 
 static gint ValadocHighlighterXmlScanner_private_offset;
 static gpointer valadoc_highlighter_xml_scanner_parent_class = NULL;
@@ -74,7 +72,7 @@ static gboolean valadoc_highlighter_xml_scanner_queue_attributes (ValadocHighlig
 static inline gboolean valadoc_highlighter_xml_scanner_is_id_char (gchar c);
 G_GNUC_INTERNAL gboolean valadoc_highlighter_xml_scanner_is_xml (const gchar* source);
 static void valadoc_highlighter_xml_scanner_finalize (GObject * obj);
-
+static GType valadoc_highlighter_xml_scanner_get_type_once (void);
 
 static inline gpointer
 valadoc_highlighter_xml_scanner_get_instance_private (ValadocHighlighterXmlScanner* self)
@@ -82,20 +80,17 @@ valadoc_highlighter_xml_scanner_get_instance_private (ValadocHighlighterXmlScann
 	return G_STRUCT_MEMBER_P (self, ValadocHighlighterXmlScanner_private_offset);
 }
 
-
 static void
 _valadoc_highlighter_code_token_unref0_ (gpointer var)
 {
 	(var == NULL) ? NULL : (var = (valadoc_highlighter_code_token_unref (var), NULL));
 }
 
-
 static inline void
 _g_queue_free__valadoc_highlighter_code_token_unref0_ (GQueue* self)
 {
 	g_queue_free_full (self, (GDestroyNotify) _valadoc_highlighter_code_token_unref0_);
 }
-
 
 ValadocHighlighterXmlScanner*
 valadoc_highlighter_xml_scanner_construct (GType object_type,
@@ -109,26 +104,23 @@ valadoc_highlighter_xml_scanner_construct (GType object_type,
 	return self;
 }
 
-
 ValadocHighlighterXmlScanner*
 valadoc_highlighter_xml_scanner_new (const gchar* content)
 {
 	return valadoc_highlighter_xml_scanner_construct (VALADOC_HIGHLIGHTER_TYPE_XML_SCANNER, content);
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static const gchar*
 string_offset (const gchar* self,
@@ -140,12 +132,10 @@ string_offset (const gchar* self,
 	return result;
 }
 
-
 static ValadocHighlighterCodeToken*
 valadoc_highlighter_xml_scanner_real_next (ValadocHighlighterScanner* base)
 {
 	ValadocHighlighterXmlScanner * self;
-	ValadocHighlighterCodeToken* result = NULL;
 	GQueue* _tmp0_;
 	const gchar* start = NULL;
 	GQueue* _tmp70_;
@@ -153,6 +143,7 @@ valadoc_highlighter_xml_scanner_real_next (ValadocHighlighterScanner* base)
 	const gchar* _tmp72_;
 	const gchar* _tmp73_;
 	ValadocHighlighterCodeToken* _tmp74_;
+	ValadocHighlighterCodeToken* result = NULL;
 	self = (ValadocHighlighterXmlScanner*) base;
 	_tmp0_ = self->priv->token_queue;
 	if (!g_queue_is_empty (_tmp0_)) {
@@ -418,13 +409,11 @@ valadoc_highlighter_xml_scanner_real_next (ValadocHighlighterScanner* base)
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_queue_start_element (ValadocHighlighterXmlScanner* self,
                                                      const gchar* dispatch_start,
                                                      gboolean xml_decl)
 {
-	gboolean result = FALSE;
 	GQueue* _tmp0_;
 	const gchar* element_start = NULL;
 	const gchar* _tmp1_;
@@ -436,6 +425,7 @@ valadoc_highlighter_xml_scanner_queue_start_element (ValadocHighlighterXmlScanne
 	gboolean _tmp14_ = FALSE;
 	const gchar* _tmp32_;
 	const gchar* _tmp33_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (dispatch_start != NULL, FALSE);
 	_tmp0_ = self->priv->token_queue;
@@ -561,7 +551,6 @@ valadoc_highlighter_xml_scanner_queue_start_element (ValadocHighlighterXmlScanne
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_queue_attributes (ValadocHighlighterXmlScanner* self)
 {
@@ -660,11 +649,9 @@ valadoc_highlighter_xml_scanner_queue_attributes (ValadocHighlighterXmlScanner* 
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_queue_end_element (ValadocHighlighterXmlScanner* self)
 {
-	gboolean result = FALSE;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -673,6 +660,7 @@ valadoc_highlighter_xml_scanner_queue_end_element (ValadocHighlighterXmlScanner*
 	const gchar* _tmp5_;
 	const gchar* _tmp9_;
 	const gchar* _tmp10_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
@@ -710,11 +698,9 @@ valadoc_highlighter_xml_scanner_queue_end_element (ValadocHighlighterXmlScanner*
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_queue_escape (ValadocHighlighterXmlScanner* self)
 {
-	gboolean result = FALSE;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -723,6 +709,7 @@ valadoc_highlighter_xml_scanner_queue_escape (ValadocHighlighterXmlScanner* self
 	const gchar* _tmp5_;
 	const gchar* _tmp9_;
 	const gchar* _tmp10_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
@@ -758,11 +745,9 @@ valadoc_highlighter_xml_scanner_queue_escape (ValadocHighlighterXmlScanner* self
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_queue_comment (ValadocHighlighterXmlScanner* self)
 {
-	gboolean result = FALSE;
 	const gchar* start = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp1_;
@@ -770,6 +755,7 @@ valadoc_highlighter_xml_scanner_queue_comment (ValadocHighlighterXmlScanner* sel
 	const gchar* _tmp8_;
 	const gchar* _tmp12_;
 	const gchar* _tmp13_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = self->priv->pos;
 	start = _tmp0_;
@@ -817,45 +803,40 @@ valadoc_highlighter_xml_scanner_queue_comment (ValadocHighlighterXmlScanner* sel
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_skip_id (const gchar* * pos)
 {
-	gboolean result = FALSE;
 	gboolean has_next_segment = FALSE;
 	gboolean has_id = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (*pos != NULL, FALSE);
 	has_next_segment = TRUE;
 	has_id = FALSE;
 	while (TRUE) {
-		gboolean _tmp0_;
-		gboolean _tmp2_ = FALSE;
-		_tmp0_ = has_next_segment;
-		if (!_tmp0_) {
+		gboolean _tmp1_ = FALSE;
+		if (!has_next_segment) {
 			break;
 		}
 		has_id = FALSE;
 		while (TRUE) {
-			const gchar* _tmp1_;
+			const gchar* _tmp0_;
 			if (!valadoc_highlighter_xml_scanner_is_id_char (string_get (*pos, (glong) 0))) {
 				break;
 			}
-			_tmp1_ = string_offset (*pos, (glong) 1);
-			*pos = _tmp1_;
+			_tmp0_ = string_offset (*pos, (glong) 1);
+			*pos = _tmp0_;
 			has_id = TRUE;
 		}
 		if (string_get (*pos, (glong) 0) == ':') {
-			gboolean _tmp3_;
-			_tmp3_ = has_id;
-			_tmp2_ = _tmp3_;
+			_tmp1_ = has_id;
 		} else {
-			_tmp2_ = FALSE;
+			_tmp1_ = FALSE;
 		}
-		if (_tmp2_) {
-			const gchar* _tmp4_;
+		if (_tmp1_) {
+			const gchar* _tmp2_;
 			has_next_segment = TRUE;
-			_tmp4_ = string_offset (*pos, (glong) 1);
-			*pos = _tmp4_;
+			_tmp2_ = string_offset (*pos, (glong) 1);
+			*pos = _tmp2_;
 		} else {
 			has_next_segment = FALSE;
 		}
@@ -864,12 +845,11 @@ valadoc_highlighter_xml_scanner_skip_id (const gchar* * pos)
 	return result;
 }
 
-
 static gboolean
 valadoc_highlighter_xml_scanner_skip_optional_spaces (const gchar* * pos)
 {
-	gboolean result = FALSE;
 	gboolean skipped = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (*pos != NULL, FALSE);
 	skipped = FALSE;
 	while (TRUE) {
@@ -885,7 +865,6 @@ valadoc_highlighter_xml_scanner_skip_optional_spaces (const gchar* * pos)
 	return result;
 }
 
-
 static glong
 string_pointer_to_offset (const gchar* self,
                           const gchar* pos)
@@ -897,15 +876,14 @@ string_pointer_to_offset (const gchar* self,
 	return result;
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -920,17 +898,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -947,41 +923,32 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static ValadocHighlighterCodeToken*
 valadoc_highlighter_xml_scanner_dispatch (ValadocHighlighterXmlScanner* self,
                                           const gchar* start,
                                           const gchar* end)
 {
-	ValadocHighlighterCodeToken* result = NULL;
 	GQueue* _tmp0_;
 	glong length = 0L;
 	gchar* content = NULL;
-	glong _tmp3_;
-	gchar* _tmp4_;
-	const gchar* _tmp5_;
-	ValadocHighlighterCodeToken* _tmp6_;
+	gchar* _tmp3_;
+	const gchar* _tmp4_;
+	ValadocHighlighterCodeToken* _tmp5_;
+	ValadocHighlighterCodeToken* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (start != NULL, NULL);
 	g_return_val_if_fail (end != NULL, NULL);
@@ -996,16 +963,14 @@ valadoc_highlighter_xml_scanner_dispatch (ValadocHighlighterXmlScanner* self,
 		return result;
 	}
 	length = string_pointer_to_offset (start, end);
-	_tmp3_ = length;
-	_tmp4_ = string_substring (start, (glong) 0, _tmp3_);
-	content = _tmp4_;
-	_tmp5_ = content;
-	_tmp6_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, _tmp5_);
-	result = _tmp6_;
+	_tmp3_ = string_substring (start, (glong) 0, length);
+	content = _tmp3_;
+	_tmp4_ = content;
+	_tmp5_ = valadoc_highlighter_code_token_new (VALADOC_HIGHLIGHTER_CODE_TOKEN_TYPE_PLAIN, _tmp4_);
+	result = _tmp5_;
 	_g_free0 (content);
 	return result;
 }
-
 
 static void
 valadoc_highlighter_xml_scanner_queue_token (ValadocHighlighterXmlScanner* self,
@@ -1030,13 +995,12 @@ valadoc_highlighter_xml_scanner_queue_token (ValadocHighlighterXmlScanner* self,
 	_g_free0 (content);
 }
 
-
 static inline gboolean
 valadoc_highlighter_xml_scanner_is_id_char (gchar c)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
+	gboolean result = FALSE;
 	if (g_ascii_isalnum (c)) {
 		_tmp1_ = TRUE;
 	} else {
@@ -1051,13 +1015,12 @@ valadoc_highlighter_xml_scanner_is_id_char (gchar c)
 	return result;
 }
 
-
 G_GNUC_INTERNAL gboolean
 valadoc_highlighter_xml_scanner_is_xml (const gchar* source)
 {
-	gboolean result = FALSE;
 	const gchar* pos = NULL;
 	const gchar* _tmp0_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (source != NULL, FALSE);
 	pos = source;
 	valadoc_highlighter_xml_scanner_skip_optional_spaces (&pos);
@@ -1072,9 +1035,7 @@ valadoc_highlighter_xml_scanner_is_xml (const gchar* source)
 		gboolean _tmp8_;
 		gboolean _tmp26_ = FALSE;
 		gboolean _tmp27_ = FALSE;
-		gboolean _tmp28_;
-		gboolean _tmp31_ = FALSE;
-		gboolean _tmp32_;
+		gboolean _tmp30_ = FALSE;
 		_tmp1_ = pos;
 		if (g_str_has_prefix (_tmp1_, "<!--")) {
 			result = TRUE;
@@ -1177,18 +1138,17 @@ valadoc_highlighter_xml_scanner_is_xml (const gchar* source)
 			}
 			valadoc_highlighter_xml_scanner_skip_optional_spaces (&pos);
 		}
-		_tmp28_ = proc_instr;
-		if (_tmp28_) {
-			const gchar* _tmp29_;
-			_tmp29_ = pos;
-			_tmp27_ = string_get (_tmp29_, (glong) 0) == '?';
+		if (proc_instr) {
+			const gchar* _tmp28_;
+			_tmp28_ = pos;
+			_tmp27_ = string_get (_tmp28_, (glong) 0) == '?';
 		} else {
 			_tmp27_ = FALSE;
 		}
 		if (_tmp27_) {
-			const gchar* _tmp30_;
-			_tmp30_ = pos;
-			_tmp26_ = string_get (_tmp30_, (glong) 1) == '>';
+			const gchar* _tmp29_;
+			_tmp29_ = pos;
+			_tmp26_ = string_get (_tmp29_, (glong) 1) == '>';
 		} else {
 			_tmp26_ = FALSE;
 		}
@@ -1196,31 +1156,30 @@ valadoc_highlighter_xml_scanner_is_xml (const gchar* source)
 			result = TRUE;
 			return result;
 		}
-		_tmp32_ = proc_instr;
-		if (!_tmp32_) {
-			gboolean _tmp33_ = FALSE;
-			const gchar* _tmp34_;
-			_tmp34_ = pos;
-			if (string_get (_tmp34_, (glong) 0) == '>') {
-				_tmp33_ = TRUE;
+		if (!proc_instr) {
+			gboolean _tmp31_ = FALSE;
+			const gchar* _tmp32_;
+			_tmp32_ = pos;
+			if (string_get (_tmp32_, (glong) 0) == '>') {
+				_tmp31_ = TRUE;
 			} else {
-				gboolean _tmp35_ = FALSE;
-				const gchar* _tmp36_;
-				_tmp36_ = pos;
-				if (string_get (_tmp36_, (glong) 0) == '/') {
-					const gchar* _tmp37_;
-					_tmp37_ = pos;
-					_tmp35_ = string_get (_tmp37_, (glong) 1) == '>';
+				gboolean _tmp33_ = FALSE;
+				const gchar* _tmp34_;
+				_tmp34_ = pos;
+				if (string_get (_tmp34_, (glong) 0) == '/') {
+					const gchar* _tmp35_;
+					_tmp35_ = pos;
+					_tmp33_ = string_get (_tmp35_, (glong) 1) == '>';
 				} else {
-					_tmp35_ = FALSE;
+					_tmp33_ = FALSE;
 				}
-				_tmp33_ = _tmp35_;
+				_tmp31_ = _tmp33_;
 			}
-			_tmp31_ = _tmp33_;
+			_tmp30_ = _tmp31_;
 		} else {
-			_tmp31_ = FALSE;
+			_tmp30_ = FALSE;
 		}
-		if (_tmp31_) {
+		if (_tmp30_) {
 			result = TRUE;
 			return result;
 		}
@@ -1232,33 +1191,32 @@ valadoc_highlighter_xml_scanner_is_xml (const gchar* source)
 	}
 }
 
-
 static void
-valadoc_highlighter_xml_scanner_class_init (ValadocHighlighterXmlScannerClass * klass)
+valadoc_highlighter_xml_scanner_class_init (ValadocHighlighterXmlScannerClass * klass,
+                                            gpointer klass_data)
 {
 	valadoc_highlighter_xml_scanner_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocHighlighterXmlScanner_private_offset);
 	G_OBJECT_CLASS (klass)->finalize = valadoc_highlighter_xml_scanner_finalize;
 }
 
-
 static void
-valadoc_highlighter_xml_scanner_valadoc_highlighter_scanner_interface_init (ValadocHighlighterScannerIface * iface)
+valadoc_highlighter_xml_scanner_valadoc_highlighter_scanner_interface_init (ValadocHighlighterScannerIface * iface,
+                                                                            gpointer iface_data)
 {
 	valadoc_highlighter_xml_scanner_valadoc_highlighter_scanner_parent_iface = g_type_interface_peek_parent (iface);
 	iface->next = (ValadocHighlighterCodeToken* (*) (ValadocHighlighterScanner*)) valadoc_highlighter_xml_scanner_real_next;
 }
 
-
 static void
-valadoc_highlighter_xml_scanner_instance_init (ValadocHighlighterXmlScanner * self)
+valadoc_highlighter_xml_scanner_instance_init (ValadocHighlighterXmlScanner * self,
+                                               gpointer klass)
 {
 	GQueue* _tmp0_;
 	self->priv = valadoc_highlighter_xml_scanner_get_instance_private (self);
 	_tmp0_ = g_queue_new ();
 	self->priv->token_queue = _tmp0_;
 }
-
 
 static void
 valadoc_highlighter_xml_scanner_finalize (GObject * obj)
@@ -1269,25 +1227,30 @@ valadoc_highlighter_xml_scanner_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_highlighter_xml_scanner_parent_class)->finalize (obj);
 }
 
-
 /**
  * A cheap scanner used to highlight XML.
  */
+static GType
+valadoc_highlighter_xml_scanner_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterXmlScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_xml_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterXmlScanner), 0, (GInstanceInitFunc) valadoc_highlighter_xml_scanner_instance_init, NULL };
+	static const GInterfaceInfo valadoc_highlighter_scanner_info = { (GInterfaceInitFunc) valadoc_highlighter_xml_scanner_valadoc_highlighter_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_highlighter_xml_scanner_type_id;
+	valadoc_highlighter_xml_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterXmlScanner", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_highlighter_xml_scanner_type_id, VALADOC_HIGHLIGHTER_TYPE_SCANNER, &valadoc_highlighter_scanner_info);
+	ValadocHighlighterXmlScanner_private_offset = g_type_add_instance_private (valadoc_highlighter_xml_scanner_type_id, sizeof (ValadocHighlighterXmlScannerPrivate));
+	return valadoc_highlighter_xml_scanner_type_id;
+}
+
 GType
 valadoc_highlighter_xml_scanner_get_type (void)
 {
 	static volatile gsize valadoc_highlighter_xml_scanner_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_highlighter_xml_scanner_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHighlighterXmlScannerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_highlighter_xml_scanner_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHighlighterXmlScanner), 0, (GInstanceInitFunc) valadoc_highlighter_xml_scanner_instance_init, NULL };
-		static const GInterfaceInfo valadoc_highlighter_scanner_info = { (GInterfaceInitFunc) valadoc_highlighter_xml_scanner_valadoc_highlighter_scanner_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_highlighter_xml_scanner_type_id;
-		valadoc_highlighter_xml_scanner_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocHighlighterXmlScanner", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_highlighter_xml_scanner_type_id, VALADOC_HIGHLIGHTER_TYPE_SCANNER, &valadoc_highlighter_scanner_info);
-		ValadocHighlighterXmlScanner_private_offset = g_type_add_instance_private (valadoc_highlighter_xml_scanner_type_id, sizeof (ValadocHighlighterXmlScannerPrivate));
+		valadoc_highlighter_xml_scanner_type_id = valadoc_highlighter_xml_scanner_get_type_once ();
 		g_once_init_leave (&valadoc_highlighter_xml_scanner_type_id__volatile, valadoc_highlighter_xml_scanner_type_id);
 	}
 	return valadoc_highlighter_xml_scanner_type_id__volatile;
 }
-
-
 

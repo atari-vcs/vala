@@ -23,42 +23,39 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <vala.h>
+#include <glib-object.h>
 #include <valagee.h>
 #include <valadoc.h>
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <valacodegen.h>
 #include <glib/gstdio.h>
-#include <stdio.h>
 #include <gobject/gvaluecollector.h>
 
+#define VALADOC_TYPE_TREE_BUILDER (valadoc_tree_builder_get_type ())
+#define VALADOC_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilder))
+#define VALADOC_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
+#define VALADOC_IS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_IS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_TREE_BUILDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
 
-#define VALADOC_DRIVERS_TYPE_TREE_BUILDER (valadoc_drivers_tree_builder_get_type ())
-#define VALADOC_DRIVERS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilder))
-#define VALADOC_DRIVERS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilderClass))
-#define VALADOC_DRIVERS_IS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER))
-#define VALADOC_DRIVERS_IS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_DRIVERS_TYPE_TREE_BUILDER))
-#define VALADOC_DRIVERS_TREE_BUILDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilderClass))
+typedef struct _ValadocTreeBuilder ValadocTreeBuilder;
+typedef struct _ValadocTreeBuilderClass ValadocTreeBuilderClass;
+typedef struct _ValadocTreeBuilderPrivate ValadocTreeBuilderPrivate;
 
-typedef struct _ValadocDriversTreeBuilder ValadocDriversTreeBuilder;
-typedef struct _ValadocDriversTreeBuilderClass ValadocDriversTreeBuilderClass;
-typedef struct _ValadocDriversTreeBuilderPrivate ValadocDriversTreeBuilderPrivate;
+#define VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA (valadoc_tree_builder_package_meta_data_get_type ())
+#define VALADOC_TREE_BUILDER_PACKAGE_META_DATA(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocTreeBuilderPackageMetaData))
+#define VALADOC_TREE_BUILDER_PACKAGE_META_DATA_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocTreeBuilderPackageMetaDataClass))
+#define VALADOC_TREE_BUILDER_IS_PACKAGE_META_DATA(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA))
+#define VALADOC_TREE_BUILDER_IS_PACKAGE_META_DATA_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA))
+#define VALADOC_TREE_BUILDER_PACKAGE_META_DATA_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocTreeBuilderPackageMetaDataClass))
 
-#define VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA (valadoc_drivers_tree_builder_package_meta_data_get_type ())
-#define VALADOC_DRIVERS_TREE_BUILDER_PACKAGE_META_DATA(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocDriversTreeBuilderPackageMetaData))
-#define VALADOC_DRIVERS_TREE_BUILDER_PACKAGE_META_DATA_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocDriversTreeBuilderPackageMetaDataClass))
-#define VALADOC_DRIVERS_TREE_BUILDER_IS_PACKAGE_META_DATA(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA))
-#define VALADOC_DRIVERS_TREE_BUILDER_IS_PACKAGE_META_DATA_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA))
-#define VALADOC_DRIVERS_TREE_BUILDER_PACKAGE_META_DATA_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocDriversTreeBuilderPackageMetaDataClass))
-
-typedef struct _ValadocDriversTreeBuilderPackageMetaData ValadocDriversTreeBuilderPackageMetaData;
-typedef struct _ValadocDriversTreeBuilderPackageMetaDataClass ValadocDriversTreeBuilderPackageMetaDataClass;
+typedef struct _ValadocTreeBuilderPackageMetaData ValadocTreeBuilderPackageMetaData;
+typedef struct _ValadocTreeBuilderPackageMetaDataClass ValadocTreeBuilderPackageMetaDataClass;
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
-#define _valadoc_drivers_tree_builder_package_meta_data_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_drivers_tree_builder_package_meta_data_unref (var), NULL)))
+#define _valadoc_tree_builder_package_meta_data_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_tree_builder_package_meta_data_unref (var), NULL)))
 #define _vala_map_unref0(var) ((var == NULL) ? NULL : (var = (vala_map_unref (var), NULL)))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _valadoc_api_tree_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_tree_unref (var), NULL)))
@@ -68,29 +65,29 @@ typedef struct _ValadocDriversTreeBuilderPackageMetaDataClass ValadocDriversTree
 #define _vala_source_reference_unref0(var) ((var == NULL) ? NULL : (var = (vala_source_reference_unref (var), NULL)))
 #define _vala_comment_unref0(var) ((var == NULL) ? NULL : (var = (vala_comment_unref (var), NULL)))
 #define _vala_map_iterator_unref0(var) ((var == NULL) ? NULL : (var = (vala_map_iterator_unref (var), NULL)))
-typedef struct _ValadocDriversTreeBuilderPackageMetaDataPrivate ValadocDriversTreeBuilderPackageMetaDataPrivate;
+typedef struct _ValadocTreeBuilderPackageMetaDataPrivate ValadocTreeBuilderPackageMetaDataPrivate;
 #define _vala_source_file_unref0(var) ((var == NULL) ? NULL : (var = (vala_source_file_unref (var), NULL)))
 #define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _vala_code_visitor_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_visitor_unref (var), NULL)))
 #define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
-typedef struct _ValadocDriversTreeBuilderParamSpecPackageMetaData ValadocDriversTreeBuilderParamSpecPackageMetaData;
+typedef struct _ValadocTreeBuilderParamSpecPackageMetaData ValadocTreeBuilderParamSpecPackageMetaData;
 #define _vala_assert(expr, msg) if G_LIKELY (expr) ; else g_assertion_message_expr (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 #define _vala_return_if_fail(expr, msg) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return; }
 #define _vala_return_val_if_fail(expr, msg, val) if G_LIKELY (expr) ; else { g_return_if_fail_warning (G_LOG_DOMAIN, G_STRFUNC, msg); return val; }
 #define _vala_warn_if_fail(expr, msg) if G_LIKELY (expr) ; else g_warn_message (G_LOG_DOMAIN, __FILE__, __LINE__, G_STRFUNC, msg);
 
-struct _ValadocDriversTreeBuilder {
+struct _ValadocTreeBuilder {
 	ValaCodeVisitor parent_instance;
-	ValadocDriversTreeBuilderPrivate * priv;
+	ValadocTreeBuilderPrivate * priv;
 };
 
-struct _ValadocDriversTreeBuilderClass {
+struct _ValadocTreeBuilderClass {
 	ValaCodeVisitorClass parent_class;
 };
 
-struct _ValadocDriversTreeBuilderPrivate {
+struct _ValadocTreeBuilderPrivate {
 	ValaArrayList* packages;
-	ValadocDriversTreeBuilderPackageMetaData* source_package;
+	ValadocTreeBuilderPackageMetaData* source_package;
 	ValaHashMap* files;
 	ValaHashMap* symbol_map;
 	ValadocErrorReporter* reporter;
@@ -100,234 +97,158 @@ struct _ValadocDriversTreeBuilderPrivate {
 	ValadocApiClass* glib_error;
 };
 
-struct _ValadocDriversTreeBuilderPackageMetaData {
+struct _ValadocTreeBuilderPackageMetaData {
 	GTypeInstance parent_instance;
 	volatile int ref_count;
 	ValadocApiPackage* package;
 	ValaHashMap* namespaces;
 	ValaArrayList* files;
-	ValadocDriversTreeBuilderPackageMetaDataPrivate * priv;
+	ValadocTreeBuilderPackageMetaDataPrivate * priv;
 };
 
-struct _ValadocDriversTreeBuilderPackageMetaDataClass {
+struct _ValadocTreeBuilderPackageMetaDataClass {
 	GTypeClass parent_class;
-	void (*finalize) (ValadocDriversTreeBuilderPackageMetaData *self);
+	void (*finalize) (ValadocTreeBuilderPackageMetaData *self);
 };
 
-struct _ValadocDriversTreeBuilderParamSpecPackageMetaData {
+struct _ValadocTreeBuilderParamSpecPackageMetaData {
 	GParamSpec parent_instance;
 };
 
+static gint ValadocTreeBuilder_private_offset;
+static gpointer valadoc_tree_builder_parent_class = NULL;
+static gpointer valadoc_tree_builder_package_meta_data_parent_class = NULL;
 
-static gint ValadocDriversTreeBuilder_private_offset;
-static gpointer valadoc_drivers_tree_builder_parent_class = NULL;
-static gpointer valadoc_drivers_tree_builder_package_meta_data_parent_class = NULL;
-
-GType valadoc_drivers_tree_builder_get_type (void) G_GNUC_CONST;
-static gpointer valadoc_drivers_tree_builder_package_meta_data_ref (gpointer instance);
-static void valadoc_drivers_tree_builder_package_meta_data_unref (gpointer instance);
-static GParamSpec* valadoc_drivers_tree_builder_param_spec_package_meta_data (const gchar* name,
-                                                                       const gchar* nick,
-                                                                       const gchar* blurb,
-                                                                       GType object_type,
-                                                                       GParamFlags flags) G_GNUC_UNUSED;
-static void valadoc_drivers_tree_builder_value_set_package_meta_data (GValue* value,
-                                                               gpointer v_object) G_GNUC_UNUSED;
-static void valadoc_drivers_tree_builder_value_take_package_meta_data (GValue* value,
-                                                                gpointer v_object) G_GNUC_UNUSED;
-static gpointer valadoc_drivers_tree_builder_value_get_package_meta_data (const GValue* value) G_GNUC_UNUSED;
-static GType valadoc_drivers_tree_builder_package_meta_data_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
-ValadocApiClass* valadoc_drivers_tree_builder_get_glib_error (ValadocDriversTreeBuilder* self);
-ValaHashMap* valadoc_drivers_tree_builder_get_symbol_map (ValadocDriversTreeBuilder* self);
-static ValadocApiPointer* valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
-                                                                ValaPointerType* vtyperef,
-                                                                ValadocApiItem* parent,
-                                                                ValadocApiNode* caller);
-static ValadocApiArray* valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
-                                                            ValaArrayType* vtyperef,
-                                                            ValadocApiItem* parent,
-                                                            ValadocApiNode* caller);
-static ValadocApiTypeReference* valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* self,
-                                                                             ValaDataType* vtyperef,
-                                                                             ValadocApiItem* parent,
-                                                                             ValadocApiNode* caller);
-static gboolean valadoc_drivers_tree_builder_type_reference_pass_ownership (ValadocDriversTreeBuilder* self,
-                                                                     ValaDataType* element);
-static ValadocApiOwnership valadoc_drivers_tree_builder_get_type_reference_ownership (ValadocDriversTreeBuilder* self,
-                                                                               ValaDataType* element);
-static void valadoc_drivers_tree_builder_process_attributes (ValadocDriversTreeBuilder* self,
-                                                      ValadocApiSymbol* parent,
-                                                      GList* lst);
-static gboolean _vala_string_array_contains (gchar* * stack,
-                                      int stack_length,
-                                      const gchar* needle);
-static gchar* valadoc_drivers_tree_builder_get_ccode_type_id (ValadocDriversTreeBuilder* self,
-                                                       ValaCodeNode* node);
-static gboolean valadoc_drivers_tree_builder_is_reference_counting (ValadocDriversTreeBuilder* self,
-                                                             ValaTypeSymbol* sym);
-static gchar* valadoc_drivers_tree_builder_get_ref_function (ValadocDriversTreeBuilder* self,
-                                                      ValaClass* sym);
-static gchar* valadoc_drivers_tree_builder_get_unref_function (ValadocDriversTreeBuilder* self,
-                                                        ValaClass* sym);
-static gchar* valadoc_drivers_tree_builder_get_finalize_function_name (ValadocDriversTreeBuilder* self,
-                                                                ValaClass* element);
-static gchar* valadoc_drivers_tree_builder_get_free_function_name (ValadocDriversTreeBuilder* self,
-                                                            ValaClass* element);
-static gchar* valadoc_drivers_tree_builder_get_finish_name (ValadocDriversTreeBuilder* self,
-                                                     ValaMethod* m);
-static gchar* valadoc_drivers_tree_builder_get_take_value_function (ValadocDriversTreeBuilder* self,
-                                                             ValaClass* sym);
-static gchar* valadoc_drivers_tree_builder_get_get_value_function (ValadocDriversTreeBuilder* self,
-                                                            ValaClass* sym);
-static gchar* valadoc_drivers_tree_builder_get_set_value_function (ValadocDriversTreeBuilder* self,
-                                                            ValaClass* sym);
-static gchar* valadoc_drivers_tree_builder_get_param_spec_function (ValadocDriversTreeBuilder* self,
-                                                             ValaCodeNode* sym);
-static gchar* valadoc_drivers_tree_builder_get_dup_function (ValadocDriversTreeBuilder* self,
-                                                      ValaTypeSymbol* sym);
-static gchar* valadoc_drivers_tree_builder_get_copy_function (ValadocDriversTreeBuilder* self,
-                                                       ValaTypeSymbol* sym);
-static gchar* valadoc_drivers_tree_builder_get_destroy_function (ValadocDriversTreeBuilder* self,
-                                                          ValaTypeSymbol* sym);
-static gchar* valadoc_drivers_tree_builder_get_free_function (ValadocDriversTreeBuilder* self,
-                                                       ValaTypeSymbol* sym);
-static gchar* valadoc_drivers_tree_builder_get_cname (ValadocDriversTreeBuilder* self,
-                                               ValaSymbol* symbol);
-static ValadocApiSourceComment* valadoc_drivers_tree_builder_create_comment (ValadocDriversTreeBuilder* self,
-                                                                      ValaComment* comment);
-static gchar* valadoc_drivers_tree_builder_get_method_name (ValadocDriversTreeBuilder* self,
-                                                     ValaMethod* element);
-static gchar* valadoc_drivers_tree_builder_get_quark_macro_name (ValadocDriversTreeBuilder* self,
-                                                          ValaErrorDomain* element);
-static gchar* valadoc_drivers_tree_builder_get_private_cname (ValadocDriversTreeBuilder* self,
-                                                       ValaClass* element);
-static gchar* valadoc_drivers_tree_builder_get_class_macro_name (ValadocDriversTreeBuilder* self,
-                                                          ValaClass* element);
-static gchar* valadoc_drivers_tree_builder_get_class_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                               ValaClass* element);
-static gchar* valadoc_drivers_tree_builder_get_is_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                            ValaTypeSymbol* element);
-static gchar* valadoc_drivers_tree_builder_get_is_class_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                                  ValaTypeSymbol* element);
-static gchar* valadoc_drivers_tree_builder_get_type_function_name (ValadocDriversTreeBuilder* self,
-                                                            ValaTypeSymbol* element);
-static gchar* valadoc_drivers_tree_builder_get_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                         ValaTypeSymbol* element);
-static gchar* valadoc_drivers_tree_builder_get_type_cast_macro_name (ValadocDriversTreeBuilder* self,
-                                                              ValaTypeSymbol* element);
-static gchar* valadoc_drivers_tree_builder_get_interface_macro_name (ValadocDriversTreeBuilder* self,
-                                                              ValaInterface* element);
-static gchar* valadoc_drivers_tree_builder_get_quark_function_name (ValadocDriversTreeBuilder* self,
-                                                             ValaErrorDomain* element);
-static ValadocDriversTreeBuilderPackageMetaData* valadoc_drivers_tree_builder_get_package_meta_data (ValadocDriversTreeBuilder* self,
-                                                                                              ValadocApiPackage* pkg);
-static ValadocDriversTreeBuilderPackageMetaData* valadoc_drivers_tree_builder_register_package (ValadocDriversTreeBuilder* self,
-                                                                                         ValadocApiPackage* package);
-static ValadocDriversTreeBuilderPackageMetaData* valadoc_drivers_tree_builder_package_meta_data_new (ValadocApiPackage* package);
-static ValadocDriversTreeBuilderPackageMetaData* valadoc_drivers_tree_builder_package_meta_data_construct (GType object_type,
-                                                                                                    ValadocApiPackage* package);
-static ValadocApiSourceFile* valadoc_drivers_tree_builder_register_source_file (ValadocDriversTreeBuilder* self,
-                                                                         ValadocDriversTreeBuilderPackageMetaData* meta_data,
-                                                                         ValaSourceFile* source_file);
-static void valadoc_drivers_tree_builder_package_meta_data_register_source_file (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                                          ValaSourceFile* file);
-static ValadocApiSourceFile* valadoc_drivers_tree_builder_get_source_file (ValadocDriversTreeBuilder* self,
-                                                                    ValaSymbol* symbol);
-static ValadocApiPackage* valadoc_drivers_tree_builder_find_package_for_file (ValadocDriversTreeBuilder* self,
-                                                                       ValaSourceFile* source_file);
-static gboolean valadoc_drivers_tree_builder_package_meta_data_is_package_for_file (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                                             ValaSourceFile* source_file);
-static ValadocApiNamespace* valadoc_drivers_tree_builder_get_namespace (ValadocDriversTreeBuilder* self,
-                                                                 ValadocApiPackage* pkg,
-                                                                 ValaSymbol* symbol,
-                                                                 ValadocApiSourceFile* file);
-static ValadocApiNamespace* valadoc_drivers_tree_builder_package_meta_data_get_namespace (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                                                   ValaNamespace* vns,
-                                                                                   ValadocApiSourceFile* file);
-static ValadocMethodBindingType valadoc_drivers_tree_builder_get_method_binding_type (ValadocDriversTreeBuilder* self,
-                                                                               ValaMethod* element);
-static ValadocApiSymbolAccessibility valadoc_drivers_tree_builder_get_access_modifier (ValadocDriversTreeBuilder* self,
-                                                                                ValaSymbol* symbol);
-static ValadocApiPropertyAccessorType valadoc_drivers_tree_builder_get_property_accessor_type (ValadocDriversTreeBuilder* self,
-                                                                                        ValaPropertyAccessor* element);
-static gboolean valadoc_drivers_tree_builder_is_type_reference_unowned (ValadocDriversTreeBuilder* self,
-                                                                 ValaDataType* element);
-static gboolean valadoc_drivers_tree_builder_is_type_reference_owned (ValadocDriversTreeBuilder* self,
-                                                               ValaDataType* element);
-static gboolean valadoc_drivers_tree_builder_is_type_reference_weak (ValadocDriversTreeBuilder* self,
-                                                              ValaDataType* element);
-static ValadocApiOwnership valadoc_drivers_tree_builder_get_property_ownership (ValadocDriversTreeBuilder* self,
-                                                                         ValaPropertyAccessor* element);
-static ValadocApiPropertyBindingType valadoc_drivers_tree_builder_get_property_binding_type (ValadocDriversTreeBuilder* self,
-                                                                                      ValaProperty* element);
-static ValadocApiFormalParameterType valadoc_drivers_tree_builder_get_formal_parameter_type (ValadocDriversTreeBuilder* self,
-                                                                                      ValaParameter* element);
-static gchar* valadoc_drivers_tree_builder_get_package_name (ValadocDriversTreeBuilder* self,
-                                                      const gchar* path);
-static gboolean valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
-                                                   ValaCodeContext* context,
-                                                   const gchar* pkg);
-static void valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
-                                            ValaCodeContext* context,
-                                            const gchar* file_path,
-                                            const gchar* pkg_name);
-static void valadoc_drivers_tree_builder_add_depencies (ValadocDriversTreeBuilder* self,
-                                                 ValaCodeContext* context,
-                                                 gchar** packages,
-                                                 int packages_length1);
-static void valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* self,
-                                                        ValaCodeContext* context,
-                                                        gchar** sources,
-                                                        int sources_length1);
-static void valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
-                                                     ValaCodeContext* context,
-                                                     ValadocSettings* settings);
-static void valadoc_drivers_tree_builder_process_children (ValadocDriversTreeBuilder* self,
-                                                    ValadocApiNode* node,
-                                                    ValaCodeNode* element);
-static ValadocApiNode* valadoc_drivers_tree_builder_get_parent_node_for (ValadocDriversTreeBuilder* self,
-                                                                  ValaSymbol* element);
-static void valadoc_drivers_tree_builder_real_visit_namespace (ValaCodeVisitor* base,
-                                                        ValaNamespace* element);
-static void valadoc_drivers_tree_builder_real_visit_class (ValaCodeVisitor* base,
-                                                    ValaClass* element);
-static void valadoc_drivers_tree_builder_real_visit_interface (ValaCodeVisitor* base,
-                                                        ValaInterface* element);
-static void valadoc_drivers_tree_builder_real_visit_struct (ValaCodeVisitor* base,
-                                                     ValaStruct* element);
-static void valadoc_drivers_tree_builder_real_visit_field (ValaCodeVisitor* base,
-                                                    ValaField* element);
-static void valadoc_drivers_tree_builder_real_visit_property (ValaCodeVisitor* base,
-                                                       ValaProperty* element);
-static void valadoc_drivers_tree_builder_real_visit_creation_method (ValaCodeVisitor* base,
-                                                              ValaCreationMethod* element);
-static void valadoc_drivers_tree_builder_real_visit_method (ValaCodeVisitor* base,
-                                                     ValaMethod* element);
-static void valadoc_drivers_tree_builder_real_visit_signal (ValaCodeVisitor* base,
-                                                     ValaSignal* element);
-static void valadoc_drivers_tree_builder_real_visit_delegate (ValaCodeVisitor* base,
-                                                       ValaDelegate* element);
-static void valadoc_drivers_tree_builder_real_visit_enum (ValaCodeVisitor* base,
-                                                   ValaEnum* element);
-static void valadoc_drivers_tree_builder_real_visit_enum_value (ValaCodeVisitor* base,
-                                                         ValaEnumValue* element);
-static void valadoc_drivers_tree_builder_real_visit_constant (ValaCodeVisitor* base,
-                                                       ValaConstant* element);
-static void valadoc_drivers_tree_builder_real_visit_error_domain (ValaCodeVisitor* base,
-                                                           ValaErrorDomain* element);
-static void valadoc_drivers_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
-                                                         ValaErrorCode* element);
-static void valadoc_drivers_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
-                                                             ValaTypeParameter* element);
-static void valadoc_drivers_tree_builder_real_visit_formal_parameter (ValaCodeVisitor* base,
-                                                               ValaParameter* element);
-ValadocApiTree* valadoc_drivers_tree_builder_build (ValadocDriversTreeBuilder* self,
-                                                    ValadocSettings* settings,
-                                                    ValadocErrorReporter* reporter);
-ValadocDriversTreeBuilder* valadoc_drivers_tree_builder_new (void);
-ValadocDriversTreeBuilder* valadoc_drivers_tree_builder_construct (GType object_type);
-static void valadoc_drivers_tree_builder_package_meta_data_finalize (ValadocDriversTreeBuilderPackageMetaData * obj);
-static void valadoc_drivers_tree_builder_finalize (ValaCodeVisitor * obj);
+GType valadoc_tree_builder_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocTreeBuilder, vala_code_visitor_unref)
+static gpointer valadoc_tree_builder_package_meta_data_ref (gpointer instance);
+static void valadoc_tree_builder_package_meta_data_unref (gpointer instance);
+static GParamSpec* valadoc_tree_builder_param_spec_package_meta_data (const gchar* name,
+                                                               const gchar* nick,
+                                                               const gchar* blurb,
+                                                               GType object_type,
+                                                               GParamFlags flags) G_GNUC_UNUSED;
+static void valadoc_tree_builder_value_set_package_meta_data (GValue* value,
+                                                       gpointer v_object) G_GNUC_UNUSED;
+static void valadoc_tree_builder_value_take_package_meta_data (GValue* value,
+                                                        gpointer v_object) G_GNUC_UNUSED;
+static gpointer valadoc_tree_builder_value_get_package_meta_data (const GValue* value) G_GNUC_UNUSED;
+static GType valadoc_tree_builder_package_meta_data_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocTreeBuilderPackageMetaData, valadoc_tree_builder_package_meta_data_unref)
+ValadocApiClass* valadoc_tree_builder_get_glib_error (ValadocTreeBuilder* self);
+ValaHashMap* valadoc_tree_builder_get_symbol_map (ValadocTreeBuilder* self);
+static ValadocApiPointer* valadoc_tree_builder_create_pointer (ValadocTreeBuilder* self,
+                                                        ValaPointerType* vtyperef,
+                                                        ValadocApiItem* parent,
+                                                        ValadocApiNode* caller);
+static ValadocApiArray* valadoc_tree_builder_create_array (ValadocTreeBuilder* self,
+                                                    ValaArrayType* vtyperef,
+                                                    ValadocApiItem* parent,
+                                                    ValadocApiNode* caller);
+static ValadocApiTypeReference* valadoc_tree_builder_create_type_reference (ValadocTreeBuilder* self,
+                                                                     ValaDataType* vtyperef,
+                                                                     ValadocApiItem* parent,
+                                                                     ValadocApiNode* caller);
+static void valadoc_tree_builder_process_attributes (ValadocTreeBuilder* self,
+                                              ValadocApiSymbol* parent,
+                                              GList* lst);
+static ValadocApiSourceComment* valadoc_tree_builder_create_comment (ValadocTreeBuilder* self,
+                                                              ValaComment* comment);
+static gchar* valadoc_tree_builder_get_method_name (ValadocTreeBuilder* self,
+                                             ValaMethod* element);
+static ValadocTreeBuilderPackageMetaData* valadoc_tree_builder_get_package_meta_data (ValadocTreeBuilder* self,
+                                                                               ValadocApiPackage* pkg);
+static ValadocTreeBuilderPackageMetaData* valadoc_tree_builder_register_package (ValadocTreeBuilder* self,
+                                                                          ValadocApiPackage* package);
+static ValadocTreeBuilderPackageMetaData* valadoc_tree_builder_package_meta_data_new (ValadocApiPackage* package);
+static ValadocTreeBuilderPackageMetaData* valadoc_tree_builder_package_meta_data_construct (GType object_type,
+                                                                                     ValadocApiPackage* package);
+static ValadocApiSourceFile* valadoc_tree_builder_register_source_file (ValadocTreeBuilder* self,
+                                                                 ValadocTreeBuilderPackageMetaData* meta_data,
+                                                                 ValaSourceFile* source_file);
+static void valadoc_tree_builder_package_meta_data_register_source_file (ValadocTreeBuilderPackageMetaData* self,
+                                                                  ValaSourceFile* file);
+static ValadocApiSourceFile* valadoc_tree_builder_get_source_file (ValadocTreeBuilder* self,
+                                                            ValaSymbol* symbol);
+static ValadocApiPackage* valadoc_tree_builder_find_package_for_file (ValadocTreeBuilder* self,
+                                                               ValaSourceFile* source_file);
+static gboolean valadoc_tree_builder_package_meta_data_is_package_for_file (ValadocTreeBuilderPackageMetaData* self,
+                                                                     ValaSourceFile* source_file);
+static ValadocApiNamespace* valadoc_tree_builder_get_namespace (ValadocTreeBuilder* self,
+                                                         ValadocApiPackage* pkg,
+                                                         ValaSymbol* symbol,
+                                                         ValadocApiSourceFile* file);
+static ValadocApiNamespace* valadoc_tree_builder_package_meta_data_get_namespace (ValadocTreeBuilderPackageMetaData* self,
+                                                                           ValaNamespace* vns,
+                                                                           ValadocApiSourceFile* file);
+static gchar* valadoc_tree_builder_get_package_name (ValadocTreeBuilder* self,
+                                              const gchar* path);
+static gboolean valadoc_tree_builder_add_package (ValadocTreeBuilder* self,
+                                           ValaCodeContext* context,
+                                           const gchar* pkg);
+static void valadoc_tree_builder_add_deps (ValadocTreeBuilder* self,
+                                    ValaCodeContext* context,
+                                    const gchar* file_path,
+                                    const gchar* pkg_name);
+static void valadoc_tree_builder_add_depencies (ValadocTreeBuilder* self,
+                                         ValaCodeContext* context,
+                                         gchar** packages,
+                                         gint packages_length1);
+static void valadoc_tree_builder_add_documented_files (ValadocTreeBuilder* self,
+                                                ValaCodeContext* context,
+                                                gchar** sources,
+                                                gint sources_length1);
+static void valadoc_tree_builder_create_valac_tree (ValadocTreeBuilder* self,
+                                             ValaCodeContext* context,
+                                             ValadocSettings* settings);
+static void valadoc_tree_builder_process_children (ValadocTreeBuilder* self,
+                                            ValadocApiNode* node,
+                                            ValaCodeNode* element);
+static ValadocApiNode* valadoc_tree_builder_get_parent_node_for (ValadocTreeBuilder* self,
+                                                          ValaSymbol* element);
+static void valadoc_tree_builder_real_visit_namespace (ValaCodeVisitor* base,
+                                                ValaNamespace* element);
+static void valadoc_tree_builder_real_visit_class (ValaCodeVisitor* base,
+                                            ValaClass* element);
+static void valadoc_tree_builder_real_visit_interface (ValaCodeVisitor* base,
+                                                ValaInterface* element);
+static void valadoc_tree_builder_real_visit_struct (ValaCodeVisitor* base,
+                                             ValaStruct* element);
+static void valadoc_tree_builder_real_visit_field (ValaCodeVisitor* base,
+                                            ValaField* element);
+static void valadoc_tree_builder_real_visit_property (ValaCodeVisitor* base,
+                                               ValaProperty* element);
+static void valadoc_tree_builder_real_visit_creation_method (ValaCodeVisitor* base,
+                                                      ValaCreationMethod* element);
+static void valadoc_tree_builder_real_visit_method (ValaCodeVisitor* base,
+                                             ValaMethod* element);
+static void valadoc_tree_builder_real_visit_signal (ValaCodeVisitor* base,
+                                             ValaSignal* element);
+static void valadoc_tree_builder_real_visit_delegate (ValaCodeVisitor* base,
+                                               ValaDelegate* element);
+static void valadoc_tree_builder_real_visit_enum (ValaCodeVisitor* base,
+                                           ValaEnum* element);
+static void valadoc_tree_builder_real_visit_enum_value (ValaCodeVisitor* base,
+                                                 ValaEnumValue* element);
+static void valadoc_tree_builder_real_visit_constant (ValaCodeVisitor* base,
+                                               ValaConstant* element);
+static void valadoc_tree_builder_real_visit_error_domain (ValaCodeVisitor* base,
+                                                   ValaErrorDomain* element);
+static void valadoc_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
+                                                 ValaErrorCode* element);
+static void valadoc_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
+                                                     ValaTypeParameter* element);
+static void valadoc_tree_builder_real_visit_formal_parameter (ValaCodeVisitor* base,
+                                                       ValaParameter* element);
+ValadocApiTree* valadoc_tree_builder_build (ValadocTreeBuilder* self,
+                                            ValadocSettings* settings,
+                                            ValadocErrorReporter* reporter);
+ValadocTreeBuilder* valadoc_tree_builder_new (void);
+ValadocTreeBuilder* valadoc_tree_builder_construct (GType object_type);
+static void valadoc_tree_builder_package_meta_data_finalize (ValadocTreeBuilderPackageMetaData * obj);
+static GType valadoc_tree_builder_package_meta_data_get_type_once (void);
+static void valadoc_tree_builder_finalize (ValaCodeVisitor * obj);
+static GType valadoc_tree_builder_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -336,13 +257,11 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
-valadoc_drivers_tree_builder_get_instance_private (ValadocDriversTreeBuilder* self)
+valadoc_tree_builder_get_instance_private (ValadocTreeBuilder* self)
 {
-	return G_STRUCT_MEMBER_P (self, ValadocDriversTreeBuilder_private_offset);
+	return G_STRUCT_MEMBER_P (self, ValadocTreeBuilder_private_offset);
 }
-
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -350,13 +269,12 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 ValadocApiClass*
-valadoc_drivers_tree_builder_get_glib_error (ValadocDriversTreeBuilder* self)
+valadoc_tree_builder_get_glib_error (ValadocTreeBuilder* self)
 {
-	ValadocApiClass* result = NULL;
 	ValadocApiClass* _tmp0_;
 	ValadocApiClass* _tmp1_;
+	ValadocApiClass* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->glib_error;
 	_tmp1_ = _g_object_ref0 (_tmp0_);
@@ -364,20 +282,18 @@ valadoc_drivers_tree_builder_get_glib_error (ValadocDriversTreeBuilder* self)
 	return result;
 }
 
-
 static gpointer
 _vala_map_ref0 (gpointer self)
 {
 	return self ? vala_map_ref (self) : NULL;
 }
 
-
 ValaHashMap*
-valadoc_drivers_tree_builder_get_symbol_map (ValadocDriversTreeBuilder* self)
+valadoc_tree_builder_get_symbol_map (ValadocTreeBuilder* self)
 {
-	ValaHashMap* result = NULL;
 	ValaHashMap* _tmp0_;
 	ValaHashMap* _tmp1_;
+	ValaHashMap* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->symbol_map;
 	_tmp1_ = _vala_map_ref0 (_tmp0_);
@@ -385,21 +301,18 @@ valadoc_drivers_tree_builder_get_symbol_map (ValadocDriversTreeBuilder* self)
 	return result;
 }
 
-
 static gpointer
 _vala_code_node_ref0 (gpointer self)
 {
 	return self ? vala_code_node_ref (self) : NULL;
 }
 
-
 static ValadocApiPointer*
-valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
-                                             ValaPointerType* vtyperef,
-                                             ValadocApiItem* parent,
-                                             ValadocApiNode* caller)
+valadoc_tree_builder_create_pointer (ValadocTreeBuilder* self,
+                                     ValaPointerType* vtyperef,
+                                     ValadocApiItem* parent,
+                                     ValadocApiNode* caller)
 {
-	ValadocApiPointer* result = NULL;
 	ValadocApiPointer* ptr = NULL;
 	ValadocApiPointer* _tmp0_;
 	ValaDataType* vntype = NULL;
@@ -407,6 +320,7 @@ valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
 	ValaDataType* _tmp2_;
 	ValaDataType* _tmp3_;
 	ValaDataType* _tmp4_;
+	ValadocApiPointer* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (vtyperef != NULL, NULL);
 	g_return_val_if_fail (parent != NULL, NULL);
@@ -427,7 +341,7 @@ valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
 		_tmp5_ = ptr;
 		_tmp6_ = vntype;
 		_tmp7_ = ptr;
-		_tmp8_ = valadoc_drivers_tree_builder_create_pointer (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_POINTER_TYPE, ValaPointerType), (ValadocApiItem*) _tmp7_, caller);
+		_tmp8_ = valadoc_tree_builder_create_pointer (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_POINTER_TYPE, ValaPointerType), (ValadocApiItem*) _tmp7_, caller);
 		_tmp9_ = _tmp8_;
 		valadoc_api_pointer_set_data_type (_tmp5_, (ValadocApiItem*) _tmp9_);
 		_g_object_unref0 (_tmp9_);
@@ -443,7 +357,7 @@ valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
 			_tmp11_ = ptr;
 			_tmp12_ = vntype;
 			_tmp13_ = ptr;
-			_tmp14_ = valadoc_drivers_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp12_, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp13_, caller);
+			_tmp14_ = valadoc_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp12_, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp13_, caller);
 			_tmp15_ = _tmp14_;
 			valadoc_api_pointer_set_data_type (_tmp11_, (ValadocApiItem*) _tmp15_);
 			_g_object_unref0 (_tmp15_);
@@ -456,7 +370,7 @@ valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
 			_tmp16_ = ptr;
 			_tmp17_ = vntype;
 			_tmp18_ = ptr;
-			_tmp19_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp17_, (ValadocApiItem*) _tmp18_, caller);
+			_tmp19_ = valadoc_tree_builder_create_type_reference (self, _tmp17_, (ValadocApiItem*) _tmp18_, caller);
 			_tmp20_ = _tmp19_;
 			valadoc_api_pointer_set_data_type (_tmp16_, (ValadocApiItem*) _tmp20_);
 			_g_object_unref0 (_tmp20_);
@@ -467,14 +381,12 @@ valadoc_drivers_tree_builder_create_pointer (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static ValadocApiArray*
-valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
-                                           ValaArrayType* vtyperef,
-                                           ValadocApiItem* parent,
-                                           ValadocApiNode* caller)
+valadoc_tree_builder_create_array (ValadocTreeBuilder* self,
+                                   ValaArrayType* vtyperef,
+                                   ValadocApiItem* parent,
+                                   ValadocApiNode* caller)
 {
-	ValadocApiArray* result = NULL;
 	ValadocApiArray* arr = NULL;
 	ValadocApiArray* _tmp0_;
 	ValaDataType* vntype = NULL;
@@ -482,6 +394,7 @@ valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
 	ValaDataType* _tmp2_;
 	ValaDataType* _tmp3_;
 	ValaDataType* _tmp4_;
+	ValadocApiArray* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (vtyperef != NULL, NULL);
 	g_return_val_if_fail (parent != NULL, NULL);
@@ -502,7 +415,7 @@ valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
 		_tmp5_ = arr;
 		_tmp6_ = vntype;
 		_tmp7_ = arr;
-		_tmp8_ = valadoc_drivers_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp7_, caller);
+		_tmp8_ = valadoc_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp7_, caller);
 		_tmp9_ = _tmp8_;
 		valadoc_api_array_set_data_type (_tmp5_, (ValadocApiItem*) _tmp9_);
 		_g_object_unref0 (_tmp9_);
@@ -515,7 +428,7 @@ valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
 		_tmp10_ = arr;
 		_tmp11_ = vntype;
 		_tmp12_ = arr;
-		_tmp13_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) _tmp12_, caller);
+		_tmp13_ = valadoc_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) _tmp12_, caller);
 		_tmp14_ = _tmp13_;
 		valadoc_api_array_set_data_type (_tmp10_, (ValadocApiItem*) _tmp14_);
 		_g_object_unref0 (_tmp14_);
@@ -525,14 +438,18 @@ valadoc_drivers_tree_builder_create_array (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
+static gpointer
+_vala_iterable_ref0 (gpointer self)
+{
+	return self ? vala_iterable_ref (self) : NULL;
+}
 
 static ValadocApiTypeReference*
-valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* self,
-                                                    ValaDataType* vtyperef,
-                                                    ValadocApiItem* parent,
-                                                    ValadocApiNode* caller)
+valadoc_tree_builder_create_type_reference (ValadocTreeBuilder* self,
+                                            ValaDataType* vtyperef,
+                                            ValadocApiItem* parent,
+                                            ValadocApiNode* caller)
 {
-	ValadocApiTypeReference* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
 	gboolean _tmp2_ = FALSE;
@@ -541,17 +458,12 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 	gboolean _tmp6_ = FALSE;
 	gchar* signature = NULL;
 	gchar* _tmp12_;
-	gboolean pass_ownership = FALSE;
-	ValadocApiOwnership ownership = 0;
 	gboolean _tmp13_ = FALSE;
 	gboolean is_dynamic = FALSE;
 	ValadocApiTypeReference* type_ref = NULL;
-	ValadocApiOwnership _tmp16_;
-	gboolean _tmp17_;
-	gboolean _tmp18_;
-	gboolean _tmp19_;
-	const gchar* _tmp20_;
-	ValadocApiTypeReference* _tmp21_;
+	const gchar* _tmp16_;
+	ValadocApiTypeReference* _tmp17_;
+	ValadocApiTypeReference* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (parent != NULL, NULL);
 	g_return_val_if_fail (caller != NULL, NULL);
@@ -578,7 +490,7 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 	if (vtyperef != NULL) {
 		ValaTypeSymbol* _tmp7_;
 		ValaTypeSymbol* _tmp8_;
-		_tmp7_ = vala_data_type_get_data_type (vtyperef);
+		_tmp7_ = vala_data_type_get_type_symbol (vtyperef);
 		_tmp8_ = _tmp7_;
 		_tmp6_ = _tmp8_ != NULL;
 	} else {
@@ -588,7 +500,7 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 		ValaTypeSymbol* _tmp9_;
 		ValaTypeSymbol* _tmp10_;
 		gchar* _tmp11_;
-		_tmp9_ = vala_data_type_get_data_type (vtyperef);
+		_tmp9_ = vala_data_type_get_type_symbol (vtyperef);
 		_tmp10_ = _tmp9_;
 		_tmp11_ = vala_gvariant_module_get_dbus_signature ((ValaSymbol*) _tmp10_);
 		_g_free0 (_tmp5_);
@@ -599,8 +511,6 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 	}
 	_tmp12_ = g_strdup (_tmp5_);
 	signature = _tmp12_;
-	pass_ownership = valadoc_drivers_tree_builder_type_reference_pass_ownership (self, vtyperef);
-	ownership = valadoc_drivers_tree_builder_get_type_reference_ownership (self, vtyperef);
 	if (vtyperef != NULL) {
 		gboolean _tmp14_;
 		gboolean _tmp15_;
@@ -611,86 +521,80 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 		_tmp13_ = FALSE;
 	}
 	is_dynamic = _tmp13_;
-	_tmp16_ = ownership;
-	_tmp17_ = pass_ownership;
-	_tmp18_ = is_dynamic;
-	_tmp19_ = is_nullable;
-	_tmp20_ = signature;
-	_tmp21_ = valadoc_api_typereference_new (parent, _tmp16_, _tmp17_, _tmp18_, _tmp19_, _tmp20_, vtyperef);
-	type_ref = _tmp21_;
+	_tmp16_ = signature;
+	_tmp17_ = valadoc_api_typereference_new (parent, is_dynamic, is_nullable, _tmp16_, vtyperef);
+	type_ref = _tmp17_;
 	if (G_TYPE_CHECK_INSTANCE_TYPE (vtyperef, VALA_TYPE_POINTER_TYPE)) {
-		ValadocApiTypeReference* _tmp22_;
-		ValadocApiTypeReference* _tmp23_;
-		ValadocApiPointer* _tmp24_;
-		ValadocApiPointer* _tmp25_;
-		_tmp22_ = type_ref;
-		_tmp23_ = type_ref;
-		_tmp24_ = valadoc_drivers_tree_builder_create_pointer (self, G_TYPE_CHECK_INSTANCE_CAST (vtyperef, VALA_TYPE_POINTER_TYPE, ValaPointerType), (ValadocApiItem*) _tmp23_, caller);
-		_tmp25_ = _tmp24_;
-		valadoc_api_typereference_set_data_type (_tmp22_, (ValadocApiItem*) _tmp25_);
-		_g_object_unref0 (_tmp25_);
+		ValadocApiTypeReference* _tmp18_;
+		ValadocApiTypeReference* _tmp19_;
+		ValadocApiPointer* _tmp20_;
+		ValadocApiPointer* _tmp21_;
+		_tmp18_ = type_ref;
+		_tmp19_ = type_ref;
+		_tmp20_ = valadoc_tree_builder_create_pointer (self, G_TYPE_CHECK_INSTANCE_CAST (vtyperef, VALA_TYPE_POINTER_TYPE, ValaPointerType), (ValadocApiItem*) _tmp19_, caller);
+		_tmp21_ = _tmp20_;
+		valadoc_api_typereference_set_data_type (_tmp18_, (ValadocApiItem*) _tmp21_);
+		_g_object_unref0 (_tmp21_);
 	} else {
 		if (G_TYPE_CHECK_INSTANCE_TYPE (vtyperef, VALA_TYPE_ARRAY_TYPE)) {
-			ValadocApiTypeReference* _tmp26_;
-			ValadocApiTypeReference* _tmp27_;
-			ValadocApiArray* _tmp28_;
-			ValadocApiArray* _tmp29_;
-			_tmp26_ = type_ref;
-			_tmp27_ = type_ref;
-			_tmp28_ = valadoc_drivers_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (vtyperef, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp27_, caller);
-			_tmp29_ = _tmp28_;
-			valadoc_api_typereference_set_data_type (_tmp26_, (ValadocApiItem*) _tmp29_);
-			_g_object_unref0 (_tmp29_);
+			ValadocApiTypeReference* _tmp22_;
+			ValadocApiTypeReference* _tmp23_;
+			ValadocApiArray* _tmp24_;
+			ValadocApiArray* _tmp25_;
+			_tmp22_ = type_ref;
+			_tmp23_ = type_ref;
+			_tmp24_ = valadoc_tree_builder_create_array (self, G_TYPE_CHECK_INSTANCE_CAST (vtyperef, VALA_TYPE_ARRAY_TYPE, ValaArrayType), (ValadocApiItem*) _tmp23_, caller);
+			_tmp25_ = _tmp24_;
+			valadoc_api_typereference_set_data_type (_tmp22_, (ValadocApiItem*) _tmp25_);
+			_g_object_unref0 (_tmp25_);
 		}
 	}
 	if (vtyperef != NULL) {
 		{
 			ValaList* _vdtype_list = NULL;
-			ValaList* _tmp30_;
+			ValaList* _tmp26_;
+			ValaList* _tmp27_;
 			gint _vdtype_size = 0;
-			ValaList* _tmp31_;
-			gint _tmp32_;
-			gint _tmp33_;
+			ValaList* _tmp28_;
+			gint _tmp29_;
+			gint _tmp30_;
 			gint _vdtype_index = 0;
-			_tmp30_ = vala_data_type_get_type_arguments (vtyperef);
-			_vdtype_list = _tmp30_;
-			_tmp31_ = _vdtype_list;
-			_tmp32_ = vala_collection_get_size ((ValaCollection*) _tmp31_);
-			_tmp33_ = _tmp32_;
-			_vdtype_size = _tmp33_;
+			_tmp26_ = vala_data_type_get_type_arguments (vtyperef);
+			_tmp27_ = _vala_iterable_ref0 (_tmp26_);
+			_vdtype_list = _tmp27_;
+			_tmp28_ = _vdtype_list;
+			_tmp29_ = vala_collection_get_size ((ValaCollection*) _tmp28_);
+			_tmp30_ = _tmp29_;
+			_vdtype_size = _tmp30_;
 			_vdtype_index = -1;
 			while (TRUE) {
-				gint _tmp34_;
-				gint _tmp35_;
-				gint _tmp36_;
+				gint _tmp31_;
+				gint _tmp32_;
 				ValaDataType* vdtype = NULL;
-				ValaList* _tmp37_;
-				gint _tmp38_;
-				gpointer _tmp39_;
+				ValaList* _tmp33_;
+				gpointer _tmp34_;
 				ValadocApiTypeReference* type_param = NULL;
-				ValaDataType* _tmp40_;
-				ValadocApiTypeReference* _tmp41_;
-				ValadocApiTypeReference* _tmp42_;
-				ValadocApiTypeReference* _tmp43_;
-				ValadocApiTypeReference* _tmp44_;
-				_tmp34_ = _vdtype_index;
-				_vdtype_index = _tmp34_ + 1;
-				_tmp35_ = _vdtype_index;
-				_tmp36_ = _vdtype_size;
-				if (!(_tmp35_ < _tmp36_)) {
+				ValaDataType* _tmp35_;
+				ValadocApiTypeReference* _tmp36_;
+				ValadocApiTypeReference* _tmp37_;
+				ValadocApiTypeReference* _tmp38_;
+				ValadocApiTypeReference* _tmp39_;
+				_vdtype_index = _vdtype_index + 1;
+				_tmp31_ = _vdtype_index;
+				_tmp32_ = _vdtype_size;
+				if (!(_tmp31_ < _tmp32_)) {
 					break;
 				}
-				_tmp37_ = _vdtype_list;
-				_tmp38_ = _vdtype_index;
-				_tmp39_ = vala_list_get (_tmp37_, _tmp38_);
-				vdtype = (ValaDataType*) _tmp39_;
-				_tmp40_ = vdtype;
-				_tmp41_ = type_ref;
-				_tmp42_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp40_, (ValadocApiItem*) _tmp41_, caller);
-				type_param = _tmp42_;
-				_tmp43_ = type_ref;
-				_tmp44_ = type_param;
-				valadoc_api_typereference_add_type_argument (_tmp43_, _tmp44_);
+				_tmp33_ = _vdtype_list;
+				_tmp34_ = vala_list_get (_tmp33_, _vdtype_index);
+				vdtype = (ValaDataType*) _tmp34_;
+				_tmp35_ = vdtype;
+				_tmp36_ = type_ref;
+				_tmp37_ = valadoc_tree_builder_create_type_reference (self, _tmp35_, (ValadocApiItem*) _tmp36_, caller);
+				type_param = _tmp37_;
+				_tmp38_ = type_ref;
+				_tmp39_ = type_param;
+				valadoc_api_typereference_add_type_argument (_tmp38_, _tmp39_);
 				_g_object_unref0 (type_param);
 				_vala_code_node_unref0 (vdtype);
 			}
@@ -703,721 +607,51 @@ valadoc_drivers_tree_builder_create_type_reference (ValadocDriversTreeBuilder* s
 	return result;
 }
 
-
-static gboolean
-bool_parse (const gchar* str)
-{
-	gboolean result = FALSE;
-	g_return_val_if_fail (str != NULL, FALSE);
-	if (g_strcmp0 (str, "true") == 0) {
-		result = TRUE;
-		return result;
-	} else {
-		result = FALSE;
-		return result;
-	}
-}
-
-
-static gboolean
-_vala_string_array_contains (gchar* * stack,
-                             int stack_length,
-                             const gchar* needle)
-{
-	int i;
-	for (i = 0; i < stack_length; i++) {
-		if (g_strcmp0 (stack[i], needle) == 0) {
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-
 static void
-valadoc_drivers_tree_builder_process_attributes (ValadocDriversTreeBuilder* self,
-                                                 ValadocApiSymbol* parent,
-                                                 GList* lst)
+valadoc_tree_builder_process_attributes (ValadocTreeBuilder* self,
+                                         ValadocApiSymbol* parent,
+                                         GList* lst)
 {
-	gchar** attributes = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	gchar* _tmp4_;
-	gchar* _tmp5_;
-	gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	gchar* _tmp9_;
-	gchar* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gchar* _tmp20_;
-	gchar* _tmp21_;
-	gchar** _tmp22_;
-	gint attributes_length1;
-	gint _attributes_size_;
-	gchar* tmp = NULL;
-	gchar* _tmp23_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (parent != NULL);
-	_tmp0_ = g_strdup ("ReturnsModifiedPointer");
-	_tmp1_ = g_strdup ("DestroysInstance");
-	_tmp2_ = g_strdup ("GenericAccessors");
-	_tmp3_ = g_strdup ("NoAccessorMethod");
-	_tmp4_ = g_strdup ("NoArrayLength");
-	_tmp5_ = g_strdup ("Experimental");
-	_tmp6_ = g_strdup ("Diagnostics");
-	_tmp7_ = g_strdup ("PrintfFormat");
-	_tmp8_ = g_strdup ("PointerType");
-	_tmp9_ = g_strdup ("ScanfFormat");
-	_tmp10_ = g_strdup ("ThreadLocal");
-	_tmp11_ = g_strdup ("SimpleType");
-	_tmp12_ = g_strdup ("HasEmitter");
-	_tmp13_ = g_strdup ("ModuleInit");
-	_tmp14_ = g_strdup ("NoWrapper");
-	_tmp15_ = g_strdup ("Immutable");
-	_tmp16_ = g_strdup ("ErrorBase");
-	_tmp17_ = g_strdup ("NoReturn");
-	_tmp18_ = g_strdup ("NoThrow");
-	_tmp19_ = g_strdup ("Compact");
-	_tmp20_ = g_strdup ("Assert");
-	_tmp21_ = g_strdup ("Flags");
-	_tmp22_ = g_new0 (gchar*, 22 + 1);
-	_tmp22_[0] = _tmp0_;
-	_tmp22_[1] = _tmp1_;
-	_tmp22_[2] = _tmp2_;
-	_tmp22_[3] = _tmp3_;
-	_tmp22_[4] = _tmp4_;
-	_tmp22_[5] = _tmp5_;
-	_tmp22_[6] = _tmp6_;
-	_tmp22_[7] = _tmp7_;
-	_tmp22_[8] = _tmp8_;
-	_tmp22_[9] = _tmp9_;
-	_tmp22_[10] = _tmp10_;
-	_tmp22_[11] = _tmp11_;
-	_tmp22_[12] = _tmp12_;
-	_tmp22_[13] = _tmp13_;
-	_tmp22_[14] = _tmp14_;
-	_tmp22_[15] = _tmp15_;
-	_tmp22_[16] = _tmp16_;
-	_tmp22_[17] = _tmp17_;
-	_tmp22_[18] = _tmp18_;
-	_tmp22_[19] = _tmp19_;
-	_tmp22_[20] = _tmp20_;
-	_tmp22_[21] = _tmp21_;
-	attributes = _tmp22_;
-	attributes_length1 = 22;
-	_attributes_size_ = attributes_length1;
-	_tmp23_ = g_strdup ("");
-	tmp = _tmp23_;
 	{
 		GList* att_collection = NULL;
 		GList* att_it = NULL;
 		att_collection = lst;
 		for (att_it = att_collection; att_it != NULL; att_it = att_it->next) {
-			ValaAttribute* _tmp24_;
+			ValaAttribute* _tmp0_;
 			ValaAttribute* att = NULL;
-			_tmp24_ = _vala_code_node_ref0 ((ValaAttribute*) att_it->data);
-			att = _tmp24_;
+			_tmp0_ = _vala_code_node_ref0 ((ValaAttribute*) att_it->data);
+			att = _tmp0_;
 			{
-				gboolean _tmp25_ = FALSE;
-				gboolean _tmp26_ = FALSE;
-				ValaAttribute* _tmp27_;
-				const gchar* _tmp28_;
-				const gchar* _tmp29_;
-				_tmp27_ = att;
-				_tmp28_ = vala_attribute_get_name (_tmp27_);
-				_tmp29_ = _tmp28_;
-				if (g_strcmp0 (_tmp29_, "CCode") == 0) {
-					ValaAttribute* _tmp30_;
-					ValaMap* _tmp31_;
-					ValaMap* _tmp32_;
-					gpointer _tmp33_;
-					const gchar* _tmp34_;
-					_tmp30_ = att;
-					_tmp31_ = vala_attribute_get_args (_tmp30_);
-					_tmp32_ = _tmp31_;
-					_tmp33_ = vala_map_get (_tmp32_, "has_target");
-					_g_free0 (tmp);
-					tmp = (gchar*) _tmp33_;
-					_tmp34_ = tmp;
-					_tmp26_ = _tmp34_ != NULL;
-				} else {
-					_tmp26_ = FALSE;
-				}
-				if (_tmp26_) {
-					const gchar* _tmp35_;
-					_tmp35_ = tmp;
-					_tmp25_ = g_strcmp0 (_tmp35_, "false") == 0;
-				} else {
-					_tmp25_ = FALSE;
-				}
-				if (_tmp25_) {
-					ValadocApiAttribute* new_attribute = NULL;
-					ValadocApiSourceFile* _tmp36_;
-					ValadocApiSourceFile* _tmp37_;
-					ValaAttribute* _tmp38_;
-					const gchar* _tmp39_;
-					const gchar* _tmp40_;
-					ValaAttribute* _tmp41_;
-					ValadocApiAttribute* _tmp42_;
-					ValadocApiAttribute* _tmp43_;
-					ValadocApiAttribute* _tmp44_;
-					ValaAttribute* _tmp45_;
-					ValadocApiAttributeArgument* _tmp46_;
-					ValadocApiAttributeArgument* _tmp47_;
-					ValadocApiAttribute* _tmp48_;
-					_tmp36_ = valadoc_api_node_get_source_file ((ValadocApiNode*) parent);
-					_tmp37_ = _tmp36_;
-					_tmp38_ = att;
-					_tmp39_ = vala_attribute_get_name (_tmp38_);
-					_tmp40_ = _tmp39_;
-					_tmp41_ = att;
-					_tmp42_ = valadoc_api_attribute_new ((ValadocApiNode*) parent, _tmp37_, _tmp40_, _tmp41_);
-					_tmp43_ = _tmp42_;
-					_g_object_unref0 (_tmp37_);
-					new_attribute = _tmp43_;
-					_tmp44_ = new_attribute;
-					_tmp45_ = att;
-					_tmp46_ = valadoc_api_attribute_add_boolean (_tmp44_, "has_target", FALSE, _tmp45_);
-					_tmp47_ = _tmp46_;
-					_g_object_unref0 (_tmp47_);
-					_tmp48_ = new_attribute;
-					valadoc_api_symbol_add_attribute (parent, _tmp48_);
-					_g_object_unref0 (new_attribute);
-				} else {
-					ValaAttribute* _tmp49_;
-					const gchar* _tmp50_;
-					const gchar* _tmp51_;
-					_tmp49_ = att;
-					_tmp50_ = vala_attribute_get_name (_tmp49_);
-					_tmp51_ = _tmp50_;
-					if (g_strcmp0 (_tmp51_, "Version") == 0) {
-						ValadocApiAttribute* new_attribute = NULL;
-						ValadocApiSourceFile* _tmp52_;
-						ValadocApiSourceFile* _tmp53_;
-						ValaAttribute* _tmp54_;
-						const gchar* _tmp55_;
-						const gchar* _tmp56_;
-						ValaAttribute* _tmp57_;
-						ValadocApiAttribute* _tmp58_;
-						ValadocApiAttribute* _tmp59_;
-						ValaAttribute* _tmp60_;
-						ValaMap* _tmp61_;
-						ValaMap* _tmp62_;
-						gpointer _tmp63_;
-						const gchar* _tmp64_;
-						ValaAttribute* _tmp70_;
-						ValaMap* _tmp71_;
-						ValaMap* _tmp72_;
-						gpointer _tmp73_;
-						const gchar* _tmp74_;
-						ValaAttribute* _tmp80_;
-						ValaMap* _tmp81_;
-						ValaMap* _tmp82_;
-						gpointer _tmp83_;
-						const gchar* _tmp84_;
-						ValaAttribute* _tmp100_;
-						ValaMap* _tmp101_;
-						ValaMap* _tmp102_;
-						gpointer _tmp103_;
-						const gchar* _tmp104_;
-						ValadocApiAttribute* _tmp110_;
-						_tmp52_ = valadoc_api_node_get_source_file ((ValadocApiNode*) parent);
-						_tmp53_ = _tmp52_;
-						_tmp54_ = att;
-						_tmp55_ = vala_attribute_get_name (_tmp54_);
-						_tmp56_ = _tmp55_;
-						_tmp57_ = att;
-						_tmp58_ = valadoc_api_attribute_new ((ValadocApiNode*) parent, _tmp53_, _tmp56_, _tmp57_);
-						_tmp59_ = _tmp58_;
-						_g_object_unref0 (_tmp53_);
-						new_attribute = _tmp59_;
-						_tmp60_ = att;
-						_tmp61_ = vala_attribute_get_args (_tmp60_);
-						_tmp62_ = _tmp61_;
-						_tmp63_ = vala_map_get (_tmp62_, "deprecated");
-						_g_free0 (tmp);
-						tmp = (gchar*) _tmp63_;
-						_tmp64_ = tmp;
-						if (_tmp64_ != NULL) {
-							ValadocApiAttribute* _tmp65_;
-							const gchar* _tmp66_;
-							ValaAttribute* _tmp67_;
-							ValadocApiAttributeArgument* _tmp68_;
-							ValadocApiAttributeArgument* _tmp69_;
-							_tmp65_ = new_attribute;
-							_tmp66_ = tmp;
-							_tmp67_ = att;
-							_tmp68_ = valadoc_api_attribute_add_boolean (_tmp65_, "deprecated", bool_parse (_tmp66_), _tmp67_);
-							_tmp69_ = _tmp68_;
-							_g_object_unref0 (_tmp69_);
-						}
-						_tmp70_ = att;
-						_tmp71_ = vala_attribute_get_args (_tmp70_);
-						_tmp72_ = _tmp71_;
-						_tmp73_ = vala_map_get (_tmp72_, "since");
-						_g_free0 (tmp);
-						tmp = (gchar*) _tmp73_;
-						_tmp74_ = tmp;
-						if (_tmp74_ != NULL) {
-							ValadocApiAttribute* _tmp75_;
-							const gchar* _tmp76_;
-							ValaAttribute* _tmp77_;
-							ValadocApiAttributeArgument* _tmp78_;
-							ValadocApiAttributeArgument* _tmp79_;
-							_tmp75_ = new_attribute;
-							_tmp76_ = tmp;
-							_tmp77_ = att;
-							_tmp78_ = valadoc_api_attribute_add_string (_tmp75_, "since", _tmp76_, _tmp77_);
-							_tmp79_ = _tmp78_;
-							_g_object_unref0 (_tmp79_);
-						}
-						_tmp80_ = att;
-						_tmp81_ = vala_attribute_get_args (_tmp80_);
-						_tmp82_ = _tmp81_;
-						_tmp83_ = vala_map_get (_tmp82_, "deprecated_since");
-						_g_free0 (tmp);
-						tmp = (gchar*) _tmp83_;
-						_tmp84_ = tmp;
-						if (_tmp84_ != NULL) {
-							ValadocApiAttribute* _tmp85_;
-							const gchar* _tmp86_;
-							ValaAttribute* _tmp87_;
-							ValadocApiAttributeArgument* _tmp88_;
-							ValadocApiAttributeArgument* _tmp89_;
-							ValaAttribute* _tmp90_;
-							ValaMap* _tmp91_;
-							ValaMap* _tmp92_;
-							gpointer _tmp93_;
-							gchar* _tmp94_;
-							gboolean _tmp95_;
-							_tmp85_ = new_attribute;
-							_tmp86_ = tmp;
-							_tmp87_ = att;
-							_tmp88_ = valadoc_api_attribute_add_string (_tmp85_, "deprecated_since", _tmp86_, _tmp87_);
-							_tmp89_ = _tmp88_;
-							_g_object_unref0 (_tmp89_);
-							_tmp90_ = att;
-							_tmp91_ = vala_attribute_get_args (_tmp90_);
-							_tmp92_ = _tmp91_;
-							_tmp93_ = vala_map_get (_tmp92_, "deprecated");
-							_tmp94_ = (gchar*) _tmp93_;
-							_tmp95_ = _tmp94_ == NULL;
-							_g_free0 (_tmp94_);
-							if (_tmp95_) {
-								ValadocApiAttribute* _tmp96_;
-								ValaAttribute* _tmp97_;
-								ValadocApiAttributeArgument* _tmp98_;
-								ValadocApiAttributeArgument* _tmp99_;
-								_tmp96_ = new_attribute;
-								_tmp97_ = att;
-								_tmp98_ = valadoc_api_attribute_add_boolean (_tmp96_, "deprecated", TRUE, _tmp97_);
-								_tmp99_ = _tmp98_;
-								_g_object_unref0 (_tmp99_);
-							}
-						}
-						_tmp100_ = att;
-						_tmp101_ = vala_attribute_get_args (_tmp100_);
-						_tmp102_ = _tmp101_;
-						_tmp103_ = vala_map_get (_tmp102_, "replacement");
-						_g_free0 (tmp);
-						tmp = (gchar*) _tmp103_;
-						_tmp104_ = tmp;
-						if (_tmp104_ != NULL) {
-							ValadocApiAttribute* _tmp105_;
-							const gchar* _tmp106_;
-							ValaAttribute* _tmp107_;
-							ValadocApiAttributeArgument* _tmp108_;
-							ValadocApiAttributeArgument* _tmp109_;
-							_tmp105_ = new_attribute;
-							_tmp106_ = tmp;
-							_tmp107_ = att;
-							_tmp108_ = valadoc_api_attribute_add_string (_tmp105_, "replacement", _tmp106_, _tmp107_);
-							_tmp109_ = _tmp108_;
-							_g_object_unref0 (_tmp109_);
-						}
-						_tmp110_ = new_attribute;
-						valadoc_api_symbol_add_attribute (parent, _tmp110_);
-						_g_object_unref0 (new_attribute);
-					} else {
-						ValaAttribute* _tmp111_;
-						const gchar* _tmp112_;
-						const gchar* _tmp113_;
-						_tmp111_ = att;
-						_tmp112_ = vala_attribute_get_name (_tmp111_);
-						_tmp113_ = _tmp112_;
-						if (g_strcmp0 (_tmp113_, "Deprecated") == 0) {
-							ValadocApiAttribute* new_attribute = NULL;
-							ValadocApiSourceFile* _tmp114_;
-							ValadocApiSourceFile* _tmp115_;
-							ValaAttribute* _tmp116_;
-							const gchar* _tmp117_;
-							const gchar* _tmp118_;
-							ValaAttribute* _tmp119_;
-							ValadocApiAttribute* _tmp120_;
-							ValadocApiAttribute* _tmp121_;
-							ValaAttribute* _tmp122_;
-							ValaMap* _tmp123_;
-							ValaMap* _tmp124_;
-							gpointer _tmp125_;
-							const gchar* _tmp126_;
-							ValaAttribute* _tmp132_;
-							ValaMap* _tmp133_;
-							ValaMap* _tmp134_;
-							gpointer _tmp135_;
-							const gchar* _tmp136_;
-							ValadocApiAttribute* _tmp142_;
-							_tmp114_ = valadoc_api_node_get_source_file ((ValadocApiNode*) parent);
-							_tmp115_ = _tmp114_;
-							_tmp116_ = att;
-							_tmp117_ = vala_attribute_get_name (_tmp116_);
-							_tmp118_ = _tmp117_;
-							_tmp119_ = att;
-							_tmp120_ = valadoc_api_attribute_new ((ValadocApiNode*) parent, _tmp115_, _tmp118_, _tmp119_);
-							_tmp121_ = _tmp120_;
-							_g_object_unref0 (_tmp115_);
-							new_attribute = _tmp121_;
-							_tmp122_ = att;
-							_tmp123_ = vala_attribute_get_args (_tmp122_);
-							_tmp124_ = _tmp123_;
-							_tmp125_ = vala_map_get (_tmp124_, "since");
-							_g_free0 (tmp);
-							tmp = (gchar*) _tmp125_;
-							_tmp126_ = tmp;
-							if (_tmp126_ != NULL) {
-								ValadocApiAttribute* _tmp127_;
-								const gchar* _tmp128_;
-								ValaAttribute* _tmp129_;
-								ValadocApiAttributeArgument* _tmp130_;
-								ValadocApiAttributeArgument* _tmp131_;
-								_tmp127_ = new_attribute;
-								_tmp128_ = tmp;
-								_tmp129_ = att;
-								_tmp130_ = valadoc_api_attribute_add_string (_tmp127_, "since", _tmp128_, _tmp129_);
-								_tmp131_ = _tmp130_;
-								_g_object_unref0 (_tmp131_);
-							}
-							_tmp132_ = att;
-							_tmp133_ = vala_attribute_get_args (_tmp132_);
-							_tmp134_ = _tmp133_;
-							_tmp135_ = vala_map_get (_tmp134_, "replacement");
-							_g_free0 (tmp);
-							tmp = (gchar*) _tmp135_;
-							_tmp136_ = tmp;
-							if (_tmp136_ != NULL) {
-								ValadocApiAttribute* _tmp137_;
-								const gchar* _tmp138_;
-								ValaAttribute* _tmp139_;
-								ValadocApiAttributeArgument* _tmp140_;
-								ValadocApiAttributeArgument* _tmp141_;
-								_tmp137_ = new_attribute;
-								_tmp138_ = tmp;
-								_tmp139_ = att;
-								_tmp140_ = valadoc_api_attribute_add_string (_tmp137_, "replacement", _tmp138_, _tmp139_);
-								_tmp141_ = _tmp140_;
-								_g_object_unref0 (_tmp141_);
-							}
-							_tmp142_ = new_attribute;
-							valadoc_api_symbol_add_attribute (parent, _tmp142_);
-							_g_object_unref0 (new_attribute);
-						} else {
-							ValaAttribute* _tmp143_;
-							const gchar* _tmp144_;
-							const gchar* _tmp145_;
-							gchar** _tmp146_;
-							gint _tmp146__length1;
-							_tmp143_ = att;
-							_tmp144_ = vala_attribute_get_name (_tmp143_);
-							_tmp145_ = _tmp144_;
-							_tmp146_ = attributes;
-							_tmp146__length1 = attributes_length1;
-							if (_vala_string_array_contains (_tmp146_, _tmp146__length1, _tmp145_)) {
-								ValadocApiAttribute* new_attribute = NULL;
-								ValadocApiSourceFile* _tmp147_;
-								ValadocApiSourceFile* _tmp148_;
-								ValaAttribute* _tmp149_;
-								const gchar* _tmp150_;
-								const gchar* _tmp151_;
-								ValaAttribute* _tmp152_;
-								ValadocApiAttribute* _tmp153_;
-								ValadocApiAttribute* _tmp154_;
-								ValadocApiAttribute* _tmp155_;
-								_tmp147_ = valadoc_api_node_get_source_file ((ValadocApiNode*) parent);
-								_tmp148_ = _tmp147_;
-								_tmp149_ = att;
-								_tmp150_ = vala_attribute_get_name (_tmp149_);
-								_tmp151_ = _tmp150_;
-								_tmp152_ = att;
-								_tmp153_ = valadoc_api_attribute_new ((ValadocApiNode*) parent, _tmp148_, _tmp151_, _tmp152_);
-								_tmp154_ = _tmp153_;
-								_g_object_unref0 (_tmp148_);
-								new_attribute = _tmp154_;
-								_tmp155_ = new_attribute;
-								valadoc_api_symbol_add_attribute (parent, _tmp155_);
-								_g_object_unref0 (new_attribute);
-							}
-						}
-					}
-				}
+				ValadocApiAttribute* new_attribute = NULL;
+				ValadocApiSourceFile* _tmp1_;
+				ValadocApiSourceFile* _tmp2_;
+				ValaAttribute* _tmp3_;
+				const gchar* _tmp4_;
+				const gchar* _tmp5_;
+				ValaAttribute* _tmp6_;
+				ValadocApiAttribute* _tmp7_;
+				ValadocApiAttribute* _tmp8_;
+				ValadocApiAttribute* _tmp9_;
+				_tmp1_ = valadoc_api_node_get_source_file ((ValadocApiNode*) parent);
+				_tmp2_ = _tmp1_;
+				_tmp3_ = att;
+				_tmp4_ = vala_attribute_get_name (_tmp3_);
+				_tmp5_ = _tmp4_;
+				_tmp6_ = att;
+				_tmp7_ = valadoc_api_attribute_new ((ValadocApiNode*) parent, _tmp2_, _tmp5_, _tmp6_);
+				_tmp8_ = _tmp7_;
+				_g_object_unref0 (_tmp2_);
+				new_attribute = _tmp8_;
+				_tmp9_ = new_attribute;
+				valadoc_api_symbol_add_attribute (parent, _tmp9_);
+				_g_object_unref0 (new_attribute);
 				_vala_code_node_unref0 (att);
 			}
 		}
 	}
-	_g_free0 (tmp);
-	attributes = (_vala_array_free (attributes, attributes_length1, (GDestroyNotify) g_free), NULL);
 }
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_ccode_type_id (ValadocDriversTreeBuilder* self,
-                                                ValaCodeNode* node)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (node != NULL, NULL);
-	_tmp0_ = vala_get_ccode_type_id (node);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gboolean
-valadoc_drivers_tree_builder_is_reference_counting (ValadocDriversTreeBuilder* self,
-                                                    ValaTypeSymbol* sym)
-{
-	gboolean result = FALSE;
-	g_return_val_if_fail (self != NULL, FALSE);
-	g_return_val_if_fail (sym != NULL, FALSE);
-	result = vala_is_reference_counting (sym);
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_ref_function (ValadocDriversTreeBuilder* self,
-                                               ValaClass* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_ref_function ((ValaTypeSymbol*) sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_unref_function (ValadocDriversTreeBuilder* self,
-                                                 ValaClass* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_unref_function ((ValaObjectTypeSymbol*) sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_finalize_function_name (ValadocDriversTreeBuilder* self,
-                                                         ValaClass* element)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	if (!vala_class_is_fundamental (element)) {
-		result = NULL;
-		return result;
-	}
-	_tmp0_ = vala_get_ccode_lower_case_name ((ValaCodeNode*) element, NULL);
-	_tmp1_ = _tmp0_;
-	_tmp2_ = g_strdup_printf ("%s_finalize", _tmp1_);
-	_tmp3_ = _tmp2_;
-	_g_free0 (_tmp1_);
-	result = _tmp3_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_free_function_name (ValadocDriversTreeBuilder* self,
-                                                     ValaClass* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	gchar* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_class_get_is_compact (element);
-	_tmp1_ = _tmp0_;
-	if (!_tmp1_) {
-		result = NULL;
-		return result;
-	}
-	_tmp2_ = vala_get_ccode_free_function ((ValaTypeSymbol*) element);
-	result = _tmp2_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_finish_name (ValadocDriversTreeBuilder* self,
-                                              ValaMethod* m)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (m != NULL, NULL);
-	_tmp0_ = vala_get_ccode_finish_name (m);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_take_value_function (ValadocDriversTreeBuilder* self,
-                                                      ValaClass* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_take_value_function ((ValaCodeNode*) sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_get_value_function (ValadocDriversTreeBuilder* self,
-                                                     ValaClass* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_get_value_function ((ValaCodeNode*) sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_set_value_function (ValadocDriversTreeBuilder* self,
-                                                     ValaClass* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_set_value_function ((ValaCodeNode*) sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_param_spec_function (ValadocDriversTreeBuilder* self,
-                                                      ValaCodeNode* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_param_spec_function (sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_dup_function (ValadocDriversTreeBuilder* self,
-                                               ValaTypeSymbol* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_dup_function (sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_copy_function (ValadocDriversTreeBuilder* self,
-                                                ValaTypeSymbol* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_copy_function (sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_destroy_function (ValadocDriversTreeBuilder* self,
-                                                   ValaTypeSymbol* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_destroy_function (sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_free_function (ValadocDriversTreeBuilder* self,
-                                                ValaTypeSymbol* sym)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (sym != NULL, NULL);
-	_tmp0_ = vala_get_ccode_free_function (sym);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_cname (ValadocDriversTreeBuilder* self,
-                                        ValaSymbol* symbol)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (symbol != NULL, NULL);
-	_tmp0_ = vala_get_ccode_name ((ValaCodeNode*) symbol);
-	result = _tmp0_;
-	return result;
-}
-
 
 static gpointer
 _vala_source_reference_ref0 (gpointer self)
@@ -1425,10 +659,9 @@ _vala_source_reference_ref0 (gpointer self)
 	return self ? vala_source_reference_ref (self) : NULL;
 }
 
-
 static ValadocApiSourceComment*
-valadoc_drivers_tree_builder_create_comment (ValadocDriversTreeBuilder* self,
-                                             ValaComment* comment)
+valadoc_tree_builder_create_comment (ValadocTreeBuilder* self,
+                                     ValaComment* comment)
 {
 	ValadocApiSourceComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
@@ -1461,192 +694,168 @@ valadoc_drivers_tree_builder_create_comment (ValadocDriversTreeBuilder* self,
 			ValaSourceReference* _tmp11_;
 			ValaSourceLocation _tmp12_ = {0};
 			ValaSourceLocation _tmp13_;
-			gint _tmp14_;
-			ValaSourceReference* _tmp15_;
-			ValaSourceLocation _tmp16_ = {0};
-			ValaSourceLocation _tmp17_;
-			gint _tmp18_;
-			ValaSourceReference* _tmp19_;
-			ValaSourceLocation _tmp20_ = {0};
-			ValaSourceLocation _tmp21_;
-			gint _tmp22_;
-			ValaSourceReference* _tmp23_;
-			ValaSourceLocation _tmp24_ = {0};
-			ValaSourceLocation _tmp25_;
-			gint _tmp26_;
-			ValadocApiGirSourceComment* _tmp27_;
-			ValaComment* _tmp28_;
-			ValaComment* _tmp29_;
+			ValaSourceReference* _tmp14_;
+			ValaSourceLocation _tmp15_ = {0};
+			ValaSourceLocation _tmp16_;
+			ValaSourceReference* _tmp17_;
+			ValaSourceLocation _tmp18_ = {0};
+			ValaSourceLocation _tmp19_;
+			ValaSourceReference* _tmp20_;
+			ValaSourceLocation _tmp21_ = {0};
+			ValaSourceLocation _tmp22_;
+			ValadocApiGirSourceComment* _tmp23_;
+			ValaComment* _tmp24_;
+			ValaComment* _tmp25_;
 			ValaMapIterator* it = NULL;
-			ValaMapIterator* _tmp59_;
+			ValaMapIterator* _tmp51_;
 			_tmp8_ = vala_comment_get_content (comment);
 			_tmp9_ = _tmp8_;
 			_tmp10_ = file;
 			_tmp11_ = pos;
 			vala_source_reference_get_begin (_tmp11_, &_tmp12_);
 			_tmp13_ = _tmp12_;
-			_tmp14_ = _tmp13_.line;
-			_tmp15_ = pos;
-			vala_source_reference_get_begin (_tmp15_, &_tmp16_);
-			_tmp17_ = _tmp16_;
-			_tmp18_ = _tmp17_.column;
-			_tmp19_ = pos;
-			vala_source_reference_get_end (_tmp19_, &_tmp20_);
-			_tmp21_ = _tmp20_;
-			_tmp22_ = _tmp21_.line;
-			_tmp23_ = pos;
-			vala_source_reference_get_end (_tmp23_, &_tmp24_);
+			_tmp14_ = pos;
+			vala_source_reference_get_begin (_tmp14_, &_tmp15_);
+			_tmp16_ = _tmp15_;
+			_tmp17_ = pos;
+			vala_source_reference_get_end (_tmp17_, &_tmp18_);
+			_tmp19_ = _tmp18_;
+			_tmp20_ = pos;
+			vala_source_reference_get_end (_tmp20_, &_tmp21_);
+			_tmp22_ = _tmp21_;
+			_tmp23_ = valadoc_api_gir_source_comment_new (_tmp9_, _tmp10_, _tmp13_.line, _tmp16_.column, _tmp19_.line, _tmp22_.column);
+			tmp = _tmp23_;
+			_tmp24_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
 			_tmp25_ = _tmp24_;
-			_tmp26_ = _tmp25_.column;
-			_tmp27_ = valadoc_api_gir_source_comment_new (_tmp9_, _tmp10_, _tmp14_, _tmp18_, _tmp22_, _tmp26_);
-			tmp = _tmp27_;
-			_tmp28_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
-			_tmp29_ = _tmp28_;
-			if (_tmp29_ != NULL) {
+			if (_tmp25_ != NULL) {
 				ValaSourceReference* return_pos = NULL;
-				ValaComment* _tmp30_;
-				ValaComment* _tmp31_;
-				ValaSourceReference* _tmp32_;
-				ValaSourceReference* _tmp33_;
-				ValaSourceReference* _tmp34_;
-				ValadocApiGirSourceComment* _tmp35_;
-				ValaComment* _tmp36_;
-				ValaComment* _tmp37_;
-				const gchar* _tmp38_;
-				const gchar* _tmp39_;
-				ValadocApiSourceFile* _tmp40_;
-				ValaSourceReference* _tmp41_;
-				ValaSourceLocation _tmp42_ = {0};
-				ValaSourceLocation _tmp43_;
-				gint _tmp44_;
-				ValaSourceReference* _tmp45_;
-				ValaSourceLocation _tmp46_ = {0};
-				ValaSourceLocation _tmp47_;
-				gint _tmp48_;
-				ValaSourceReference* _tmp49_;
-				ValaSourceLocation _tmp50_ = {0};
-				ValaSourceLocation _tmp51_;
-				gint _tmp52_;
-				ValaSourceReference* _tmp53_;
-				ValaSourceLocation _tmp54_ = {0};
-				ValaSourceLocation _tmp55_;
-				gint _tmp56_;
-				ValadocApiSourceComment* _tmp57_;
-				ValadocApiSourceComment* _tmp58_;
-				_tmp30_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
-				_tmp31_ = _tmp30_;
-				_tmp32_ = vala_comment_get_source_reference (_tmp31_);
+				ValaComment* _tmp26_;
+				ValaComment* _tmp27_;
+				ValaSourceReference* _tmp28_;
+				ValaSourceReference* _tmp29_;
+				ValaSourceReference* _tmp30_;
+				ValadocApiGirSourceComment* _tmp31_;
+				ValaComment* _tmp32_;
+				ValaComment* _tmp33_;
+				const gchar* _tmp34_;
+				const gchar* _tmp35_;
+				ValadocApiSourceFile* _tmp36_;
+				ValaSourceReference* _tmp37_;
+				ValaSourceLocation _tmp38_ = {0};
+				ValaSourceLocation _tmp39_;
+				ValaSourceReference* _tmp40_;
+				ValaSourceLocation _tmp41_ = {0};
+				ValaSourceLocation _tmp42_;
+				ValaSourceReference* _tmp43_;
+				ValaSourceLocation _tmp44_ = {0};
+				ValaSourceLocation _tmp45_;
+				ValaSourceReference* _tmp46_;
+				ValaSourceLocation _tmp47_ = {0};
+				ValaSourceLocation _tmp48_;
+				ValadocApiSourceComment* _tmp49_;
+				ValadocApiSourceComment* _tmp50_;
+				_tmp26_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
+				_tmp27_ = _tmp26_;
+				_tmp28_ = vala_comment_get_source_reference (_tmp27_);
+				_tmp29_ = _tmp28_;
+				_tmp30_ = _vala_source_reference_ref0 (_tmp29_);
+				return_pos = _tmp30_;
+				_tmp31_ = tmp;
+				_tmp32_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
 				_tmp33_ = _tmp32_;
-				_tmp34_ = _vala_source_reference_ref0 (_tmp33_);
-				return_pos = _tmp34_;
-				_tmp35_ = tmp;
-				_tmp36_ = vala_gir_comment_get_return_content (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
-				_tmp37_ = _tmp36_;
-				_tmp38_ = vala_comment_get_content (_tmp37_);
+				_tmp34_ = vala_comment_get_content (_tmp33_);
+				_tmp35_ = _tmp34_;
+				_tmp36_ = file;
+				_tmp37_ = return_pos;
+				vala_source_reference_get_begin (_tmp37_, &_tmp38_);
 				_tmp39_ = _tmp38_;
-				_tmp40_ = file;
-				_tmp41_ = return_pos;
-				vala_source_reference_get_begin (_tmp41_, &_tmp42_);
-				_tmp43_ = _tmp42_;
-				_tmp44_ = _tmp43_.line;
-				_tmp45_ = return_pos;
-				vala_source_reference_get_begin (_tmp45_, &_tmp46_);
-				_tmp47_ = _tmp46_;
-				_tmp48_ = _tmp47_.column;
-				_tmp49_ = return_pos;
-				vala_source_reference_get_end (_tmp49_, &_tmp50_);
-				_tmp51_ = _tmp50_;
-				_tmp52_ = _tmp51_.line;
-				_tmp53_ = return_pos;
-				vala_source_reference_get_end (_tmp53_, &_tmp54_);
-				_tmp55_ = _tmp54_;
-				_tmp56_ = _tmp55_.column;
-				_tmp57_ = valadoc_api_source_comment_new (_tmp39_, _tmp40_, _tmp44_, _tmp48_, _tmp52_, _tmp56_);
-				_tmp58_ = _tmp57_;
-				valadoc_api_gir_source_comment_set_return_comment (_tmp35_, _tmp58_);
-				_valadoc_api_source_comment_unref0 (_tmp58_);
+				_tmp40_ = return_pos;
+				vala_source_reference_get_begin (_tmp40_, &_tmp41_);
+				_tmp42_ = _tmp41_;
+				_tmp43_ = return_pos;
+				vala_source_reference_get_end (_tmp43_, &_tmp44_);
+				_tmp45_ = _tmp44_;
+				_tmp46_ = return_pos;
+				vala_source_reference_get_end (_tmp46_, &_tmp47_);
+				_tmp48_ = _tmp47_;
+				_tmp49_ = valadoc_api_source_comment_new (_tmp35_, _tmp36_, _tmp39_.line, _tmp42_.column, _tmp45_.line, _tmp48_.column);
+				_tmp50_ = _tmp49_;
+				valadoc_api_gir_source_comment_set_return_comment (_tmp31_, _tmp50_);
+				_valadoc_api_source_comment_unref0 (_tmp50_);
 				_vala_source_reference_unref0 (return_pos);
 			}
-			_tmp59_ = vala_gir_comment_parameter_iterator (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
-			it = _tmp59_;
+			_tmp51_ = vala_gir_comment_parameter_iterator (G_TYPE_CHECK_INSTANCE_CAST (comment, VALA_TYPE_GIR_COMMENT, ValaGirComment));
+			it = _tmp51_;
 			while (TRUE) {
-				ValaMapIterator* _tmp60_;
+				ValaMapIterator* _tmp52_;
 				ValaComment* vala_param = NULL;
-				ValaMapIterator* _tmp61_;
-				gpointer _tmp62_;
+				ValaMapIterator* _tmp53_;
+				gpointer _tmp54_;
 				ValaSourceReference* param_pos = NULL;
-				ValaComment* _tmp63_;
-				ValaSourceReference* _tmp64_;
-				ValaSourceReference* _tmp65_;
-				ValaSourceReference* _tmp66_;
+				ValaComment* _tmp55_;
+				ValaSourceReference* _tmp56_;
+				ValaSourceReference* _tmp57_;
+				ValaSourceReference* _tmp58_;
 				ValadocApiSourceComment* param_comment = NULL;
-				ValaComment* _tmp67_;
-				const gchar* _tmp68_;
-				const gchar* _tmp69_;
-				ValadocApiSourceFile* _tmp70_;
-				ValaSourceReference* _tmp71_;
-				ValaSourceLocation _tmp72_ = {0};
-				ValaSourceLocation _tmp73_;
-				gint _tmp74_;
-				ValaSourceReference* _tmp75_;
-				ValaSourceLocation _tmp76_ = {0};
-				ValaSourceLocation _tmp77_;
-				gint _tmp78_;
-				ValaSourceReference* _tmp79_;
-				ValaSourceLocation _tmp80_ = {0};
-				ValaSourceLocation _tmp81_;
-				gint _tmp82_;
-				ValaSourceReference* _tmp83_;
-				ValaSourceLocation _tmp84_ = {0};
-				ValaSourceLocation _tmp85_;
-				gint _tmp86_;
-				ValadocApiSourceComment* _tmp87_;
-				ValadocApiGirSourceComment* _tmp88_;
-				ValaMapIterator* _tmp89_;
-				gpointer _tmp90_;
-				gchar* _tmp91_;
-				ValadocApiSourceComment* _tmp92_;
-				_tmp60_ = it;
-				if (!vala_map_iterator_next (_tmp60_)) {
+				ValaComment* _tmp59_;
+				const gchar* _tmp60_;
+				const gchar* _tmp61_;
+				ValadocApiSourceFile* _tmp62_;
+				ValaSourceReference* _tmp63_;
+				ValaSourceLocation _tmp64_ = {0};
+				ValaSourceLocation _tmp65_;
+				ValaSourceReference* _tmp66_;
+				ValaSourceLocation _tmp67_ = {0};
+				ValaSourceLocation _tmp68_;
+				ValaSourceReference* _tmp69_;
+				ValaSourceLocation _tmp70_ = {0};
+				ValaSourceLocation _tmp71_;
+				ValaSourceReference* _tmp72_;
+				ValaSourceLocation _tmp73_ = {0};
+				ValaSourceLocation _tmp74_;
+				ValadocApiSourceComment* _tmp75_;
+				ValadocApiGirSourceComment* _tmp76_;
+				ValaMapIterator* _tmp77_;
+				gpointer _tmp78_;
+				gchar* _tmp79_;
+				ValadocApiSourceComment* _tmp80_;
+				_tmp52_ = it;
+				if (!vala_map_iterator_next (_tmp52_)) {
 					break;
 				}
-				_tmp61_ = it;
-				_tmp62_ = vala_map_iterator_get_value (_tmp61_);
-				vala_param = (ValaComment*) _tmp62_;
-				_tmp63_ = vala_param;
-				_tmp64_ = vala_comment_get_source_reference (_tmp63_);
+				_tmp53_ = it;
+				_tmp54_ = vala_map_iterator_get_value (_tmp53_);
+				vala_param = (ValaComment*) _tmp54_;
+				_tmp55_ = vala_param;
+				_tmp56_ = vala_comment_get_source_reference (_tmp55_);
+				_tmp57_ = _tmp56_;
+				_tmp58_ = _vala_source_reference_ref0 (_tmp57_);
+				param_pos = _tmp58_;
+				_tmp59_ = vala_param;
+				_tmp60_ = vala_comment_get_content (_tmp59_);
+				_tmp61_ = _tmp60_;
+				_tmp62_ = file;
+				_tmp63_ = param_pos;
+				vala_source_reference_get_begin (_tmp63_, &_tmp64_);
 				_tmp65_ = _tmp64_;
-				_tmp66_ = _vala_source_reference_ref0 (_tmp65_);
-				param_pos = _tmp66_;
-				_tmp67_ = vala_param;
-				_tmp68_ = vala_comment_get_content (_tmp67_);
-				_tmp69_ = _tmp68_;
-				_tmp70_ = file;
-				_tmp71_ = param_pos;
-				vala_source_reference_get_begin (_tmp71_, &_tmp72_);
-				_tmp73_ = _tmp72_;
-				_tmp74_ = _tmp73_.line;
-				_tmp75_ = param_pos;
-				vala_source_reference_get_begin (_tmp75_, &_tmp76_);
-				_tmp77_ = _tmp76_;
-				_tmp78_ = _tmp77_.column;
-				_tmp79_ = param_pos;
-				vala_source_reference_get_end (_tmp79_, &_tmp80_);
-				_tmp81_ = _tmp80_;
-				_tmp82_ = _tmp81_.line;
-				_tmp83_ = param_pos;
-				vala_source_reference_get_end (_tmp83_, &_tmp84_);
-				_tmp85_ = _tmp84_;
-				_tmp86_ = _tmp85_.column;
-				_tmp87_ = valadoc_api_source_comment_new (_tmp69_, _tmp70_, _tmp74_, _tmp78_, _tmp82_, _tmp86_);
-				param_comment = _tmp87_;
-				_tmp88_ = tmp;
-				_tmp89_ = it;
-				_tmp90_ = vala_map_iterator_get_key (_tmp89_);
-				_tmp91_ = (gchar*) _tmp90_;
-				_tmp92_ = param_comment;
-				valadoc_api_gir_source_comment_add_parameter_content (_tmp88_, _tmp91_, _tmp92_);
-				_g_free0 (_tmp91_);
+				_tmp66_ = param_pos;
+				vala_source_reference_get_begin (_tmp66_, &_tmp67_);
+				_tmp68_ = _tmp67_;
+				_tmp69_ = param_pos;
+				vala_source_reference_get_end (_tmp69_, &_tmp70_);
+				_tmp71_ = _tmp70_;
+				_tmp72_ = param_pos;
+				vala_source_reference_get_end (_tmp72_, &_tmp73_);
+				_tmp74_ = _tmp73_;
+				_tmp75_ = valadoc_api_source_comment_new (_tmp61_, _tmp62_, _tmp65_.line, _tmp68_.column, _tmp71_.line, _tmp74_.column);
+				param_comment = _tmp75_;
+				_tmp76_ = tmp;
+				_tmp77_ = it;
+				_tmp78_ = vala_map_iterator_get_key (_tmp77_);
+				_tmp79_ = (gchar*) _tmp78_;
+				_tmp80_ = param_comment;
+				valadoc_api_gir_source_comment_add_parameter_content (_tmp76_, _tmp79_, _tmp80_);
+				_g_free0 (_tmp79_);
 				_valadoc_api_source_comment_unref0 (param_comment);
 				_vala_source_reference_unref0 (param_pos);
 				_vala_comment_unref0 (vala_param);
@@ -1657,47 +866,39 @@ valadoc_drivers_tree_builder_create_comment (ValadocDriversTreeBuilder* self,
 			_vala_source_reference_unref0 (pos);
 			return result;
 		} else {
-			const gchar* _tmp93_;
-			const gchar* _tmp94_;
-			ValadocApiSourceFile* _tmp95_;
-			ValaSourceReference* _tmp96_;
-			ValaSourceLocation _tmp97_ = {0};
-			ValaSourceLocation _tmp98_;
-			gint _tmp99_;
-			ValaSourceReference* _tmp100_;
-			ValaSourceLocation _tmp101_ = {0};
-			ValaSourceLocation _tmp102_;
-			gint _tmp103_;
-			ValaSourceReference* _tmp104_;
-			ValaSourceLocation _tmp105_ = {0};
-			ValaSourceLocation _tmp106_;
-			gint _tmp107_;
-			ValaSourceReference* _tmp108_;
-			ValaSourceLocation _tmp109_ = {0};
-			ValaSourceLocation _tmp110_;
-			gint _tmp111_;
-			ValadocApiSourceComment* _tmp112_;
-			_tmp93_ = vala_comment_get_content (comment);
-			_tmp94_ = _tmp93_;
-			_tmp95_ = file;
-			_tmp96_ = pos;
-			vala_source_reference_get_begin (_tmp96_, &_tmp97_);
-			_tmp98_ = _tmp97_;
-			_tmp99_ = _tmp98_.line;
-			_tmp100_ = pos;
-			vala_source_reference_get_begin (_tmp100_, &_tmp101_);
-			_tmp102_ = _tmp101_;
-			_tmp103_ = _tmp102_.column;
-			_tmp104_ = pos;
-			vala_source_reference_get_end (_tmp104_, &_tmp105_);
-			_tmp106_ = _tmp105_;
-			_tmp107_ = _tmp106_.line;
-			_tmp108_ = pos;
-			vala_source_reference_get_end (_tmp108_, &_tmp109_);
-			_tmp110_ = _tmp109_;
-			_tmp111_ = _tmp110_.column;
-			_tmp112_ = valadoc_api_source_comment_new (_tmp94_, _tmp95_, _tmp99_, _tmp103_, _tmp107_, _tmp111_);
-			result = _tmp112_;
+			const gchar* _tmp81_;
+			const gchar* _tmp82_;
+			ValadocApiSourceFile* _tmp83_;
+			ValaSourceReference* _tmp84_;
+			ValaSourceLocation _tmp85_ = {0};
+			ValaSourceLocation _tmp86_;
+			ValaSourceReference* _tmp87_;
+			ValaSourceLocation _tmp88_ = {0};
+			ValaSourceLocation _tmp89_;
+			ValaSourceReference* _tmp90_;
+			ValaSourceLocation _tmp91_ = {0};
+			ValaSourceLocation _tmp92_;
+			ValaSourceReference* _tmp93_;
+			ValaSourceLocation _tmp94_ = {0};
+			ValaSourceLocation _tmp95_;
+			ValadocApiSourceComment* _tmp96_;
+			_tmp81_ = vala_comment_get_content (comment);
+			_tmp82_ = _tmp81_;
+			_tmp83_ = file;
+			_tmp84_ = pos;
+			vala_source_reference_get_begin (_tmp84_, &_tmp85_);
+			_tmp86_ = _tmp85_;
+			_tmp87_ = pos;
+			vala_source_reference_get_begin (_tmp87_, &_tmp88_);
+			_tmp89_ = _tmp88_;
+			_tmp90_ = pos;
+			vala_source_reference_get_end (_tmp90_, &_tmp91_);
+			_tmp92_ = _tmp91_;
+			_tmp93_ = pos;
+			vala_source_reference_get_end (_tmp93_, &_tmp94_);
+			_tmp95_ = _tmp94_;
+			_tmp96_ = valadoc_api_source_comment_new (_tmp82_, _tmp83_, _tmp86_.line, _tmp89_.column, _tmp92_.line, _tmp95_.column);
+			result = _tmp96_;
 			_g_object_unref0 (file);
 			_vala_source_reference_unref0 (pos);
 			return result;
@@ -1709,15 +910,14 @@ valadoc_drivers_tree_builder_create_comment (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static gchar*
-valadoc_drivers_tree_builder_get_method_name (ValadocDriversTreeBuilder* self,
-                                              ValaMethod* element)
+valadoc_tree_builder_get_method_name (ValadocTreeBuilder* self,
+                                      ValaMethod* element)
 {
-	gchar* result = NULL;
 	const gchar* _tmp17_;
 	const gchar* _tmp18_;
 	gchar* _tmp19_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CREATION_METHOD)) {
@@ -1771,362 +971,11 @@ valadoc_drivers_tree_builder_get_method_name (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
-static gchar*
-valadoc_drivers_tree_builder_get_quark_macro_name (ValadocDriversTreeBuilder* self,
-                                                   ValaErrorDomain* element)
+static ValadocTreeBuilderPackageMetaData*
+valadoc_tree_builder_get_package_meta_data (ValadocTreeBuilder* self,
+                                            ValadocApiPackage* pkg)
 {
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_get_ccode_upper_case_name ((ValaSymbol*) element, NULL);
-	result = _tmp0_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_private_cname (ValadocDriversTreeBuilder* self,
-                                                ValaClass* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	gchar* cname = NULL;
-	gchar* _tmp2_;
-	gchar* _tmp3_ = NULL;
-	const gchar* _tmp4_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_class_get_is_compact (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		result = NULL;
-		return result;
-	}
-	_tmp2_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	cname = _tmp2_;
-	_tmp4_ = cname;
-	if (_tmp4_ != NULL) {
-		const gchar* _tmp5_;
-		gchar* _tmp6_;
-		_tmp5_ = cname;
-		_tmp6_ = g_strconcat (_tmp5_, "Private", NULL);
-		_g_free0 (_tmp3_);
-		_tmp3_ = _tmp6_;
-	} else {
-		_g_free0 (_tmp3_);
-		_tmp3_ = NULL;
-	}
-	result = _tmp3_;
-	_g_free0 (cname);
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_class_macro_name (ValadocDriversTreeBuilder* self,
-                                                   ValaClass* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	gchar* _tmp4_;
-	gchar* _tmp5_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_class_get_is_compact (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		result = NULL;
-		return result;
-	}
-	_tmp2_ = vala_get_ccode_upper_case_name ((ValaSymbol*) element, NULL);
-	_tmp3_ = _tmp2_;
-	_tmp4_ = g_strdup_printf ("%s_GET_CLASS", _tmp3_);
-	_tmp5_ = _tmp4_;
-	_g_free0 (_tmp3_);
-	result = _tmp5_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_class_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                        ValaClass* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	gchar* _tmp4_;
-	gchar* _tmp5_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_class_get_is_compact (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		result = NULL;
-		return result;
-	}
-	_tmp2_ = vala_get_ccode_upper_case_name ((ValaSymbol*) element, NULL);
-	_tmp3_ = _tmp2_;
-	_tmp4_ = g_strdup_printf ("%s_CLASS", _tmp3_);
-	_tmp5_ = _tmp4_;
-	_g_free0 (_tmp3_);
-	result = _tmp5_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_is_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                     ValaTypeSymbol* element)
-{
-	gchar* result = NULL;
-	gchar* name = NULL;
-	gchar* _tmp0_;
-	const gchar* _tmp1_ = NULL;
-	gboolean _tmp2_ = FALSE;
-	const gchar* _tmp3_;
-	gchar* _tmp6_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_get_ccode_type_check_function (element);
-	name = _tmp0_;
-	_tmp3_ = name;
-	if (_tmp3_ != NULL) {
-		const gchar* _tmp4_;
-		_tmp4_ = name;
-		_tmp2_ = g_strcmp0 (_tmp4_, "") != 0;
-	} else {
-		_tmp2_ = FALSE;
-	}
-	if (_tmp2_) {
-		const gchar* _tmp5_;
-		_tmp5_ = name;
-		_tmp1_ = _tmp5_;
-	} else {
-		_tmp1_ = NULL;
-	}
-	_tmp6_ = g_strdup (_tmp1_);
-	result = _tmp6_;
-	_g_free0 (name);
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_is_class_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                           ValaTypeSymbol* element)
-{
-	gchar* result = NULL;
-	gchar* name = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_ = NULL;
-	const gchar* _tmp2_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_is_type_macro_name (self, element);
-	name = _tmp0_;
-	_tmp2_ = name;
-	if (_tmp2_ != NULL) {
-		const gchar* _tmp3_;
-		gchar* _tmp4_;
-		_tmp3_ = name;
-		_tmp4_ = g_strconcat (_tmp3_, "_CLASS", NULL);
-		_g_free0 (_tmp1_);
-		_tmp1_ = _tmp4_;
-	} else {
-		_g_free0 (_tmp1_);
-		_tmp1_ = NULL;
-	}
-	result = _tmp1_;
-	_g_free0 (name);
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_type_function_name (ValadocDriversTreeBuilder* self,
-                                                     ValaTypeSymbol* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_ = FALSE;
-	gboolean _tmp2_ = FALSE;
-	gchar* _tmp5_;
-	gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CLASS)) {
-		gboolean _tmp3_;
-		gboolean _tmp4_;
-		_tmp3_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (element, VALA_TYPE_CLASS, ValaClass));
-		_tmp4_ = _tmp3_;
-		_tmp2_ = _tmp4_;
-	} else {
-		_tmp2_ = FALSE;
-	}
-	if (_tmp2_) {
-		_tmp1_ = TRUE;
-	} else {
-		_tmp1_ = G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_ERROR_DOMAIN);
-	}
-	if (_tmp1_) {
-		_tmp0_ = TRUE;
-	} else {
-		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_DELEGATE);
-	}
-	if (_tmp0_) {
-		result = NULL;
-		return result;
-	}
-	_tmp5_ = vala_get_ccode_lower_case_name ((ValaCodeNode*) element, NULL);
-	_tmp6_ = _tmp5_;
-	_tmp7_ = g_strdup_printf ("%s_get_type", _tmp6_);
-	_tmp8_ = _tmp7_;
-	_g_free0 (_tmp6_);
-	result = _tmp8_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_type_macro_name (ValadocDriversTreeBuilder* self,
-                                                  ValaTypeSymbol* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_ = FALSE;
-	gboolean _tmp2_ = FALSE;
-	gchar* _tmp5_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CLASS)) {
-		gboolean _tmp3_;
-		gboolean _tmp4_;
-		_tmp3_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (element, VALA_TYPE_CLASS, ValaClass));
-		_tmp4_ = _tmp3_;
-		_tmp2_ = _tmp4_;
-	} else {
-		_tmp2_ = FALSE;
-	}
-	if (_tmp2_) {
-		_tmp1_ = TRUE;
-	} else {
-		_tmp1_ = G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_ERROR_DOMAIN);
-	}
-	if (_tmp1_) {
-		_tmp0_ = TRUE;
-	} else {
-		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_DELEGATE);
-	}
-	if (_tmp0_) {
-		result = NULL;
-		return result;
-	}
-	_tmp5_ = vala_get_ccode_type_id ((ValaCodeNode*) element);
-	result = _tmp5_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_type_cast_macro_name (ValadocDriversTreeBuilder* self,
-                                                       ValaTypeSymbol* element)
-{
-	gchar* result = NULL;
-	gboolean _tmp0_ = FALSE;
-	gboolean _tmp1_ = FALSE;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CLASS)) {
-		gboolean _tmp2_;
-		gboolean _tmp3_;
-		_tmp2_ = vala_class_get_is_compact (G_TYPE_CHECK_INSTANCE_CAST (element, VALA_TYPE_CLASS, ValaClass));
-		_tmp3_ = _tmp2_;
-		_tmp1_ = !_tmp3_;
-	} else {
-		_tmp1_ = FALSE;
-	}
-	if (_tmp1_) {
-		_tmp0_ = TRUE;
-	} else {
-		_tmp0_ = G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_INTERFACE);
-	}
-	if (_tmp0_) {
-		gchar* _tmp4_;
-		_tmp4_ = vala_get_ccode_upper_case_name ((ValaSymbol*) element, NULL);
-		result = _tmp4_;
-		return result;
-	} else {
-		result = NULL;
-		return result;
-	}
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_interface_macro_name (ValadocDriversTreeBuilder* self,
-                                                       ValaInterface* element)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_get_ccode_upper_case_name ((ValaSymbol*) element, NULL);
-	_tmp1_ = _tmp0_;
-	_tmp2_ = g_strdup_printf ("%s_GET_INTERFACE", _tmp1_);
-	_tmp3_ = _tmp2_;
-	_g_free0 (_tmp1_);
-	result = _tmp3_;
-	return result;
-}
-
-
-static gchar*
-valadoc_drivers_tree_builder_get_quark_function_name (ValadocDriversTreeBuilder* self,
-                                                      ValaErrorDomain* element)
-{
-	gchar* result = NULL;
-	gchar* _tmp0_;
-	gchar* _tmp1_;
-	gchar* _tmp2_;
-	gchar* _tmp3_;
-	g_return_val_if_fail (self != NULL, NULL);
-	g_return_val_if_fail (element != NULL, NULL);
-	_tmp0_ = vala_get_ccode_lower_case_prefix ((ValaSymbol*) element);
-	_tmp1_ = _tmp0_;
-	_tmp2_ = g_strconcat (_tmp1_, "quark", NULL);
-	_tmp3_ = _tmp2_;
-	_g_free0 (_tmp1_);
-	result = _tmp3_;
-	return result;
-}
-
-
-static gpointer
-_vala_iterable_ref0 (gpointer self)
-{
-	return self ? vala_iterable_ref (self) : NULL;
-}
-
-
-static ValadocDriversTreeBuilderPackageMetaData*
-valadoc_drivers_tree_builder_get_package_meta_data (ValadocDriversTreeBuilder* self,
-                                                    ValadocApiPackage* pkg)
-{
-	ValadocDriversTreeBuilderPackageMetaData* result = NULL;
+	ValadocTreeBuilderPackageMetaData* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (pkg != NULL, NULL);
 	{
@@ -2149,32 +998,28 @@ valadoc_drivers_tree_builder_get_package_meta_data (ValadocDriversTreeBuilder* s
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
-			ValadocDriversTreeBuilderPackageMetaData* data = NULL;
-			ValaArrayList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValadocDriversTreeBuilderPackageMetaData* _tmp11_;
-			ValadocApiPackage* _tmp12_;
+			ValadocTreeBuilderPackageMetaData* data = NULL;
+			ValaArrayList* _tmp7_;
+			gpointer _tmp8_;
+			ValadocTreeBuilderPackageMetaData* _tmp9_;
+			ValadocApiPackage* _tmp10_;
+			_data_index = _data_index + 1;
 			_tmp5_ = _data_index;
-			_data_index = _tmp5_ + 1;
-			_tmp6_ = _data_index;
-			_tmp7_ = _data_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _data_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _data_list;
-			_tmp9_ = _data_index;
-			_tmp10_ = vala_list_get ((ValaList*) _tmp8_, _tmp9_);
-			data = (ValadocDriversTreeBuilderPackageMetaData*) _tmp10_;
-			_tmp11_ = data;
-			_tmp12_ = _tmp11_->package;
-			if (_tmp12_ == pkg) {
+			_tmp7_ = _data_list;
+			_tmp8_ = vala_list_get ((ValaList*) _tmp7_, _data_index);
+			data = (ValadocTreeBuilderPackageMetaData*) _tmp8_;
+			_tmp9_ = data;
+			_tmp10_ = _tmp9_->package;
+			if (_tmp10_ == pkg) {
 				result = data;
 				_vala_iterable_unref0 (_data_list);
 				return result;
 			}
-			_valadoc_drivers_tree_builder_package_meta_data_unref0 (data);
+			_valadoc_tree_builder_package_meta_data_unref0 (data);
 		}
 		_vala_iterable_unref0 (_data_list);
 	}
@@ -2182,19 +1027,18 @@ valadoc_drivers_tree_builder_get_package_meta_data (ValadocDriversTreeBuilder* s
 	return result;
 }
 
-
-static ValadocDriversTreeBuilderPackageMetaData*
-valadoc_drivers_tree_builder_register_package (ValadocDriversTreeBuilder* self,
-                                               ValadocApiPackage* package)
+static ValadocTreeBuilderPackageMetaData*
+valadoc_tree_builder_register_package (ValadocTreeBuilder* self,
+                                       ValadocApiPackage* package)
 {
-	ValadocDriversTreeBuilderPackageMetaData* result = NULL;
-	ValadocDriversTreeBuilderPackageMetaData* meta_data = NULL;
-	ValadocDriversTreeBuilderPackageMetaData* _tmp0_;
+	ValadocTreeBuilderPackageMetaData* meta_data = NULL;
+	ValadocTreeBuilderPackageMetaData* _tmp0_;
 	ValadocApiTree* _tmp1_;
 	ValaArrayList* _tmp2_;
+	ValadocTreeBuilderPackageMetaData* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (package != NULL, NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_package_meta_data_new (package);
+	_tmp0_ = valadoc_tree_builder_package_meta_data_new (package);
 	meta_data = _tmp0_;
 	_tmp1_ = self->priv->tree;
 	valadoc_api_tree_add_package (_tmp1_, package);
@@ -2204,13 +1048,11 @@ valadoc_drivers_tree_builder_register_package (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static ValadocApiSourceFile*
-valadoc_drivers_tree_builder_register_source_file (ValadocDriversTreeBuilder* self,
-                                                   ValadocDriversTreeBuilderPackageMetaData* meta_data,
-                                                   ValaSourceFile* source_file)
+valadoc_tree_builder_register_source_file (ValadocTreeBuilder* self,
+                                           ValadocTreeBuilderPackageMetaData* meta_data,
+                                           ValaSourceFile* source_file)
 {
-	ValadocApiSourceFile* result = NULL;
 	ValadocApiSourceFile* file = NULL;
 	ValadocApiPackage* _tmp0_;
 	gchar* _tmp1_;
@@ -2220,6 +1062,7 @@ valadoc_drivers_tree_builder_register_source_file (ValadocDriversTreeBuilder* se
 	ValadocApiSourceFile* _tmp5_;
 	ValadocApiSourceFile* _tmp6_;
 	ValaHashMap* _tmp7_;
+	ValadocApiSourceFile* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (meta_data != NULL, NULL);
 	g_return_val_if_fail (source_file != NULL, NULL);
@@ -2235,17 +1078,15 @@ valadoc_drivers_tree_builder_register_source_file (ValadocDriversTreeBuilder* se
 	file = _tmp6_;
 	_tmp7_ = self->priv->files;
 	vala_map_set ((ValaMap*) _tmp7_, source_file, file);
-	valadoc_drivers_tree_builder_package_meta_data_register_source_file (meta_data, source_file);
+	valadoc_tree_builder_package_meta_data_register_source_file (meta_data, source_file);
 	result = file;
 	return result;
 }
 
-
 static ValadocApiSourceFile*
-valadoc_drivers_tree_builder_get_source_file (ValadocDriversTreeBuilder* self,
-                                              ValaSymbol* symbol)
+valadoc_tree_builder_get_source_file (ValadocTreeBuilder* self,
+                                      ValaSymbol* symbol)
 {
-	ValadocApiSourceFile* result = NULL;
 	ValaSourceReference* source_ref = NULL;
 	ValaSourceReference* _tmp0_;
 	ValaSourceReference* _tmp1_;
@@ -2258,6 +1099,7 @@ valadoc_drivers_tree_builder_get_source_file (ValadocDriversTreeBuilder* self,
 	ValaSourceFile* _tmp7_;
 	gpointer _tmp8_;
 	ValadocApiSourceFile* _tmp9_;
+	ValadocApiSourceFile* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = vala_code_node_get_source_reference ((ValaCodeNode*) symbol);
@@ -2283,10 +1125,9 @@ valadoc_drivers_tree_builder_get_source_file (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static ValadocApiPackage*
-valadoc_drivers_tree_builder_find_package_for_file (ValadocDriversTreeBuilder* self,
-                                                    ValaSourceFile* source_file)
+valadoc_tree_builder_find_package_for_file (ValadocTreeBuilder* self,
+                                            ValaSourceFile* source_file)
 {
 	ValadocApiPackage* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
@@ -2311,37 +1152,33 @@ valadoc_drivers_tree_builder_find_package_for_file (ValadocDriversTreeBuilder* s
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
-			ValadocDriversTreeBuilderPackageMetaData* pkg = NULL;
-			ValaArrayList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValadocDriversTreeBuilderPackageMetaData* _tmp11_;
+			ValadocTreeBuilderPackageMetaData* pkg = NULL;
+			ValaArrayList* _tmp7_;
+			gpointer _tmp8_;
+			ValadocTreeBuilderPackageMetaData* _tmp9_;
+			_pkg_index = _pkg_index + 1;
 			_tmp5_ = _pkg_index;
-			_pkg_index = _tmp5_ + 1;
-			_tmp6_ = _pkg_index;
-			_tmp7_ = _pkg_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _pkg_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _pkg_list;
-			_tmp9_ = _pkg_index;
-			_tmp10_ = vala_list_get ((ValaList*) _tmp8_, _tmp9_);
-			pkg = (ValadocDriversTreeBuilderPackageMetaData*) _tmp10_;
-			_tmp11_ = pkg;
-			if (valadoc_drivers_tree_builder_package_meta_data_is_package_for_file (_tmp11_, source_file)) {
-				ValadocDriversTreeBuilderPackageMetaData* _tmp12_;
-				ValadocApiPackage* _tmp13_;
-				ValadocApiPackage* _tmp14_;
-				_tmp12_ = pkg;
-				_tmp13_ = _tmp12_->package;
-				_tmp14_ = _g_object_ref0 (_tmp13_);
-				result = _tmp14_;
-				_valadoc_drivers_tree_builder_package_meta_data_unref0 (pkg);
+			_tmp7_ = _pkg_list;
+			_tmp8_ = vala_list_get ((ValaList*) _tmp7_, _pkg_index);
+			pkg = (ValadocTreeBuilderPackageMetaData*) _tmp8_;
+			_tmp9_ = pkg;
+			if (valadoc_tree_builder_package_meta_data_is_package_for_file (_tmp9_, source_file)) {
+				ValadocTreeBuilderPackageMetaData* _tmp10_;
+				ValadocApiPackage* _tmp11_;
+				ValadocApiPackage* _tmp12_;
+				_tmp10_ = pkg;
+				_tmp11_ = _tmp10_->package;
+				_tmp12_ = _g_object_ref0 (_tmp11_);
+				result = _tmp12_;
+				_valadoc_tree_builder_package_meta_data_unref0 (pkg);
 				_vala_iterable_unref0 (_pkg_list);
 				return result;
 			}
-			_valadoc_drivers_tree_builder_package_meta_data_unref0 (pkg);
+			_valadoc_tree_builder_package_meta_data_unref0 (pkg);
 		}
 		_vala_iterable_unref0 (_pkg_list);
 	}
@@ -2349,20 +1186,19 @@ valadoc_drivers_tree_builder_find_package_for_file (ValadocDriversTreeBuilder* s
 	return result;
 }
 
-
 static ValadocApiNamespace*
-valadoc_drivers_tree_builder_get_namespace (ValadocDriversTreeBuilder* self,
-                                            ValadocApiPackage* pkg,
-                                            ValaSymbol* symbol,
-                                            ValadocApiSourceFile* file)
+valadoc_tree_builder_get_namespace (ValadocTreeBuilder* self,
+                                    ValadocApiPackage* pkg,
+                                    ValaSymbol* symbol,
+                                    ValadocApiSourceFile* file)
 {
-	ValadocApiNamespace* result = NULL;
 	ValaSymbol* namespace_symbol = NULL;
 	ValaSymbol* _tmp0_;
-	ValadocDriversTreeBuilderPackageMetaData* meta_data = NULL;
-	ValadocDriversTreeBuilderPackageMetaData* _tmp6_;
+	ValadocTreeBuilderPackageMetaData* meta_data = NULL;
+	ValadocTreeBuilderPackageMetaData* _tmp6_;
 	ValaSymbol* _tmp7_;
 	ValadocApiNamespace* _tmp8_;
+	ValadocApiNamespace* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (pkg != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
@@ -2385,508 +1221,25 @@ valadoc_drivers_tree_builder_get_namespace (ValadocDriversTreeBuilder* self,
 		_vala_code_node_unref0 (namespace_symbol);
 		namespace_symbol = _tmp5_;
 	}
-	_tmp6_ = valadoc_drivers_tree_builder_get_package_meta_data (self, pkg);
+	_tmp6_ = valadoc_tree_builder_get_package_meta_data (self, pkg);
 	meta_data = _tmp6_;
 	_vala_assert (meta_data != NULL, "meta_data != null");
 	_tmp7_ = namespace_symbol;
-	_tmp8_ = valadoc_drivers_tree_builder_package_meta_data_get_namespace (meta_data, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALA_TYPE_NAMESPACE, ValaNamespace), file);
+	_tmp8_ = valadoc_tree_builder_package_meta_data_get_namespace (meta_data, G_TYPE_CHECK_INSTANCE_CAST (_tmp7_, VALA_TYPE_NAMESPACE, ValaNamespace), file);
 	result = _tmp8_;
-	_valadoc_drivers_tree_builder_package_meta_data_unref0 (meta_data);
+	_valadoc_tree_builder_package_meta_data_unref0 (meta_data);
 	_vala_code_node_unref0 (namespace_symbol);
 	return result;
 }
-
-
-static ValadocMethodBindingType
-valadoc_drivers_tree_builder_get_method_binding_type (ValadocDriversTreeBuilder* self,
-                                                      ValaMethod* element)
-{
-	ValadocMethodBindingType result = 0;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (element != NULL, 0);
-	_tmp0_ = vala_method_get_is_inline (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		result = VALADOC_METHOD_BINDING_TYPE_INLINE;
-		return result;
-	} else {
-		gboolean _tmp2_;
-		gboolean _tmp3_;
-		_tmp2_ = vala_method_get_is_abstract (element);
-		_tmp3_ = _tmp2_;
-		if (_tmp3_) {
-			result = VALADOC_METHOD_BINDING_TYPE_ABSTRACT;
-			return result;
-		} else {
-			gboolean _tmp4_;
-			gboolean _tmp5_;
-			_tmp4_ = vala_method_get_is_virtual (element);
-			_tmp5_ = _tmp4_;
-			if (_tmp5_) {
-				result = VALADOC_METHOD_BINDING_TYPE_VIRTUAL;
-				return result;
-			} else {
-				gboolean _tmp6_;
-				gboolean _tmp7_;
-				_tmp6_ = vala_method_get_overrides (element);
-				_tmp7_ = _tmp6_;
-				if (_tmp7_) {
-					result = VALADOC_METHOD_BINDING_TYPE_OVERRIDE;
-					return result;
-				} else {
-					gboolean _tmp8_;
-					gboolean _tmp9_;
-					_tmp8_ = vala_method_get_is_inline (element);
-					_tmp9_ = _tmp8_;
-					if (_tmp9_) {
-						result = VALADOC_METHOD_BINDING_TYPE_INLINE;
-						return result;
-					} else {
-						ValaMemberBinding _tmp10_;
-						ValaMemberBinding _tmp11_;
-						_tmp10_ = vala_method_get_binding (element);
-						_tmp11_ = _tmp10_;
-						if (_tmp11_ != VALA_MEMBER_BINDING_INSTANCE) {
-							result = VALADOC_METHOD_BINDING_TYPE_STATIC;
-							return result;
-						}
-					}
-				}
-			}
-		}
-	}
-	result = VALADOC_METHOD_BINDING_TYPE_UNMODIFIED;
-	return result;
-}
-
-
-static ValadocApiSymbolAccessibility
-valadoc_drivers_tree_builder_get_access_modifier (ValadocDriversTreeBuilder* self,
-                                                  ValaSymbol* symbol)
-{
-	ValadocApiSymbolAccessibility result = 0;
-	ValaSymbolAccessibility _tmp0_;
-	ValaSymbolAccessibility _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (symbol != NULL, 0);
-	_tmp0_ = vala_symbol_get_access (symbol);
-	_tmp1_ = _tmp0_;
-	switch (_tmp1_) {
-		case VALA_SYMBOL_ACCESSIBILITY_PROTECTED:
-		{
-			result = VALADOC_API_SYMBOL_ACCESSIBILITY_PROTECTED;
-			return result;
-		}
-		case VALA_SYMBOL_ACCESSIBILITY_INTERNAL:
-		{
-			result = VALADOC_API_SYMBOL_ACCESSIBILITY_INTERNAL;
-			return result;
-		}
-		case VALA_SYMBOL_ACCESSIBILITY_PRIVATE:
-		{
-			result = VALADOC_API_SYMBOL_ACCESSIBILITY_PRIVATE;
-			return result;
-		}
-		case VALA_SYMBOL_ACCESSIBILITY_PUBLIC:
-		{
-			result = VALADOC_API_SYMBOL_ACCESSIBILITY_PUBLIC;
-			return result;
-		}
-		default:
-		{
-			g_error ("treebuilder.vala:593: Unknown symbol accessibility modifier found");
-		}
-	}
-}
-
-
-static ValadocApiPropertyAccessorType
-valadoc_drivers_tree_builder_get_property_accessor_type (ValadocDriversTreeBuilder* self,
-                                                         ValaPropertyAccessor* element)
-{
-	ValadocApiPropertyAccessorType result = 0;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (element != NULL, 0);
-	_tmp0_ = vala_property_accessor_get_construction (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		gboolean _tmp2_;
-		gboolean _tmp3_;
-		_tmp2_ = vala_property_accessor_get_writable (element);
-		_tmp3_ = _tmp2_;
-		if (_tmp3_) {
-			result = VALADOC_API_PROPERTY_ACCESSOR_TYPE_CONSTRUCT | VALADOC_API_PROPERTY_ACCESSOR_TYPE_SET;
-			return result;
-		}
-		result = VALADOC_API_PROPERTY_ACCESSOR_TYPE_CONSTRUCT;
-		return result;
-	} else {
-		gboolean _tmp4_;
-		gboolean _tmp5_;
-		_tmp4_ = vala_property_accessor_get_writable (element);
-		_tmp5_ = _tmp4_;
-		if (_tmp5_) {
-			result = VALADOC_API_PROPERTY_ACCESSOR_TYPE_SET;
-			return result;
-		} else {
-			gboolean _tmp6_;
-			gboolean _tmp7_;
-			_tmp6_ = vala_property_accessor_get_readable (element);
-			_tmp7_ = _tmp6_;
-			if (_tmp7_) {
-				result = VALADOC_API_PROPERTY_ACCESSOR_TYPE_GET;
-				return result;
-			}
-		}
-	}
-	g_error ("treebuilder.vala:609: Unknown symbol accessibility type");
-}
-
-
-static gboolean
-valadoc_drivers_tree_builder_type_reference_pass_ownership (ValadocDriversTreeBuilder* self,
-                                                            ValaDataType* element)
-{
-	gboolean result = FALSE;
-	ValaCodeNode* node = NULL;
-	ValaCodeNode* _tmp0_;
-	ValaCodeNode* _tmp1_;
-	ValaCodeNode* _tmp2_;
-	ValaCodeNode* _tmp3_;
-	ValaCodeNode* _tmp13_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	if (element == NULL) {
-		result = FALSE;
-		return result;
-	}
-	_tmp0_ = vala_code_node_get_parent_node ((ValaCodeNode*) element);
-	_tmp1_ = _tmp0_;
-	node = _tmp1_;
-	_tmp2_ = node;
-	if (_tmp2_ == NULL) {
-		result = FALSE;
-		return result;
-	}
-	_tmp3_ = node;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp3_, VALA_TYPE_PARAMETER)) {
-		gboolean _tmp4_ = FALSE;
-		ValaCodeNode* _tmp5_;
-		ValaParameterDirection _tmp6_;
-		ValaParameterDirection _tmp7_;
-		_tmp5_ = node;
-		_tmp6_ = vala_parameter_get_direction (G_TYPE_CHECK_INSTANCE_CAST (_tmp5_, VALA_TYPE_PARAMETER, ValaParameter));
-		_tmp7_ = _tmp6_;
-		if (_tmp7_ == VALA_PARAMETER_DIRECTION_IN) {
-			ValaCodeNode* _tmp8_;
-			ValaDataType* _tmp9_;
-			ValaDataType* _tmp10_;
-			gboolean _tmp11_;
-			gboolean _tmp12_;
-			_tmp8_ = node;
-			_tmp9_ = vala_variable_get_variable_type ((ValaVariable*) G_TYPE_CHECK_INSTANCE_CAST (_tmp8_, VALA_TYPE_PARAMETER, ValaParameter));
-			_tmp10_ = _tmp9_;
-			_tmp11_ = vala_data_type_get_value_owned (_tmp10_);
-			_tmp12_ = _tmp11_;
-			_tmp4_ = _tmp12_;
-		} else {
-			_tmp4_ = FALSE;
-		}
-		result = _tmp4_;
-		return result;
-	}
-	_tmp13_ = node;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp13_, VALA_TYPE_PROPERTY)) {
-		ValaCodeNode* _tmp14_;
-		ValaDataType* _tmp15_;
-		ValaDataType* _tmp16_;
-		gboolean _tmp17_;
-		gboolean _tmp18_;
-		_tmp14_ = node;
-		_tmp15_ = vala_property_get_property_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp14_, VALA_TYPE_PROPERTY, ValaProperty));
-		_tmp16_ = _tmp15_;
-		_tmp17_ = vala_data_type_get_value_owned (_tmp16_);
-		_tmp18_ = _tmp17_;
-		result = _tmp18_;
-		return result;
-	}
-	result = FALSE;
-	return result;
-}
-
-
-static gboolean
-valadoc_drivers_tree_builder_is_type_reference_unowned (ValadocDriversTreeBuilder* self,
-                                                        ValaDataType* element)
-{
-	gboolean result = FALSE;
-	gboolean _tmp0_ = FALSE;
-	ValaTypeSymbol* _tmp1_;
-	ValaTypeSymbol* _tmp2_;
-	gboolean _tmp5_ = FALSE;
-	ValaCodeNode* _tmp6_;
-	ValaCodeNode* _tmp7_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	if (element == NULL) {
-		result = FALSE;
-		return result;
-	}
-	_tmp1_ = vala_data_type_get_data_type (element);
-	_tmp2_ = _tmp1_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALA_TYPE_TYPESYMBOL)) {
-		ValaTypeSymbol* _tmp3_;
-		ValaTypeSymbol* _tmp4_;
-		_tmp3_ = vala_data_type_get_data_type (element);
-		_tmp4_ = _tmp3_;
-		_tmp0_ = valadoc_drivers_tree_builder_is_reference_counting (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp4_, VALA_TYPE_TYPESYMBOL, ValaTypeSymbol)) == TRUE;
-	} else {
-		_tmp0_ = FALSE;
-	}
-	if (_tmp0_) {
-		result = FALSE;
-		return result;
-	}
-	_tmp6_ = vala_code_node_get_parent_node ((ValaCodeNode*) element);
-	_tmp7_ = _tmp6_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp7_, VALA_TYPE_PARAMETER) == FALSE) {
-		_tmp5_ = vala_data_type_is_weak (element);
-	} else {
-		_tmp5_ = FALSE;
-	}
-	result = _tmp5_;
-	return result;
-}
-
-
-static gboolean
-valadoc_drivers_tree_builder_is_type_reference_owned (ValadocDriversTreeBuilder* self,
-                                                      ValaDataType* element)
-{
-	gboolean result = FALSE;
-	ValaCodeNode* parent = NULL;
-	ValaCodeNode* _tmp0_;
-	ValaCodeNode* _tmp1_;
-	ValaCodeNode* _tmp2_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	if (element == NULL) {
-		result = FALSE;
-		return result;
-	}
-	_tmp0_ = vala_code_node_get_parent_node ((ValaCodeNode*) element);
-	_tmp1_ = _tmp0_;
-	parent = _tmp1_;
-	_tmp2_ = parent;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALA_TYPE_PARAMETER)) {
-		ValaCodeNode* _tmp3_;
-		ValaParameterDirection _tmp4_;
-		ValaParameterDirection _tmp5_;
-		ValaCodeNode* _tmp6_;
-		ValaDataType* _tmp7_;
-		ValaDataType* _tmp8_;
-		gboolean _tmp9_;
-		gboolean _tmp10_;
-		_tmp3_ = parent;
-		_tmp4_ = vala_parameter_get_direction (G_TYPE_CHECK_INSTANCE_CAST (_tmp3_, VALA_TYPE_PARAMETER, ValaParameter));
-		_tmp5_ = _tmp4_;
-		if (_tmp5_ != VALA_PARAMETER_DIRECTION_IN) {
-			result = FALSE;
-			return result;
-		}
-		_tmp6_ = parent;
-		_tmp7_ = vala_variable_get_variable_type ((ValaVariable*) G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_PARAMETER, ValaParameter));
-		_tmp8_ = _tmp7_;
-		_tmp9_ = vala_data_type_get_value_owned (_tmp8_);
-		_tmp10_ = _tmp9_;
-		result = _tmp10_;
-		return result;
-	}
-	result = FALSE;
-	return result;
-}
-
-
-static gboolean
-valadoc_drivers_tree_builder_is_type_reference_weak (ValadocDriversTreeBuilder* self,
-                                                     ValaDataType* element)
-{
-	gboolean result = FALSE;
-	gboolean _tmp0_ = FALSE;
-	ValaTypeSymbol* _tmp1_;
-	ValaTypeSymbol* _tmp2_;
-	gboolean _tmp5_ = FALSE;
-	ValaCodeNode* _tmp6_;
-	ValaCodeNode* _tmp7_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	if (element == NULL) {
-		result = FALSE;
-		return result;
-	}
-	_tmp1_ = vala_data_type_get_data_type (element);
-	_tmp2_ = _tmp1_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, VALA_TYPE_TYPESYMBOL)) {
-		ValaTypeSymbol* _tmp3_;
-		ValaTypeSymbol* _tmp4_;
-		_tmp3_ = vala_data_type_get_data_type (element);
-		_tmp4_ = _tmp3_;
-		_tmp0_ = valadoc_drivers_tree_builder_is_reference_counting (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp4_, VALA_TYPE_TYPESYMBOL, ValaTypeSymbol)) == FALSE;
-	} else {
-		_tmp0_ = FALSE;
-	}
-	if (_tmp0_) {
-		result = FALSE;
-		return result;
-	}
-	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_ARRAY_TYPE)) {
-		result = FALSE;
-		return result;
-	}
-	_tmp6_ = vala_code_node_get_parent_node ((ValaCodeNode*) element);
-	_tmp7_ = _tmp6_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp7_, VALA_TYPE_PARAMETER) == FALSE) {
-		_tmp5_ = vala_data_type_is_weak (element);
-	} else {
-		_tmp5_ = FALSE;
-	}
-	result = _tmp5_;
-	return result;
-}
-
-
-static ValadocApiOwnership
-valadoc_drivers_tree_builder_get_type_reference_ownership (ValadocDriversTreeBuilder* self,
-                                                           ValaDataType* element)
-{
-	ValadocApiOwnership result = 0;
-	g_return_val_if_fail (self != NULL, 0);
-	if (valadoc_drivers_tree_builder_is_type_reference_owned (self, element)) {
-		result = VALADOC_API_OWNERSHIP_OWNED;
-		return result;
-	} else {
-		if (valadoc_drivers_tree_builder_is_type_reference_weak (self, element)) {
-			result = VALADOC_API_OWNERSHIP_WEAK;
-			return result;
-		} else {
-			if (valadoc_drivers_tree_builder_is_type_reference_unowned (self, element)) {
-				result = VALADOC_API_OWNERSHIP_UNOWNED;
-				return result;
-			}
-		}
-	}
-	result = VALADOC_API_OWNERSHIP_DEFAULT;
-	return result;
-}
-
-
-static ValadocApiOwnership
-valadoc_drivers_tree_builder_get_property_ownership (ValadocDriversTreeBuilder* self,
-                                                     ValaPropertyAccessor* element)
-{
-	ValadocApiOwnership result = 0;
-	ValaDataType* _tmp0_;
-	ValaDataType* _tmp1_;
-	gboolean _tmp2_;
-	gboolean _tmp3_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (element != NULL, 0);
-	_tmp0_ = vala_property_accessor_get_value_type (element);
-	_tmp1_ = _tmp0_;
-	_tmp2_ = vala_data_type_get_value_owned (_tmp1_);
-	_tmp3_ = _tmp2_;
-	if (_tmp3_) {
-		result = VALADOC_API_OWNERSHIP_OWNED;
-		return result;
-	}
-	result = VALADOC_API_OWNERSHIP_UNOWNED;
-	return result;
-}
-
-
-static ValadocApiPropertyBindingType
-valadoc_drivers_tree_builder_get_property_binding_type (ValadocDriversTreeBuilder* self,
-                                                        ValaProperty* element)
-{
-	ValadocApiPropertyBindingType result = 0;
-	gboolean _tmp0_;
-	gboolean _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (element != NULL, 0);
-	_tmp0_ = vala_property_get_is_abstract (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_) {
-		result = VALADOC_API_PROPERTY_BINDING_TYPE_ABSTRACT;
-		return result;
-	} else {
-		gboolean _tmp2_;
-		gboolean _tmp3_;
-		_tmp2_ = vala_property_get_is_virtual (element);
-		_tmp3_ = _tmp2_;
-		if (_tmp3_) {
-			result = VALADOC_API_PROPERTY_BINDING_TYPE_VIRTUAL;
-			return result;
-		} else {
-			gboolean _tmp4_;
-			gboolean _tmp5_;
-			_tmp4_ = vala_property_get_overrides (element);
-			_tmp5_ = _tmp4_;
-			if (_tmp5_) {
-				result = VALADOC_API_PROPERTY_BINDING_TYPE_OVERRIDE;
-				return result;
-			}
-		}
-	}
-	result = VALADOC_API_PROPERTY_BINDING_TYPE_UNMODIFIED;
-	return result;
-}
-
-
-static ValadocApiFormalParameterType
-valadoc_drivers_tree_builder_get_formal_parameter_type (ValadocDriversTreeBuilder* self,
-                                                        ValaParameter* element)
-{
-	ValadocApiFormalParameterType result = 0;
-	ValaParameterDirection _tmp0_;
-	ValaParameterDirection _tmp1_;
-	g_return_val_if_fail (self != NULL, 0);
-	g_return_val_if_fail (element != NULL, 0);
-	_tmp0_ = vala_parameter_get_direction (element);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ == VALA_PARAMETER_DIRECTION_OUT) {
-		result = VALADOC_API_FORMAL_PARAMETER_TYPE_OUT;
-		return result;
-	} else {
-		ValaParameterDirection _tmp2_;
-		ValaParameterDirection _tmp3_;
-		_tmp2_ = vala_parameter_get_direction (element);
-		_tmp3_ = _tmp2_;
-		if (_tmp3_ == VALA_PARAMETER_DIRECTION_REF) {
-			result = VALADOC_API_FORMAL_PARAMETER_TYPE_REF;
-			return result;
-		} else {
-			ValaParameterDirection _tmp4_;
-			ValaParameterDirection _tmp5_;
-			_tmp4_ = vala_parameter_get_direction (element);
-			_tmp5_ = _tmp4_;
-			if (_tmp5_ == VALA_PARAMETER_DIRECTION_IN) {
-				result = VALADOC_API_FORMAL_PARAMETER_TYPE_IN;
-				return result;
-			}
-		}
-	}
-	g_error ("treebuilder.vala:731: Unknown formal parameter type");
-}
-
 
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -2901,17 +1254,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -2928,37 +1279,29 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gint
 string_last_index_of_char (const gchar* self,
                            gunichar c,
                            gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -2974,15 +1317,14 @@ string_last_index_of_char (const gchar* self,
 	}
 }
 
-
 static gchar*
-valadoc_drivers_tree_builder_get_package_name (ValadocDriversTreeBuilder* self,
-                                               const gchar* path)
+valadoc_tree_builder_get_package_name (ValadocTreeBuilder* self,
+                                       const gchar* path)
 {
-	gchar* result = NULL;
 	gchar* file_name = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (path != NULL, NULL);
 	_tmp0_ = g_path_get_basename (path);
@@ -2993,13 +1335,11 @@ valadoc_drivers_tree_builder_get_package_name (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static gboolean
-valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
-                                          ValaCodeContext* context,
-                                          const gchar* pkg)
+valadoc_tree_builder_add_package (ValadocTreeBuilder* self,
+                                  ValaCodeContext* context,
+                                  const gchar* pkg)
 {
-	gboolean result = FALSE;
 	gchar* vapi_name = NULL;
 	gchar* _tmp0_;
 	gchar* gir_name = NULL;
@@ -3019,8 +1359,8 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 	ValadocApiPackage* vdpkg = NULL;
 	ValadocApiPackage* _tmp22_;
 	ValadocApiPackage* _tmp23_;
-	ValadocDriversTreeBuilderPackageMetaData* _tmp24_;
-	ValadocDriversTreeBuilderPackageMetaData* _tmp25_;
+	ValadocTreeBuilderPackageMetaData* _tmp24_;
+	ValadocTreeBuilderPackageMetaData* _tmp25_;
 	ValaSourceFile* _tmp26_;
 	ValadocApiSourceFile* _tmp27_;
 	ValadocApiSourceFile* _tmp28_;
@@ -3031,6 +1371,7 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 	gchar* _tmp33_;
 	gchar* _tmp34_;
 	gchar* _tmp35_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (context != NULL, FALSE);
 	g_return_val_if_fail (pkg != NULL, FALSE);
@@ -3052,7 +1393,7 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 		gint source_file_it = 0;
 		source_file_collection = _tmp3_;
 		source_file_collection_length1 = _tmp3__length1;
-		for (source_file_it = 0; source_file_it < _tmp3__length1; source_file_it = source_file_it + 1) {
+		for (source_file_it = 0; source_file_it < source_file_collection_length1; source_file_it = source_file_it + 1) {
 			gchar* _tmp4_;
 			gchar* source_file = NULL;
 			_tmp4_ = g_strdup (source_file_collection[source_file_it]);
@@ -3099,7 +1440,8 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 		_g_free0 (_tmp12_);
 		_tmp12_ = _tmp14_;
 	}
-	_tmp15_ = g_strdup (_tmp12_);
+	_tmp15_ = _tmp12_;
+	_tmp12_ = NULL;
 	package_path = _tmp15_;
 	_tmp16_ = package_path;
 	if (_tmp16_ == NULL) {
@@ -3126,13 +1468,13 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 	_tmp22_ = valadoc_api_package_new (pkg, TRUE, NULL);
 	vdpkg = _tmp22_;
 	_tmp23_ = vdpkg;
-	_tmp24_ = valadoc_drivers_tree_builder_register_package (self, _tmp23_);
+	_tmp24_ = valadoc_tree_builder_register_package (self, _tmp23_);
 	_tmp25_ = _tmp24_;
 	_tmp26_ = vfile;
-	_tmp27_ = valadoc_drivers_tree_builder_register_source_file (self, _tmp25_, _tmp26_);
+	_tmp27_ = valadoc_tree_builder_register_source_file (self, _tmp25_, _tmp26_);
 	_tmp28_ = _tmp27_;
 	_g_object_unref0 (_tmp28_);
-	_valadoc_drivers_tree_builder_package_meta_data_unref0 (_tmp25_);
+	_valadoc_tree_builder_package_meta_data_unref0 (_tmp25_);
 	_tmp29_ = package_path;
 	_tmp30_ = g_path_get_dirname (_tmp29_);
 	_tmp31_ = _tmp30_;
@@ -3140,7 +1482,7 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 	_tmp33_ = _tmp32_;
 	_tmp34_ = g_build_filename (_tmp31_, _tmp33_, NULL);
 	_tmp35_ = _tmp34_;
-	valadoc_drivers_tree_builder_add_deps (self, context, _tmp35_, pkg);
+	valadoc_tree_builder_add_deps (self, context, _tmp35_, pkg);
 	_g_free0 (_tmp35_);
 	_g_free0 (_tmp33_);
 	_g_free0 (_tmp31_);
@@ -3154,31 +1496,27 @@ valadoc_drivers_tree_builder_add_package (ValadocDriversTreeBuilder* self,
 	return result;
 }
 
-
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
 
-
 static void
-valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
-                                       ValaCodeContext* context,
-                                       const gchar* file_path,
-                                       const gchar* pkg_name)
+valadoc_tree_builder_add_deps (ValadocTreeBuilder* self,
+                               ValaCodeContext* context,
+                               const gchar* file_path,
+                               const gchar* pkg_name)
 {
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
 	g_return_if_fail (file_path != NULL);
@@ -3192,18 +1530,17 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
 			const gchar* _tmp2_;
 			gchar** _tmp3_;
 			gchar** _tmp4_;
-			g_file_get_contents (file_path, &_tmp0_, &_tmp1_, &_inner_error_);
+			g_file_get_contents (file_path, &_tmp0_, &_tmp1_, &_inner_error0_);
 			_g_free0 (deps_content);
 			deps_content = _tmp0_;
 			deps_len = (gulong) _tmp1_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				_g_free0 (deps_content);
-				if (_inner_error_->domain == G_FILE_ERROR) {
+				if (_inner_error0_->domain == G_FILE_ERROR) {
 					goto __catch0_g_file_error;
 				}
-				_g_free0 (deps_content);
-				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return;
 			}
 			_tmp2_ = deps_content;
@@ -3215,7 +1552,7 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
 				gint dep_it = 0;
 				dep_collection = _tmp4_;
 				dep_collection_length1 = _vala_array_length (_tmp3_);
-				for (dep_it = 0; dep_it < _vala_array_length (_tmp3_); dep_it = dep_it + 1) {
+				for (dep_it = 0; dep_it < dep_collection_length1; dep_it = dep_it + 1) {
 					gchar* _tmp5_;
 					gchar* dep = NULL;
 					_tmp5_ = g_strdup (dep_collection[dep_it]);
@@ -3232,7 +1569,7 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
 						if (g_strcmp0 (_tmp8_, "") != 0) {
 							const gchar* _tmp9_;
 							_tmp9_ = dep;
-							if (!valadoc_drivers_tree_builder_add_package (self, context, _tmp9_)) {
+							if (!valadoc_tree_builder_add_package (self, context, _tmp9_)) {
 								const gchar* _tmp10_;
 								gchar* _tmp11_;
 								gchar* _tmp12_;
@@ -3258,8 +1595,8 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
 			const gchar* _tmp14_;
 			gchar* _tmp15_;
 			gchar* _tmp16_;
-			e = _inner_error_;
-			_inner_error_ = NULL;
+			e = _inner_error0_;
+			_inner_error0_ = NULL;
 			_tmp13_ = e;
 			_tmp14_ = _tmp13_->message;
 			_tmp15_ = g_strdup_printf ("Unable to read dependency file: %s", _tmp14_);
@@ -3269,14 +1606,13 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
 			_g_error_free0 (e);
 		}
 		__finally0:
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return;
 		}
 	}
 }
-
 
 /**
  * Adds the specified packages to the list of used packages.
@@ -3285,10 +1621,10 @@ valadoc_drivers_tree_builder_add_deps (ValadocDriversTreeBuilder* self,
  * @param packages a list of package names
  */
 static void
-valadoc_drivers_tree_builder_add_depencies (ValadocDriversTreeBuilder* self,
-                                            ValaCodeContext* context,
-                                            gchar** packages,
-                                            int packages_length1)
+valadoc_tree_builder_add_depencies (ValadocTreeBuilder* self,
+                                    ValaCodeContext* context,
+                                    gchar** packages,
+                                    gint packages_length1)
 {
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
@@ -3299,7 +1635,7 @@ valadoc_drivers_tree_builder_add_depencies (ValadocDriversTreeBuilder* self,
 		gint package_it = 0;
 		package_collection = packages;
 		package_collection_length1 = packages_length1;
-		for (package_it = 0; package_it < packages_length1; package_it = package_it + 1) {
+		for (package_it = 0; package_it < package_collection_length1; package_it = package_it + 1) {
 			gchar* _tmp0_;
 			gchar* package = NULL;
 			_tmp0_ = g_strdup (package_collection[package_it]);
@@ -3307,7 +1643,7 @@ valadoc_drivers_tree_builder_add_depencies (ValadocDriversTreeBuilder* self,
 			{
 				const gchar* _tmp1_;
 				_tmp1_ = package;
-				if (!valadoc_drivers_tree_builder_add_package (self, context, _tmp1_)) {
+				if (!valadoc_tree_builder_add_package (self, context, _tmp1_)) {
 					const gchar* _tmp2_;
 					gchar* _tmp3_;
 					gchar* _tmp4_;
@@ -3324,16 +1660,15 @@ valadoc_drivers_tree_builder_add_depencies (ValadocDriversTreeBuilder* self,
 	}
 }
 
-
 /**
  * Add the specified source file to the context. Only .vala, .vapi, .gs,
  * and .c files are supported.
  */
 static void
-valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* self,
-                                                   ValaCodeContext* context,
-                                                   gchar** sources,
-                                                   int sources_length1)
+valadoc_tree_builder_add_documented_files (ValadocTreeBuilder* self,
+                                           ValaCodeContext* context,
+                                           gchar** sources,
+                                           gint sources_length1)
 {
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
@@ -3347,7 +1682,7 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 		gint source_it = 0;
 		source_collection = sources;
 		source_collection_length1 = sources_length1;
-		for (source_it = 0; source_it < sources_length1; source_it = source_it + 1) {
+		for (source_it = 0; source_it < source_collection_length1; source_it = source_it + 1) {
 			gchar* _tmp0_;
 			gchar* source = NULL;
 			_tmp0_ = g_strdup (source_collection[source_it]);
@@ -3376,14 +1711,14 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 						ValaSourceFile* source_file = NULL;
 						const gchar* _tmp7_;
 						ValaSourceFile* _tmp8_;
-						ValadocDriversTreeBuilderPackageMetaData* _tmp9_;
-						ValadocDriversTreeBuilderPackageMetaData* _tmp15_;
+						ValadocTreeBuilderPackageMetaData* _tmp9_;
+						ValadocTreeBuilderPackageMetaData* _tmp15_;
 						ValaSourceFile* _tmp16_;
 						ValadocApiSourceFile* _tmp17_;
 						ValadocApiSourceFile* _tmp18_;
 						ValaProfile _tmp19_;
 						ValaProfile _tmp20_;
-						ValaSourceFile* _tmp30_;
+						ValaSourceFile* _tmp41_;
 						_tmp7_ = rpath;
 						_tmp8_ = vala_source_file_new (context, VALA_SOURCE_FILE_TYPE_SOURCE, _tmp7_, NULL, FALSE);
 						source_file = _tmp8_;
@@ -3393,24 +1728,24 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 							const gchar* _tmp11_;
 							ValadocApiPackage* _tmp12_;
 							ValadocApiPackage* _tmp13_;
-							ValadocDriversTreeBuilderPackageMetaData* _tmp14_;
+							ValadocTreeBuilderPackageMetaData* _tmp14_;
 							_tmp10_ = self->priv->settings;
 							_tmp11_ = _tmp10_->pkg_name;
 							_tmp12_ = valadoc_api_package_new (_tmp11_, FALSE, NULL);
 							_tmp13_ = _tmp12_;
-							_tmp14_ = valadoc_drivers_tree_builder_register_package (self, _tmp13_);
-							_valadoc_drivers_tree_builder_package_meta_data_unref0 (self->priv->source_package);
+							_tmp14_ = valadoc_tree_builder_register_package (self, _tmp13_);
+							_valadoc_tree_builder_package_meta_data_unref0 (self->priv->source_package);
 							self->priv->source_package = _tmp14_;
 							_g_object_unref0 (_tmp13_);
 						}
 						_tmp15_ = self->priv->source_package;
 						_tmp16_ = source_file;
-						_tmp17_ = valadoc_drivers_tree_builder_register_source_file (self, _tmp15_, _tmp16_);
+						_tmp17_ = valadoc_tree_builder_register_source_file (self, _tmp15_, _tmp16_);
 						_tmp18_ = _tmp17_;
 						_g_object_unref0 (_tmp18_);
 						_tmp19_ = vala_code_context_get_profile (context);
 						_tmp20_ = _tmp19_;
-						if (_tmp20_ == VALA_PROFILE_GOBJECT) {
+						if (_tmp20_ == VALA_PROFILE_POSIX) {
 							ValaUsingDirective* ns_ref = NULL;
 							ValaUnresolvedSymbol* _tmp21_;
 							ValaUnresolvedSymbol* _tmp22_;
@@ -3421,7 +1756,7 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 							ValaNamespace* _tmp27_;
 							ValaNamespace* _tmp28_;
 							ValaUsingDirective* _tmp29_;
-							_tmp21_ = vala_unresolved_symbol_new (NULL, "GLib", NULL);
+							_tmp21_ = vala_unresolved_symbol_new (NULL, "Posix", NULL);
 							_tmp22_ = _tmp21_;
 							_tmp23_ = vala_using_directive_new ((ValaSymbol*) _tmp22_, NULL);
 							_tmp24_ = _tmp23_;
@@ -3435,122 +1770,153 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 							_tmp29_ = ns_ref;
 							vala_namespace_add_using_directive (_tmp28_, _tmp29_);
 							_vala_code_node_unref0 (ns_ref);
+						} else {
+							ValaProfile _tmp30_;
+							ValaProfile _tmp31_;
+							_tmp30_ = vala_code_context_get_profile (context);
+							_tmp31_ = _tmp30_;
+							if (_tmp31_ == VALA_PROFILE_GOBJECT) {
+								ValaUsingDirective* ns_ref = NULL;
+								ValaUnresolvedSymbol* _tmp32_;
+								ValaUnresolvedSymbol* _tmp33_;
+								ValaUsingDirective* _tmp34_;
+								ValaUsingDirective* _tmp35_;
+								ValaSourceFile* _tmp36_;
+								ValaUsingDirective* _tmp37_;
+								ValaNamespace* _tmp38_;
+								ValaNamespace* _tmp39_;
+								ValaUsingDirective* _tmp40_;
+								_tmp32_ = vala_unresolved_symbol_new (NULL, "GLib", NULL);
+								_tmp33_ = _tmp32_;
+								_tmp34_ = vala_using_directive_new ((ValaSymbol*) _tmp33_, NULL);
+								_tmp35_ = _tmp34_;
+								_vala_code_node_unref0 (_tmp33_);
+								ns_ref = _tmp35_;
+								_tmp36_ = source_file;
+								_tmp37_ = ns_ref;
+								vala_source_file_add_using_directive (_tmp36_, _tmp37_);
+								_tmp38_ = vala_code_context_get_root (context);
+								_tmp39_ = _tmp38_;
+								_tmp40_ = ns_ref;
+								vala_namespace_add_using_directive (_tmp39_, _tmp40_);
+								_vala_code_node_unref0 (ns_ref);
+							}
 						}
-						_tmp30_ = source_file;
-						vala_code_context_add_source_file (context, _tmp30_);
+						_tmp41_ = source_file;
+						vala_code_context_add_source_file (context, _tmp41_);
 						_vala_source_file_unref0 (source_file);
 					} else {
-						gboolean _tmp31_ = FALSE;
-						const gchar* _tmp32_;
-						_tmp32_ = source;
-						if (g_str_has_suffix (_tmp32_, ".vapi")) {
-							_tmp31_ = TRUE;
+						gboolean _tmp42_ = FALSE;
+						const gchar* _tmp43_;
+						_tmp43_ = source;
+						if (g_str_has_suffix (_tmp43_, ".vapi")) {
+							_tmp42_ = TRUE;
 						} else {
-							const gchar* _tmp33_;
-							_tmp33_ = source;
-							_tmp31_ = g_str_has_suffix (_tmp33_, ".gir");
+							const gchar* _tmp44_;
+							_tmp44_ = source;
+							_tmp42_ = g_str_has_suffix (_tmp44_, ".gir");
 						}
-						if (_tmp31_) {
+						if (_tmp42_) {
 							gchar* file_name = NULL;
-							const gchar* _tmp34_;
-							gchar* _tmp35_;
+							const gchar* _tmp45_;
+							gchar* _tmp46_;
 							ValaSourceFile* vfile = NULL;
-							const gchar* _tmp36_;
-							ValaSourceFile* _tmp37_;
-							ValaSourceFile* _tmp38_;
-							ValadocDriversTreeBuilderPackageMetaData* _tmp39_;
-							ValadocDriversTreeBuilderPackageMetaData* _tmp45_;
-							ValaSourceFile* _tmp46_;
-							ValadocApiSourceFile* _tmp47_;
-							ValadocApiSourceFile* _tmp48_;
-							const gchar* _tmp49_;
-							gchar* _tmp50_;
-							gchar* _tmp51_;
-							const gchar* _tmp52_;
-							gchar* _tmp53_;
-							gchar* _tmp54_;
-							gchar* _tmp55_;
-							gchar* _tmp56_;
-							const gchar* _tmp57_;
-							_tmp34_ = source;
-							_tmp35_ = valadoc_drivers_tree_builder_get_package_name (self, _tmp34_);
-							file_name = _tmp35_;
-							_tmp36_ = rpath;
-							_tmp37_ = vala_source_file_new (context, VALA_SOURCE_FILE_TYPE_PACKAGE, _tmp36_, NULL, FALSE);
-							vfile = _tmp37_;
-							_tmp38_ = vfile;
-							vala_code_context_add_source_file (context, _tmp38_);
-							_tmp39_ = self->priv->source_package;
-							if (_tmp39_ == NULL) {
-								ValadocSettings* _tmp40_;
-								const gchar* _tmp41_;
-								ValadocApiPackage* _tmp42_;
-								ValadocApiPackage* _tmp43_;
-								ValadocDriversTreeBuilderPackageMetaData* _tmp44_;
-								_tmp40_ = self->priv->settings;
-								_tmp41_ = _tmp40_->pkg_name;
-								_tmp42_ = valadoc_api_package_new (_tmp41_, FALSE, NULL);
-								_tmp43_ = _tmp42_;
-								_tmp44_ = valadoc_drivers_tree_builder_register_package (self, _tmp43_);
-								_valadoc_drivers_tree_builder_package_meta_data_unref0 (self->priv->source_package);
-								self->priv->source_package = _tmp44_;
-								_g_object_unref0 (_tmp43_);
+							const gchar* _tmp47_;
+							ValaSourceFile* _tmp48_;
+							ValaSourceFile* _tmp49_;
+							ValadocTreeBuilderPackageMetaData* _tmp50_;
+							ValadocTreeBuilderPackageMetaData* _tmp56_;
+							ValaSourceFile* _tmp57_;
+							ValadocApiSourceFile* _tmp58_;
+							ValadocApiSourceFile* _tmp59_;
+							const gchar* _tmp60_;
+							gchar* _tmp61_;
+							gchar* _tmp62_;
+							const gchar* _tmp63_;
+							gchar* _tmp64_;
+							gchar* _tmp65_;
+							gchar* _tmp66_;
+							gchar* _tmp67_;
+							const gchar* _tmp68_;
+							_tmp45_ = source;
+							_tmp46_ = valadoc_tree_builder_get_package_name (self, _tmp45_);
+							file_name = _tmp46_;
+							_tmp47_ = rpath;
+							_tmp48_ = vala_source_file_new (context, VALA_SOURCE_FILE_TYPE_PACKAGE, _tmp47_, NULL, FALSE);
+							vfile = _tmp48_;
+							_tmp49_ = vfile;
+							vala_code_context_add_source_file (context, _tmp49_);
+							_tmp50_ = self->priv->source_package;
+							if (_tmp50_ == NULL) {
+								ValadocSettings* _tmp51_;
+								const gchar* _tmp52_;
+								ValadocApiPackage* _tmp53_;
+								ValadocApiPackage* _tmp54_;
+								ValadocTreeBuilderPackageMetaData* _tmp55_;
+								_tmp51_ = self->priv->settings;
+								_tmp52_ = _tmp51_->pkg_name;
+								_tmp53_ = valadoc_api_package_new (_tmp52_, FALSE, NULL);
+								_tmp54_ = _tmp53_;
+								_tmp55_ = valadoc_tree_builder_register_package (self, _tmp54_);
+								_valadoc_tree_builder_package_meta_data_unref0 (self->priv->source_package);
+								self->priv->source_package = _tmp55_;
+								_g_object_unref0 (_tmp54_);
 							}
-							_tmp45_ = self->priv->source_package;
-							_tmp46_ = vfile;
-							_tmp47_ = valadoc_drivers_tree_builder_register_source_file (self, _tmp45_, _tmp46_);
-							_tmp48_ = _tmp47_;
-							_g_object_unref0 (_tmp48_);
-							_tmp49_ = source;
-							_tmp50_ = g_path_get_dirname (_tmp49_);
-							_tmp51_ = _tmp50_;
-							_tmp52_ = file_name;
-							_tmp53_ = g_strdup_printf ("%s.deps", _tmp52_);
-							_tmp54_ = _tmp53_;
-							_tmp55_ = g_build_filename (_tmp51_, _tmp54_, NULL);
-							_tmp56_ = _tmp55_;
-							_tmp57_ = file_name;
-							valadoc_drivers_tree_builder_add_deps (self, context, _tmp56_, _tmp57_);
-							_g_free0 (_tmp56_);
-							_g_free0 (_tmp54_);
-							_g_free0 (_tmp51_);
+							_tmp56_ = self->priv->source_package;
+							_tmp57_ = vfile;
+							_tmp58_ = valadoc_tree_builder_register_source_file (self, _tmp56_, _tmp57_);
+							_tmp59_ = _tmp58_;
+							_g_object_unref0 (_tmp59_);
+							_tmp60_ = source;
+							_tmp61_ = g_path_get_dirname (_tmp60_);
+							_tmp62_ = _tmp61_;
+							_tmp63_ = file_name;
+							_tmp64_ = g_strdup_printf ("%s.deps", _tmp63_);
+							_tmp65_ = _tmp64_;
+							_tmp66_ = g_build_filename (_tmp62_, _tmp65_, NULL);
+							_tmp67_ = _tmp66_;
+							_tmp68_ = file_name;
+							valadoc_tree_builder_add_deps (self, context, _tmp67_, _tmp68_);
+							_g_free0 (_tmp67_);
+							_g_free0 (_tmp65_);
+							_g_free0 (_tmp62_);
 							_vala_source_file_unref0 (vfile);
 							_g_free0 (file_name);
 						} else {
-							const gchar* _tmp58_;
-							_tmp58_ = source;
-							if (g_str_has_suffix (_tmp58_, ".c")) {
-								const gchar* _tmp59_;
-								ValadocApiTree* _tmp60_;
-								const gchar* _tmp61_;
-								_tmp59_ = rpath;
-								vala_code_context_add_c_source_file (context, _tmp59_);
-								_tmp60_ = self->priv->tree;
-								_tmp61_ = rpath;
-								valadoc_api_tree_add_external_c_files (_tmp60_, _tmp61_);
+							const gchar* _tmp69_;
+							_tmp69_ = source;
+							if (g_str_has_suffix (_tmp69_, ".c")) {
+								const gchar* _tmp70_;
+								ValadocApiTree* _tmp71_;
+								const gchar* _tmp72_;
+								_tmp70_ = rpath;
+								vala_code_context_add_c_source_file (context, _tmp70_);
+								_tmp71_ = self->priv->tree;
+								_tmp72_ = rpath;
+								valadoc_api_tree_add_external_c_files (_tmp71_, _tmp72_);
 							} else {
-								const gchar* _tmp62_;
-								gchar* _tmp63_;
-								gchar* _tmp64_;
-								_tmp62_ = source;
-								_tmp63_ = g_strdup_printf ("%s is not a supported source file type. Only .vala, .vapi, .gs, and .c" \
-" files are supported.", _tmp62_);
-								_tmp64_ = _tmp63_;
-								vala_report_error (NULL, _tmp64_);
-								_g_free0 (_tmp64_);
+								const gchar* _tmp73_;
+								gchar* _tmp74_;
+								gchar* _tmp75_;
+								_tmp73_ = source;
+								_tmp74_ = g_strdup_printf ("%s is not a supported source file type. Only .vala, .vapi, .gs, and .c" \
+" files are supported.", _tmp73_);
+								_tmp75_ = _tmp74_;
+								vala_report_error (NULL, _tmp75_);
+								_g_free0 (_tmp75_);
 							}
 						}
 					}
 					_g_free0 (rpath);
 				} else {
-					const gchar* _tmp65_;
-					gchar* _tmp66_;
-					gchar* _tmp67_;
-					_tmp65_ = source;
-					_tmp66_ = g_strdup_printf ("%s not found", _tmp65_);
-					_tmp67_ = _tmp66_;
-					vala_report_error (NULL, _tmp67_);
-					_g_free0 (_tmp67_);
+					const gchar* _tmp76_;
+					gchar* _tmp77_;
+					gchar* _tmp78_;
+					_tmp76_ = source;
+					_tmp77_ = g_strdup_printf ("%s not found", _tmp76_);
+					_tmp78_ = _tmp77_;
+					vala_report_error (NULL, _tmp78_);
+					_g_free0 (_tmp78_);
 				}
 				_g_free0 (source);
 			}
@@ -3558,326 +1924,215 @@ valadoc_drivers_tree_builder_add_documented_files (ValadocDriversTreeBuilder* se
 	}
 }
 
-
 static void
-valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
-                                                ValaCodeContext* context,
-                                                ValadocSettings* settings)
+valadoc_tree_builder_create_valac_tree (ValadocTreeBuilder* self,
+                                        ValaCodeContext* context,
+                                        ValadocSettings* settings)
 {
-	gboolean _tmp0_;
-	gboolean _tmp1_ = FALSE;
-	gboolean _tmp2_;
+	gboolean _tmp0_ = FALSE;
+	gchar** _tmp1_;
+	gint _tmp1__length1;
+	ValaReport* _tmp2_;
+	ValaReport* _tmp3_;
 	gchar** _tmp4_;
 	gint _tmp4__length1;
-	ValaReport* _tmp5_;
-	ValaReport* _tmp6_;
-	gboolean _tmp7_;
-	gchar** _tmp8_;
-	gint _tmp8__length1;
-	gchar** _tmp9_;
-	gint _tmp9__length1;
-	const gchar* _tmp10_;
-	const gchar* _tmp16_;
-	gboolean _tmp22_ = FALSE;
-	gboolean _tmp23_ = FALSE;
-	const gchar* _tmp24_;
-	gchar** _tmp27_;
-	gint _tmp27__length1;
-	ValaProfile _tmp37_;
-	ValaProfile _tmp38_;
-	gchar** _tmp60_;
-	gint _tmp60__length1;
-	ValadocErrorReporter* _tmp61_;
-	gint _tmp62_;
-	gint _tmp63_;
-	gchar** _tmp64_;
-	gint _tmp64__length1;
-	ValadocErrorReporter* _tmp65_;
-	gint _tmp66_;
-	gint _tmp67_;
+	gchar** _tmp5_;
+	gint _tmp5__length1;
+	const gchar* _tmp6_;
+	const gchar* _tmp12_;
+	gboolean _tmp18_ = FALSE;
+	gboolean _tmp19_ = FALSE;
+	const gchar* _tmp20_;
+	gchar** _tmp23_;
+	gint _tmp23__length1;
+	ValaProfile _tmp27_;
+	ValaProfile _tmp28_;
+	gchar** _tmp31_;
+	gint _tmp31__length1;
+	ValadocErrorReporter* _tmp32_;
+	gint _tmp33_;
+	gint _tmp34_;
+	gchar** _tmp35_;
+	gint _tmp35__length1;
+	ValadocErrorReporter* _tmp36_;
+	gint _tmp37_;
+	gint _tmp38_;
 	ValaParser* parser = NULL;
-	ValaParser* _tmp68_;
-	ValaParser* _tmp69_;
-	ValaReport* _tmp70_;
-	ValaReport* _tmp71_;
+	ValaParser* _tmp39_;
+	ValaParser* _tmp40_;
+	ValaReport* _tmp41_;
+	ValaReport* _tmp42_;
 	ValaGirParser* gir_parser = NULL;
-	ValaGirParser* _tmp72_;
-	ValaGirParser* _tmp73_;
-	ValaReport* _tmp74_;
-	ValaReport* _tmp75_;
-	ValaReport* _tmp76_;
-	ValaReport* _tmp77_;
+	ValaGirParser* _tmp43_;
+	ValaGirParser* _tmp44_;
+	ValaReport* _tmp45_;
+	ValaReport* _tmp46_;
+	ValaReport* _tmp47_;
+	ValaReport* _tmp48_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (context != NULL);
 	g_return_if_fail (settings != NULL);
-	_tmp0_ = settings->experimental;
-	vala_code_context_set_experimental (context, _tmp0_);
-	_tmp2_ = settings->experimental;
-	if (_tmp2_) {
-		_tmp1_ = TRUE;
+	vala_code_context_set_experimental (context, settings->experimental);
+	if (settings->experimental) {
+		_tmp0_ = TRUE;
 	} else {
-		gboolean _tmp3_;
-		_tmp3_ = settings->experimental_non_null;
-		_tmp1_ = _tmp3_;
+		_tmp0_ = settings->experimental_non_null;
 	}
-	vala_code_context_set_experimental_non_null (context, _tmp1_);
-	_tmp4_ = settings->vapi_directories;
-	_tmp4__length1 = settings->vapi_directories_length1;
-	vala_code_context_set_vapi_directories (context, _tmp4_, _tmp4__length1);
-	_tmp5_ = vala_code_context_get_report (context);
-	_tmp6_ = _tmp5_;
-	_tmp7_ = settings->verbose;
-	vala_report_set_enable_warnings (_tmp6_, _tmp7_);
-	_tmp8_ = settings->metadata_directories;
-	_tmp8__length1 = settings->metadata_directories_length1;
-	vala_code_context_set_metadata_directories (context, _tmp8_, _tmp8__length1);
-	_tmp9_ = settings->gir_directories;
-	_tmp9__length1 = settings->gir_directories_length1;
-	vala_code_context_set_gir_directories (context, _tmp9_, _tmp9__length1);
-	_tmp10_ = settings->basedir;
-	if (_tmp10_ == NULL) {
-		gchar* _tmp11_;
-		gchar* _tmp12_;
-		_tmp11_ = vala_code_context_realpath (".");
-		_tmp12_ = _tmp11_;
-		vala_code_context_set_basedir (context, _tmp12_);
-		_g_free0 (_tmp12_);
+	vala_code_context_set_experimental_non_null (context, _tmp0_);
+	_tmp1_ = settings->vapi_directories;
+	_tmp1__length1 = settings->vapi_directories_length1;
+	vala_code_context_set_vapi_directories (context, _tmp1_, _tmp1__length1);
+	_tmp2_ = vala_code_context_get_report (context);
+	_tmp3_ = _tmp2_;
+	vala_report_set_enable_warnings (_tmp3_, settings->verbose);
+	_tmp4_ = settings->metadata_directories;
+	_tmp4__length1 = settings->metadata_directories_length1;
+	vala_code_context_set_metadata_directories (context, _tmp4_, _tmp4__length1);
+	_tmp5_ = settings->gir_directories;
+	_tmp5__length1 = settings->gir_directories_length1;
+	vala_code_context_set_gir_directories (context, _tmp5_, _tmp5__length1);
+	_tmp6_ = settings->basedir;
+	if (_tmp6_ == NULL) {
+		gchar* _tmp7_;
+		gchar* _tmp8_;
+		_tmp7_ = vala_code_context_realpath (".");
+		_tmp8_ = _tmp7_;
+		vala_code_context_set_basedir (context, _tmp8_);
+		_g_free0 (_tmp8_);
 	} else {
+		const gchar* _tmp9_;
+		gchar* _tmp10_;
+		gchar* _tmp11_;
+		_tmp9_ = settings->basedir;
+		_tmp10_ = vala_code_context_realpath (_tmp9_);
+		_tmp11_ = _tmp10_;
+		vala_code_context_set_basedir (context, _tmp11_);
+		_g_free0 (_tmp11_);
+	}
+	_tmp12_ = settings->directory;
+	if (_tmp12_ != NULL) {
 		const gchar* _tmp13_;
 		gchar* _tmp14_;
 		gchar* _tmp15_;
-		_tmp13_ = settings->basedir;
+		_tmp13_ = settings->directory;
 		_tmp14_ = vala_code_context_realpath (_tmp13_);
 		_tmp15_ = _tmp14_;
-		vala_code_context_set_basedir (context, _tmp15_);
+		vala_code_context_set_directory (context, _tmp15_);
 		_g_free0 (_tmp15_);
-	}
-	_tmp16_ = settings->directory;
-	if (_tmp16_ != NULL) {
+	} else {
+		const gchar* _tmp16_;
 		const gchar* _tmp17_;
-		gchar* _tmp18_;
-		gchar* _tmp19_;
-		_tmp17_ = settings->directory;
-		_tmp18_ = vala_code_context_realpath (_tmp17_);
-		_tmp19_ = _tmp18_;
-		vala_code_context_set_directory (context, _tmp19_);
-		_g_free0 (_tmp19_);
+		_tmp16_ = vala_code_context_get_basedir (context);
+		_tmp17_ = _tmp16_;
+		vala_code_context_set_directory (context, _tmp17_);
+	}
+	_tmp20_ = settings->profile;
+	if (g_strcmp0 (_tmp20_, "gobject-2.0") == 0) {
+		_tmp19_ = TRUE;
 	} else {
-		const gchar* _tmp20_;
 		const gchar* _tmp21_;
-		_tmp20_ = vala_code_context_get_basedir (context);
-		_tmp21_ = _tmp20_;
-		vala_code_context_set_directory (context, _tmp21_);
+		_tmp21_ = settings->profile;
+		_tmp19_ = g_strcmp0 (_tmp21_, "gobject") == 0;
 	}
-	_tmp24_ = settings->profile;
-	if (g_strcmp0 (_tmp24_, "gobject-2.0") == 0) {
-		_tmp23_ = TRUE;
+	if (_tmp19_) {
+		_tmp18_ = TRUE;
 	} else {
-		const gchar* _tmp25_;
-		_tmp25_ = settings->profile;
-		_tmp23_ = g_strcmp0 (_tmp25_, "gobject") == 0;
+		const gchar* _tmp22_;
+		_tmp22_ = settings->profile;
+		_tmp18_ = _tmp22_ == NULL;
 	}
-	if (_tmp23_) {
-		_tmp22_ = TRUE;
-	} else {
-		const gchar* _tmp26_;
-		_tmp26_ = settings->profile;
-		_tmp22_ = _tmp26_ == NULL;
-	}
-	if (_tmp22_) {
+	if (_tmp18_) {
 		vala_code_context_set_profile (context, VALA_PROFILE_GOBJECT);
 		vala_code_context_add_define (context, "GOBJECT");
 	}
-	_tmp27_ = settings->defines;
-	_tmp27__length1 = settings->defines_length1;
-	if (_tmp27_ != NULL) {
-		gchar** _tmp28_;
-		gint _tmp28__length1;
-		_tmp28_ = settings->defines;
-		_tmp28__length1 = settings->defines_length1;
+	_tmp23_ = settings->defines;
+	_tmp23__length1 = settings->defines_length1;
+	if (_tmp23_ != NULL) {
+		gchar** _tmp24_;
+		gint _tmp24__length1;
+		_tmp24_ = settings->defines;
+		_tmp24__length1 = settings->defines_length1;
 		{
 			gchar** define_collection = NULL;
 			gint define_collection_length1 = 0;
 			gint _define_collection_size_ = 0;
 			gint define_it = 0;
-			define_collection = _tmp28_;
-			define_collection_length1 = _tmp28__length1;
-			for (define_it = 0; define_it < _tmp28__length1; define_it = define_it + 1) {
-				gchar* _tmp29_;
+			define_collection = _tmp24_;
+			define_collection_length1 = _tmp24__length1;
+			for (define_it = 0; define_it < define_collection_length1; define_it = define_it + 1) {
+				gchar* _tmp25_;
 				gchar* define = NULL;
-				_tmp29_ = g_strdup (define_collection[define_it]);
-				define = _tmp29_;
+				_tmp25_ = g_strdup (define_collection[define_it]);
+				define = _tmp25_;
 				{
-					const gchar* _tmp30_;
-					_tmp30_ = define;
-					vala_code_context_add_define (context, _tmp30_);
+					const gchar* _tmp26_;
+					_tmp26_ = define;
+					vala_code_context_add_define (context, _tmp26_);
 					_g_free0 (define);
 				}
 			}
 		}
 	}
-	{
-		gint i = 0;
-		i = 2;
-		{
-			gboolean _tmp31_ = FALSE;
-			_tmp31_ = TRUE;
-			while (TRUE) {
-				gint _tmp33_;
-				gint _tmp34_;
-				gchar* _tmp35_;
-				gchar* _tmp36_;
-				if (!_tmp31_) {
-					gint _tmp32_;
-					_tmp32_ = i;
-					i = _tmp32_ + 2;
-				}
-				_tmp31_ = FALSE;
-				_tmp33_ = i;
-				if (!(_tmp33_ <= 42)) {
-					break;
-				}
-				_tmp34_ = i;
-				_tmp35_ = g_strdup_printf ("VALA_0_%d", _tmp34_);
-				_tmp36_ = _tmp35_;
-				vala_code_context_add_define (context, _tmp36_);
-				_g_free0 (_tmp36_);
-			}
+	_tmp27_ = vala_code_context_get_profile (context);
+	_tmp28_ = _tmp27_;
+	if (_tmp28_ == VALA_PROFILE_GOBJECT) {
+		const gchar* _tmp29_;
+		_tmp29_ = settings->target_glib;
+		if (_tmp29_ != NULL) {
+			const gchar* _tmp30_;
+			_tmp30_ = settings->target_glib;
+			vala_code_context_set_target_glib_version (context, _tmp30_);
 		}
-	}
-	_tmp37_ = vala_code_context_get_profile (context);
-	_tmp38_ = _tmp37_;
-	if (_tmp38_ == VALA_PROFILE_GOBJECT) {
-		gint glib_major = 0;
-		gint glib_minor = 0;
-		gint _tmp39_;
-		gint _tmp40_;
-		gint _tmp41_;
-		gint _tmp42_;
-		gboolean _tmp43_ = FALSE;
-		const gchar* _tmp44_;
-		gint _tmp49_;
-		gint _tmp50_;
-		gint _tmp51_;
-		gint _tmp52_;
-		glib_major = 2;
-		glib_minor = 40;
-		_tmp39_ = glib_major;
-		vala_code_context_set_target_glib_major (context, _tmp39_);
-		_tmp40_ = glib_minor;
-		vala_code_context_set_target_glib_minor (context, _tmp40_);
-		_tmp41_ = vala_code_context_get_target_glib_major (context);
-		_tmp42_ = _tmp41_;
-		if (_tmp42_ != 2) {
-			vala_report_error (NULL, "This version of valac only supports GLib 2");
-		}
-		_tmp44_ = settings->target_glib;
-		if (_tmp44_ != NULL) {
-			const gchar* _tmp45_;
-			gint _tmp46_ = 0;
-			gint _tmp47_ = 0;
-			gint _tmp48_;
-			_tmp45_ = settings->target_glib;
-			_tmp48_ = sscanf (_tmp45_, "%d.%d", &_tmp46_, &_tmp47_);
-			glib_major = _tmp46_;
-			glib_minor = _tmp47_;
-			_tmp43_ = _tmp48_ != 2;
-		} else {
-			_tmp43_ = FALSE;
-		}
-		if (_tmp43_) {
-			vala_report_error (NULL, "Invalid format for --target-glib");
-		}
-		_tmp49_ = glib_major;
-		vala_code_context_set_target_glib_major (context, _tmp49_);
-		_tmp50_ = glib_minor;
-		vala_code_context_set_target_glib_minor (context, _tmp50_);
-		_tmp51_ = vala_code_context_get_target_glib_major (context);
-		_tmp52_ = _tmp51_;
-		if (_tmp52_ != 2) {
-			vala_report_error (NULL, "This version of valac only supports GLib 2");
-		}
-		{
-			gint i = 0;
-			i = 16;
-			{
-				gboolean _tmp53_ = FALSE;
-				_tmp53_ = TRUE;
-				while (TRUE) {
-					gint _tmp55_;
-					gint _tmp56_;
-					gint _tmp57_;
-					gchar* _tmp58_;
-					gchar* _tmp59_;
-					if (!_tmp53_) {
-						gint _tmp54_;
-						_tmp54_ = i;
-						i = _tmp54_ + 2;
-					}
-					_tmp53_ = FALSE;
-					_tmp55_ = i;
-					_tmp56_ = glib_minor;
-					if (!(_tmp55_ <= _tmp56_)) {
-						break;
-					}
-					_tmp57_ = i;
-					_tmp58_ = g_strdup_printf ("GLIB_2_%d", _tmp57_);
-					_tmp59_ = _tmp58_;
-					vala_code_context_add_define (context, _tmp59_);
-					_g_free0 (_tmp59_);
-				}
-			}
-		}
-		if (!valadoc_drivers_tree_builder_add_package (self, context, "glib-2.0")) {
+		if (!valadoc_tree_builder_add_package (self, context, "glib-2.0")) {
 			vala_report_error (NULL, "glib-2.0 not found in specified Vala API directories");
 		}
-		if (!valadoc_drivers_tree_builder_add_package (self, context, "gobject-2.0")) {
+		if (!valadoc_tree_builder_add_package (self, context, "gobject-2.0")) {
 			vala_report_error (NULL, "gobject-2.0 not found in specified Vala API directories");
 		}
 	}
-	_tmp60_ = settings->packages;
-	_tmp60__length1 = settings->packages_length1;
-	valadoc_drivers_tree_builder_add_depencies (self, context, _tmp60_, _tmp60__length1);
-	_tmp61_ = self->priv->reporter;
-	_tmp62_ = valadoc_error_reporter_get_errors (_tmp61_);
-	_tmp63_ = _tmp62_;
-	if (_tmp63_ > 0) {
+	_tmp31_ = settings->packages;
+	_tmp31__length1 = settings->packages_length1;
+	valadoc_tree_builder_add_depencies (self, context, _tmp31_, (gint) _tmp31__length1);
+	_tmp32_ = self->priv->reporter;
+	_tmp33_ = valadoc_error_reporter_get_errors (_tmp32_);
+	_tmp34_ = _tmp33_;
+	if (_tmp34_ > 0) {
 		return;
 	}
-	_tmp64_ = settings->source_files;
-	_tmp64__length1 = settings->source_files_length1;
-	valadoc_drivers_tree_builder_add_documented_files (self, context, _tmp64_, _tmp64__length1);
-	_tmp65_ = self->priv->reporter;
-	_tmp66_ = valadoc_error_reporter_get_errors (_tmp65_);
-	_tmp67_ = _tmp66_;
-	if (_tmp67_ > 0) {
+	_tmp35_ = settings->source_files;
+	_tmp35__length1 = settings->source_files_length1;
+	valadoc_tree_builder_add_documented_files (self, context, _tmp35_, (gint) _tmp35__length1);
+	_tmp36_ = self->priv->reporter;
+	_tmp37_ = valadoc_error_reporter_get_errors (_tmp36_);
+	_tmp38_ = _tmp37_;
+	if (_tmp38_ > 0) {
 		return;
 	}
-	_tmp68_ = vala_parser_new ();
-	parser = _tmp68_;
-	_tmp69_ = parser;
-	vala_parser_parse (_tmp69_, context);
-	_tmp70_ = vala_code_context_get_report (context);
-	_tmp71_ = _tmp70_;
-	if (vala_report_get_errors (_tmp71_) > 0) {
+	_tmp39_ = vala_parser_new ();
+	parser = _tmp39_;
+	_tmp40_ = parser;
+	vala_parser_parse (_tmp40_, context);
+	_tmp41_ = vala_code_context_get_report (context);
+	_tmp42_ = _tmp41_;
+	if (vala_report_get_errors (_tmp42_) > 0) {
 		_vala_code_visitor_unref0 (parser);
 		return;
 	}
-	_tmp72_ = vala_gir_parser_new ();
-	gir_parser = _tmp72_;
-	_tmp73_ = gir_parser;
-	vala_gir_parser_parse (_tmp73_, context);
-	_tmp74_ = vala_code_context_get_report (context);
-	_tmp75_ = _tmp74_;
-	if (vala_report_get_errors (_tmp75_) > 0) {
+	_tmp43_ = vala_gir_parser_new ();
+	gir_parser = _tmp43_;
+	_tmp44_ = gir_parser;
+	vala_gir_parser_parse (_tmp44_, context);
+	_tmp45_ = vala_code_context_get_report (context);
+	_tmp46_ = _tmp45_;
+	if (vala_report_get_errors (_tmp46_) > 0) {
 		_vala_code_visitor_unref0 (gir_parser);
 		_vala_code_visitor_unref0 (parser);
 		return;
 	}
 	vala_code_context_check (context);
-	_tmp76_ = vala_code_context_get_report (context);
-	_tmp77_ = _tmp76_;
-	if (vala_report_get_errors (_tmp77_) > 0) {
+	_tmp47_ = vala_code_context_get_report (context);
+	_tmp48_ = _tmp47_;
+	if (vala_report_get_errors (_tmp48_) > 0) {
 		_vala_code_visitor_unref0 (gir_parser);
 		_vala_code_visitor_unref0 (parser);
 		return;
@@ -3886,11 +2141,10 @@ valadoc_drivers_tree_builder_create_valac_tree (ValadocDriversTreeBuilder* self,
 	_vala_code_visitor_unref0 (parser);
 }
 
-
 static void
-valadoc_drivers_tree_builder_process_children (ValadocDriversTreeBuilder* self,
-                                               ValadocApiNode* node,
-                                               ValaCodeNode* element)
+valadoc_tree_builder_process_children (ValadocTreeBuilder* self,
+                                       ValadocApiNode* node,
+                                       ValaCodeNode* element)
 {
 	ValadocApiNode* old_node = NULL;
 	ValadocApiNode* _tmp0_;
@@ -3913,19 +2167,16 @@ valadoc_drivers_tree_builder_process_children (ValadocDriversTreeBuilder* self,
 	_g_object_unref0 (old_node);
 }
 
-
 static gpointer
 _vala_source_file_ref0 (gpointer self)
 {
 	return self ? vala_source_file_ref (self) : NULL;
 }
 
-
 static ValadocApiNode*
-valadoc_drivers_tree_builder_get_parent_node_for (ValadocDriversTreeBuilder* self,
-                                                  ValaSymbol* element)
+valadoc_tree_builder_get_parent_node_for (ValadocTreeBuilder* self,
+                                          ValaSymbol* element)
 {
-	ValadocApiNode* result = NULL;
 	ValadocApiNode* _tmp0_;
 	ValaSourceFile* vala_source_file = NULL;
 	ValaSourceReference* _tmp3_;
@@ -3941,6 +2192,7 @@ valadoc_drivers_tree_builder_get_parent_node_for (ValadocDriversTreeBuilder* sel
 	ValadocApiPackage* _tmp11_;
 	ValadocApiSourceFile* _tmp12_;
 	ValadocApiNamespace* _tmp13_;
+	ValadocApiNode* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (element != NULL, NULL);
 	_tmp0_ = self->priv->current_node;
@@ -3959,13 +2211,13 @@ valadoc_drivers_tree_builder_get_parent_node_for (ValadocDriversTreeBuilder* sel
 	_tmp7_ = _vala_source_file_ref0 (_tmp6_);
 	vala_source_file = _tmp7_;
 	_tmp8_ = vala_source_file;
-	_tmp9_ = valadoc_drivers_tree_builder_find_package_for_file (self, _tmp8_);
+	_tmp9_ = valadoc_tree_builder_find_package_for_file (self, _tmp8_);
 	package = _tmp9_;
-	_tmp10_ = valadoc_drivers_tree_builder_get_source_file (self, element);
+	_tmp10_ = valadoc_tree_builder_get_source_file (self, element);
 	source_file = _tmp10_;
 	_tmp11_ = package;
 	_tmp12_ = source_file;
-	_tmp13_ = valadoc_drivers_tree_builder_get_namespace (self, _tmp11_, element, _tmp12_);
+	_tmp13_ = valadoc_tree_builder_get_namespace (self, _tmp11_, element, _tmp12_);
 	result = (ValadocApiNode*) _tmp13_;
 	_g_object_unref0 (source_file);
 	_g_object_unref0 (package);
@@ -3973,29 +2225,27 @@ valadoc_drivers_tree_builder_get_parent_node_for (ValadocDriversTreeBuilder* sel
 	return result;
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_namespace (ValaCodeVisitor* base,
-                                                   ValaNamespace* element)
+valadoc_tree_builder_real_visit_namespace (ValaCodeVisitor* base,
+                                           ValaNamespace* element)
 {
-	ValadocDriversTreeBuilder * self;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValadocTreeBuilder * self;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
 	vala_code_node_accept_children ((ValaCodeNode*) element, (ValaCodeVisitor*) self);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_class (ValaCodeVisitor* base,
-                                               ValaClass* element)
+valadoc_tree_builder_real_visit_class (ValaCodeVisitor* base,
+                                       ValaClass* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4004,233 +2254,116 @@ valadoc_drivers_tree_builder_real_visit_class (ValaCodeVisitor* base,
 	ValaComment* _tmp2_;
 	ValaComment* _tmp3_;
 	ValadocApiSourceComment* _tmp4_;
-	gboolean _tmp5_ = FALSE;
-	ValaClass* _tmp6_;
-	ValaClass* _tmp7_;
-	gboolean is_basic_type = FALSE;
 	ValadocApiClass* node = NULL;
-	ValadocApiNode* _tmp10_;
-	ValadocApiSourceFile* _tmp11_;
-	const gchar* _tmp12_;
-	const gchar* _tmp13_;
-	ValadocApiSourceComment* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gchar* _tmp20_;
-	gchar* _tmp21_;
-	gchar* _tmp22_;
-	gchar* _tmp23_;
-	gchar* _tmp24_;
-	gchar* _tmp25_;
-	gchar* _tmp26_;
-	gchar* _tmp27_;
-	gchar* _tmp28_;
-	gchar* _tmp29_;
-	gchar* _tmp30_;
-	gchar* _tmp31_;
-	gchar* _tmp32_;
-	gchar* _tmp33_;
-	gchar* _tmp34_;
-	gchar* _tmp35_;
-	gchar* _tmp36_;
-	gchar* _tmp37_;
-	gchar* _tmp38_;
-	gchar* _tmp39_;
-	gchar* _tmp40_;
-	gchar* _tmp41_;
-	gchar* _tmp42_;
-	gchar* _tmp43_;
-	gchar* _tmp44_;
-	gchar* _tmp45_;
-	gchar* _tmp46_;
-	gchar* _tmp47_;
-	gchar* _tmp48_;
-	gchar* _tmp49_;
-	gchar* _tmp50_;
-	gchar* _tmp51_;
-	gchar* _tmp52_;
-	gboolean _tmp53_;
-	gboolean _tmp54_;
-	gboolean _tmp55_;
-	ValadocApiClass* _tmp56_;
-	ValadocApiClass* _tmp57_;
-	ValaHashMap* _tmp58_;
-	ValadocApiClass* _tmp59_;
-	ValadocApiNode* _tmp60_;
-	ValadocApiClass* _tmp61_;
-	ValadocApiClass* _tmp86_;
-	GList* _tmp87_;
-	ValadocApiClass* _tmp88_;
-	gboolean _tmp89_ = FALSE;
-	ValadocApiClass* _tmp90_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValadocApiNode* _tmp5_;
+	ValadocApiSourceFile* _tmp6_;
+	const gchar* _tmp7_;
+	const gchar* _tmp8_;
+	ValaSymbolAccessibility _tmp9_;
+	ValaSymbolAccessibility _tmp10_;
+	ValadocApiSourceComment* _tmp11_;
+	ValadocApiClass* _tmp12_;
+	ValaHashMap* _tmp13_;
+	ValadocApiClass* _tmp14_;
+	ValadocApiNode* _tmp15_;
+	ValadocApiClass* _tmp16_;
+	ValadocApiClass* _tmp40_;
+	GList* _tmp41_;
+	ValadocApiClass* _tmp42_;
+	gboolean _tmp43_ = FALSE;
+	ValadocApiClass* _tmp44_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
-	_tmp6_ = vala_class_get_base_class (element);
-	_tmp7_ = _tmp6_;
-	if (_tmp7_ == NULL) {
-		const gchar* _tmp8_;
-		const gchar* _tmp9_;
-		_tmp8_ = vala_symbol_get_name ((ValaSymbol*) element);
-		_tmp9_ = _tmp8_;
-		_tmp5_ = g_strcmp0 (_tmp9_, "string") == 0;
-	} else {
-		_tmp5_ = FALSE;
-	}
-	is_basic_type = _tmp5_;
-	_tmp10_ = parent;
-	_tmp11_ = file;
-	_tmp12_ = vala_symbol_get_name ((ValaSymbol*) element);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = comment;
-	_tmp15_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp16_ = _tmp15_;
-	_tmp17_ = valadoc_drivers_tree_builder_get_private_cname (self, element);
-	_tmp18_ = _tmp17_;
-	_tmp19_ = valadoc_drivers_tree_builder_get_class_macro_name (self, element);
-	_tmp20_ = _tmp19_;
-	_tmp21_ = valadoc_drivers_tree_builder_get_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp22_ = _tmp21_;
-	_tmp23_ = valadoc_drivers_tree_builder_get_is_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp24_ = _tmp23_;
-	_tmp25_ = valadoc_drivers_tree_builder_get_type_cast_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp26_ = _tmp25_;
-	_tmp27_ = valadoc_drivers_tree_builder_get_type_function_name (self, (ValaTypeSymbol*) element);
-	_tmp28_ = _tmp27_;
-	_tmp29_ = valadoc_drivers_tree_builder_get_class_type_macro_name (self, element);
-	_tmp30_ = _tmp29_;
-	_tmp31_ = valadoc_drivers_tree_builder_get_is_class_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp32_ = _tmp31_;
-	_tmp33_ = vala_gd_bus_module_get_dbus_name ((ValaTypeSymbol*) element);
-	_tmp34_ = _tmp33_;
-	_tmp35_ = valadoc_drivers_tree_builder_get_ccode_type_id (self, (ValaCodeNode*) element);
-	_tmp36_ = _tmp35_;
-	_tmp37_ = valadoc_drivers_tree_builder_get_param_spec_function (self, (ValaCodeNode*) element);
-	_tmp38_ = _tmp37_;
-	_tmp39_ = valadoc_drivers_tree_builder_get_ref_function (self, element);
-	_tmp40_ = _tmp39_;
-	_tmp41_ = valadoc_drivers_tree_builder_get_unref_function (self, element);
-	_tmp42_ = _tmp41_;
-	_tmp43_ = valadoc_drivers_tree_builder_get_free_function_name (self, element);
-	_tmp44_ = _tmp43_;
-	_tmp45_ = valadoc_drivers_tree_builder_get_finalize_function_name (self, element);
-	_tmp46_ = _tmp45_;
-	_tmp47_ = valadoc_drivers_tree_builder_get_take_value_function (self, element);
-	_tmp48_ = _tmp47_;
-	_tmp49_ = valadoc_drivers_tree_builder_get_get_value_function (self, element);
-	_tmp50_ = _tmp49_;
-	_tmp51_ = valadoc_drivers_tree_builder_get_set_value_function (self, element);
-	_tmp52_ = _tmp51_;
-	_tmp53_ = vala_class_get_is_abstract (element);
-	_tmp54_ = _tmp53_;
-	_tmp55_ = is_basic_type;
-	_tmp56_ = valadoc_api_class_new (_tmp10_, _tmp11_, _tmp13_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp14_, _tmp16_, _tmp18_, _tmp20_, _tmp22_, _tmp24_, _tmp26_, _tmp28_, _tmp30_, _tmp32_, _tmp34_, _tmp36_, _tmp38_, _tmp40_, _tmp42_, _tmp44_, _tmp46_, _tmp48_, _tmp50_, _tmp52_, vala_class_is_fundamental (element), _tmp54_, _tmp55_, element);
-	_tmp57_ = _tmp56_;
-	_g_free0 (_tmp52_);
-	_g_free0 (_tmp50_);
-	_g_free0 (_tmp48_);
-	_g_free0 (_tmp46_);
-	_g_free0 (_tmp44_);
-	_g_free0 (_tmp42_);
-	_g_free0 (_tmp40_);
-	_g_free0 (_tmp38_);
-	_g_free0 (_tmp36_);
-	_g_free0 (_tmp34_);
-	_g_free0 (_tmp32_);
-	_g_free0 (_tmp30_);
-	_g_free0 (_tmp28_);
-	_g_free0 (_tmp26_);
-	_g_free0 (_tmp24_);
-	_g_free0 (_tmp22_);
-	_g_free0 (_tmp20_);
-	_g_free0 (_tmp18_);
-	_g_free0 (_tmp16_);
-	node = _tmp57_;
-	_tmp58_ = self->priv->symbol_map;
-	_tmp59_ = node;
-	vala_map_set ((ValaMap*) _tmp58_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp59_);
-	_tmp60_ = parent;
-	_tmp61_ = node;
-	valadoc_api_node_add_child (_tmp60_, (ValadocApiSymbol*) _tmp61_);
+	_tmp5_ = parent;
+	_tmp6_ = file;
+	_tmp7_ = vala_symbol_get_name ((ValaSymbol*) element);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = comment;
+	_tmp12_ = valadoc_api_class_new (_tmp5_, _tmp6_, _tmp8_, _tmp10_, _tmp11_, element);
+	node = _tmp12_;
+	_tmp13_ = self->priv->symbol_map;
+	_tmp14_ = node;
+	vala_map_set ((ValaMap*) _tmp13_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp14_);
+	_tmp15_ = parent;
+	_tmp16_ = node;
+	valadoc_api_node_add_child (_tmp15_, (ValadocApiSymbol*) _tmp16_);
 	{
 		ValaList* _vala_type_ref_list = NULL;
-		ValaList* _tmp62_;
+		ValaList* _tmp17_;
+		ValaList* _tmp18_;
 		gint _vala_type_ref_size = 0;
-		ValaList* _tmp63_;
-		gint _tmp64_;
-		gint _tmp65_;
+		ValaList* _tmp19_;
+		gint _tmp20_;
+		gint _tmp21_;
 		gint _vala_type_ref_index = 0;
-		_tmp62_ = vala_class_get_base_types (element);
-		_vala_type_ref_list = _tmp62_;
-		_tmp63_ = _vala_type_ref_list;
-		_tmp64_ = vala_collection_get_size ((ValaCollection*) _tmp63_);
-		_tmp65_ = _tmp64_;
-		_vala_type_ref_size = _tmp65_;
+		_tmp17_ = vala_class_get_base_types (element);
+		_tmp18_ = _vala_iterable_ref0 (_tmp17_);
+		_vala_type_ref_list = _tmp18_;
+		_tmp19_ = _vala_type_ref_list;
+		_tmp20_ = vala_collection_get_size ((ValaCollection*) _tmp19_);
+		_tmp21_ = _tmp20_;
+		_vala_type_ref_size = _tmp21_;
 		_vala_type_ref_index = -1;
 		while (TRUE) {
-			gint _tmp66_;
-			gint _tmp67_;
-			gint _tmp68_;
+			gint _tmp22_;
+			gint _tmp23_;
 			ValaDataType* vala_type_ref = NULL;
-			ValaList* _tmp69_;
-			gint _tmp70_;
-			gpointer _tmp71_;
+			ValaList* _tmp24_;
+			gpointer _tmp25_;
 			ValadocApiTypeReference* type_ref = NULL;
-			ValaDataType* _tmp72_;
-			ValadocApiClass* _tmp73_;
-			ValadocApiClass* _tmp74_;
-			ValadocApiTypeReference* _tmp75_;
-			ValaDataType* _tmp76_;
-			ValaTypeSymbol* _tmp77_;
-			ValaTypeSymbol* _tmp78_;
-			_tmp66_ = _vala_type_ref_index;
-			_vala_type_ref_index = _tmp66_ + 1;
-			_tmp67_ = _vala_type_ref_index;
-			_tmp68_ = _vala_type_ref_size;
-			if (!(_tmp67_ < _tmp68_)) {
+			ValaDataType* _tmp26_;
+			ValadocApiClass* _tmp27_;
+			ValadocApiClass* _tmp28_;
+			ValadocApiTypeReference* _tmp29_;
+			ValaDataType* _tmp30_;
+			ValaTypeSymbol* _tmp31_;
+			ValaTypeSymbol* _tmp32_;
+			_vala_type_ref_index = _vala_type_ref_index + 1;
+			_tmp22_ = _vala_type_ref_index;
+			_tmp23_ = _vala_type_ref_size;
+			if (!(_tmp22_ < _tmp23_)) {
 				break;
 			}
-			_tmp69_ = _vala_type_ref_list;
-			_tmp70_ = _vala_type_ref_index;
-			_tmp71_ = vala_list_get (_tmp69_, _tmp70_);
-			vala_type_ref = (ValaDataType*) _tmp71_;
-			_tmp72_ = vala_type_ref;
-			_tmp73_ = node;
-			_tmp74_ = node;
-			_tmp75_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp72_, (ValadocApiItem*) _tmp73_, (ValadocApiNode*) _tmp74_);
-			type_ref = _tmp75_;
-			_tmp76_ = vala_type_ref;
-			_tmp77_ = vala_data_type_get_data_type (_tmp76_);
-			_tmp78_ = _tmp77_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp78_, VALA_TYPE_INTERFACE)) {
-				ValadocApiClass* _tmp79_;
-				ValadocApiTypeReference* _tmp80_;
-				_tmp79_ = node;
-				_tmp80_ = type_ref;
-				valadoc_api_class_add_interface (_tmp79_, _tmp80_);
+			_tmp24_ = _vala_type_ref_list;
+			_tmp25_ = vala_list_get (_tmp24_, _vala_type_ref_index);
+			vala_type_ref = (ValaDataType*) _tmp25_;
+			_tmp26_ = vala_type_ref;
+			_tmp27_ = node;
+			_tmp28_ = node;
+			_tmp29_ = valadoc_tree_builder_create_type_reference (self, _tmp26_, (ValadocApiItem*) _tmp27_, (ValadocApiNode*) _tmp28_);
+			type_ref = _tmp29_;
+			_tmp30_ = vala_type_ref;
+			_tmp31_ = vala_data_type_get_type_symbol (_tmp30_);
+			_tmp32_ = _tmp31_;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp32_, VALA_TYPE_INTERFACE)) {
+				ValadocApiClass* _tmp33_;
+				ValadocApiTypeReference* _tmp34_;
+				_tmp33_ = node;
+				_tmp34_ = type_ref;
+				valadoc_api_class_add_interface (_tmp33_, _tmp34_);
 			} else {
-				ValaDataType* _tmp81_;
-				ValaTypeSymbol* _tmp82_;
-				ValaTypeSymbol* _tmp83_;
-				_tmp81_ = vala_type_ref;
-				_tmp82_ = vala_data_type_get_data_type (_tmp81_);
-				_tmp83_ = _tmp82_;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp83_, VALA_TYPE_CLASS)) {
-					ValadocApiClass* _tmp84_;
-					ValadocApiTypeReference* _tmp85_;
-					_tmp84_ = node;
-					_tmp85_ = type_ref;
-					valadoc_api_class_set_base_type (_tmp84_, _tmp85_);
+				ValaDataType* _tmp35_;
+				ValaTypeSymbol* _tmp36_;
+				ValaTypeSymbol* _tmp37_;
+				_tmp35_ = vala_type_ref;
+				_tmp36_ = vala_data_type_get_type_symbol (_tmp35_);
+				_tmp37_ = _tmp36_;
+				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp37_, VALA_TYPE_CLASS)) {
+					ValadocApiClass* _tmp38_;
+					ValadocApiTypeReference* _tmp39_;
+					_tmp38_ = node;
+					_tmp39_ = type_ref;
+					valadoc_api_class_set_base_type (_tmp38_, _tmp39_);
 				}
 			}
 			_g_object_unref0 (type_ref);
@@ -4238,31 +2371,31 @@ valadoc_drivers_tree_builder_real_visit_class (ValaCodeVisitor* base,
 		}
 		_vala_iterable_unref0 (_vala_type_ref_list);
 	}
-	_tmp86_ = node;
-	_tmp87_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp86_, _tmp87_);
-	_tmp88_ = node;
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) _tmp88_, (ValaCodeNode*) element);
-	_tmp90_ = self->priv->glib_error;
-	if (_tmp90_ == NULL) {
-		ValadocApiClass* _tmp91_;
-		gchar* _tmp92_;
-		gchar* _tmp93_;
-		_tmp91_ = node;
-		_tmp92_ = valadoc_api_node_get_full_name ((ValadocApiNode*) _tmp91_);
-		_tmp93_ = _tmp92_;
-		_tmp89_ = g_strcmp0 (_tmp93_, "GLib.Error") == 0;
-		_g_free0 (_tmp93_);
+	_tmp40_ = node;
+	_tmp41_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp40_, _tmp41_);
+	_tmp42_ = node;
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) _tmp42_, (ValaCodeNode*) element);
+	_tmp44_ = self->priv->glib_error;
+	if (_tmp44_ == NULL) {
+		ValadocApiClass* _tmp45_;
+		gchar* _tmp46_;
+		gchar* _tmp47_;
+		_tmp45_ = node;
+		_tmp46_ = valadoc_api_node_get_full_name ((ValadocApiNode*) _tmp45_);
+		_tmp47_ = _tmp46_;
+		_tmp43_ = g_strcmp0 (_tmp47_, "GLib.Error") == 0;
+		_g_free0 (_tmp47_);
 	} else {
-		_tmp89_ = FALSE;
+		_tmp43_ = FALSE;
 	}
-	if (_tmp89_) {
-		ValadocApiClass* _tmp94_;
-		ValadocApiClass* _tmp95_;
-		_tmp94_ = node;
-		_tmp95_ = _g_object_ref0 (_tmp94_);
+	if (_tmp43_) {
+		ValadocApiClass* _tmp48_;
+		ValadocApiClass* _tmp49_;
+		_tmp48_ = node;
+		_tmp49_ = _g_object_ref0 (_tmp48_);
 		_g_object_unref0 (self->priv->glib_error);
-		self->priv->glib_error = _tmp95_;
+		self->priv->glib_error = _tmp49_;
 	}
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
@@ -4270,15 +2403,14 @@ valadoc_drivers_tree_builder_real_visit_class (ValaCodeVisitor* base,
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_interface (ValaCodeVisitor* base,
-                                                   ValaInterface* element)
+valadoc_tree_builder_real_visit_interface (ValaCodeVisitor* base,
+                                           ValaInterface* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4292,163 +2424,127 @@ valadoc_drivers_tree_builder_real_visit_interface (ValaCodeVisitor* base,
 	ValadocApiSourceFile* _tmp6_;
 	const gchar* _tmp7_;
 	const gchar* _tmp8_;
-	ValadocApiSourceComment* _tmp9_;
-	gchar* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gchar* _tmp20_;
-	gchar* _tmp21_;
-	gchar* _tmp22_;
-	gchar* _tmp23_;
-	ValadocApiInterface* _tmp24_;
-	ValadocApiInterface* _tmp25_;
-	ValaHashMap* _tmp26_;
-	ValadocApiInterface* _tmp27_;
-	ValadocApiNode* _tmp28_;
-	ValadocApiInterface* _tmp29_;
-	ValadocApiInterface* _tmp51_;
-	GList* _tmp52_;
-	ValadocApiInterface* _tmp53_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp9_;
+	ValaSymbolAccessibility _tmp10_;
+	ValadocApiSourceComment* _tmp11_;
+	ValadocApiInterface* _tmp12_;
+	ValaHashMap* _tmp13_;
+	ValadocApiInterface* _tmp14_;
+	ValadocApiNode* _tmp15_;
+	ValadocApiInterface* _tmp16_;
+	ValadocApiInterface* _tmp37_;
+	GList* _tmp38_;
+	ValadocApiInterface* _tmp39_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = parent;
 	_tmp6_ = file;
 	_tmp7_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = comment;
-	_tmp10_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp11_ = _tmp10_;
-	_tmp12_ = valadoc_drivers_tree_builder_get_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = valadoc_drivers_tree_builder_get_is_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp15_ = _tmp14_;
-	_tmp16_ = valadoc_drivers_tree_builder_get_type_cast_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp17_ = _tmp16_;
-	_tmp18_ = valadoc_drivers_tree_builder_get_type_function_name (self, (ValaTypeSymbol*) element);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = valadoc_drivers_tree_builder_get_interface_macro_name (self, element);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = vala_gd_bus_module_get_dbus_name ((ValaTypeSymbol*) element);
-	_tmp23_ = _tmp22_;
-	_tmp24_ = valadoc_api_interface_new (_tmp5_, _tmp6_, _tmp8_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp9_, _tmp11_, _tmp13_, _tmp15_, _tmp17_, _tmp19_, _tmp21_, _tmp23_, element);
-	_tmp25_ = _tmp24_;
-	_g_free0 (_tmp23_);
-	_g_free0 (_tmp21_);
-	_g_free0 (_tmp19_);
-	_g_free0 (_tmp17_);
-	_g_free0 (_tmp15_);
-	_g_free0 (_tmp13_);
-	_g_free0 (_tmp11_);
-	node = _tmp25_;
-	_tmp26_ = self->priv->symbol_map;
-	_tmp27_ = node;
-	vala_map_set ((ValaMap*) _tmp26_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp27_);
-	_tmp28_ = parent;
-	_tmp29_ = node;
-	valadoc_api_node_add_child (_tmp28_, (ValadocApiSymbol*) _tmp29_);
+	_tmp9_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = comment;
+	_tmp12_ = valadoc_api_interface_new (_tmp5_, _tmp6_, _tmp8_, _tmp10_, _tmp11_, element);
+	node = _tmp12_;
+	_tmp13_ = self->priv->symbol_map;
+	_tmp14_ = node;
+	vala_map_set ((ValaMap*) _tmp13_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp14_);
+	_tmp15_ = parent;
+	_tmp16_ = node;
+	valadoc_api_node_add_child (_tmp15_, (ValadocApiSymbol*) _tmp16_);
 	{
 		ValaList* _vala_type_ref_list = NULL;
-		ValaList* _tmp30_;
+		ValaList* _tmp17_;
+		ValaList* _tmp18_;
 		gint _vala_type_ref_size = 0;
-		ValaList* _tmp31_;
-		gint _tmp32_;
-		gint _tmp33_;
+		ValaList* _tmp19_;
+		gint _tmp20_;
+		gint _tmp21_;
 		gint _vala_type_ref_index = 0;
-		_tmp30_ = vala_interface_get_prerequisites (element);
-		_vala_type_ref_list = _tmp30_;
-		_tmp31_ = _vala_type_ref_list;
-		_tmp32_ = vala_collection_get_size ((ValaCollection*) _tmp31_);
-		_tmp33_ = _tmp32_;
-		_vala_type_ref_size = _tmp33_;
+		_tmp17_ = vala_interface_get_prerequisites (element);
+		_tmp18_ = _vala_iterable_ref0 (_tmp17_);
+		_vala_type_ref_list = _tmp18_;
+		_tmp19_ = _vala_type_ref_list;
+		_tmp20_ = vala_collection_get_size ((ValaCollection*) _tmp19_);
+		_tmp21_ = _tmp20_;
+		_vala_type_ref_size = _tmp21_;
 		_vala_type_ref_index = -1;
 		while (TRUE) {
-			gint _tmp34_;
-			gint _tmp35_;
-			gint _tmp36_;
+			gint _tmp22_;
+			gint _tmp23_;
 			ValaDataType* vala_type_ref = NULL;
-			ValaList* _tmp37_;
-			gint _tmp38_;
-			gpointer _tmp39_;
+			ValaList* _tmp24_;
+			gpointer _tmp25_;
 			ValadocApiTypeReference* type_ref = NULL;
-			ValaDataType* _tmp40_;
-			ValadocApiInterface* _tmp41_;
-			ValadocApiInterface* _tmp42_;
-			ValadocApiTypeReference* _tmp43_;
-			ValaDataType* _tmp44_;
-			ValaTypeSymbol* _tmp45_;
-			ValaTypeSymbol* _tmp46_;
-			_tmp34_ = _vala_type_ref_index;
-			_vala_type_ref_index = _tmp34_ + 1;
-			_tmp35_ = _vala_type_ref_index;
-			_tmp36_ = _vala_type_ref_size;
-			if (!(_tmp35_ < _tmp36_)) {
+			ValaDataType* _tmp26_;
+			ValadocApiInterface* _tmp27_;
+			ValadocApiInterface* _tmp28_;
+			ValadocApiTypeReference* _tmp29_;
+			ValaDataType* _tmp30_;
+			ValaTypeSymbol* _tmp31_;
+			ValaTypeSymbol* _tmp32_;
+			_vala_type_ref_index = _vala_type_ref_index + 1;
+			_tmp22_ = _vala_type_ref_index;
+			_tmp23_ = _vala_type_ref_size;
+			if (!(_tmp22_ < _tmp23_)) {
 				break;
 			}
-			_tmp37_ = _vala_type_ref_list;
-			_tmp38_ = _vala_type_ref_index;
-			_tmp39_ = vala_list_get (_tmp37_, _tmp38_);
-			vala_type_ref = (ValaDataType*) _tmp39_;
-			_tmp40_ = vala_type_ref;
-			_tmp41_ = node;
-			_tmp42_ = node;
-			_tmp43_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp40_, (ValadocApiItem*) _tmp41_, (ValadocApiNode*) _tmp42_);
-			type_ref = _tmp43_;
-			_tmp44_ = vala_type_ref;
-			_tmp45_ = vala_data_type_get_data_type (_tmp44_);
-			_tmp46_ = _tmp45_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp46_, VALA_TYPE_INTERFACE)) {
-				ValadocApiInterface* _tmp47_;
-				ValadocApiTypeReference* _tmp48_;
-				_tmp47_ = node;
-				_tmp48_ = type_ref;
-				valadoc_api_interface_add_interface (_tmp47_, _tmp48_);
+			_tmp24_ = _vala_type_ref_list;
+			_tmp25_ = vala_list_get (_tmp24_, _vala_type_ref_index);
+			vala_type_ref = (ValaDataType*) _tmp25_;
+			_tmp26_ = vala_type_ref;
+			_tmp27_ = node;
+			_tmp28_ = node;
+			_tmp29_ = valadoc_tree_builder_create_type_reference (self, _tmp26_, (ValadocApiItem*) _tmp27_, (ValadocApiNode*) _tmp28_);
+			type_ref = _tmp29_;
+			_tmp30_ = vala_type_ref;
+			_tmp31_ = vala_data_type_get_type_symbol (_tmp30_);
+			_tmp32_ = _tmp31_;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp32_, VALA_TYPE_INTERFACE)) {
+				ValadocApiInterface* _tmp33_;
+				ValadocApiTypeReference* _tmp34_;
+				_tmp33_ = node;
+				_tmp34_ = type_ref;
+				valadoc_api_interface_add_interface (_tmp33_, _tmp34_);
 			} else {
-				ValadocApiInterface* _tmp49_;
-				ValadocApiTypeReference* _tmp50_;
-				_tmp49_ = node;
-				_tmp50_ = type_ref;
-				valadoc_api_interface_set_base_type (_tmp49_, _tmp50_);
+				ValadocApiInterface* _tmp35_;
+				ValadocApiTypeReference* _tmp36_;
+				_tmp35_ = node;
+				_tmp36_ = type_ref;
+				valadoc_api_interface_set_base_type (_tmp35_, _tmp36_);
 			}
 			_g_object_unref0 (type_ref);
 			_vala_code_node_unref0 (vala_type_ref);
 		}
 		_vala_iterable_unref0 (_vala_type_ref_list);
 	}
-	_tmp51_ = node;
-	_tmp52_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp51_, _tmp52_);
-	_tmp53_ = node;
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) _tmp53_, (ValaCodeNode*) element);
+	_tmp37_ = node;
+	_tmp38_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp37_, _tmp38_);
+	_tmp39_ = node;
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) _tmp39_, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_struct (ValaCodeVisitor* base,
-                                                ValaStruct* element)
+valadoc_tree_builder_real_visit_struct (ValaCodeVisitor* base,
+                                        ValaStruct* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4457,142 +2553,78 @@ valadoc_drivers_tree_builder_real_visit_struct (ValaCodeVisitor* base,
 	ValaComment* _tmp2_;
 	ValaComment* _tmp3_;
 	ValadocApiSourceComment* _tmp4_;
-	gboolean _tmp5_ = FALSE;
-	ValaDataType* _tmp6_;
-	ValaDataType* _tmp7_;
-	gboolean is_basic_type = FALSE;
 	ValadocApiStruct* node = NULL;
-	ValadocApiNode* _tmp10_;
-	ValadocApiSourceFile* _tmp11_;
-	const gchar* _tmp12_;
-	const gchar* _tmp13_;
-	ValadocApiSourceComment* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gchar* _tmp20_;
-	gchar* _tmp21_;
-	gchar* _tmp22_;
-	gchar* _tmp23_;
-	gchar* _tmp24_;
-	gchar* _tmp25_;
-	gchar* _tmp26_;
-	gchar* _tmp27_;
-	gchar* _tmp28_;
-	gchar* _tmp29_;
-	gchar* _tmp30_;
-	gboolean _tmp31_;
-	ValadocApiStruct* _tmp32_;
-	ValadocApiStruct* _tmp33_;
-	ValaHashMap* _tmp34_;
-	ValadocApiStruct* _tmp35_;
-	ValadocApiNode* _tmp36_;
-	ValadocApiStruct* _tmp37_;
+	ValadocApiNode* _tmp5_;
+	ValadocApiSourceFile* _tmp6_;
+	const gchar* _tmp7_;
+	const gchar* _tmp8_;
+	ValaSymbolAccessibility _tmp9_;
+	ValaSymbolAccessibility _tmp10_;
+	ValadocApiSourceComment* _tmp11_;
+	ValadocApiStruct* _tmp12_;
+	ValaHashMap* _tmp13_;
+	ValadocApiStruct* _tmp14_;
+	ValadocApiNode* _tmp15_;
+	ValadocApiStruct* _tmp16_;
 	ValaValueType* basetype = NULL;
-	ValaDataType* _tmp38_;
-	ValaDataType* _tmp39_;
-	ValaValueType* _tmp40_;
-	ValaValueType* _tmp41_;
-	ValadocApiStruct* _tmp48_;
-	GList* _tmp49_;
-	ValadocApiStruct* _tmp50_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaDataType* _tmp17_;
+	ValaDataType* _tmp18_;
+	ValaValueType* _tmp19_;
+	ValaValueType* _tmp20_;
+	ValadocApiStruct* _tmp27_;
+	GList* _tmp28_;
+	ValadocApiStruct* _tmp29_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
-	_tmp6_ = vala_struct_get_base_type (element);
-	_tmp7_ = _tmp6_;
-	if (_tmp7_ == NULL) {
-		gboolean _tmp8_ = FALSE;
-		gboolean _tmp9_ = FALSE;
-		if (vala_struct_is_boolean_type (element)) {
-			_tmp9_ = TRUE;
-		} else {
-			_tmp9_ = vala_struct_is_floating_type (element);
-		}
-		if (_tmp9_) {
-			_tmp8_ = TRUE;
-		} else {
-			_tmp8_ = vala_struct_is_integer_type (element);
-		}
-		_tmp5_ = _tmp8_;
-	} else {
-		_tmp5_ = FALSE;
-	}
-	is_basic_type = _tmp5_;
-	_tmp10_ = parent;
-	_tmp11_ = file;
-	_tmp12_ = vala_symbol_get_name ((ValaSymbol*) element);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = comment;
-	_tmp15_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp16_ = _tmp15_;
-	_tmp17_ = valadoc_drivers_tree_builder_get_type_macro_name (self, (ValaTypeSymbol*) element);
+	_tmp5_ = parent;
+	_tmp6_ = file;
+	_tmp7_ = vala_symbol_get_name ((ValaSymbol*) element);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = comment;
+	_tmp12_ = valadoc_api_struct_new (_tmp5_, _tmp6_, _tmp8_, _tmp10_, _tmp11_, element);
+	node = _tmp12_;
+	_tmp13_ = self->priv->symbol_map;
+	_tmp14_ = node;
+	vala_map_set ((ValaMap*) _tmp13_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp14_);
+	_tmp15_ = parent;
+	_tmp16_ = node;
+	valadoc_api_node_add_child (_tmp15_, (ValadocApiSymbol*) _tmp16_);
+	_tmp17_ = vala_struct_get_base_type (element);
 	_tmp18_ = _tmp17_;
-	_tmp19_ = valadoc_drivers_tree_builder_get_type_function_name (self, (ValaTypeSymbol*) element);
-	_tmp20_ = _tmp19_;
-	_tmp21_ = valadoc_drivers_tree_builder_get_ccode_type_id (self, (ValaCodeNode*) element);
-	_tmp22_ = _tmp21_;
-	_tmp23_ = valadoc_drivers_tree_builder_get_dup_function (self, (ValaTypeSymbol*) element);
-	_tmp24_ = _tmp23_;
-	_tmp25_ = valadoc_drivers_tree_builder_get_copy_function (self, (ValaTypeSymbol*) element);
-	_tmp26_ = _tmp25_;
-	_tmp27_ = valadoc_drivers_tree_builder_get_destroy_function (self, (ValaTypeSymbol*) element);
-	_tmp28_ = _tmp27_;
-	_tmp29_ = valadoc_drivers_tree_builder_get_free_function (self, (ValaTypeSymbol*) element);
-	_tmp30_ = _tmp29_;
-	_tmp31_ = is_basic_type;
-	_tmp32_ = valadoc_api_struct_new (_tmp10_, _tmp11_, _tmp13_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp14_, _tmp16_, _tmp18_, _tmp20_, _tmp22_, _tmp24_, _tmp26_, _tmp28_, _tmp30_, _tmp31_, element);
-	_tmp33_ = _tmp32_;
-	_g_free0 (_tmp30_);
-	_g_free0 (_tmp28_);
-	_g_free0 (_tmp26_);
-	_g_free0 (_tmp24_);
-	_g_free0 (_tmp22_);
-	_g_free0 (_tmp20_);
-	_g_free0 (_tmp18_);
-	_g_free0 (_tmp16_);
-	node = _tmp33_;
-	_tmp34_ = self->priv->symbol_map;
-	_tmp35_ = node;
-	vala_map_set ((ValaMap*) _tmp34_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp35_);
-	_tmp36_ = parent;
-	_tmp37_ = node;
-	valadoc_api_node_add_child (_tmp36_, (ValadocApiSymbol*) _tmp37_);
-	_tmp38_ = vala_struct_get_base_type (element);
-	_tmp39_ = _tmp38_;
-	_tmp40_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp39_, VALA_TYPE_VALUE_TYPE) ? ((ValaValueType*) _tmp39_) : NULL);
-	basetype = _tmp40_;
-	_tmp41_ = basetype;
-	if (_tmp41_ != NULL) {
-		ValadocApiStruct* _tmp42_;
-		ValaValueType* _tmp43_;
-		ValadocApiStruct* _tmp44_;
-		ValadocApiStruct* _tmp45_;
-		ValadocApiTypeReference* _tmp46_;
-		ValadocApiTypeReference* _tmp47_;
-		_tmp42_ = node;
-		_tmp43_ = basetype;
-		_tmp44_ = node;
-		_tmp45_ = node;
-		_tmp46_ = valadoc_drivers_tree_builder_create_type_reference (self, (ValaDataType*) _tmp43_, (ValadocApiItem*) _tmp44_, (ValadocApiNode*) _tmp45_);
-		_tmp47_ = _tmp46_;
-		valadoc_api_struct_set_base_type (_tmp42_, _tmp47_);
-		_g_object_unref0 (_tmp47_);
+	_tmp19_ = _vala_code_node_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp18_, VALA_TYPE_VALUE_TYPE) ? ((ValaValueType*) _tmp18_) : NULL);
+	basetype = _tmp19_;
+	_tmp20_ = basetype;
+	if (_tmp20_ != NULL) {
+		ValadocApiStruct* _tmp21_;
+		ValaValueType* _tmp22_;
+		ValadocApiStruct* _tmp23_;
+		ValadocApiStruct* _tmp24_;
+		ValadocApiTypeReference* _tmp25_;
+		ValadocApiTypeReference* _tmp26_;
+		_tmp21_ = node;
+		_tmp22_ = basetype;
+		_tmp23_ = node;
+		_tmp24_ = node;
+		_tmp25_ = valadoc_tree_builder_create_type_reference (self, (ValaDataType*) _tmp22_, (ValadocApiItem*) _tmp23_, (ValadocApiNode*) _tmp24_);
+		_tmp26_ = _tmp25_;
+		valadoc_api_struct_set_base_type (_tmp21_, _tmp26_);
+		_g_object_unref0 (_tmp26_);
 	}
-	_tmp48_ = node;
-	_tmp49_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp48_, _tmp49_);
-	_tmp50_ = node;
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) _tmp50_, (ValaCodeNode*) element);
+	_tmp27_ = node;
+	_tmp28_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp27_, _tmp28_);
+	_tmp29_ = node;
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) _tmp29_, (ValaCodeNode*) element);
 	_vala_code_node_unref0 (basetype);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
@@ -4600,15 +2632,14 @@ valadoc_drivers_tree_builder_real_visit_struct (ValaCodeVisitor* base,
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_field (ValaCodeVisitor* base,
-                                               ValaField* element)
+valadoc_tree_builder_real_visit_field (ValaCodeVisitor* base,
+                                       ValaField* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4620,69 +2651,57 @@ valadoc_drivers_tree_builder_real_visit_field (ValaCodeVisitor* base,
 	ValadocApiField* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	ValaMemberBinding _tmp9_;
-	ValaMemberBinding _tmp10_;
-	gboolean _tmp11_;
-	gboolean _tmp12_;
-	ValadocApiField* _tmp13_;
-	ValadocApiField* _tmp14_;
-	ValaDataType* _tmp15_;
-	ValaDataType* _tmp16_;
-	ValadocApiTypeReference* _tmp17_;
-	ValadocApiTypeReference* _tmp18_;
-	ValaHashMap* _tmp19_;
-	GList* _tmp20_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiField* _tmp9_;
+	ValaDataType* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValadocApiTypeReference* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValaHashMap* _tmp14_;
+	GList* _tmp15_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = vala_field_get_binding (element);
-	_tmp10_ = _tmp9_;
-	_tmp11_ = vala_field_get_is_volatile (element);
-	_tmp12_ = _tmp11_;
-	_tmp13_ = valadoc_api_field_new (parent, file, _tmp6_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), comment, _tmp8_, _tmp10_ == VALA_MEMBER_BINDING_STATIC, _tmp12_, element);
-	_tmp14_ = _tmp13_;
-	_g_free0 (_tmp8_);
-	node = _tmp14_;
-	_tmp15_ = vala_variable_get_variable_type ((ValaVariable*) element);
-	_tmp16_ = _tmp15_;
-	_tmp17_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp16_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp18_ = _tmp17_;
-	valadoc_api_field_set_field_type (node, _tmp18_);
-	_g_object_unref0 (_tmp18_);
-	_tmp19_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp19_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	_tmp9_ = valadoc_api_field_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = _tmp9_;
+	_tmp10_ = vala_variable_get_variable_type ((ValaVariable*) element);
+	_tmp11_ = _tmp10_;
+	_tmp12_ = valadoc_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp13_ = _tmp12_;
+	valadoc_api_field_set_field_type (node, _tmp13_);
+	_g_object_unref0 (_tmp13_);
+	_tmp14_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp14_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
 	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
-	_tmp20_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp20_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp15_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp15_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_property (ValaCodeVisitor* base,
-                                                  ValaProperty* element)
+valadoc_tree_builder_real_visit_property (ValaCodeVisitor* base,
+                                          ValaProperty* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4696,177 +2715,155 @@ valadoc_drivers_tree_builder_real_visit_property (ValaCodeVisitor* base,
 	ValadocApiSourceFile* _tmp6_;
 	const gchar* _tmp7_;
 	const gchar* _tmp8_;
-	ValadocApiSourceComment* _tmp9_;
-	const gchar* _tmp10_;
-	const gchar* _tmp11_;
-	gchar* _tmp12_;
-	gchar* _tmp13_;
-	ValadocApiProperty* _tmp14_;
-	ValadocApiProperty* _tmp15_;
+	ValaSymbolAccessibility _tmp9_;
+	ValaSymbolAccessibility _tmp10_;
+	ValadocApiSourceComment* _tmp11_;
+	ValadocApiProperty* _tmp12_;
+	ValadocApiProperty* _tmp13_;
+	ValaDataType* _tmp14_;
+	ValaDataType* _tmp15_;
 	ValadocApiProperty* _tmp16_;
-	ValaDataType* _tmp17_;
-	ValaDataType* _tmp18_;
-	ValadocApiProperty* _tmp19_;
-	ValadocApiProperty* _tmp20_;
-	ValadocApiTypeReference* _tmp21_;
-	ValadocApiTypeReference* _tmp22_;
-	ValaHashMap* _tmp23_;
-	ValadocApiProperty* _tmp24_;
-	ValadocApiNode* _tmp25_;
-	ValadocApiProperty* _tmp26_;
-	ValaPropertyAccessor* _tmp27_;
-	ValaPropertyAccessor* _tmp28_;
-	ValaPropertyAccessor* _tmp46_;
-	ValaPropertyAccessor* _tmp47_;
-	ValadocApiProperty* _tmp65_;
-	GList* _tmp66_;
-	ValadocApiProperty* _tmp67_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValadocApiProperty* _tmp17_;
+	ValadocApiTypeReference* _tmp18_;
+	ValadocApiTypeReference* _tmp19_;
+	ValaHashMap* _tmp20_;
+	ValadocApiProperty* _tmp21_;
+	ValadocApiNode* _tmp22_;
+	ValadocApiProperty* _tmp23_;
+	ValaPropertyAccessor* _tmp24_;
+	ValaPropertyAccessor* _tmp25_;
+	ValaPropertyAccessor* _tmp40_;
+	ValaPropertyAccessor* _tmp41_;
+	ValadocApiProperty* _tmp56_;
+	GList* _tmp57_;
+	ValadocApiProperty* _tmp58_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = parent;
 	_tmp6_ = file;
 	_tmp7_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = comment;
-	_tmp10_ = vala_property_get_nick (element);
-	_tmp11_ = _tmp10_;
-	_tmp12_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) element);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = valadoc_api_property_new (_tmp5_, _tmp6_, _tmp8_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp9_, _tmp11_, _tmp13_, vala_gd_bus_module_is_dbus_visible ((ValaCodeNode*) element), valadoc_drivers_tree_builder_get_property_binding_type (self, element), element);
+	_tmp9_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp10_ = _tmp9_;
+	_tmp11_ = comment;
+	_tmp12_ = valadoc_api_property_new (_tmp5_, _tmp6_, _tmp8_, _tmp10_, _tmp11_, element);
+	node = _tmp12_;
+	_tmp13_ = node;
+	_tmp14_ = vala_property_get_property_type (element);
 	_tmp15_ = _tmp14_;
-	_g_free0 (_tmp13_);
-	node = _tmp15_;
 	_tmp16_ = node;
-	_tmp17_ = vala_property_get_property_type (element);
-	_tmp18_ = _tmp17_;
-	_tmp19_ = node;
-	_tmp20_ = node;
-	_tmp21_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp18_, (ValadocApiItem*) _tmp19_, (ValadocApiNode*) _tmp20_);
-	_tmp22_ = _tmp21_;
-	valadoc_api_property_set_property_type (_tmp16_, _tmp22_);
-	_g_object_unref0 (_tmp22_);
-	_tmp23_ = self->priv->symbol_map;
-	_tmp24_ = node;
-	vala_map_set ((ValaMap*) _tmp23_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp24_);
-	_tmp25_ = parent;
-	_tmp26_ = node;
-	valadoc_api_node_add_child (_tmp25_, (ValadocApiSymbol*) _tmp26_);
-	_tmp27_ = vala_property_get_get_accessor (element);
-	_tmp28_ = _tmp27_;
-	if (_tmp28_ != NULL) {
+	_tmp17_ = node;
+	_tmp18_ = valadoc_tree_builder_create_type_reference (self, _tmp15_, (ValadocApiItem*) _tmp16_, (ValadocApiNode*) _tmp17_);
+	_tmp19_ = _tmp18_;
+	valadoc_api_property_set_property_type (_tmp13_, _tmp19_);
+	_g_object_unref0 (_tmp19_);
+	_tmp20_ = self->priv->symbol_map;
+	_tmp21_ = node;
+	vala_map_set ((ValaMap*) _tmp20_, (ValaSymbol*) element, (ValadocApiSymbol*) _tmp21_);
+	_tmp22_ = parent;
+	_tmp23_ = node;
+	valadoc_api_node_add_child (_tmp22_, (ValadocApiSymbol*) _tmp23_);
+	_tmp24_ = vala_property_get_get_accessor (element);
+	_tmp25_ = _tmp24_;
+	if (_tmp25_ != NULL) {
 		ValaPropertyAccessor* accessor = NULL;
-		ValaPropertyAccessor* _tmp29_;
-		ValaPropertyAccessor* _tmp30_;
-		ValaPropertyAccessor* _tmp31_;
-		ValadocApiProperty* _tmp32_;
-		ValadocApiProperty* _tmp33_;
-		ValadocApiSourceFile* _tmp34_;
-		const gchar* _tmp35_;
-		const gchar* _tmp36_;
+		ValaPropertyAccessor* _tmp26_;
+		ValaPropertyAccessor* _tmp27_;
+		ValaPropertyAccessor* _tmp28_;
+		ValadocApiProperty* _tmp29_;
+		ValadocApiProperty* _tmp30_;
+		ValadocApiSourceFile* _tmp31_;
+		const gchar* _tmp32_;
+		const gchar* _tmp33_;
+		ValaPropertyAccessor* _tmp34_;
+		ValaSymbolAccessibility _tmp35_;
+		ValaSymbolAccessibility _tmp36_;
 		ValaPropertyAccessor* _tmp37_;
-		ValaPropertyAccessor* _tmp38_;
-		gchar* _tmp39_;
-		gchar* _tmp40_;
-		ValaPropertyAccessor* _tmp41_;
-		ValaPropertyAccessor* _tmp42_;
-		ValaPropertyAccessor* _tmp43_;
-		ValadocApiPropertyAccessor* _tmp44_;
-		ValadocApiPropertyAccessor* _tmp45_;
-		_tmp29_ = vala_property_get_get_accessor (element);
-		_tmp30_ = _tmp29_;
-		_tmp31_ = _vala_code_node_ref0 (_tmp30_);
-		accessor = _tmp31_;
-		_tmp32_ = node;
-		_tmp33_ = node;
-		_tmp34_ = file;
-		_tmp35_ = vala_symbol_get_name ((ValaSymbol*) element);
+		ValadocApiPropertyAccessor* _tmp38_;
+		ValadocApiPropertyAccessor* _tmp39_;
+		_tmp26_ = vala_property_get_get_accessor (element);
+		_tmp27_ = _tmp26_;
+		_tmp28_ = _vala_code_node_ref0 (_tmp27_);
+		accessor = _tmp28_;
+		_tmp29_ = node;
+		_tmp30_ = node;
+		_tmp31_ = file;
+		_tmp32_ = vala_symbol_get_name ((ValaSymbol*) element);
+		_tmp33_ = _tmp32_;
+		_tmp34_ = accessor;
+		_tmp35_ = vala_symbol_get_access ((ValaSymbol*) _tmp34_);
 		_tmp36_ = _tmp35_;
 		_tmp37_ = accessor;
-		_tmp38_ = accessor;
-		_tmp39_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) _tmp38_);
-		_tmp40_ = _tmp39_;
-		_tmp41_ = accessor;
-		_tmp42_ = accessor;
-		_tmp43_ = accessor;
-		_tmp44_ = valadoc_api_property_accessor_new (_tmp33_, _tmp34_, _tmp36_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) _tmp37_), _tmp40_, valadoc_drivers_tree_builder_get_property_accessor_type (self, _tmp41_), valadoc_drivers_tree_builder_get_property_ownership (self, _tmp42_), _tmp43_);
-		_tmp45_ = _tmp44_;
-		valadoc_api_property_set_getter (_tmp32_, _tmp45_);
-		_g_object_unref0 (_tmp45_);
-		_g_free0 (_tmp40_);
+		_tmp38_ = valadoc_api_property_accessor_new (_tmp30_, _tmp31_, _tmp33_, _tmp36_, _tmp37_);
+		_tmp39_ = _tmp38_;
+		valadoc_api_property_set_getter (_tmp29_, _tmp39_);
+		_g_object_unref0 (_tmp39_);
 		_vala_code_node_unref0 (accessor);
 	}
-	_tmp46_ = vala_property_get_set_accessor (element);
-	_tmp47_ = _tmp46_;
-	if (_tmp47_ != NULL) {
+	_tmp40_ = vala_property_get_set_accessor (element);
+	_tmp41_ = _tmp40_;
+	if (_tmp41_ != NULL) {
 		ValaPropertyAccessor* accessor = NULL;
-		ValaPropertyAccessor* _tmp48_;
-		ValaPropertyAccessor* _tmp49_;
+		ValaPropertyAccessor* _tmp42_;
+		ValaPropertyAccessor* _tmp43_;
+		ValaPropertyAccessor* _tmp44_;
+		ValadocApiProperty* _tmp45_;
+		ValadocApiProperty* _tmp46_;
+		ValadocApiSourceFile* _tmp47_;
+		const gchar* _tmp48_;
+		const gchar* _tmp49_;
 		ValaPropertyAccessor* _tmp50_;
-		ValadocApiProperty* _tmp51_;
-		ValadocApiProperty* _tmp52_;
-		ValadocApiSourceFile* _tmp53_;
-		const gchar* _tmp54_;
-		const gchar* _tmp55_;
-		ValaPropertyAccessor* _tmp56_;
-		ValaPropertyAccessor* _tmp57_;
-		gchar* _tmp58_;
-		gchar* _tmp59_;
-		ValaPropertyAccessor* _tmp60_;
-		ValaPropertyAccessor* _tmp61_;
-		ValaPropertyAccessor* _tmp62_;
-		ValadocApiPropertyAccessor* _tmp63_;
-		ValadocApiPropertyAccessor* _tmp64_;
-		_tmp48_ = vala_property_get_set_accessor (element);
+		ValaSymbolAccessibility _tmp51_;
+		ValaSymbolAccessibility _tmp52_;
+		ValaPropertyAccessor* _tmp53_;
+		ValadocApiPropertyAccessor* _tmp54_;
+		ValadocApiPropertyAccessor* _tmp55_;
+		_tmp42_ = vala_property_get_set_accessor (element);
+		_tmp43_ = _tmp42_;
+		_tmp44_ = _vala_code_node_ref0 (_tmp43_);
+		accessor = _tmp44_;
+		_tmp45_ = node;
+		_tmp46_ = node;
+		_tmp47_ = file;
+		_tmp48_ = vala_symbol_get_name ((ValaSymbol*) element);
 		_tmp49_ = _tmp48_;
-		_tmp50_ = _vala_code_node_ref0 (_tmp49_);
-		accessor = _tmp50_;
-		_tmp51_ = node;
-		_tmp52_ = node;
-		_tmp53_ = file;
-		_tmp54_ = vala_symbol_get_name ((ValaSymbol*) element);
+		_tmp50_ = accessor;
+		_tmp51_ = vala_symbol_get_access ((ValaSymbol*) _tmp50_);
+		_tmp52_ = _tmp51_;
+		_tmp53_ = accessor;
+		_tmp54_ = valadoc_api_property_accessor_new (_tmp46_, _tmp47_, _tmp49_, _tmp52_, _tmp53_);
 		_tmp55_ = _tmp54_;
-		_tmp56_ = accessor;
-		_tmp57_ = accessor;
-		_tmp58_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) _tmp57_);
-		_tmp59_ = _tmp58_;
-		_tmp60_ = accessor;
-		_tmp61_ = accessor;
-		_tmp62_ = accessor;
-		_tmp63_ = valadoc_api_property_accessor_new (_tmp52_, _tmp53_, _tmp55_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) _tmp56_), _tmp59_, valadoc_drivers_tree_builder_get_property_accessor_type (self, _tmp60_), valadoc_drivers_tree_builder_get_property_ownership (self, _tmp61_), _tmp62_);
-		_tmp64_ = _tmp63_;
-		valadoc_api_property_set_setter (_tmp51_, _tmp64_);
-		_g_object_unref0 (_tmp64_);
-		_g_free0 (_tmp59_);
+		valadoc_api_property_set_setter (_tmp45_, _tmp55_);
+		_g_object_unref0 (_tmp55_);
 		_vala_code_node_unref0 (accessor);
 	}
-	_tmp65_ = node;
-	_tmp66_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp65_, _tmp66_);
-	_tmp67_ = node;
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) _tmp67_, (ValaCodeNode*) element);
+	_tmp56_ = node;
+	_tmp57_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) _tmp56_, _tmp57_);
+	_tmp58_ = node;
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) _tmp58_, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_creation_method (ValaCodeVisitor* base,
-                                                         ValaCreationMethod* element)
+valadoc_tree_builder_real_visit_creation_method (ValaCodeVisitor* base,
+                                                 ValaCreationMethod* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -4875,308 +2872,190 @@ valadoc_drivers_tree_builder_real_visit_creation_method (ValaCodeVisitor* base,
 	ValaComment* _tmp2_;
 	ValaComment* _tmp3_;
 	ValadocApiSourceComment* _tmp4_;
-	gchar* _tmp5_ = NULL;
-	gboolean _tmp6_;
-	gboolean _tmp7_;
 	ValadocApiMethod* node = NULL;
-	ValadocApiNode* _tmp9_;
-	ValadocApiSourceFile* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	ValadocApiSourceComment* _tmp13_;
-	gchar* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gboolean _tmp20_;
-	gboolean _tmp21_;
-	ValadocApiMethod* _tmp22_;
-	ValadocApiMethod* _tmp23_;
-	ValaDataType* _tmp24_;
-	ValaDataType* _tmp25_;
-	ValadocApiTypeReference* _tmp26_;
-	ValadocApiTypeReference* _tmp27_;
-	ValaHashMap* _tmp28_;
-	ValadocApiNode* _tmp29_;
-	GList* _tmp30_;
-	self = (ValadocDriversTreeBuilder*) base;
+	gchar* _tmp5_;
+	gchar* _tmp6_;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiMethod* _tmp9_;
+	ValadocApiMethod* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValaDataType* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValadocApiTypeReference* _tmp14_;
+	ValaHashMap* _tmp15_;
+	GList* _tmp16_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
-	_tmp6_ = vala_method_get_coroutine ((ValaMethod*) element);
-	_tmp7_ = _tmp6_;
-	if (_tmp7_) {
-		gchar* _tmp8_;
-		_tmp8_ = valadoc_drivers_tree_builder_get_finish_name (self, (ValaMethod*) element);
-		_g_free0 (_tmp5_);
-		_tmp5_ = _tmp8_;
-	} else {
-		_g_free0 (_tmp5_);
-		_tmp5_ = NULL;
-	}
-	_tmp9_ = parent;
-	_tmp10_ = file;
-	_tmp11_ = valadoc_drivers_tree_builder_get_method_name (self, (ValaMethod*) element);
+	_tmp5_ = valadoc_tree_builder_get_method_name (self, (ValaMethod*) element);
+	_tmp6_ = _tmp5_;
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = valadoc_api_method_new (parent, file, _tmp6_, _tmp8_, comment, (ValaMethod*) element);
+	_tmp10_ = _tmp9_;
+	_g_free0 (_tmp6_);
+	node = _tmp10_;
+	_tmp11_ = vala_callable_get_return_type ((ValaCallable*) element);
 	_tmp12_ = _tmp11_;
-	_tmp13_ = comment;
-	_tmp14_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp15_ = _tmp14_;
-	_tmp16_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) element);
-	_tmp17_ = _tmp16_;
-	_tmp18_ = vala_gd_bus_module_dbus_result_name ((ValaMethod*) element);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = vala_method_get_coroutine ((ValaMethod*) element);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = valadoc_api_method_new (_tmp9_, _tmp10_, _tmp12_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp13_, _tmp15_, _tmp17_, _tmp19_, _tmp5_, valadoc_drivers_tree_builder_get_method_binding_type (self, (ValaMethod*) element), _tmp21_, vala_gd_bus_module_is_dbus_visible ((ValaCodeNode*) element), G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CREATION_METHOD), (ValaMethod*) element);
-	_tmp23_ = _tmp22_;
-	_g_free0 (_tmp19_);
-	_g_free0 (_tmp17_);
-	_g_free0 (_tmp15_);
-	_g_free0 (_tmp12_);
-	node = _tmp23_;
-	_tmp24_ = vala_callable_get_return_type ((ValaCallable*) element);
-	_tmp25_ = _tmp24_;
-	_tmp26_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp25_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp27_ = _tmp26_;
-	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp27_);
-	_g_object_unref0 (_tmp27_);
-	_tmp28_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp28_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
-	_tmp29_ = parent;
-	valadoc_api_node_add_child (_tmp29_, (ValadocApiSymbol*) node);
-	_tmp30_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp30_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
-	_g_object_unref0 (node);
-	_g_free0 (_tmp5_);
-	_valadoc_api_source_comment_unref0 (comment);
-	_g_object_unref0 (file);
-	_g_object_unref0 (parent);
-}
-
-
-/**
- * {@inheritDoc}
- */
-static void
-valadoc_drivers_tree_builder_real_visit_method (ValaCodeVisitor* base,
-                                                ValaMethod* element)
-{
-	ValadocDriversTreeBuilder * self;
-	ValadocApiNode* parent = NULL;
-	ValadocApiNode* _tmp0_;
-	ValadocApiSourceFile* file = NULL;
-	ValadocApiSourceFile* _tmp1_;
-	ValadocApiSourceComment* comment = NULL;
-	ValaComment* _tmp2_;
-	ValaComment* _tmp3_;
-	ValadocApiSourceComment* _tmp4_;
-	gchar* _tmp5_ = NULL;
-	gboolean _tmp6_;
-	gboolean _tmp7_;
-	ValadocApiMethod* node = NULL;
-	ValadocApiNode* _tmp9_;
-	ValadocApiSourceFile* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	ValadocApiSourceComment* _tmp13_;
-	gchar* _tmp14_;
-	gchar* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gboolean _tmp20_;
-	gboolean _tmp21_;
-	ValadocApiMethod* _tmp22_;
-	ValadocApiMethod* _tmp23_;
-	ValaDataType* _tmp24_;
-	ValaDataType* _tmp25_;
-	ValadocApiTypeReference* _tmp26_;
-	ValadocApiTypeReference* _tmp27_;
-	ValaHashMap* _tmp28_;
-	ValadocApiNode* _tmp29_;
-	GList* _tmp30_;
-	self = (ValadocDriversTreeBuilder*) base;
-	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
-	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
-	file = _tmp1_;
-	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
-	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
-	comment = _tmp4_;
-	_tmp6_ = vala_method_get_coroutine (element);
-	_tmp7_ = _tmp6_;
-	if (_tmp7_) {
-		gchar* _tmp8_;
-		_tmp8_ = valadoc_drivers_tree_builder_get_finish_name (self, element);
-		_g_free0 (_tmp5_);
-		_tmp5_ = _tmp8_;
-	} else {
-		_g_free0 (_tmp5_);
-		_tmp5_ = NULL;
-	}
-	_tmp9_ = parent;
-	_tmp10_ = file;
-	_tmp11_ = valadoc_drivers_tree_builder_get_method_name (self, element);
-	_tmp12_ = _tmp11_;
-	_tmp13_ = comment;
-	_tmp14_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp15_ = _tmp14_;
-	_tmp16_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) element);
-	_tmp17_ = _tmp16_;
-	_tmp18_ = vala_gd_bus_module_dbus_result_name (element);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = vala_method_get_coroutine (element);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = valadoc_api_method_new (_tmp9_, _tmp10_, _tmp12_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp13_, _tmp15_, _tmp17_, _tmp19_, _tmp5_, valadoc_drivers_tree_builder_get_method_binding_type (self, element), _tmp21_, vala_gd_bus_module_is_dbus_visible ((ValaCodeNode*) element), G_TYPE_CHECK_INSTANCE_TYPE (element, VALA_TYPE_CREATION_METHOD), element);
-	_tmp23_ = _tmp22_;
-	_g_free0 (_tmp19_);
-	_g_free0 (_tmp17_);
-	_g_free0 (_tmp15_);
-	_g_free0 (_tmp12_);
-	node = _tmp23_;
-	_tmp24_ = vala_callable_get_return_type ((ValaCallable*) element);
-	_tmp25_ = _tmp24_;
-	_tmp26_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp25_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp27_ = _tmp26_;
-	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp27_);
-	_g_object_unref0 (_tmp27_);
-	_tmp28_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp28_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
-	_tmp29_ = parent;
-	valadoc_api_node_add_child (_tmp29_, (ValadocApiSymbol*) node);
-	_tmp30_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp30_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
-	_g_object_unref0 (node);
-	_g_free0 (_tmp5_);
-	_valadoc_api_source_comment_unref0 (comment);
-	_g_object_unref0 (file);
-	_g_object_unref0 (parent);
-}
-
-
-/**
- * {@inheritDoc}
- */
-static void
-valadoc_drivers_tree_builder_real_visit_signal (ValaCodeVisitor* base,
-                                                ValaSignal* element)
-{
-	ValadocDriversTreeBuilder * self;
-	ValadocApiNode* parent = NULL;
-	ValadocApiNode* _tmp0_;
-	ValadocApiSourceFile* file = NULL;
-	ValadocApiSourceFile* _tmp1_;
-	ValadocApiSourceComment* comment = NULL;
-	ValaComment* _tmp2_;
-	ValaComment* _tmp3_;
-	ValadocApiSourceComment* _tmp4_;
-	gchar* _tmp5_ = NULL;
-	ValaMethod* _tmp6_;
-	ValaMethod* _tmp7_;
-	ValadocApiSignal* node = NULL;
-	ValadocApiNode* _tmp11_;
-	ValadocApiSourceFile* _tmp12_;
-	const gchar* _tmp13_;
-	const gchar* _tmp14_;
-	ValadocApiSourceComment* _tmp15_;
-	gchar* _tmp16_;
-	gchar* _tmp17_;
-	gchar* _tmp18_;
-	gchar* _tmp19_;
-	gboolean _tmp20_;
-	gboolean _tmp21_;
-	ValadocApiSignal* _tmp22_;
-	ValadocApiSignal* _tmp23_;
-	ValaDataType* _tmp24_;
-	ValaDataType* _tmp25_;
-	ValadocApiTypeReference* _tmp26_;
-	ValadocApiTypeReference* _tmp27_;
-	ValaHashMap* _tmp28_;
-	ValadocApiNode* _tmp29_;
-	GList* _tmp30_;
-	self = (ValadocDriversTreeBuilder*) base;
-	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
-	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
-	file = _tmp1_;
-	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
-	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
-	comment = _tmp4_;
-	_tmp6_ = vala_signal_get_default_handler (element);
-	_tmp7_ = _tmp6_;
-	if (_tmp7_ != NULL) {
-		ValaMethod* _tmp8_;
-		ValaMethod* _tmp9_;
-		gchar* _tmp10_;
-		_tmp8_ = vala_signal_get_default_handler (element);
-		_tmp9_ = _tmp8_;
-		_tmp10_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) _tmp9_);
-		_g_free0 (_tmp5_);
-		_tmp5_ = _tmp10_;
-	} else {
-		_g_free0 (_tmp5_);
-		_tmp5_ = NULL;
-	}
-	_tmp11_ = parent;
-	_tmp12_ = file;
-	_tmp13_ = vala_symbol_get_name ((ValaSymbol*) element);
+	_tmp13_ = valadoc_tree_builder_create_type_reference (self, _tmp12_, (ValadocApiItem*) node, (ValadocApiNode*) node);
 	_tmp14_ = _tmp13_;
-	_tmp15_ = comment;
-	_tmp16_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp17_ = _tmp16_;
-	_tmp18_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) element);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = vala_signal_get_is_virtual (element);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = valadoc_api_signal_new (_tmp11_, _tmp12_, _tmp14_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), _tmp15_, _tmp17_, _tmp5_, _tmp19_, vala_gd_bus_module_is_dbus_visible ((ValaCodeNode*) element), _tmp21_, element);
-	_tmp23_ = _tmp22_;
-	_g_free0 (_tmp19_);
-	_g_free0 (_tmp17_);
-	node = _tmp23_;
-	_tmp24_ = vala_callable_get_return_type ((ValaCallable*) element);
-	_tmp25_ = _tmp24_;
-	_tmp26_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp25_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp27_ = _tmp26_;
-	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp27_);
-	_g_object_unref0 (_tmp27_);
-	_tmp28_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp28_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
-	_tmp29_ = parent;
-	valadoc_api_node_add_child (_tmp29_, (ValadocApiSymbol*) node);
-	_tmp30_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp30_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp14_);
+	_g_object_unref0 (_tmp14_);
+	_tmp15_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp15_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
+	_tmp16_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp16_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
-	_g_free0 (_tmp5_);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
+/**
+ * {@inheritDoc}
+ */
+static void
+valadoc_tree_builder_real_visit_method (ValaCodeVisitor* base,
+                                        ValaMethod* element)
+{
+	ValadocTreeBuilder * self;
+	ValadocApiNode* parent = NULL;
+	ValadocApiNode* _tmp0_;
+	ValadocApiSourceFile* file = NULL;
+	ValadocApiSourceFile* _tmp1_;
+	ValadocApiSourceComment* comment = NULL;
+	ValaComment* _tmp2_;
+	ValaComment* _tmp3_;
+	ValadocApiSourceComment* _tmp4_;
+	ValadocApiMethod* node = NULL;
+	gchar* _tmp5_;
+	gchar* _tmp6_;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiMethod* _tmp9_;
+	ValadocApiMethod* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValaDataType* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValadocApiTypeReference* _tmp14_;
+	ValaHashMap* _tmp15_;
+	GList* _tmp16_;
+	self = (ValadocTreeBuilder*) base;
+	g_return_if_fail (element != NULL);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	parent = _tmp0_;
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	file = _tmp1_;
+	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
+	_tmp3_ = _tmp2_;
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
+	comment = _tmp4_;
+	_tmp5_ = valadoc_tree_builder_get_method_name (self, element);
+	_tmp6_ = _tmp5_;
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = valadoc_api_method_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	_tmp10_ = _tmp9_;
+	_g_free0 (_tmp6_);
+	node = _tmp10_;
+	_tmp11_ = vala_callable_get_return_type ((ValaCallable*) element);
+	_tmp12_ = _tmp11_;
+	_tmp13_ = valadoc_tree_builder_create_type_reference (self, _tmp12_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp14_ = _tmp13_;
+	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp14_);
+	_g_object_unref0 (_tmp14_);
+	_tmp15_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp15_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
+	_tmp16_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp16_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_g_object_unref0 (node);
+	_valadoc_api_source_comment_unref0 (comment);
+	_g_object_unref0 (file);
+	_g_object_unref0 (parent);
+}
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_delegate (ValaCodeVisitor* base,
-                                                  ValaDelegate* element)
+valadoc_tree_builder_real_visit_signal (ValaCodeVisitor* base,
+                                        ValaSignal* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
+	ValadocApiNode* parent = NULL;
+	ValadocApiNode* _tmp0_;
+	ValadocApiSourceFile* file = NULL;
+	ValadocApiSourceFile* _tmp1_;
+	ValadocApiSourceComment* comment = NULL;
+	ValaComment* _tmp2_;
+	ValaComment* _tmp3_;
+	ValadocApiSourceComment* _tmp4_;
+	ValadocApiSignal* node = NULL;
+	const gchar* _tmp5_;
+	const gchar* _tmp6_;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiSignal* _tmp9_;
+	ValaDataType* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValadocApiTypeReference* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValaHashMap* _tmp14_;
+	GList* _tmp15_;
+	self = (ValadocTreeBuilder*) base;
+	g_return_if_fail (element != NULL);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	parent = _tmp0_;
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	file = _tmp1_;
+	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
+	_tmp3_ = _tmp2_;
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
+	comment = _tmp4_;
+	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
+	_tmp6_ = _tmp5_;
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
+	_tmp8_ = _tmp7_;
+	_tmp9_ = valadoc_api_signal_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = _tmp9_;
+	_tmp10_ = vala_callable_get_return_type ((ValaCallable*) element);
+	_tmp11_ = _tmp10_;
+	_tmp12_ = valadoc_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp13_ = _tmp12_;
+	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp13_);
+	_g_object_unref0 (_tmp13_);
+	_tmp14_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp14_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
+	_tmp15_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp15_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_g_object_unref0 (node);
+	_valadoc_api_source_comment_unref0 (comment);
+	_g_object_unref0 (file);
+	_g_object_unref0 (parent);
+}
+
+/**
+ * {@inheritDoc}
+ */
+static void
+valadoc_tree_builder_real_visit_delegate (ValaCodeVisitor* base,
+                                          ValaDelegate* element)
+{
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5188,65 +3067,57 @@ valadoc_drivers_tree_builder_real_visit_delegate (ValaCodeVisitor* base,
 	ValadocApiDelegate* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	gboolean _tmp9_;
-	gboolean _tmp10_;
-	ValadocApiDelegate* _tmp11_;
-	ValadocApiDelegate* _tmp12_;
-	ValaDataType* _tmp13_;
-	ValaDataType* _tmp14_;
-	ValadocApiTypeReference* _tmp15_;
-	ValadocApiTypeReference* _tmp16_;
-	ValaHashMap* _tmp17_;
-	GList* _tmp18_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiDelegate* _tmp9_;
+	ValaDataType* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValadocApiTypeReference* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValaHashMap* _tmp14_;
+	GList* _tmp15_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = vala_delegate_get_has_target (element);
-	_tmp10_ = _tmp9_;
-	_tmp11_ = valadoc_api_delegate_new (parent, file, _tmp6_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), comment, _tmp8_, !_tmp10_, element);
-	_tmp12_ = _tmp11_;
-	_g_free0 (_tmp8_);
-	node = _tmp12_;
-	_tmp13_ = vala_callable_get_return_type ((ValaCallable*) element);
-	_tmp14_ = _tmp13_;
-	_tmp15_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp14_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp16_ = _tmp15_;
-	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp16_);
-	_g_object_unref0 (_tmp16_);
-	_tmp17_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp17_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	_tmp9_ = valadoc_api_delegate_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = _tmp9_;
+	_tmp10_ = vala_callable_get_return_type ((ValaCallable*) element);
+	_tmp11_ = _tmp10_;
+	_tmp12_ = valadoc_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp13_ = _tmp12_;
+	valadoc_api_callable_set_return_type ((ValadocApiCallable*) node, _tmp13_);
+	_g_object_unref0 (_tmp13_);
+	_tmp14_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp14_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
 	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
-	_tmp18_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp18_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp15_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp15_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_enum (ValaCodeVisitor* base,
-                                              ValaEnum* element)
+valadoc_tree_builder_real_visit_enum (ValaCodeVisitor* base,
+                                      ValaEnum* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5258,61 +3129,47 @@ valadoc_drivers_tree_builder_real_visit_enum (ValaCodeVisitor* base,
 	ValadocApiSymbol* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	gchar* _tmp9_;
-	gchar* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	ValadocApiEnum* _tmp13_;
-	ValadocApiSymbol* _tmp14_;
-	ValaHashMap* _tmp15_;
-	GList* _tmp16_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiEnum* _tmp9_;
+	ValaHashMap* _tmp10_;
+	GList* _tmp11_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = valadoc_drivers_tree_builder_get_type_macro_name (self, (ValaTypeSymbol*) element);
-	_tmp10_ = _tmp9_;
-	_tmp11_ = valadoc_drivers_tree_builder_get_type_function_name (self, (ValaTypeSymbol*) element);
-	_tmp12_ = _tmp11_;
-	_tmp13_ = valadoc_api_enum_new (parent, file, _tmp6_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), comment, _tmp8_, _tmp10_, _tmp12_, element);
-	_tmp14_ = (ValadocApiSymbol*) _tmp13_;
-	_g_free0 (_tmp12_);
-	_g_free0 (_tmp10_);
-	_g_free0 (_tmp8_);
-	node = _tmp14_;
-	_tmp15_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp15_, (ValaSymbol*) element, node);
+	_tmp9_ = valadoc_api_enum_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = (ValadocApiSymbol*) _tmp9_;
+	_tmp10_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp10_, (ValaSymbol*) element, node);
 	valadoc_api_node_add_child (parent, node);
-	_tmp16_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, node, _tmp16_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp11_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, node, _tmp11_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_enum_value (ValaCodeVisitor* base,
-                                                    ValaEnumValue* element)
+valadoc_tree_builder_real_visit_enum_value (ValaCodeVisitor* base,
+                                            ValaEnumValue* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiEnum* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5324,51 +3181,43 @@ valadoc_drivers_tree_builder_real_visit_enum_value (ValaCodeVisitor* base,
 	ValadocApiSymbol* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	ValadocApiEnumValue* _tmp9_;
-	ValadocApiSymbol* _tmp10_;
-	ValaHashMap* _tmp11_;
-	GList* _tmp12_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValadocApiEnumValue* _tmp7_;
+	ValaHashMap* _tmp8_;
+	GList* _tmp9_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = G_TYPE_CHECK_INSTANCE_CAST (_tmp0_, VALADOC_API_TYPE_ENUM, ValadocApiEnum);
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp8_ = _tmp7_;
-	_tmp9_ = valadoc_api_enum_value_new (parent, file, _tmp6_, comment, _tmp8_, element);
-	_tmp10_ = (ValadocApiSymbol*) _tmp9_;
-	_g_free0 (_tmp8_);
-	node = _tmp10_;
-	_tmp11_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp11_, (ValaSymbol*) element, node);
+	_tmp7_ = valadoc_api_enum_value_new (parent, file, _tmp6_, comment, element);
+	node = (ValadocApiSymbol*) _tmp7_;
+	_tmp8_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp8_, (ValaSymbol*) element, node);
 	valadoc_api_node_add_child ((ValadocApiNode*) parent, node);
-	_tmp12_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, node, _tmp12_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp9_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, node, _tmp9_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_constant (ValaCodeVisitor* base,
-                                                  ValaConstant* element)
+valadoc_tree_builder_real_visit_constant (ValaCodeVisitor* base,
+                                          ValaConstant* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5380,61 +3229,57 @@ valadoc_drivers_tree_builder_real_visit_constant (ValaCodeVisitor* base,
 	ValadocApiConstant* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
 	ValadocApiConstant* _tmp9_;
-	ValadocApiConstant* _tmp10_;
+	ValaDataType* _tmp10_;
 	ValaDataType* _tmp11_;
-	ValaDataType* _tmp12_;
+	ValadocApiTypeReference* _tmp12_;
 	ValadocApiTypeReference* _tmp13_;
-	ValadocApiTypeReference* _tmp14_;
-	ValaHashMap* _tmp15_;
-	GList* _tmp16_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaHashMap* _tmp14_;
+	GList* _tmp15_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = valadoc_api_constant_new (parent, file, _tmp6_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), comment, _tmp8_, element);
-	_tmp10_ = _tmp9_;
-	_g_free0 (_tmp8_);
-	node = _tmp10_;
-	_tmp11_ = vala_constant_get_type_reference (element);
-	_tmp12_ = _tmp11_;
-	_tmp13_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp12_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp14_ = _tmp13_;
-	valadoc_api_constant_set_constant_type (node, _tmp14_);
-	_g_object_unref0 (_tmp14_);
-	_tmp15_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp15_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
+	_tmp9_ = valadoc_api_constant_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = _tmp9_;
+	_tmp10_ = vala_constant_get_type_reference (element);
+	_tmp11_ = _tmp10_;
+	_tmp12_ = valadoc_tree_builder_create_type_reference (self, _tmp11_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp13_ = _tmp12_;
+	valadoc_api_constant_set_constant_type (node, _tmp13_);
+	_g_object_unref0 (_tmp13_);
+	_tmp14_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp14_, (ValaSymbol*) element, (ValadocApiSymbol*) node);
 	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
-	_tmp16_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp16_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp15_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, (ValadocApiSymbol*) node, _tmp15_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_error_domain (ValaCodeVisitor* base,
-                                                      ValaErrorDomain* element)
+valadoc_tree_builder_real_visit_error_domain (ValaCodeVisitor* base,
+                                              ValaErrorDomain* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5446,66 +3291,47 @@ valadoc_drivers_tree_builder_real_visit_error_domain (ValaCodeVisitor* base,
 	ValadocApiSymbol* node = NULL;
 	const gchar* _tmp5_;
 	const gchar* _tmp6_;
-	gchar* _tmp7_;
-	gchar* _tmp8_;
-	gchar* _tmp9_;
-	gchar* _tmp10_;
-	gchar* _tmp11_;
-	gchar* _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	ValadocApiErrorDomain* _tmp15_;
-	ValadocApiSymbol* _tmp16_;
-	ValaHashMap* _tmp17_;
-	GList* _tmp18_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp7_;
+	ValaSymbolAccessibility _tmp8_;
+	ValadocApiErrorDomain* _tmp9_;
+	ValaHashMap* _tmp10_;
+	GList* _tmp11_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = valadoc_drivers_tree_builder_create_comment (self, _tmp3_);
+	_tmp4_ = valadoc_tree_builder_create_comment (self, _tmp3_);
 	comment = _tmp4_;
 	_tmp5_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
+	_tmp7_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = valadoc_drivers_tree_builder_get_quark_macro_name (self, element);
-	_tmp10_ = _tmp9_;
-	_tmp11_ = valadoc_drivers_tree_builder_get_quark_function_name (self, element);
-	_tmp12_ = _tmp11_;
-	_tmp13_ = vala_gd_bus_module_get_dbus_name ((ValaTypeSymbol*) element);
-	_tmp14_ = _tmp13_;
-	_tmp15_ = valadoc_api_error_domain_new (parent, file, _tmp6_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), comment, _tmp8_, _tmp10_, _tmp12_, _tmp14_, element);
-	_tmp16_ = (ValadocApiSymbol*) _tmp15_;
-	_g_free0 (_tmp14_);
-	_g_free0 (_tmp12_);
-	_g_free0 (_tmp10_);
-	_g_free0 (_tmp8_);
-	node = _tmp16_;
-	_tmp17_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp17_, (ValaSymbol*) element, node);
+	_tmp9_ = valadoc_api_error_domain_new (parent, file, _tmp6_, _tmp8_, comment, element);
+	node = (ValadocApiSymbol*) _tmp9_;
+	_tmp10_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp10_, (ValaSymbol*) element, node);
 	valadoc_api_node_add_child (parent, node);
-	_tmp18_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, node, _tmp18_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp11_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, node, _tmp11_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
-                                                    ValaErrorCode* element)
+valadoc_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
+                                            ValaErrorCode* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiErrorDomain* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5520,20 +3346,15 @@ valadoc_drivers_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
 	ValadocApiSourceFile* _tmp9_;
 	const gchar* _tmp10_;
 	const gchar* _tmp11_;
-	gchar* _tmp12_;
-	gchar* _tmp13_;
-	gchar* _tmp14_;
-	gchar* _tmp15_;
-	ValadocApiErrorCode* _tmp16_;
-	ValadocApiSymbol* _tmp17_;
-	ValaHashMap* _tmp18_;
-	ValadocApiErrorDomain* _tmp19_;
-	GList* _tmp20_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValadocApiErrorCode* _tmp12_;
+	ValaHashMap* _tmp13_;
+	ValadocApiErrorDomain* _tmp14_;
+	GList* _tmp15_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = G_TYPE_CHECK_INSTANCE_CAST (_tmp0_, VALADOC_API_TYPE_ERROR_DOMAIN, ValadocApiErrorDomain);
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = file;
 	if (_tmp2_ == NULL) {
@@ -5546,43 +3367,35 @@ valadoc_drivers_tree_builder_real_visit_error_code (ValaCodeVisitor* base,
 	}
 	_tmp5_ = vala_symbol_get_comment ((ValaSymbol*) element);
 	_tmp6_ = _tmp5_;
-	_tmp7_ = valadoc_drivers_tree_builder_create_comment (self, _tmp6_);
+	_tmp7_ = valadoc_tree_builder_create_comment (self, _tmp6_);
 	comment = _tmp7_;
 	_tmp8_ = parent;
 	_tmp9_ = file;
 	_tmp10_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp11_ = _tmp10_;
-	_tmp12_ = valadoc_drivers_tree_builder_get_cname (self, (ValaSymbol*) element);
-	_tmp13_ = _tmp12_;
-	_tmp14_ = vala_gd_bus_module_get_dbus_name_for_member ((ValaSymbol*) element);
-	_tmp15_ = _tmp14_;
-	_tmp16_ = valadoc_api_error_code_new (_tmp8_, _tmp9_, _tmp11_, comment, _tmp13_, _tmp15_, element);
-	_tmp17_ = (ValadocApiSymbol*) _tmp16_;
-	_g_free0 (_tmp15_);
-	_g_free0 (_tmp13_);
-	node = _tmp17_;
-	_tmp18_ = self->priv->symbol_map;
-	vala_map_set ((ValaMap*) _tmp18_, (ValaSymbol*) element, node);
-	_tmp19_ = parent;
-	valadoc_api_node_add_child ((ValadocApiNode*) _tmp19_, node);
-	_tmp20_ = ((ValaCodeNode*) element)->attributes;
-	valadoc_drivers_tree_builder_process_attributes (self, node, _tmp20_);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	_tmp12_ = valadoc_api_error_code_new (_tmp8_, _tmp9_, _tmp11_, comment, element);
+	node = (ValadocApiSymbol*) _tmp12_;
+	_tmp13_ = self->priv->symbol_map;
+	vala_map_set ((ValaMap*) _tmp13_, (ValaSymbol*) element, node);
+	_tmp14_ = parent;
+	valadoc_api_node_add_child ((ValadocApiNode*) _tmp14_, node);
+	_tmp15_ = ((ValaCodeNode*) element)->attributes;
+	valadoc_tree_builder_process_attributes (self, node, _tmp15_);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_valadoc_api_source_comment_unref0 (comment);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
 
-
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
-                                                        ValaTypeParameter* element)
+valadoc_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
+                                                ValaTypeParameter* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
@@ -5592,11 +3405,11 @@ valadoc_drivers_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
 	const gchar* _tmp3_;
 	ValadocApiTypeParameter* _tmp4_;
 	ValaHashMap* _tmp5_;
-	self = (ValadocDriversTreeBuilder*) base;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
@@ -5605,60 +3418,66 @@ valadoc_drivers_tree_builder_real_visit_type_parameter (ValaCodeVisitor* base,
 	_tmp5_ = self->priv->symbol_map;
 	vala_map_set ((ValaMap*) _tmp5_, (ValaSymbol*) element, node);
 	valadoc_api_node_add_child (parent, node);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
-
 
 /**
  * {@inheritDoc}
  */
 static void
-valadoc_drivers_tree_builder_real_visit_formal_parameter (ValaCodeVisitor* base,
-                                                          ValaParameter* element)
+valadoc_tree_builder_real_visit_formal_parameter (ValaCodeVisitor* base,
+                                                  ValaParameter* element)
 {
-	ValadocDriversTreeBuilder * self;
+	ValadocTreeBuilder * self;
 	ValadocApiNode* parent = NULL;
 	ValadocApiNode* _tmp0_;
 	ValadocApiSourceFile* file = NULL;
 	ValadocApiSourceFile* _tmp1_;
-	ValadocApiFormalParameter* node = NULL;
+	ValadocApiParameter* node = NULL;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
-	gboolean _tmp4_;
-	gboolean _tmp5_;
-	ValadocApiFormalParameter* _tmp6_;
-	ValaDataType* _tmp7_;
-	ValaDataType* _tmp8_;
-	ValadocApiTypeReference* _tmp9_;
-	ValadocApiTypeReference* _tmp10_;
-	self = (ValadocDriversTreeBuilder*) base;
+	ValaSymbolAccessibility _tmp4_;
+	ValaSymbolAccessibility _tmp5_;
+	ValaParameterDirection _tmp6_;
+	ValaParameterDirection _tmp7_;
+	gboolean _tmp8_;
+	gboolean _tmp9_;
+	ValadocApiParameter* _tmp10_;
+	ValaDataType* _tmp11_;
+	ValaDataType* _tmp12_;
+	ValadocApiTypeReference* _tmp13_;
+	ValadocApiTypeReference* _tmp14_;
+	self = (ValadocTreeBuilder*) base;
 	g_return_if_fail (element != NULL);
-	_tmp0_ = valadoc_drivers_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
+	_tmp0_ = valadoc_tree_builder_get_parent_node_for (self, (ValaSymbol*) element);
 	parent = _tmp0_;
-	_tmp1_ = valadoc_drivers_tree_builder_get_source_file (self, (ValaSymbol*) element);
+	_tmp1_ = valadoc_tree_builder_get_source_file (self, (ValaSymbol*) element);
 	file = _tmp1_;
 	_tmp2_ = vala_symbol_get_name ((ValaSymbol*) element);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = vala_parameter_get_ellipsis (element);
+	_tmp4_ = vala_symbol_get_access ((ValaSymbol*) element);
 	_tmp5_ = _tmp4_;
-	_tmp6_ = valadoc_api_formal_parameter_new (parent, file, _tmp3_, valadoc_drivers_tree_builder_get_access_modifier (self, (ValaSymbol*) element), valadoc_drivers_tree_builder_get_formal_parameter_type (self, element), _tmp5_, element);
-	node = _tmp6_;
-	_tmp7_ = vala_variable_get_variable_type ((ValaVariable*) element);
-	_tmp8_ = _tmp7_;
-	_tmp9_ = valadoc_drivers_tree_builder_create_type_reference (self, _tmp8_, (ValadocApiItem*) node, (ValadocApiNode*) node);
-	_tmp10_ = _tmp9_;
-	valadoc_api_formal_parameter_set_parameter_type (node, _tmp10_);
-	_g_object_unref0 (_tmp10_);
+	_tmp6_ = vala_parameter_get_direction (element);
+	_tmp7_ = _tmp6_;
+	_tmp8_ = vala_parameter_get_ellipsis (element);
+	_tmp9_ = _tmp8_;
+	_tmp10_ = valadoc_api_parameter_new (parent, file, _tmp3_, _tmp5_, _tmp7_, _tmp9_, element);
+	node = _tmp10_;
+	_tmp11_ = vala_variable_get_variable_type ((ValaVariable*) element);
+	_tmp12_ = _tmp11_;
+	_tmp13_ = valadoc_tree_builder_create_type_reference (self, _tmp12_, (ValadocApiItem*) node, (ValadocApiNode*) node);
+	_tmp14_ = _tmp13_;
+	valadoc_api_parameter_set_parameter_type (node, _tmp14_);
+	_g_object_unref0 (_tmp14_);
 	valadoc_api_node_add_child (parent, (ValadocApiSymbol*) node);
-	valadoc_drivers_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
+	valadoc_tree_builder_process_children (self, (ValadocApiNode*) node, (ValaCodeNode*) element);
 	_g_object_unref0 (node);
 	_g_object_unref0 (file);
 	_g_object_unref0 (parent);
 }
-
 
 static gpointer
 _valadoc_api_tree_ref0 (gpointer self)
@@ -5666,32 +3485,30 @@ _valadoc_api_tree_ref0 (gpointer self)
 	return self ? valadoc_api_tree_ref (self) : NULL;
 }
 
-
 ValadocApiTree*
-valadoc_drivers_tree_builder_build (ValadocDriversTreeBuilder* self,
-                                    ValadocSettings* settings,
-                                    ValadocErrorReporter* reporter)
+valadoc_tree_builder_build (ValadocTreeBuilder* self,
+                            ValadocSettings* settings,
+                            ValadocErrorReporter* reporter)
 {
-	ValadocApiTree* result = NULL;
 	ValadocSettings* _tmp0_;
 	ValadocErrorReporter* _tmp1_;
 	ValaCodeContext* context = NULL;
 	ValaCodeContext* _tmp2_;
 	ValaCodeContext* _tmp3_;
-	ValaCodeContext* _tmp4_;
-	ValadocApiTree* _tmp5_;
+	ValadocApiTree* _tmp4_;
+	ValaCodeContext* _tmp5_;
 	ValaCodeContext* _tmp6_;
-	ValaCodeContext* _tmp7_;
+	ValaReport* _tmp7_;
 	ValaReport* _tmp8_;
-	ValaReport* _tmp9_;
-	ValaCodeContext* _tmp10_;
+	ValaCodeContext* _tmp9_;
+	ValaReport* _tmp10_;
 	ValaReport* _tmp11_;
-	ValaReport* _tmp12_;
-	ValaCodeContext* _tmp49_;
-	ValadocApiTree* _tmp50_ = NULL;
-	gint _tmp51_;
-	gint _tmp52_;
-	ValadocApiTree* _tmp54_;
+	ValaCodeContext* _tmp46_;
+	ValadocApiTree* _tmp47_ = NULL;
+	gint _tmp48_;
+	gint _tmp49_;
+	ValadocApiTree* _tmp51_;
+	ValadocApiTree* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (settings != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
@@ -5701,35 +3518,35 @@ valadoc_drivers_tree_builder_build (ValadocDriversTreeBuilder* self,
 	_tmp1_ = _g_object_ref0 (reporter);
 	_g_object_unref0 (self->priv->reporter);
 	self->priv->reporter = _tmp1_;
-	_tmp2_ = vala_code_context_new ();
+	_tmp2_ = vala_code_context_get ();
 	context = _tmp2_;
 	_tmp3_ = context;
-	vala_code_context_push (_tmp3_);
-	_tmp4_ = context;
-	_tmp5_ = valadoc_api_tree_new (reporter, settings, _tmp4_);
+	_tmp4_ = valadoc_api_tree_new (reporter, settings, _tmp3_);
 	_valadoc_api_tree_unref0 (self->priv->tree);
-	self->priv->tree = _tmp5_;
+	self->priv->tree = _tmp4_;
+	_tmp5_ = context;
+	valadoc_tree_builder_create_valac_tree (self, _tmp5_, settings);
 	_tmp6_ = context;
-	valadoc_drivers_tree_builder_create_valac_tree (self, _tmp6_, settings);
-	_tmp7_ = context;
-	_tmp8_ = vala_code_context_get_report (_tmp7_);
-	_tmp9_ = _tmp8_;
-	valadoc_error_reporter_set_warnings_offset (reporter, vala_report_get_warnings (_tmp9_));
-	_tmp10_ = context;
-	_tmp11_ = vala_code_context_get_report (_tmp10_);
-	_tmp12_ = _tmp11_;
-	valadoc_error_reporter_set_errors_offset (reporter, vala_report_get_errors (_tmp12_));
+	_tmp7_ = vala_code_context_get_report (_tmp6_);
+	_tmp8_ = _tmp7_;
+	valadoc_error_reporter_set_warnings_offset (reporter, vala_report_get_warnings (_tmp8_));
+	_tmp9_ = context;
+	_tmp10_ = vala_code_context_get_report (_tmp9_);
+	_tmp11_ = _tmp10_;
+	valadoc_error_reporter_set_errors_offset (reporter, vala_report_get_errors (_tmp11_));
 	{
 		ValaList* _vfile_list = NULL;
-		ValaCodeContext* _tmp13_;
+		ValaCodeContext* _tmp12_;
+		ValaList* _tmp13_;
 		ValaList* _tmp14_;
 		gint _vfile_size = 0;
 		ValaList* _tmp15_;
 		gint _tmp16_;
 		gint _tmp17_;
 		gint _vfile_index = 0;
-		_tmp13_ = context;
-		_tmp14_ = vala_code_context_get_source_files (_tmp13_);
+		_tmp12_ = context;
+		_tmp13_ = vala_code_context_get_source_files (_tmp12_);
+		_tmp14_ = _vala_iterable_ref0 (_tmp13_);
 		_vfile_list = _tmp14_;
 		_tmp15_ = _vfile_list;
 		_tmp16_ = vala_collection_get_size ((ValaCollection*) _tmp15_);
@@ -5739,155 +3556,142 @@ valadoc_drivers_tree_builder_build (ValadocDriversTreeBuilder* self,
 		while (TRUE) {
 			gint _tmp18_;
 			gint _tmp19_;
-			gint _tmp20_;
 			ValaSourceFile* vfile = NULL;
-			ValaList* _tmp21_;
-			gint _tmp22_;
-			gpointer _tmp23_;
-			gboolean _tmp24_ = FALSE;
-			gboolean _tmp25_ = FALSE;
-			ValaSourceFile* _tmp26_;
-			ValaSourceFileType _tmp27_;
-			ValaSourceFileType _tmp28_;
+			ValaList* _tmp20_;
+			gpointer _tmp21_;
+			gboolean _tmp22_ = FALSE;
+			gboolean _tmp23_ = FALSE;
+			ValaSourceFile* _tmp24_;
+			ValaSourceFileType _tmp25_;
+			ValaSourceFileType _tmp26_;
+			_vfile_index = _vfile_index + 1;
 			_tmp18_ = _vfile_index;
-			_vfile_index = _tmp18_ + 1;
-			_tmp19_ = _vfile_index;
-			_tmp20_ = _vfile_size;
-			if (!(_tmp19_ < _tmp20_)) {
+			_tmp19_ = _vfile_size;
+			if (!(_tmp18_ < _tmp19_)) {
 				break;
 			}
-			_tmp21_ = _vfile_list;
-			_tmp22_ = _vfile_index;
-			_tmp23_ = vala_list_get (_tmp21_, _tmp22_);
-			vfile = (ValaSourceFile*) _tmp23_;
-			_tmp26_ = vfile;
-			_tmp27_ = vala_source_file_get_file_type (_tmp26_);
-			_tmp28_ = _tmp27_;
-			if (_tmp28_ == VALA_SOURCE_FILE_TYPE_PACKAGE) {
-				ValaSourceFile* _tmp29_;
-				ValaList* _tmp30_;
-				ValaList* _tmp31_;
-				gint _tmp32_;
-				gint _tmp33_;
-				_tmp29_ = vfile;
-				_tmp30_ = vala_source_file_get_nodes (_tmp29_);
-				_tmp31_ = _tmp30_;
-				_tmp32_ = vala_collection_get_size ((ValaCollection*) _tmp31_);
-				_tmp33_ = _tmp32_;
-				_tmp25_ = _tmp33_ > 0;
-				_vala_iterable_unref0 (_tmp31_);
+			_tmp20_ = _vfile_list;
+			_tmp21_ = vala_list_get (_tmp20_, _vfile_index);
+			vfile = (ValaSourceFile*) _tmp21_;
+			_tmp24_ = vfile;
+			_tmp25_ = vala_source_file_get_file_type (_tmp24_);
+			_tmp26_ = _tmp25_;
+			if (_tmp26_ == VALA_SOURCE_FILE_TYPE_PACKAGE) {
+				ValaSourceFile* _tmp27_;
+				ValaList* _tmp28_;
+				gint _tmp29_;
+				gint _tmp30_;
+				_tmp27_ = vfile;
+				_tmp28_ = vala_source_file_get_nodes (_tmp27_);
+				_tmp29_ = vala_collection_get_size ((ValaCollection*) _tmp28_);
+				_tmp30_ = _tmp29_;
+				_tmp23_ = _tmp30_ > 0;
 			} else {
-				_tmp25_ = FALSE;
+				_tmp23_ = FALSE;
 			}
-			if (_tmp25_) {
-				ValaHashMap* _tmp34_;
-				ValaSourceFile* _tmp35_;
-				_tmp34_ = self->priv->files;
-				_tmp35_ = vfile;
-				_tmp24_ = vala_map_contains ((ValaMap*) _tmp34_, _tmp35_) == FALSE;
+			if (_tmp23_) {
+				ValaHashMap* _tmp31_;
+				ValaSourceFile* _tmp32_;
+				_tmp31_ = self->priv->files;
+				_tmp32_ = vfile;
+				_tmp22_ = vala_map_contains ((ValaMap*) _tmp31_, _tmp32_) == FALSE;
 			} else {
-				_tmp24_ = FALSE;
+				_tmp22_ = FALSE;
 			}
-			if (_tmp24_) {
+			if (_tmp22_) {
 				ValadocApiPackage* vdpkg = NULL;
-				ValaSourceFile* _tmp36_;
-				const gchar* _tmp37_;
-				const gchar* _tmp38_;
-				gchar* _tmp39_;
-				gchar* _tmp40_;
-				ValadocApiPackage* _tmp41_;
-				ValadocApiPackage* _tmp42_;
-				ValadocApiPackage* _tmp43_;
-				ValadocDriversTreeBuilderPackageMetaData* _tmp44_;
-				ValadocDriversTreeBuilderPackageMetaData* _tmp45_;
-				ValaSourceFile* _tmp46_;
-				ValadocApiSourceFile* _tmp47_;
-				ValadocApiSourceFile* _tmp48_;
-				_tmp36_ = vfile;
-				_tmp37_ = vala_source_file_get_filename (_tmp36_);
-				_tmp38_ = _tmp37_;
-				_tmp39_ = valadoc_drivers_tree_builder_get_package_name (self, _tmp38_);
-				_tmp40_ = _tmp39_;
-				_tmp41_ = valadoc_api_package_new (_tmp40_, TRUE, NULL);
+				ValaSourceFile* _tmp33_;
+				const gchar* _tmp34_;
+				const gchar* _tmp35_;
+				gchar* _tmp36_;
+				gchar* _tmp37_;
+				ValadocApiPackage* _tmp38_;
+				ValadocApiPackage* _tmp39_;
+				ValadocApiPackage* _tmp40_;
+				ValadocTreeBuilderPackageMetaData* _tmp41_;
+				ValadocTreeBuilderPackageMetaData* _tmp42_;
+				ValaSourceFile* _tmp43_;
+				ValadocApiSourceFile* _tmp44_;
+				ValadocApiSourceFile* _tmp45_;
+				_tmp33_ = vfile;
+				_tmp34_ = vala_source_file_get_filename (_tmp33_);
+				_tmp35_ = _tmp34_;
+				_tmp36_ = valadoc_tree_builder_get_package_name (self, _tmp35_);
+				_tmp37_ = _tmp36_;
+				_tmp38_ = valadoc_api_package_new (_tmp37_, TRUE, NULL);
+				_tmp39_ = _tmp38_;
+				_g_free0 (_tmp37_);
+				vdpkg = _tmp39_;
+				_tmp40_ = vdpkg;
+				_tmp41_ = valadoc_tree_builder_register_package (self, _tmp40_);
 				_tmp42_ = _tmp41_;
-				_g_free0 (_tmp40_);
-				vdpkg = _tmp42_;
-				_tmp43_ = vdpkg;
-				_tmp44_ = valadoc_drivers_tree_builder_register_package (self, _tmp43_);
+				_tmp43_ = vfile;
+				_tmp44_ = valadoc_tree_builder_register_source_file (self, _tmp42_, _tmp43_);
 				_tmp45_ = _tmp44_;
-				_tmp46_ = vfile;
-				_tmp47_ = valadoc_drivers_tree_builder_register_source_file (self, _tmp45_, _tmp46_);
-				_tmp48_ = _tmp47_;
-				_g_object_unref0 (_tmp48_);
-				_valadoc_drivers_tree_builder_package_meta_data_unref0 (_tmp45_);
+				_g_object_unref0 (_tmp45_);
+				_valadoc_tree_builder_package_meta_data_unref0 (_tmp42_);
 				_g_object_unref0 (vdpkg);
 			}
 			_vala_source_file_unref0 (vfile);
 		}
 		_vala_iterable_unref0 (_vfile_list);
 	}
-	_tmp49_ = context;
-	vala_code_context_accept (_tmp49_, (ValaCodeVisitor*) self);
-	_tmp51_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp52_ = _tmp51_;
-	if (_tmp52_ == 0) {
-		ValadocApiTree* _tmp53_;
-		_tmp53_ = self->priv->tree;
-		_tmp50_ = _tmp53_;
+	_tmp46_ = context;
+	vala_code_context_accept (_tmp46_, (ValaCodeVisitor*) self);
+	_tmp48_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp49_ = _tmp48_;
+	if (_tmp49_ == 0) {
+		ValadocApiTree* _tmp50_;
+		_tmp50_ = self->priv->tree;
+		_tmp47_ = _tmp50_;
 	} else {
-		_tmp50_ = NULL;
+		_tmp47_ = NULL;
 	}
-	_tmp54_ = _valadoc_api_tree_ref0 (_tmp50_);
-	result = _tmp54_;
+	_tmp51_ = _valadoc_api_tree_ref0 (_tmp47_);
+	result = _tmp51_;
 	_vala_code_context_unref0 (context);
 	return result;
 }
 
-
-ValadocDriversTreeBuilder*
-valadoc_drivers_tree_builder_construct (GType object_type)
+ValadocTreeBuilder*
+valadoc_tree_builder_construct (GType object_type)
 {
-	ValadocDriversTreeBuilder* self = NULL;
-	self = (ValadocDriversTreeBuilder*) vala_code_visitor_construct (object_type);
+	ValadocTreeBuilder* self = NULL;
+	self = (ValadocTreeBuilder*) vala_code_visitor_construct (object_type);
 	return self;
 }
 
-
-ValadocDriversTreeBuilder*
-valadoc_drivers_tree_builder_new (void)
+ValadocTreeBuilder*
+valadoc_tree_builder_new (void)
 {
-	return valadoc_drivers_tree_builder_construct (VALADOC_DRIVERS_TYPE_TREE_BUILDER);
+	return valadoc_tree_builder_construct (VALADOC_TYPE_TREE_BUILDER);
 }
 
-
-static ValadocDriversTreeBuilderPackageMetaData*
-valadoc_drivers_tree_builder_package_meta_data_construct (GType object_type,
-                                                          ValadocApiPackage* package)
+static ValadocTreeBuilderPackageMetaData*
+valadoc_tree_builder_package_meta_data_construct (GType object_type,
+                                                  ValadocApiPackage* package)
 {
-	ValadocDriversTreeBuilderPackageMetaData* self = NULL;
+	ValadocTreeBuilderPackageMetaData* self = NULL;
 	ValadocApiPackage* _tmp0_;
 	g_return_val_if_fail (package != NULL, NULL);
-	self = (ValadocDriversTreeBuilderPackageMetaData*) g_type_create_instance (object_type);
+	self = (ValadocTreeBuilderPackageMetaData*) g_type_create_instance (object_type);
 	_tmp0_ = _g_object_ref0 (package);
 	_g_object_unref0 (self->package);
 	self->package = _tmp0_;
 	return self;
 }
 
-
-static ValadocDriversTreeBuilderPackageMetaData*
-valadoc_drivers_tree_builder_package_meta_data_new (ValadocApiPackage* package)
+static ValadocTreeBuilderPackageMetaData*
+valadoc_tree_builder_package_meta_data_new (ValadocApiPackage* package)
 {
-	return valadoc_drivers_tree_builder_package_meta_data_construct (VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, package);
+	return valadoc_tree_builder_package_meta_data_construct (VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, package);
 }
 
-
 static ValadocApiNamespace*
-valadoc_drivers_tree_builder_package_meta_data_get_namespace (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                              ValaNamespace* vns,
-                                                              ValadocApiSourceFile* file)
+valadoc_tree_builder_package_meta_data_get_namespace (ValadocTreeBuilderPackageMetaData* self,
+                                                      ValaNamespace* vns,
+                                                      ValadocApiSourceFile* file)
 {
-	ValadocApiNamespace* result = NULL;
 	ValadocApiNamespace* ns = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
@@ -5896,12 +3700,13 @@ valadoc_drivers_tree_builder_package_meta_data_get_namespace (ValadocDriversTree
 	ValaSourceReference* _tmp3_;
 	ValaSourceReference* _tmp4_;
 	ValaSymbol* parent_vns = NULL;
-	ValaSymbol* _tmp80_;
-	ValaSymbol* _tmp81_;
-	ValaSymbol* _tmp82_;
-	ValaSymbol* _tmp83_;
-	ValaHashMap* _tmp100_;
-	ValadocApiNamespace* _tmp101_;
+	ValaSymbol* _tmp71_;
+	ValaSymbol* _tmp72_;
+	ValaSymbol* _tmp73_;
+	ValaSymbol* _tmp74_;
+	ValaHashMap* _tmp91_;
+	ValadocApiNamespace* _tmp92_;
+	ValadocApiNamespace* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (vns != NULL, NULL);
 	g_return_val_if_fail (file != NULL, NULL);
@@ -5920,184 +3725,166 @@ valadoc_drivers_tree_builder_package_meta_data_get_namespace (ValadocDriversTree
 		{
 			ValaList* _c_list = NULL;
 			ValaList* _tmp5_;
-			gint _c_size = 0;
 			ValaList* _tmp6_;
-			gint _tmp7_;
+			gint _c_size = 0;
+			ValaList* _tmp7_;
 			gint _tmp8_;
+			gint _tmp9_;
 			gint _c_index = 0;
 			_tmp5_ = vala_namespace_get_comments (vns);
-			_c_list = _tmp5_;
-			_tmp6_ = _c_list;
-			_tmp7_ = vala_collection_get_size ((ValaCollection*) _tmp6_);
-			_tmp8_ = _tmp7_;
-			_c_size = _tmp8_;
+			_tmp6_ = _vala_iterable_ref0 (_tmp5_);
+			_c_list = _tmp6_;
+			_tmp7_ = _c_list;
+			_tmp8_ = vala_collection_get_size ((ValaCollection*) _tmp7_);
+			_tmp9_ = _tmp8_;
+			_c_size = _tmp9_;
 			_c_index = -1;
 			while (TRUE) {
-				gint _tmp9_;
 				gint _tmp10_;
 				gint _tmp11_;
 				ValaComment* c = NULL;
 				ValaList* _tmp12_;
-				gint _tmp13_;
-				gpointer _tmp14_;
-				gboolean _tmp15_ = FALSE;
-				ValaComment* _tmp16_;
+				gpointer _tmp13_;
+				gboolean _tmp14_ = FALSE;
+				ValaComment* _tmp15_;
+				ValaSourceReference* _tmp16_;
 				ValaSourceReference* _tmp17_;
-				ValaSourceReference* _tmp18_;
+				ValaSourceFile* _tmp18_;
 				ValaSourceFile* _tmp19_;
 				ValaSourceFile* _tmp20_;
 				ValaSourceFile* _tmp21_;
-				ValaSourceFile* _tmp22_;
-				_tmp9_ = _c_index;
-				_c_index = _tmp9_ + 1;
+				_c_index = _c_index + 1;
 				_tmp10_ = _c_index;
 				_tmp11_ = _c_size;
 				if (!(_tmp10_ < _tmp11_)) {
 					break;
 				}
 				_tmp12_ = _c_list;
-				_tmp13_ = _c_index;
-				_tmp14_ = vala_list_get (_tmp12_, _tmp13_);
-				c = (ValaComment*) _tmp14_;
-				_tmp16_ = c;
-				_tmp17_ = vala_comment_get_source_reference (_tmp16_);
-				_tmp18_ = _tmp17_;
-				_tmp19_ = vala_source_reference_get_file (_tmp18_);
-				_tmp20_ = _tmp19_;
-				_tmp21_ = valadoc_api_source_file_get_data (file);
-				_tmp22_ = _tmp21_;
-				if (_tmp20_ == _tmp22_) {
-					_tmp15_ = TRUE;
+				_tmp13_ = vala_list_get (_tmp12_, _c_index);
+				c = (ValaComment*) _tmp13_;
+				_tmp15_ = c;
+				_tmp16_ = vala_comment_get_source_reference (_tmp15_);
+				_tmp17_ = _tmp16_;
+				_tmp18_ = vala_source_reference_get_file (_tmp17_);
+				_tmp19_ = _tmp18_;
+				_tmp20_ = valadoc_api_source_file_get_data (file);
+				_tmp21_ = _tmp20_;
+				if (_tmp19_ == _tmp21_) {
+					_tmp14_ = TRUE;
 				} else {
-					gboolean _tmp23_ = FALSE;
-					ValaComment* _tmp24_;
+					gboolean _tmp22_ = FALSE;
+					ValaComment* _tmp23_;
+					ValaSourceReference* _tmp24_;
 					ValaSourceReference* _tmp25_;
-					ValaSourceReference* _tmp26_;
+					ValaSourceFile* _tmp26_;
 					ValaSourceFile* _tmp27_;
-					ValaSourceFile* _tmp28_;
+					ValaSourceFileType _tmp28_;
 					ValaSourceFileType _tmp29_;
-					ValaSourceFileType _tmp30_;
-					_tmp24_ = c;
-					_tmp25_ = vala_comment_get_source_reference (_tmp24_);
-					_tmp26_ = _tmp25_;
-					_tmp27_ = vala_source_reference_get_file (_tmp26_);
-					_tmp28_ = _tmp27_;
-					_tmp29_ = vala_source_file_get_file_type (_tmp28_);
-					_tmp30_ = _tmp29_;
-					if (_tmp30_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
+					_tmp23_ = c;
+					_tmp24_ = vala_comment_get_source_reference (_tmp23_);
+					_tmp25_ = _tmp24_;
+					_tmp26_ = vala_source_reference_get_file (_tmp25_);
+					_tmp27_ = _tmp26_;
+					_tmp28_ = vala_source_file_get_file_type (_tmp27_);
+					_tmp29_ = _tmp28_;
+					if (_tmp29_ == VALA_SOURCE_FILE_TYPE_SOURCE) {
+						ValaSourceFile* _tmp30_;
 						ValaSourceFile* _tmp31_;
-						ValaSourceFile* _tmp32_;
+						ValaSourceFileType _tmp32_;
 						ValaSourceFileType _tmp33_;
-						ValaSourceFileType _tmp34_;
-						_tmp31_ = valadoc_api_source_file_get_data (file);
-						_tmp32_ = _tmp31_;
-						_tmp33_ = vala_source_file_get_file_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp32_, VALA_TYPE_SOURCE_FILE, ValaSourceFile));
-						_tmp34_ = _tmp33_;
-						_tmp23_ = _tmp34_ == VALA_SOURCE_FILE_TYPE_SOURCE;
+						_tmp30_ = valadoc_api_source_file_get_data (file);
+						_tmp31_ = _tmp30_;
+						_tmp32_ = vala_source_file_get_file_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp31_, VALA_TYPE_SOURCE_FILE, ValaSourceFile));
+						_tmp33_ = _tmp32_;
+						_tmp22_ = _tmp33_ == VALA_SOURCE_FILE_TYPE_SOURCE;
 					} else {
-						_tmp23_ = FALSE;
+						_tmp22_ = FALSE;
 					}
-					_tmp15_ = _tmp23_;
+					_tmp14_ = _tmp22_;
 				}
-				if (_tmp15_) {
+				if (_tmp14_) {
 					ValaSourceReference* pos = NULL;
-					ValaComment* _tmp35_;
+					ValaComment* _tmp34_;
+					ValaSourceReference* _tmp35_;
 					ValaSourceReference* _tmp36_;
 					ValaSourceReference* _tmp37_;
-					ValaSourceReference* _tmp38_;
-					ValaComment* _tmp39_;
-					_tmp35_ = c;
-					_tmp36_ = vala_comment_get_source_reference (_tmp35_);
-					_tmp37_ = _tmp36_;
-					_tmp38_ = _vala_source_reference_ref0 (_tmp37_);
-					pos = _tmp38_;
-					_tmp39_ = c;
-					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp39_, VALA_TYPE_GIR_COMMENT)) {
-						ValaComment* _tmp40_;
+					ValaComment* _tmp38_;
+					_tmp34_ = c;
+					_tmp35_ = vala_comment_get_source_reference (_tmp34_);
+					_tmp36_ = _tmp35_;
+					_tmp37_ = _vala_source_reference_ref0 (_tmp36_);
+					pos = _tmp37_;
+					_tmp38_ = c;
+					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp38_, VALA_TYPE_GIR_COMMENT)) {
+						ValaComment* _tmp39_;
+						const gchar* _tmp40_;
 						const gchar* _tmp41_;
-						const gchar* _tmp42_;
-						ValaSourceReference* _tmp43_;
-						ValaSourceLocation _tmp44_ = {0};
-						ValaSourceLocation _tmp45_;
-						gint _tmp46_;
-						ValaSourceReference* _tmp47_;
-						ValaSourceLocation _tmp48_ = {0};
-						ValaSourceLocation _tmp49_;
-						gint _tmp50_;
+						ValaSourceReference* _tmp42_;
+						ValaSourceLocation _tmp43_ = {0};
+						ValaSourceLocation _tmp44_;
+						ValaSourceReference* _tmp45_;
+						ValaSourceLocation _tmp46_ = {0};
+						ValaSourceLocation _tmp47_;
+						ValaSourceReference* _tmp48_;
+						ValaSourceLocation _tmp49_ = {0};
+						ValaSourceLocation _tmp50_;
 						ValaSourceReference* _tmp51_;
 						ValaSourceLocation _tmp52_ = {0};
 						ValaSourceLocation _tmp53_;
-						gint _tmp54_;
-						ValaSourceReference* _tmp55_;
-						ValaSourceLocation _tmp56_ = {0};
-						ValaSourceLocation _tmp57_;
-						gint _tmp58_;
-						ValadocApiGirSourceComment* _tmp59_;
-						_tmp40_ = c;
-						_tmp41_ = vala_comment_get_content (_tmp40_);
-						_tmp42_ = _tmp41_;
-						_tmp43_ = pos;
-						vala_source_reference_get_begin (_tmp43_, &_tmp44_);
-						_tmp45_ = _tmp44_;
-						_tmp46_ = _tmp45_.line;
-						_tmp47_ = pos;
-						vala_source_reference_get_begin (_tmp47_, &_tmp48_);
-						_tmp49_ = _tmp48_;
-						_tmp50_ = _tmp49_.column;
+						ValadocApiGirSourceComment* _tmp54_;
+						_tmp39_ = c;
+						_tmp40_ = vala_comment_get_content (_tmp39_);
+						_tmp41_ = _tmp40_;
+						_tmp42_ = pos;
+						vala_source_reference_get_begin (_tmp42_, &_tmp43_);
+						_tmp44_ = _tmp43_;
+						_tmp45_ = pos;
+						vala_source_reference_get_begin (_tmp45_, &_tmp46_);
+						_tmp47_ = _tmp46_;
+						_tmp48_ = pos;
+						vala_source_reference_get_end (_tmp48_, &_tmp49_);
+						_tmp50_ = _tmp49_;
 						_tmp51_ = pos;
 						vala_source_reference_get_end (_tmp51_, &_tmp52_);
 						_tmp53_ = _tmp52_;
-						_tmp54_ = _tmp53_.line;
-						_tmp55_ = pos;
-						vala_source_reference_get_end (_tmp55_, &_tmp56_);
-						_tmp57_ = _tmp56_;
-						_tmp58_ = _tmp57_.column;
-						_tmp59_ = valadoc_api_gir_source_comment_new (_tmp42_, file, _tmp46_, _tmp50_, _tmp54_, _tmp58_);
+						_tmp54_ = valadoc_api_gir_source_comment_new (_tmp41_, file, _tmp44_.line, _tmp47_.column, _tmp50_.line, _tmp53_.column);
 						_valadoc_api_source_comment_unref0 (comment);
-						comment = (ValadocApiSourceComment*) _tmp59_;
+						comment = (ValadocApiSourceComment*) _tmp54_;
 					} else {
-						ValaComment* _tmp60_;
-						const gchar* _tmp61_;
-						const gchar* _tmp62_;
-						ValaSourceReference* _tmp63_;
-						ValaSourceLocation _tmp64_ = {0};
-						ValaSourceLocation _tmp65_;
-						gint _tmp66_;
+						ValaComment* _tmp55_;
+						const gchar* _tmp56_;
+						const gchar* _tmp57_;
+						ValaSourceReference* _tmp58_;
+						ValaSourceLocation _tmp59_ = {0};
+						ValaSourceLocation _tmp60_;
+						ValaSourceReference* _tmp61_;
+						ValaSourceLocation _tmp62_ = {0};
+						ValaSourceLocation _tmp63_;
+						ValaSourceReference* _tmp64_;
+						ValaSourceLocation _tmp65_ = {0};
+						ValaSourceLocation _tmp66_;
 						ValaSourceReference* _tmp67_;
 						ValaSourceLocation _tmp68_ = {0};
 						ValaSourceLocation _tmp69_;
-						gint _tmp70_;
-						ValaSourceReference* _tmp71_;
-						ValaSourceLocation _tmp72_ = {0};
-						ValaSourceLocation _tmp73_;
-						gint _tmp74_;
-						ValaSourceReference* _tmp75_;
-						ValaSourceLocation _tmp76_ = {0};
-						ValaSourceLocation _tmp77_;
-						gint _tmp78_;
-						ValadocApiSourceComment* _tmp79_;
-						_tmp60_ = c;
-						_tmp61_ = vala_comment_get_content (_tmp60_);
-						_tmp62_ = _tmp61_;
-						_tmp63_ = pos;
-						vala_source_reference_get_begin (_tmp63_, &_tmp64_);
-						_tmp65_ = _tmp64_;
-						_tmp66_ = _tmp65_.line;
+						ValadocApiSourceComment* _tmp70_;
+						_tmp55_ = c;
+						_tmp56_ = vala_comment_get_content (_tmp55_);
+						_tmp57_ = _tmp56_;
+						_tmp58_ = pos;
+						vala_source_reference_get_begin (_tmp58_, &_tmp59_);
+						_tmp60_ = _tmp59_;
+						_tmp61_ = pos;
+						vala_source_reference_get_begin (_tmp61_, &_tmp62_);
+						_tmp63_ = _tmp62_;
+						_tmp64_ = pos;
+						vala_source_reference_get_end (_tmp64_, &_tmp65_);
+						_tmp66_ = _tmp65_;
 						_tmp67_ = pos;
-						vala_source_reference_get_begin (_tmp67_, &_tmp68_);
+						vala_source_reference_get_end (_tmp67_, &_tmp68_);
 						_tmp69_ = _tmp68_;
-						_tmp70_ = _tmp69_.column;
-						_tmp71_ = pos;
-						vala_source_reference_get_end (_tmp71_, &_tmp72_);
-						_tmp73_ = _tmp72_;
-						_tmp74_ = _tmp73_.line;
-						_tmp75_ = pos;
-						vala_source_reference_get_end (_tmp75_, &_tmp76_);
-						_tmp77_ = _tmp76_;
-						_tmp78_ = _tmp77_.column;
-						_tmp79_ = valadoc_api_source_comment_new (_tmp62_, file, _tmp66_, _tmp70_, _tmp74_, _tmp78_);
+						_tmp70_ = valadoc_api_source_comment_new (_tmp57_, file, _tmp60_.line, _tmp63_.column, _tmp66_.line, _tmp69_.column);
 						_valadoc_api_source_comment_unref0 (comment);
-						comment = _tmp79_;
+						comment = _tmp70_;
 					}
 					_vala_source_reference_unref0 (pos);
 					_vala_comment_unref0 (c);
@@ -6108,68 +3895,67 @@ valadoc_drivers_tree_builder_package_meta_data_get_namespace (ValadocDriversTree
 			_vala_iterable_unref0 (_c_list);
 		}
 	}
-	_tmp80_ = vala_symbol_get_parent_symbol ((ValaSymbol*) vns);
-	_tmp81_ = _tmp80_;
-	_tmp82_ = _vala_code_node_ref0 (_tmp81_);
-	parent_vns = _tmp82_;
-	_tmp83_ = parent_vns;
-	if (_tmp83_ == NULL) {
-		ValadocApiPackage* _tmp84_;
+	_tmp71_ = vala_symbol_get_parent_symbol ((ValaSymbol*) vns);
+	_tmp72_ = _tmp71_;
+	_tmp73_ = _vala_code_node_ref0 (_tmp72_);
+	parent_vns = _tmp73_;
+	_tmp74_ = parent_vns;
+	if (_tmp74_ == NULL) {
+		ValadocApiPackage* _tmp75_;
+		const gchar* _tmp76_;
+		const gchar* _tmp77_;
+		ValadocApiSourceComment* _tmp78_;
+		ValadocApiNamespace* _tmp79_;
+		ValadocApiPackage* _tmp80_;
+		ValadocApiNamespace* _tmp81_;
+		_tmp75_ = self->package;
+		_tmp76_ = vala_symbol_get_name ((ValaSymbol*) vns);
+		_tmp77_ = _tmp76_;
+		_tmp78_ = comment;
+		_tmp79_ = valadoc_api_namespace_new ((ValadocApiNode*) _tmp75_, file, _tmp77_, _tmp78_, vns);
+		_g_object_unref0 (ns);
+		ns = _tmp79_;
+		_tmp80_ = self->package;
+		_tmp81_ = ns;
+		valadoc_api_node_add_child ((ValadocApiNode*) _tmp80_, (ValadocApiSymbol*) _tmp81_);
+	} else {
+		ValadocApiNamespace* parent_ns = NULL;
+		ValaSymbol* _tmp82_;
+		ValadocApiNamespace* _tmp83_;
+		ValadocApiNamespace* _tmp84_;
 		const gchar* _tmp85_;
 		const gchar* _tmp86_;
 		ValadocApiSourceComment* _tmp87_;
 		ValadocApiNamespace* _tmp88_;
-		ValadocApiPackage* _tmp89_;
+		ValadocApiNamespace* _tmp89_;
 		ValadocApiNamespace* _tmp90_;
-		_tmp84_ = self->package;
+		_tmp82_ = parent_vns;
+		_tmp83_ = valadoc_tree_builder_package_meta_data_get_namespace (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp82_, VALA_TYPE_NAMESPACE, ValaNamespace), file);
+		parent_ns = _tmp83_;
+		_tmp84_ = parent_ns;
 		_tmp85_ = vala_symbol_get_name ((ValaSymbol*) vns);
 		_tmp86_ = _tmp85_;
 		_tmp87_ = comment;
 		_tmp88_ = valadoc_api_namespace_new ((ValadocApiNode*) _tmp84_, file, _tmp86_, _tmp87_, vns);
 		_g_object_unref0 (ns);
 		ns = _tmp88_;
-		_tmp89_ = self->package;
+		_tmp89_ = parent_ns;
 		_tmp90_ = ns;
 		valadoc_api_node_add_child ((ValadocApiNode*) _tmp89_, (ValadocApiSymbol*) _tmp90_);
-	} else {
-		ValadocApiNamespace* parent_ns = NULL;
-		ValaSymbol* _tmp91_;
-		ValadocApiNamespace* _tmp92_;
-		ValadocApiNamespace* _tmp93_;
-		const gchar* _tmp94_;
-		const gchar* _tmp95_;
-		ValadocApiSourceComment* _tmp96_;
-		ValadocApiNamespace* _tmp97_;
-		ValadocApiNamespace* _tmp98_;
-		ValadocApiNamespace* _tmp99_;
-		_tmp91_ = parent_vns;
-		_tmp92_ = valadoc_drivers_tree_builder_package_meta_data_get_namespace (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp91_, VALA_TYPE_NAMESPACE, ValaNamespace), file);
-		parent_ns = _tmp92_;
-		_tmp93_ = parent_ns;
-		_tmp94_ = vala_symbol_get_name ((ValaSymbol*) vns);
-		_tmp95_ = _tmp94_;
-		_tmp96_ = comment;
-		_tmp97_ = valadoc_api_namespace_new ((ValadocApiNode*) _tmp93_, file, _tmp95_, _tmp96_, vns);
-		_g_object_unref0 (ns);
-		ns = _tmp97_;
-		_tmp98_ = parent_ns;
-		_tmp99_ = ns;
-		valadoc_api_node_add_child ((ValadocApiNode*) _tmp98_, (ValadocApiSymbol*) _tmp99_);
 		_g_object_unref0 (parent_ns);
 	}
-	_tmp100_ = self->namespaces;
-	_tmp101_ = ns;
-	vala_map_set ((ValaMap*) _tmp100_, vns, _tmp101_);
+	_tmp91_ = self->namespaces;
+	_tmp92_ = ns;
+	vala_map_set ((ValaMap*) _tmp91_, vns, _tmp92_);
 	result = ns;
 	_vala_code_node_unref0 (parent_vns);
 	_valadoc_api_source_comment_unref0 (comment);
 	return result;
 }
 
-
 static void
-valadoc_drivers_tree_builder_package_meta_data_register_source_file (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                                     ValaSourceFile* file)
+valadoc_tree_builder_package_meta_data_register_source_file (ValadocTreeBuilderPackageMetaData* self,
+                                                             ValaSourceFile* file)
 {
 	ValaArrayList* _tmp0_;
 	g_return_if_fail (self != NULL);
@@ -6178,16 +3964,15 @@ valadoc_drivers_tree_builder_package_meta_data_register_source_file (ValadocDriv
 	vala_collection_add ((ValaCollection*) _tmp0_, file);
 }
 
-
 static gboolean
-valadoc_drivers_tree_builder_package_meta_data_is_package_for_file (ValadocDriversTreeBuilderPackageMetaData* self,
-                                                                    ValaSourceFile* source_file)
+valadoc_tree_builder_package_meta_data_is_package_for_file (ValadocTreeBuilderPackageMetaData* self,
+                                                            ValaSourceFile* source_file)
 {
-	gboolean result = FALSE;
 	gboolean _tmp0_ = FALSE;
 	ValaSourceFileType _tmp1_;
 	ValaSourceFileType _tmp2_;
 	ValaArrayList* _tmp6_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (source_file != NULL, FALSE);
 	_tmp1_ = vala_source_file_get_file_type (source_file);
@@ -6212,71 +3997,65 @@ valadoc_drivers_tree_builder_package_meta_data_is_package_for_file (ValadocDrive
 	return result;
 }
 
-
 static void
-valadoc_drivers_tree_builder_value_package_meta_data_init (GValue* value)
+valadoc_tree_builder_value_package_meta_data_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
 
-
 static void
-valadoc_drivers_tree_builder_value_package_meta_data_free_value (GValue* value)
+valadoc_tree_builder_value_package_meta_data_free_value (GValue* value)
 {
 	if (value->data[0].v_pointer) {
-		valadoc_drivers_tree_builder_package_meta_data_unref (value->data[0].v_pointer);
+		valadoc_tree_builder_package_meta_data_unref (value->data[0].v_pointer);
 	}
 }
 
-
 static void
-valadoc_drivers_tree_builder_value_package_meta_data_copy_value (const GValue* src_value,
-                                                                 GValue* dest_value)
+valadoc_tree_builder_value_package_meta_data_copy_value (const GValue* src_value,
+                                                         GValue* dest_value)
 {
 	if (src_value->data[0].v_pointer) {
-		dest_value->data[0].v_pointer = valadoc_drivers_tree_builder_package_meta_data_ref (src_value->data[0].v_pointer);
+		dest_value->data[0].v_pointer = valadoc_tree_builder_package_meta_data_ref (src_value->data[0].v_pointer);
 	} else {
 		dest_value->data[0].v_pointer = NULL;
 	}
 }
 
-
 static gpointer
-valadoc_drivers_tree_builder_value_package_meta_data_peek_pointer (const GValue* value)
+valadoc_tree_builder_value_package_meta_data_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
 
-
 static gchar*
-valadoc_drivers_tree_builder_value_package_meta_data_collect_value (GValue* value,
-                                                                    guint n_collect_values,
-                                                                    GTypeCValue* collect_values,
-                                                                    guint collect_flags)
+valadoc_tree_builder_value_package_meta_data_collect_value (GValue* value,
+                                                            guint n_collect_values,
+                                                            GTypeCValue* collect_values,
+                                                            guint collect_flags)
 {
 	if (collect_values[0].v_pointer) {
-		ValadocDriversTreeBuilderPackageMetaData * object;
+		ValadocTreeBuilderPackageMetaData * object;
 		object = collect_values[0].v_pointer;
 		if (object->parent_instance.g_class == NULL) {
 			return g_strconcat ("invalid unclassed object pointer for value type `", G_VALUE_TYPE_NAME (value), "'", NULL);
 		} else if (!g_value_type_compatible (G_TYPE_FROM_INSTANCE (object), G_VALUE_TYPE (value))) {
 			return g_strconcat ("invalid object type `", g_type_name (G_TYPE_FROM_INSTANCE (object)), "' for value type `", G_VALUE_TYPE_NAME (value), "'", NULL);
 		}
-		value->data[0].v_pointer = valadoc_drivers_tree_builder_package_meta_data_ref (object);
+		value->data[0].v_pointer = valadoc_tree_builder_package_meta_data_ref (object);
 	} else {
 		value->data[0].v_pointer = NULL;
 	}
 	return NULL;
 }
 
-
 static gchar*
-valadoc_drivers_tree_builder_value_package_meta_data_lcopy_value (const GValue* value,
-                                                                  guint n_collect_values,
-                                                                  GTypeCValue* collect_values,
-                                                                  guint collect_flags)
+valadoc_tree_builder_value_package_meta_data_lcopy_value (const GValue* value,
+                                                          guint n_collect_values,
+                                                          GTypeCValue* collect_values,
+                                                          guint collect_flags)
 {
-	ValadocDriversTreeBuilderPackageMetaData ** object_p;
+	ValadocTreeBuilderPackageMetaData ** object_p;
 	object_p = collect_values[0].v_pointer;
 	if (!object_p) {
 		return g_strdup_printf ("value location for `%s' passed as NULL", G_VALUE_TYPE_NAME (value));
@@ -6286,86 +4065,82 @@ valadoc_drivers_tree_builder_value_package_meta_data_lcopy_value (const GValue* 
 	} else if (collect_flags & G_VALUE_NOCOPY_CONTENTS) {
 		*object_p = value->data[0].v_pointer;
 	} else {
-		*object_p = valadoc_drivers_tree_builder_package_meta_data_ref (value->data[0].v_pointer);
+		*object_p = valadoc_tree_builder_package_meta_data_ref (value->data[0].v_pointer);
 	}
 	return NULL;
 }
 
-
 static GParamSpec*
-valadoc_drivers_tree_builder_param_spec_package_meta_data (const gchar* name,
-                                                           const gchar* nick,
-                                                           const gchar* blurb,
-                                                           GType object_type,
-                                                           GParamFlags flags)
+valadoc_tree_builder_param_spec_package_meta_data (const gchar* name,
+                                                   const gchar* nick,
+                                                   const gchar* blurb,
+                                                   GType object_type,
+                                                   GParamFlags flags)
 {
-	ValadocDriversTreeBuilderParamSpecPackageMetaData* spec;
-	g_return_val_if_fail (g_type_is_a (object_type, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA), NULL);
+	ValadocTreeBuilderParamSpecPackageMetaData* spec;
+	g_return_val_if_fail (g_type_is_a (object_type, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA), NULL);
 	spec = g_param_spec_internal (G_TYPE_PARAM_OBJECT, name, nick, blurb, flags);
 	G_PARAM_SPEC (spec)->value_type = object_type;
 	return G_PARAM_SPEC (spec);
 }
 
-
 static gpointer
-valadoc_drivers_tree_builder_value_get_package_meta_data (const GValue* value)
+valadoc_tree_builder_value_get_package_meta_data (const GValue* value)
 {
-	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA), NULL);
+	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA), NULL);
 	return value->data[0].v_pointer;
 }
 
-
 static void
-valadoc_drivers_tree_builder_value_set_package_meta_data (GValue* value,
-                                                          gpointer v_object)
+valadoc_tree_builder_value_set_package_meta_data (GValue* value,
+                                                  gpointer v_object)
 {
-	ValadocDriversTreeBuilderPackageMetaData * old;
-	g_return_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
+	ValadocTreeBuilderPackageMetaData * old;
+	g_return_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
 	old = value->data[0].v_pointer;
 	if (v_object) {
-		g_return_if_fail (G_TYPE_CHECK_INSTANCE_TYPE (v_object, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
+		g_return_if_fail (G_TYPE_CHECK_INSTANCE_TYPE (v_object, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
 		g_return_if_fail (g_value_type_compatible (G_TYPE_FROM_INSTANCE (v_object), G_VALUE_TYPE (value)));
 		value->data[0].v_pointer = v_object;
-		valadoc_drivers_tree_builder_package_meta_data_ref (value->data[0].v_pointer);
+		valadoc_tree_builder_package_meta_data_ref (value->data[0].v_pointer);
 	} else {
 		value->data[0].v_pointer = NULL;
 	}
 	if (old) {
-		valadoc_drivers_tree_builder_package_meta_data_unref (old);
+		valadoc_tree_builder_package_meta_data_unref (old);
 	}
 }
 
-
 static void
-valadoc_drivers_tree_builder_value_take_package_meta_data (GValue* value,
-                                                           gpointer v_object)
+valadoc_tree_builder_value_take_package_meta_data (GValue* value,
+                                                   gpointer v_object)
 {
-	ValadocDriversTreeBuilderPackageMetaData * old;
-	g_return_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
+	ValadocTreeBuilderPackageMetaData * old;
+	g_return_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
 	old = value->data[0].v_pointer;
 	if (v_object) {
-		g_return_if_fail (G_TYPE_CHECK_INSTANCE_TYPE (v_object, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
+		g_return_if_fail (G_TYPE_CHECK_INSTANCE_TYPE (v_object, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA));
 		g_return_if_fail (g_value_type_compatible (G_TYPE_FROM_INSTANCE (v_object), G_VALUE_TYPE (value)));
 		value->data[0].v_pointer = v_object;
 	} else {
 		value->data[0].v_pointer = NULL;
 	}
 	if (old) {
-		valadoc_drivers_tree_builder_package_meta_data_unref (old);
+		valadoc_tree_builder_package_meta_data_unref (old);
 	}
 }
 
-
 static void
-valadoc_drivers_tree_builder_package_meta_data_class_init (ValadocDriversTreeBuilderPackageMetaDataClass * klass)
+valadoc_tree_builder_package_meta_data_class_init (ValadocTreeBuilderPackageMetaDataClass * klass,
+                                                   gpointer klass_data)
 {
-	valadoc_drivers_tree_builder_package_meta_data_parent_class = g_type_class_peek_parent (klass);
-	((ValadocDriversTreeBuilderPackageMetaDataClass *) klass)->finalize = valadoc_drivers_tree_builder_package_meta_data_finalize;
+	valadoc_tree_builder_package_meta_data_parent_class = g_type_class_peek_parent (klass);
+	((ValadocTreeBuilderPackageMetaDataClass *) klass)->finalize = valadoc_tree_builder_package_meta_data_finalize;
 }
 
-
 static void
-valadoc_drivers_tree_builder_package_meta_data_instance_init (ValadocDriversTreeBuilderPackageMetaData * self)
+valadoc_tree_builder_package_meta_data_instance_init (ValadocTreeBuilderPackageMetaData * self,
+                                                      gpointer klass)
 {
 	GHashFunc _tmp0_;
 	GEqualFunc _tmp1_;
@@ -6384,85 +4159,89 @@ valadoc_drivers_tree_builder_package_meta_data_instance_init (ValadocDriversTree
 	self->ref_count = 1;
 }
 
-
 static void
-valadoc_drivers_tree_builder_package_meta_data_finalize (ValadocDriversTreeBuilderPackageMetaData * obj)
+valadoc_tree_builder_package_meta_data_finalize (ValadocTreeBuilderPackageMetaData * obj)
 {
-	ValadocDriversTreeBuilderPackageMetaData * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocDriversTreeBuilderPackageMetaData);
+	ValadocTreeBuilderPackageMetaData * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, ValadocTreeBuilderPackageMetaData);
 	g_signal_handlers_destroy (self);
 	_g_object_unref0 (self->package);
 	_vala_map_unref0 (self->namespaces);
 	_vala_iterable_unref0 (self->files);
 }
 
-
 static GType
-valadoc_drivers_tree_builder_package_meta_data_get_type (void)
+valadoc_tree_builder_package_meta_data_get_type_once (void)
 {
-	static volatile gsize valadoc_drivers_tree_builder_package_meta_data_type_id__volatile = 0;
-	if (g_once_init_enter (&valadoc_drivers_tree_builder_package_meta_data_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { valadoc_drivers_tree_builder_value_package_meta_data_init, valadoc_drivers_tree_builder_value_package_meta_data_free_value, valadoc_drivers_tree_builder_value_package_meta_data_copy_value, valadoc_drivers_tree_builder_value_package_meta_data_peek_pointer, "p", valadoc_drivers_tree_builder_value_package_meta_data_collect_value, "p", valadoc_drivers_tree_builder_value_package_meta_data_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocDriversTreeBuilderPackageMetaDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_drivers_tree_builder_package_meta_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocDriversTreeBuilderPackageMetaData), 0, (GInstanceInitFunc) valadoc_drivers_tree_builder_package_meta_data_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
-		GType valadoc_drivers_tree_builder_package_meta_data_type_id;
-		valadoc_drivers_tree_builder_package_meta_data_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocDriversTreeBuilderPackageMetaData", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		g_once_init_leave (&valadoc_drivers_tree_builder_package_meta_data_type_id__volatile, valadoc_drivers_tree_builder_package_meta_data_type_id);
-	}
-	return valadoc_drivers_tree_builder_package_meta_data_type_id__volatile;
+	static const GTypeValueTable g_define_type_value_table = { valadoc_tree_builder_value_package_meta_data_init, valadoc_tree_builder_value_package_meta_data_free_value, valadoc_tree_builder_value_package_meta_data_copy_value, valadoc_tree_builder_value_package_meta_data_peek_pointer, "p", valadoc_tree_builder_value_package_meta_data_collect_value, "p", valadoc_tree_builder_value_package_meta_data_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTreeBuilderPackageMetaDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_tree_builder_package_meta_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTreeBuilderPackageMetaData), 0, (GInstanceInitFunc) valadoc_tree_builder_package_meta_data_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType valadoc_tree_builder_package_meta_data_type_id;
+	valadoc_tree_builder_package_meta_data_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValadocTreeBuilderPackageMetaData", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return valadoc_tree_builder_package_meta_data_type_id;
 }
 
+static GType
+valadoc_tree_builder_package_meta_data_get_type (void)
+{
+	static volatile gsize valadoc_tree_builder_package_meta_data_type_id__volatile = 0;
+	if (g_once_init_enter (&valadoc_tree_builder_package_meta_data_type_id__volatile)) {
+		GType valadoc_tree_builder_package_meta_data_type_id;
+		valadoc_tree_builder_package_meta_data_type_id = valadoc_tree_builder_package_meta_data_get_type_once ();
+		g_once_init_leave (&valadoc_tree_builder_package_meta_data_type_id__volatile, valadoc_tree_builder_package_meta_data_type_id);
+	}
+	return valadoc_tree_builder_package_meta_data_type_id__volatile;
+}
 
 static gpointer
-valadoc_drivers_tree_builder_package_meta_data_ref (gpointer instance)
+valadoc_tree_builder_package_meta_data_ref (gpointer instance)
 {
-	ValadocDriversTreeBuilderPackageMetaData * self;
+	ValadocTreeBuilderPackageMetaData * self;
 	self = instance;
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
 
-
 static void
-valadoc_drivers_tree_builder_package_meta_data_unref (gpointer instance)
+valadoc_tree_builder_package_meta_data_unref (gpointer instance)
 {
-	ValadocDriversTreeBuilderPackageMetaData * self;
+	ValadocTreeBuilderPackageMetaData * self;
 	self = instance;
 	if (g_atomic_int_dec_and_test (&self->ref_count)) {
-		VALADOC_DRIVERS_TREE_BUILDER_PACKAGE_META_DATA_GET_CLASS (self)->finalize (self);
+		VALADOC_TREE_BUILDER_PACKAGE_META_DATA_GET_CLASS (self)->finalize (self);
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
 
-
 static void
-valadoc_drivers_tree_builder_class_init (ValadocDriversTreeBuilderClass * klass)
+valadoc_tree_builder_class_init (ValadocTreeBuilderClass * klass,
+                                 gpointer klass_data)
 {
-	valadoc_drivers_tree_builder_parent_class = g_type_class_peek_parent (klass);
-	((ValaCodeVisitorClass *) klass)->finalize = valadoc_drivers_tree_builder_finalize;
-	g_type_class_adjust_private_offset (klass, &ValadocDriversTreeBuilder_private_offset);
-	((ValaCodeVisitorClass *) klass)->visit_namespace = (void (*) (ValaCodeVisitor*, ValaNamespace*)) valadoc_drivers_tree_builder_real_visit_namespace;
-	((ValaCodeVisitorClass *) klass)->visit_class = (void (*) (ValaCodeVisitor*, ValaClass*)) valadoc_drivers_tree_builder_real_visit_class;
-	((ValaCodeVisitorClass *) klass)->visit_interface = (void (*) (ValaCodeVisitor*, ValaInterface*)) valadoc_drivers_tree_builder_real_visit_interface;
-	((ValaCodeVisitorClass *) klass)->visit_struct = (void (*) (ValaCodeVisitor*, ValaStruct*)) valadoc_drivers_tree_builder_real_visit_struct;
-	((ValaCodeVisitorClass *) klass)->visit_field = (void (*) (ValaCodeVisitor*, ValaField*)) valadoc_drivers_tree_builder_real_visit_field;
-	((ValaCodeVisitorClass *) klass)->visit_property = (void (*) (ValaCodeVisitor*, ValaProperty*)) valadoc_drivers_tree_builder_real_visit_property;
-	((ValaCodeVisitorClass *) klass)->visit_creation_method = (void (*) (ValaCodeVisitor*, ValaCreationMethod*)) valadoc_drivers_tree_builder_real_visit_creation_method;
-	((ValaCodeVisitorClass *) klass)->visit_method = (void (*) (ValaCodeVisitor*, ValaMethod*)) valadoc_drivers_tree_builder_real_visit_method;
-	((ValaCodeVisitorClass *) klass)->visit_signal = (void (*) (ValaCodeVisitor*, ValaSignal*)) valadoc_drivers_tree_builder_real_visit_signal;
-	((ValaCodeVisitorClass *) klass)->visit_delegate = (void (*) (ValaCodeVisitor*, ValaDelegate*)) valadoc_drivers_tree_builder_real_visit_delegate;
-	((ValaCodeVisitorClass *) klass)->visit_enum = (void (*) (ValaCodeVisitor*, ValaEnum*)) valadoc_drivers_tree_builder_real_visit_enum;
-	((ValaCodeVisitorClass *) klass)->visit_enum_value = (void (*) (ValaCodeVisitor*, ValaEnumValue*)) valadoc_drivers_tree_builder_real_visit_enum_value;
-	((ValaCodeVisitorClass *) klass)->visit_constant = (void (*) (ValaCodeVisitor*, ValaConstant*)) valadoc_drivers_tree_builder_real_visit_constant;
-	((ValaCodeVisitorClass *) klass)->visit_error_domain = (void (*) (ValaCodeVisitor*, ValaErrorDomain*)) valadoc_drivers_tree_builder_real_visit_error_domain;
-	((ValaCodeVisitorClass *) klass)->visit_error_code = (void (*) (ValaCodeVisitor*, ValaErrorCode*)) valadoc_drivers_tree_builder_real_visit_error_code;
-	((ValaCodeVisitorClass *) klass)->visit_type_parameter = (void (*) (ValaCodeVisitor*, ValaTypeParameter*)) valadoc_drivers_tree_builder_real_visit_type_parameter;
-	((ValaCodeVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValaCodeVisitor*, ValaParameter*)) valadoc_drivers_tree_builder_real_visit_formal_parameter;
+	valadoc_tree_builder_parent_class = g_type_class_peek_parent (klass);
+	((ValaCodeVisitorClass *) klass)->finalize = valadoc_tree_builder_finalize;
+	g_type_class_adjust_private_offset (klass, &ValadocTreeBuilder_private_offset);
+	((ValaCodeVisitorClass *) klass)->visit_namespace = (void (*) (ValaCodeVisitor*, ValaNamespace*)) valadoc_tree_builder_real_visit_namespace;
+	((ValaCodeVisitorClass *) klass)->visit_class = (void (*) (ValaCodeVisitor*, ValaClass*)) valadoc_tree_builder_real_visit_class;
+	((ValaCodeVisitorClass *) klass)->visit_interface = (void (*) (ValaCodeVisitor*, ValaInterface*)) valadoc_tree_builder_real_visit_interface;
+	((ValaCodeVisitorClass *) klass)->visit_struct = (void (*) (ValaCodeVisitor*, ValaStruct*)) valadoc_tree_builder_real_visit_struct;
+	((ValaCodeVisitorClass *) klass)->visit_field = (void (*) (ValaCodeVisitor*, ValaField*)) valadoc_tree_builder_real_visit_field;
+	((ValaCodeVisitorClass *) klass)->visit_property = (void (*) (ValaCodeVisitor*, ValaProperty*)) valadoc_tree_builder_real_visit_property;
+	((ValaCodeVisitorClass *) klass)->visit_creation_method = (void (*) (ValaCodeVisitor*, ValaCreationMethod*)) valadoc_tree_builder_real_visit_creation_method;
+	((ValaCodeVisitorClass *) klass)->visit_method = (void (*) (ValaCodeVisitor*, ValaMethod*)) valadoc_tree_builder_real_visit_method;
+	((ValaCodeVisitorClass *) klass)->visit_signal = (void (*) (ValaCodeVisitor*, ValaSignal*)) valadoc_tree_builder_real_visit_signal;
+	((ValaCodeVisitorClass *) klass)->visit_delegate = (void (*) (ValaCodeVisitor*, ValaDelegate*)) valadoc_tree_builder_real_visit_delegate;
+	((ValaCodeVisitorClass *) klass)->visit_enum = (void (*) (ValaCodeVisitor*, ValaEnum*)) valadoc_tree_builder_real_visit_enum;
+	((ValaCodeVisitorClass *) klass)->visit_enum_value = (void (*) (ValaCodeVisitor*, ValaEnumValue*)) valadoc_tree_builder_real_visit_enum_value;
+	((ValaCodeVisitorClass *) klass)->visit_constant = (void (*) (ValaCodeVisitor*, ValaConstant*)) valadoc_tree_builder_real_visit_constant;
+	((ValaCodeVisitorClass *) klass)->visit_error_domain = (void (*) (ValaCodeVisitor*, ValaErrorDomain*)) valadoc_tree_builder_real_visit_error_domain;
+	((ValaCodeVisitorClass *) klass)->visit_error_code = (void (*) (ValaCodeVisitor*, ValaErrorCode*)) valadoc_tree_builder_real_visit_error_code;
+	((ValaCodeVisitorClass *) klass)->visit_type_parameter = (void (*) (ValaCodeVisitor*, ValaTypeParameter*)) valadoc_tree_builder_real_visit_type_parameter;
+	((ValaCodeVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValaCodeVisitor*, ValaParameter*)) valadoc_tree_builder_real_visit_formal_parameter;
 }
 
-
 static void
-valadoc_drivers_tree_builder_instance_init (ValadocDriversTreeBuilder * self)
+valadoc_tree_builder_instance_init (ValadocTreeBuilder * self,
+                                    gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -6474,9 +4253,9 @@ valadoc_drivers_tree_builder_instance_init (ValadocDriversTreeBuilder * self)
 	GEqualFunc _tmp7_;
 	GEqualFunc _tmp8_;
 	ValaHashMap* _tmp9_;
-	self->priv = valadoc_drivers_tree_builder_get_instance_private (self);
+	self->priv = valadoc_tree_builder_get_instance_private (self);
 	_tmp0_ = g_direct_equal;
-	_tmp1_ = vala_array_list_new (VALADOC_DRIVERS_TREE_BUILDER_TYPE_PACKAGE_META_DATA, (GBoxedCopyFunc) valadoc_drivers_tree_builder_package_meta_data_ref, (GDestroyNotify) valadoc_drivers_tree_builder_package_meta_data_unref, _tmp0_);
+	_tmp1_ = vala_array_list_new (VALADOC_TREE_BUILDER_TYPE_PACKAGE_META_DATA, (GBoxedCopyFunc) valadoc_tree_builder_package_meta_data_ref, (GDestroyNotify) valadoc_tree_builder_package_meta_data_unref, _tmp0_);
 	self->priv->packages = _tmp1_;
 	_tmp2_ = g_direct_hash;
 	_tmp3_ = g_direct_equal;
@@ -6491,14 +4270,13 @@ valadoc_drivers_tree_builder_instance_init (ValadocDriversTreeBuilder * self)
 	self->priv->glib_error = NULL;
 }
 
-
 static void
-valadoc_drivers_tree_builder_finalize (ValaCodeVisitor * obj)
+valadoc_tree_builder_finalize (ValaCodeVisitor * obj)
 {
-	ValadocDriversTreeBuilder * self;
-	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_DRIVERS_TYPE_TREE_BUILDER, ValadocDriversTreeBuilder);
+	ValadocTreeBuilder * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilder);
 	_vala_iterable_unref0 (self->priv->packages);
-	_valadoc_drivers_tree_builder_package_meta_data_unref0 (self->priv->source_package);
+	_valadoc_tree_builder_package_meta_data_unref0 (self->priv->source_package);
 	_vala_map_unref0 (self->priv->files);
 	_vala_map_unref0 (self->priv->symbol_map);
 	_g_object_unref0 (self->priv->reporter);
@@ -6506,27 +4284,33 @@ valadoc_drivers_tree_builder_finalize (ValaCodeVisitor * obj)
 	_g_object_unref0 (self->priv->current_node);
 	_valadoc_api_tree_unref0 (self->priv->tree);
 	_g_object_unref0 (self->priv->glib_error);
-	VALA_CODE_VISITOR_CLASS (valadoc_drivers_tree_builder_parent_class)->finalize (obj);
+	VALA_CODE_VISITOR_CLASS (valadoc_tree_builder_parent_class)->finalize (obj);
 }
-
 
 /**
  * Creates an simpler, minimized, more abstract AST for valacs AST.
  */
-GType
-valadoc_drivers_tree_builder_get_type (void)
+static GType
+valadoc_tree_builder_get_type_once (void)
 {
-	static volatile gsize valadoc_drivers_tree_builder_type_id__volatile = 0;
-	if (g_once_init_enter (&valadoc_drivers_tree_builder_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocDriversTreeBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_drivers_tree_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocDriversTreeBuilder), 0, (GInstanceInitFunc) valadoc_drivers_tree_builder_instance_init, NULL };
-		GType valadoc_drivers_tree_builder_type_id;
-		valadoc_drivers_tree_builder_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValadocDriversTreeBuilder", &g_define_type_info, 0);
-		ValadocDriversTreeBuilder_private_offset = g_type_add_instance_private (valadoc_drivers_tree_builder_type_id, sizeof (ValadocDriversTreeBuilderPrivate));
-		g_once_init_leave (&valadoc_drivers_tree_builder_type_id__volatile, valadoc_drivers_tree_builder_type_id);
-	}
-	return valadoc_drivers_tree_builder_type_id__volatile;
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTreeBuilderClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_tree_builder_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTreeBuilder), 0, (GInstanceInitFunc) valadoc_tree_builder_instance_init, NULL };
+	GType valadoc_tree_builder_type_id;
+	valadoc_tree_builder_type_id = g_type_register_static (VALA_TYPE_CODE_VISITOR, "ValadocTreeBuilder", &g_define_type_info, 0);
+	ValadocTreeBuilder_private_offset = g_type_add_instance_private (valadoc_tree_builder_type_id, sizeof (ValadocTreeBuilderPrivate));
+	return valadoc_tree_builder_type_id;
 }
 
+GType
+valadoc_tree_builder_get_type (void)
+{
+	static volatile gsize valadoc_tree_builder_type_id__volatile = 0;
+	if (g_once_init_enter (&valadoc_tree_builder_type_id__volatile)) {
+		GType valadoc_tree_builder_type_id;
+		valadoc_tree_builder_type_id = valadoc_tree_builder_get_type_once ();
+		g_once_init_leave (&valadoc_tree_builder_type_id__volatile, valadoc_tree_builder_type_id);
+	}
+	return valadoc_tree_builder_type_id__volatile;
+}
 
 static void
 _vala_array_destroy (gpointer array,
@@ -6534,7 +4318,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -6542,7 +4326,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -6553,11 +4336,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -6566,6 +4348,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

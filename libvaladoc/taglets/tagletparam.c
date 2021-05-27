@@ -24,12 +24,11 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 #include <valagee.h>
 
 enum  {
@@ -54,19 +53,26 @@ struct _ValadocTagletsParamPrivate {
 	gboolean _is_this;
 };
 
-
 static gint ValadocTagletsParam_private_offset;
 static gpointer valadoc_taglets_param_parent_class = NULL;
 static ValadocContentTagletIface * valadoc_taglets_param_valadoc_content_taglet_parent_iface = NULL;
 static ValadocContentBlockIface * valadoc_taglets_param_valadoc_content_block_parent_iface = NULL;
 
+G_GNUC_INTERNAL void valadoc_taglets_param_set_parameter_name (ValadocTagletsParam* self,
+                                               const gchar* value);
+static void valadoc_taglets_param_set_parameter (ValadocTagletsParam* self,
+                                          ValadocApiSymbol* value);
+static void valadoc_taglets_param_set_position (ValadocTagletsParam* self,
+                                         gint value);
+G_GNUC_INTERNAL void valadoc_taglets_param_set_is_c_self_param (ValadocTagletsParam* self,
+                                                gboolean value);
+static void valadoc_taglets_param_set_is_this (ValadocTagletsParam* self,
+                                        gboolean value);
 static ValadocRule* valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
                                                          ValadocRule* run_rule);
 static void __lambda11_ (ValadocTagletsParam* self,
                   ValadocToken* token,
                   GError** error);
-G_GNUC_INTERNAL void valadoc_taglets_param_set_parameter_name (ValadocTagletsParam* self,
-                                               const gchar* value);
 static void ___lambda11__valadoc_token_type_action (ValadocToken* token,
                                              gpointer self,
                                              GError** error);
@@ -78,16 +84,10 @@ static void valadoc_taglets_param_real_check (ValadocContentContentElement* base
                                        ValadocSettings* settings);
 static gboolean valadoc_taglets_param_has_instance (ValadocTagletsParam* self,
                                              ValadocApiItem* element);
-static void valadoc_taglets_param_set_parameter (ValadocTagletsParam* self,
-                                          ValadocApiSymbol* value);
 G_GNUC_INTERNAL const gchar* valadoc_api_callable_get_implicit_array_length_cparameter_name (ValadocApiCallable* self);
-static void valadoc_taglets_param_set_is_this (ValadocTagletsParam* self,
-                                        gboolean value);
-static void valadoc_taglets_param_set_position (ValadocTagletsParam* self,
-                                         gint value);
-G_GNUC_INTERNAL const gchar* valadoc_api_formal_parameter_get_implicit_array_length_cparameter_name (ValadocApiFormalParameter* self);
-G_GNUC_INTERNAL const gchar* valadoc_api_formal_parameter_get_implicit_closure_cparameter_name (ValadocApiFormalParameter* self);
-G_GNUC_INTERNAL const gchar* valadoc_api_formal_parameter_get_implicit_destroy_cparameter_name (ValadocApiFormalParameter* self);
+G_GNUC_INTERNAL const gchar* valadoc_api_parameter_get_implicit_array_length_cparameter_name (ValadocApiParameter* self);
+G_GNUC_INTERNAL const gchar* valadoc_api_parameter_get_implicit_closure_cparameter_name (ValadocApiParameter* self);
+G_GNUC_INTERNAL const gchar* valadoc_api_parameter_get_implicit_destroy_cparameter_name (ValadocApiParameter* self);
 static void valadoc_taglets_param_real_accept (ValadocContentContentElement* base,
                                         ValadocContentContentVisitor* visitor);
 static ValaList* valadoc_taglets_param_real_get_inheritable_documentation (ValadocContentTaglet* base);
@@ -98,9 +98,8 @@ static ValadocContentContentElement* valadoc_taglets_param_real_copy (ValadocCon
 G_GNUC_INTERNAL void valadoc_content_content_element_set_parent (ValadocContentContentElement* self,
                                                  ValadocContentContentElement* value);
 G_GNUC_INTERNAL ValadocContentBlockContent* valadoc_content_block_content_construct (GType object_type);
-G_GNUC_INTERNAL void valadoc_taglets_param_set_is_c_self_param (ValadocTagletsParam* self,
-                                                gboolean value);
 static void valadoc_taglets_param_finalize (GObject * obj);
+static GType valadoc_taglets_param_get_type_once (void);
 static void _vala_valadoc_taglets_param_get_property (GObject * object,
                                                guint property_id,
                                                GValue * value,
@@ -116,20 +115,134 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 valadoc_taglets_param_get_instance_private (ValadocTagletsParam* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocTagletsParam_private_offset);
 }
 
+const gchar*
+valadoc_taglets_param_get_parameter_name (ValadocTagletsParam* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_parameter_name;
+	result = _tmp0_;
+	return result;
+}
+
+G_GNUC_INTERNAL void
+valadoc_taglets_param_set_parameter_name (ValadocTagletsParam* self,
+                                          const gchar* value)
+{
+	gchar* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_param_get_parameter_name (self);
+	if (g_strcmp0 (value, old_value) != 0) {
+		gchar* _tmp0_;
+		_tmp0_ = g_strdup (value);
+		_g_free0 (self->priv->_parameter_name);
+		self->priv->_parameter_name = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_PARAMETER_NAME_PROPERTY]);
+	}
+}
+
+ValadocApiSymbol*
+valadoc_taglets_param_get_parameter (ValadocTagletsParam* self)
+{
+	ValadocApiSymbol* result;
+	ValadocApiSymbol* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_parameter;
+	result = _tmp0_;
+	return result;
+}
+
+static void
+valadoc_taglets_param_set_parameter (ValadocTagletsParam* self,
+                                     ValadocApiSymbol* value)
+{
+	ValadocApiSymbol* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_param_get_parameter (self);
+	if (old_value != value) {
+		self->priv->_parameter = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_PARAMETER_PROPERTY]);
+	}
+}
+
+gint
+valadoc_taglets_param_get_position (ValadocTagletsParam* self)
+{
+	gint result;
+	g_return_val_if_fail (self != NULL, 0);
+	result = self->priv->_position;
+	return result;
+}
+
+static void
+valadoc_taglets_param_set_position (ValadocTagletsParam* self,
+                                    gint value)
+{
+	gint old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_param_get_position (self);
+	if (old_value != value) {
+		self->priv->_position = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_POSITION_PROPERTY]);
+	}
+}
+
+gboolean
+valadoc_taglets_param_get_is_c_self_param (ValadocTagletsParam* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_c_self_param;
+	return result;
+}
+
+G_GNUC_INTERNAL void
+valadoc_taglets_param_set_is_c_self_param (ValadocTagletsParam* self,
+                                           gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_param_get_is_c_self_param (self);
+	if (old_value != value) {
+		self->priv->_is_c_self_param = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_IS_C_SELF_PARAM_PROPERTY]);
+	}
+}
+
+gboolean
+valadoc_taglets_param_get_is_this (ValadocTagletsParam* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_is_this;
+	return result;
+}
+
+static void
+valadoc_taglets_param_set_is_this (ValadocTagletsParam* self,
+                                   gboolean value)
+{
+	gboolean old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_taglets_param_get_is_this (self);
+	if (old_value != value) {
+		self->priv->_is_this = value;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_IS_THIS_PROPERTY]);
+	}
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
 {
 	return self ? g_object_ref (self) : NULL;
 }
-
 
 static void
 __lambda11_ (ValadocTagletsParam* self,
@@ -142,7 +255,6 @@ __lambda11_ (ValadocTagletsParam* self,
 	valadoc_taglets_param_set_parameter_name (self, _tmp0_);
 }
 
-
 static void
 ___lambda11__valadoc_token_type_action (ValadocToken* token,
                                         gpointer self,
@@ -151,13 +263,11 @@ ___lambda11__valadoc_token_type_action (ValadocToken* token,
 	__lambda11_ ((ValadocTagletsParam*) self, token, error);
 }
 
-
 static ValadocRule*
 valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
                                             ValadocRule* run_rule)
 {
 	ValadocTagletsParam * self;
-	ValadocRule* result = NULL;
 	ValadocTokenType* _tmp0_;
 	GObject* _tmp1_;
 	GObject** _tmp2_;
@@ -177,6 +287,7 @@ valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
 	gint _tmp13__length1;
 	ValadocRule* _tmp14_;
 	ValadocRule* _tmp15_;
+	ValadocRule* result = NULL;
 	self = (ValadocTagletsParam*) base;
 	g_return_val_if_fail (run_rule != NULL, NULL);
 	_tmp0_ = valadoc_token_type_SPACE;
@@ -185,12 +296,12 @@ valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
 	_tmp2_[0] = _tmp1_;
 	_tmp3_ = _tmp2_;
 	_tmp3__length1 = 1;
-	_tmp4_ = valadoc_rule_many (_tmp3_, 1);
+	_tmp4_ = valadoc_rule_many (_tmp3_, (gint) 1);
 	_tmp5_ = g_new0 (GObject*, 1 + 1);
 	_tmp5_[0] = (GObject*) _tmp4_;
 	_tmp6_ = _tmp5_;
 	_tmp6__length1 = 1;
-	_tmp7_ = valadoc_rule_option (_tmp6_, 1);
+	_tmp7_ = valadoc_rule_option (_tmp6_, (gint) 1);
 	_tmp8_ = valadoc_token_type_any_word ();
 	_tmp9_ = _tmp8_;
 	_tmp10_ = valadoc_token_type_action (_tmp9_, ___lambda11__valadoc_token_type_action, self);
@@ -201,7 +312,7 @@ valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
 	_tmp12_[2] = _tmp11_;
 	_tmp13_ = _tmp12_;
 	_tmp13__length1 = 3;
-	_tmp14_ = valadoc_rule_seq (_tmp13_, 3);
+	_tmp14_ = valadoc_rule_seq (_tmp13_, (gint) 3);
 	_tmp15_ = _tmp14_;
 	_tmp13_ = (_vala_array_free (_tmp13_, _tmp13__length1, (GDestroyNotify) g_object_unref), NULL);
 	_g_object_unref0 (_tmp9_);
@@ -211,13 +322,11 @@ valadoc_taglets_param_real_get_parser_rule (ValadocContentTaglet* base,
 	return result;
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_taglets_param_real_check (ValadocContentContentElement* base,
@@ -233,7 +342,7 @@ valadoc_taglets_param_real_check (ValadocContentContentElement* base,
 	gboolean is_implicit = FALSE;
 	gboolean _tmp6_ = FALSE;
 	gboolean _tmp7_;
-	ValadocApiSymbol* _tmp82_;
+	ValadocApiSymbol* _tmp77_;
 	self = (ValadocTagletsParam*) base;
 	g_return_if_fail (api_root != NULL);
 	g_return_if_fail (container != NULL);
@@ -244,7 +353,7 @@ valadoc_taglets_param_real_check (ValadocContentContentElement* base,
 	has_instance = valadoc_taglets_param_has_instance (self, (ValadocApiItem*) container);
 	is_implicit = FALSE;
 	valadoc_taglets_param_set_parameter (self, NULL);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (container, VALADOC_API_TYPE_CALLABLE)) {
+	if (VALADOC_API_IS_CALLABLE (container)) {
 		const gchar* _tmp0_;
 		const gchar* _tmp1_;
 		_tmp0_ = valadoc_api_callable_get_implicit_array_length_cparameter_name (G_TYPE_CHECK_INSTANCE_CAST (container, VALADOC_API_TYPE_CALLABLE, ValadocApiCallable));
@@ -303,51 +412,47 @@ valadoc_taglets_param_real_check (ValadocContentContentElement* base,
 				while (TRUE) {
 					gint _tmp15_;
 					gint _tmp16_;
-					gint _tmp17_;
 					ValadocApiNode* param = NULL;
-					ValaList* _tmp18_;
-					gint _tmp19_;
-					gpointer _tmp20_;
-					ValadocApiNode* _tmp21_;
-					gboolean _tmp22_;
-					gboolean _tmp23_;
+					ValaList* _tmp17_;
+					gpointer _tmp18_;
+					ValadocApiNode* _tmp19_;
+					gboolean _tmp20_;
+					gboolean _tmp21_;
+					_param_index = _param_index + 1;
 					_tmp15_ = _param_index;
-					_param_index = _tmp15_ + 1;
-					_tmp16_ = _param_index;
-					_tmp17_ = _param_size;
-					if (!(_tmp16_ < _tmp17_)) {
+					_tmp16_ = _param_size;
+					if (!(_tmp15_ < _tmp16_)) {
 						break;
 					}
-					_tmp18_ = _param_list;
-					_tmp19_ = _param_index;
-					_tmp20_ = vala_list_get (_tmp18_, _tmp19_);
-					param = (ValadocApiNode*) _tmp20_;
-					_tmp21_ = param;
-					_tmp22_ = valadoc_api_formal_parameter_get_ellipsis (G_TYPE_CHECK_INSTANCE_CAST (_tmp21_, VALADOC_API_TYPE_FORMAL_PARAMETER, ValadocApiFormalParameter));
-					_tmp23_ = _tmp22_;
-					if (_tmp23_) {
-						ValadocApiNode* _tmp24_;
-						gint _tmp25_ = 0;
-						_tmp24_ = param;
-						valadoc_taglets_param_set_parameter (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp24_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+					_tmp17_ = _param_list;
+					_tmp18_ = vala_list_get (_tmp17_, _param_index);
+					param = (ValadocApiNode*) _tmp18_;
+					_tmp19_ = param;
+					_tmp20_ = valadoc_api_parameter_get_ellipsis (G_TYPE_CHECK_INSTANCE_CAST (_tmp19_, VALADOC_API_TYPE_PARAMETER, ValadocApiParameter));
+					_tmp21_ = _tmp20_;
+					if (_tmp21_) {
+						ValadocApiNode* _tmp22_;
+						gint _tmp23_ = 0;
+						_tmp22_ = param;
+						valadoc_taglets_param_set_parameter (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp22_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
 						if (has_instance) {
-							ValaList* _tmp26_;
-							gint _tmp27_;
-							gint _tmp28_;
-							_tmp26_ = params;
-							_tmp27_ = vala_collection_get_size ((ValaCollection*) _tmp26_);
-							_tmp28_ = _tmp27_;
-							_tmp25_ = _tmp28_;
+							ValaList* _tmp24_;
+							gint _tmp25_;
+							gint _tmp26_;
+							_tmp24_ = params;
+							_tmp25_ = vala_collection_get_size ((ValaCollection*) _tmp24_);
+							_tmp26_ = _tmp25_;
+							_tmp23_ = _tmp26_;
 						} else {
-							ValaList* _tmp29_;
-							gint _tmp30_;
-							gint _tmp31_;
-							_tmp29_ = params;
-							_tmp30_ = vala_collection_get_size ((ValaCollection*) _tmp29_);
-							_tmp31_ = _tmp30_;
-							_tmp25_ = _tmp31_ - 1;
+							ValaList* _tmp27_;
+							gint _tmp28_;
+							gint _tmp29_;
+							_tmp27_ = params;
+							_tmp28_ = vala_collection_get_size ((ValaCollection*) _tmp27_);
+							_tmp29_ = _tmp28_;
+							_tmp23_ = _tmp29_ - 1;
 						}
-						valadoc_taglets_param_set_position (self, _tmp25_);
+						valadoc_taglets_param_set_position (self, _tmp23_);
 						_g_object_unref0 (param);
 						break;
 					}
@@ -358,228 +463,219 @@ valadoc_taglets_param_real_check (ValadocContentContentElement* base,
 			_vala_iterable_unref0 (params);
 		} else {
 			ValaList* params = NULL;
-			ValadocApiNodeType* _tmp32_;
-			ValadocApiNodeType* _tmp33_;
-			gint _tmp33__length1;
-			ValaList* _tmp34_;
-			ValaList* _tmp35_;
-			gint _tmp36_ = 0;
+			ValadocApiNodeType* _tmp30_;
+			ValadocApiNodeType* _tmp31_;
+			gint _tmp31__length1;
+			ValaList* _tmp32_;
+			ValaList* _tmp33_;
+			gint _tmp34_ = 0;
 			gint pos = 0;
-			gboolean _tmp73_ = FALSE;
-			ValadocApiSymbol* _tmp74_;
-			_tmp32_ = g_new0 (ValadocApiNodeType, 2);
-			_tmp32_[0] = VALADOC_API_NODE_TYPE_FORMAL_PARAMETER;
-			_tmp32_[1] = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
+			gboolean _tmp68_ = FALSE;
+			ValadocApiSymbol* _tmp69_;
+			_tmp30_ = g_new0 (ValadocApiNodeType, 2);
+			_tmp30_[0] = VALADOC_API_NODE_TYPE_FORMAL_PARAMETER;
+			_tmp30_[1] = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
+			_tmp31_ = _tmp30_;
+			_tmp31__length1 = 2;
+			_tmp32_ = valadoc_api_node_get_children_by_types (container, _tmp31_, (gint) 2, FALSE);
 			_tmp33_ = _tmp32_;
-			_tmp33__length1 = 2;
-			_tmp34_ = valadoc_api_node_get_children_by_types (container, _tmp33_, 2, FALSE);
-			_tmp35_ = _tmp34_;
-			_tmp33_ = (g_free (_tmp33_), NULL);
-			params = _tmp35_;
+			_tmp31_ = (g_free (_tmp31_), NULL);
+			params = _tmp33_;
 			if (has_instance) {
-				_tmp36_ = 1;
+				_tmp34_ = 1;
 			} else {
-				_tmp36_ = 0;
+				_tmp34_ = 0;
 			}
-			pos = _tmp36_;
+			pos = _tmp34_;
 			{
 				ValaList* _param_list = NULL;
-				ValaList* _tmp37_;
-				ValaList* _tmp38_;
+				ValaList* _tmp35_;
+				ValaList* _tmp36_;
 				gint _param_size = 0;
-				ValaList* _tmp39_;
-				gint _tmp40_;
-				gint _tmp41_;
+				ValaList* _tmp37_;
+				gint _tmp38_;
+				gint _tmp39_;
 				gint _param_index = 0;
-				_tmp37_ = params;
-				_tmp38_ = _vala_iterable_ref0 (_tmp37_);
-				_param_list = _tmp38_;
-				_tmp39_ = _param_list;
-				_tmp40_ = vala_collection_get_size ((ValaCollection*) _tmp39_);
-				_tmp41_ = _tmp40_;
-				_param_size = _tmp41_;
+				_tmp35_ = params;
+				_tmp36_ = _vala_iterable_ref0 (_tmp35_);
+				_param_list = _tmp36_;
+				_tmp37_ = _param_list;
+				_tmp38_ = vala_collection_get_size ((ValaCollection*) _tmp37_);
+				_tmp39_ = _tmp38_;
+				_param_size = _tmp39_;
 				_param_index = -1;
 				while (TRUE) {
-					gint _tmp42_;
-					gint _tmp43_;
-					gint _tmp44_;
+					gint _tmp40_;
+					gint _tmp41_;
 					ValadocApiNode* param = NULL;
-					ValaList* _tmp45_;
-					gint _tmp46_;
-					gpointer _tmp47_;
-					ValadocApiNode* _tmp48_;
-					const gchar* _tmp49_;
-					const gchar* _tmp50_;
-					const gchar* _tmp51_;
-					ValadocApiFormalParameter* formalparam = NULL;
-					ValadocApiNode* _tmp54_;
-					ValadocApiFormalParameter* _tmp55_;
-					gboolean _tmp56_ = FALSE;
-					ValadocApiFormalParameter* _tmp57_;
-					gint _tmp72_;
-					_tmp42_ = _param_index;
-					_param_index = _tmp42_ + 1;
-					_tmp43_ = _param_index;
-					_tmp44_ = _param_size;
-					if (!(_tmp43_ < _tmp44_)) {
+					ValaList* _tmp42_;
+					gpointer _tmp43_;
+					ValadocApiNode* _tmp44_;
+					const gchar* _tmp45_;
+					const gchar* _tmp46_;
+					const gchar* _tmp47_;
+					ValadocApiParameter* formalparam = NULL;
+					ValadocApiNode* _tmp49_;
+					ValadocApiParameter* _tmp50_;
+					gboolean _tmp51_ = FALSE;
+					ValadocApiParameter* _tmp52_;
+					gint _tmp67_;
+					_param_index = _param_index + 1;
+					_tmp40_ = _param_index;
+					_tmp41_ = _param_size;
+					if (!(_tmp40_ < _tmp41_)) {
 						break;
 					}
-					_tmp45_ = _param_list;
-					_tmp46_ = _param_index;
-					_tmp47_ = vala_list_get (_tmp45_, _tmp46_);
-					param = (ValadocApiNode*) _tmp47_;
-					_tmp48_ = param;
-					_tmp49_ = valadoc_api_node_get_name (_tmp48_);
-					_tmp50_ = _tmp49_;
-					_tmp51_ = self->priv->_parameter_name;
-					if (g_strcmp0 (_tmp50_, _tmp51_) == 0) {
-						ValadocApiNode* _tmp52_;
-						gint _tmp53_;
-						_tmp52_ = param;
-						valadoc_taglets_param_set_parameter (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp52_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
-						_tmp53_ = pos;
-						valadoc_taglets_param_set_position (self, _tmp53_);
+					_tmp42_ = _param_list;
+					_tmp43_ = vala_list_get (_tmp42_, _param_index);
+					param = (ValadocApiNode*) _tmp43_;
+					_tmp44_ = param;
+					_tmp45_ = valadoc_api_node_get_name (_tmp44_);
+					_tmp46_ = _tmp45_;
+					_tmp47_ = self->priv->_parameter_name;
+					if (g_strcmp0 (_tmp46_, _tmp47_) == 0) {
+						ValadocApiNode* _tmp48_;
+						_tmp48_ = param;
+						valadoc_taglets_param_set_parameter (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp48_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+						valadoc_taglets_param_set_position (self, pos);
 						_g_object_unref0 (param);
 						break;
 					}
-					_tmp54_ = param;
-					_tmp55_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp54_, VALADOC_API_TYPE_FORMAL_PARAMETER) ? ((ValadocApiFormalParameter*) _tmp54_) : NULL);
-					formalparam = _tmp55_;
-					_tmp57_ = formalparam;
-					if (_tmp57_ != NULL) {
-						gboolean _tmp58_ = FALSE;
-						gboolean _tmp59_ = FALSE;
-						ValadocApiFormalParameter* _tmp60_;
-						const gchar* _tmp61_;
-						const gchar* _tmp62_;
-						const gchar* _tmp63_;
-						_tmp60_ = formalparam;
-						_tmp61_ = valadoc_api_formal_parameter_get_implicit_array_length_cparameter_name (_tmp60_);
-						_tmp62_ = _tmp61_;
-						_tmp63_ = self->priv->_parameter_name;
-						if (g_strcmp0 (_tmp62_, _tmp63_) == 0) {
-							_tmp59_ = TRUE;
+					_tmp49_ = param;
+					_tmp50_ = _g_object_ref0 (VALADOC_API_IS_PARAMETER (_tmp49_) ? ((ValadocApiParameter*) _tmp49_) : NULL);
+					formalparam = _tmp50_;
+					_tmp52_ = formalparam;
+					if (_tmp52_ != NULL) {
+						gboolean _tmp53_ = FALSE;
+						gboolean _tmp54_ = FALSE;
+						ValadocApiParameter* _tmp55_;
+						const gchar* _tmp56_;
+						const gchar* _tmp57_;
+						const gchar* _tmp58_;
+						_tmp55_ = formalparam;
+						_tmp56_ = valadoc_api_parameter_get_implicit_array_length_cparameter_name (_tmp55_);
+						_tmp57_ = _tmp56_;
+						_tmp58_ = self->priv->_parameter_name;
+						if (g_strcmp0 (_tmp57_, _tmp58_) == 0) {
+							_tmp54_ = TRUE;
 						} else {
-							ValadocApiFormalParameter* _tmp64_;
+							ValadocApiParameter* _tmp59_;
+							const gchar* _tmp60_;
+							const gchar* _tmp61_;
+							const gchar* _tmp62_;
+							_tmp59_ = formalparam;
+							_tmp60_ = valadoc_api_parameter_get_implicit_closure_cparameter_name (_tmp59_);
+							_tmp61_ = _tmp60_;
+							_tmp62_ = self->priv->_parameter_name;
+							_tmp54_ = g_strcmp0 (_tmp61_, _tmp62_) == 0;
+						}
+						if (_tmp54_) {
+							_tmp53_ = TRUE;
+						} else {
+							ValadocApiParameter* _tmp63_;
+							const gchar* _tmp64_;
 							const gchar* _tmp65_;
 							const gchar* _tmp66_;
-							const gchar* _tmp67_;
-							_tmp64_ = formalparam;
-							_tmp65_ = valadoc_api_formal_parameter_get_implicit_closure_cparameter_name (_tmp64_);
-							_tmp66_ = _tmp65_;
-							_tmp67_ = self->priv->_parameter_name;
-							_tmp59_ = g_strcmp0 (_tmp66_, _tmp67_) == 0;
+							_tmp63_ = formalparam;
+							_tmp64_ = valadoc_api_parameter_get_implicit_destroy_cparameter_name (_tmp63_);
+							_tmp65_ = _tmp64_;
+							_tmp66_ = self->priv->_parameter_name;
+							_tmp53_ = g_strcmp0 (_tmp65_, _tmp66_) == 0;
 						}
-						if (_tmp59_) {
-							_tmp58_ = TRUE;
-						} else {
-							ValadocApiFormalParameter* _tmp68_;
-							const gchar* _tmp69_;
-							const gchar* _tmp70_;
-							const gchar* _tmp71_;
-							_tmp68_ = formalparam;
-							_tmp69_ = valadoc_api_formal_parameter_get_implicit_destroy_cparameter_name (_tmp68_);
-							_tmp70_ = _tmp69_;
-							_tmp71_ = self->priv->_parameter_name;
-							_tmp58_ = g_strcmp0 (_tmp70_, _tmp71_) == 0;
-						}
-						_tmp56_ = _tmp58_;
+						_tmp51_ = _tmp53_;
 					} else {
-						_tmp56_ = FALSE;
+						_tmp51_ = FALSE;
 					}
-					if (_tmp56_) {
+					if (_tmp51_) {
 						is_implicit = TRUE;
 						_g_object_unref0 (formalparam);
 						_g_object_unref0 (param);
 						break;
 					}
-					_tmp72_ = pos;
-					pos = _tmp72_ + 1;
+					_tmp67_ = pos;
+					pos = _tmp67_ + 1;
 					_g_object_unref0 (formalparam);
 					_g_object_unref0 (param);
 				}
 				_vala_iterable_unref0 (_param_list);
 			}
-			_tmp74_ = self->priv->_parameter;
-			if (_tmp74_ == NULL) {
-				gboolean _tmp75_ = FALSE;
-				gboolean _tmp76_ = FALSE;
-				const gchar* _tmp77_;
-				_tmp77_ = self->priv->_parameter_name;
-				if (g_strcmp0 (_tmp77_, "error") == 0) {
-					ValadocApiNodeType* _tmp78_;
-					ValadocApiNodeType* _tmp79_;
-					gint _tmp79__length1;
-					_tmp78_ = g_new0 (ValadocApiNodeType, 2);
-					_tmp78_[0] = VALADOC_API_NODE_TYPE_ERROR_DOMAIN;
-					_tmp78_[1] = VALADOC_API_NODE_TYPE_CLASS;
-					_tmp79_ = _tmp78_;
-					_tmp79__length1 = 2;
-					_tmp76_ = valadoc_api_node_has_children (container, _tmp79_, 2);
-					_tmp79_ = (g_free (_tmp79_), NULL);
+			_tmp69_ = self->priv->_parameter;
+			if (_tmp69_ == NULL) {
+				gboolean _tmp70_ = FALSE;
+				gboolean _tmp71_ = FALSE;
+				const gchar* _tmp72_;
+				_tmp72_ = self->priv->_parameter_name;
+				if (g_strcmp0 (_tmp72_, "error") == 0) {
+					ValadocApiNodeType* _tmp73_;
+					ValadocApiNodeType* _tmp74_;
+					gint _tmp74__length1;
+					_tmp73_ = g_new0 (ValadocApiNodeType, 2);
+					_tmp73_[0] = VALADOC_API_NODE_TYPE_ERROR_DOMAIN;
+					_tmp73_[1] = VALADOC_API_NODE_TYPE_CLASS;
+					_tmp74_ = _tmp73_;
+					_tmp74__length1 = 2;
+					_tmp71_ = valadoc_api_node_has_children (container, _tmp74_, (gint) 2);
+					_tmp74_ = (g_free (_tmp74_), NULL);
 				} else {
-					_tmp76_ = FALSE;
+					_tmp71_ = FALSE;
 				}
-				if (_tmp76_) {
-					_tmp75_ = TRUE;
+				if (_tmp71_) {
+					_tmp70_ = TRUE;
 				} else {
-					const gchar* _tmp80_;
-					const gchar* _tmp81_;
-					_tmp80_ = self->priv->_parameter_name;
-					_tmp81_ = implicit_return_array_length;
-					_tmp75_ = g_strcmp0 (_tmp80_, _tmp81_) == 0;
+					const gchar* _tmp75_;
+					const gchar* _tmp76_;
+					_tmp75_ = self->priv->_parameter_name;
+					_tmp76_ = implicit_return_array_length;
+					_tmp70_ = g_strcmp0 (_tmp75_, _tmp76_) == 0;
 				}
-				_tmp73_ = _tmp75_;
+				_tmp68_ = _tmp70_;
 			} else {
-				_tmp73_ = FALSE;
+				_tmp68_ = FALSE;
 			}
-			if (_tmp73_) {
+			if (_tmp68_) {
 				is_implicit = TRUE;
 			}
 			_vala_iterable_unref0 (params);
 		}
 	}
-	_tmp82_ = self->priv->_parameter;
-	if (_tmp82_ == NULL) {
-		gboolean _tmp83_;
-		_tmp83_ = is_implicit;
-		if (_tmp83_) {
-			gchar* _tmp84_;
-			gchar* _tmp85_;
-			gchar* _tmp86_;
-			gchar* _tmp87_;
-			const gchar* _tmp88_;
-			_tmp84_ = valadoc_api_node_get_full_name (container);
-			_tmp85_ = _tmp84_;
-			_tmp86_ = g_strdup_printf ("%s: %s: @param", file_path, _tmp85_);
-			_tmp87_ = _tmp86_;
-			_tmp88_ = self->priv->_parameter_name;
-			valadoc_error_reporter_simple_note (reporter, _tmp87_, "Implicit parameter `%s' exposed in documentation", _tmp88_);
-			_g_free0 (_tmp87_);
-			_g_free0 (_tmp85_);
+	_tmp77_ = self->priv->_parameter;
+	if (_tmp77_ == NULL) {
+		if (is_implicit) {
+			gchar* _tmp78_;
+			gchar* _tmp79_;
+			gchar* _tmp80_;
+			gchar* _tmp81_;
+			const gchar* _tmp82_;
+			_tmp78_ = valadoc_api_node_get_full_name (container);
+			_tmp79_ = _tmp78_;
+			_tmp80_ = g_strdup_printf ("%s: %s: @param", file_path, _tmp79_);
+			_tmp81_ = _tmp80_;
+			_tmp82_ = self->priv->_parameter_name;
+			valadoc_error_reporter_simple_note (reporter, _tmp81_, "Implicit parameter `%s' exposed in documentation", _tmp82_);
+			_g_free0 (_tmp81_);
+			_g_free0 (_tmp79_);
 		} else {
-			gboolean _tmp89_;
-			_tmp89_ = self->priv->_is_c_self_param;
-			if (!_tmp89_) {
-				gchar* _tmp90_;
-				gchar* _tmp91_;
-				gchar* _tmp92_;
-				gchar* _tmp93_;
-				const gchar* _tmp94_;
-				_tmp90_ = valadoc_api_node_get_full_name (container);
-				_tmp91_ = _tmp90_;
-				_tmp92_ = g_strdup_printf ("%s: %s: @param", file_path, _tmp91_);
-				_tmp93_ = _tmp92_;
-				_tmp94_ = self->priv->_parameter_name;
-				valadoc_error_reporter_simple_warning (reporter, _tmp93_, "Unknown parameter `%s'", _tmp94_);
-				_g_free0 (_tmp93_);
-				_g_free0 (_tmp91_);
+			gboolean _tmp83_;
+			_tmp83_ = self->priv->_is_c_self_param;
+			if (!_tmp83_) {
+				gchar* _tmp84_;
+				gchar* _tmp85_;
+				gchar* _tmp86_;
+				gchar* _tmp87_;
+				const gchar* _tmp88_;
+				_tmp84_ = valadoc_api_node_get_full_name (container);
+				_tmp85_ = _tmp84_;
+				_tmp86_ = g_strdup_printf ("%s: %s: @param", file_path, _tmp85_);
+				_tmp87_ = _tmp86_;
+				_tmp88_ = self->priv->_parameter_name;
+				valadoc_error_reporter_simple_warning (reporter, _tmp87_, "Unknown parameter `%s'", _tmp88_);
+				_g_free0 (_tmp87_);
+				_g_free0 (_tmp85_);
 			}
 		}
 	}
 	VALADOC_CONTENT_CONTENT_ELEMENT_CLASS (valadoc_taglets_param_parent_class)->check ((ValadocContentContentElement*) G_TYPE_CHECK_INSTANCE_CAST (self, VALADOC_CONTENT_TYPE_BLOCK_CONTENT, ValadocContentBlockContent), api_root, container, file_path, reporter, settings);
 }
-
 
 static gboolean
 valadoc_taglets_param_has_instance (ValadocTagletsParam* self,
@@ -588,7 +684,7 @@ valadoc_taglets_param_has_instance (ValadocTagletsParam* self,
 	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (element != NULL, FALSE);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (element, VALADOC_API_TYPE_METHOD)) {
+	if (VALADOC_API_IS_METHOD (element)) {
 		gboolean _tmp0_;
 		gboolean _tmp1_;
 		_tmp0_ = valadoc_api_method_get_is_static (G_TYPE_CHECK_INSTANCE_CAST (element, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
@@ -600,7 +696,6 @@ valadoc_taglets_param_has_instance (ValadocTagletsParam* self,
 	return result;
 }
 
-
 static void
 valadoc_taglets_param_real_accept (ValadocContentContentElement* base,
                                    ValadocContentContentVisitor* visitor)
@@ -611,15 +706,14 @@ valadoc_taglets_param_real_accept (ValadocContentContentElement* base,
 	valadoc_content_content_visitor_visit_taglet (visitor, (ValadocContentTaglet*) self);
 }
 
-
 static ValaList*
 valadoc_taglets_param_real_get_inheritable_documentation (ValadocContentTaglet* base)
 {
 	ValadocTagletsParam * self;
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
 	ValaList* _tmp1_;
 	ValaList* _tmp2_;
+	ValaList* result = NULL;
 	self = (ValadocTagletsParam*) base;
 	_tmp0_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) self);
 	_tmp1_ = _tmp0_;
@@ -628,22 +722,21 @@ valadoc_taglets_param_real_get_inheritable_documentation (ValadocContentTaglet* 
 	return result;
 }
 
-
 static gboolean
 valadoc_taglets_param_real_inheritable (ValadocContentTaglet* base,
                                         ValadocContentTaglet* taglet)
 {
 	ValadocTagletsParam * self;
-	gboolean result = FALSE;
 	ValadocTagletsParam* t = NULL;
 	ValadocTagletsParam* _tmp0_;
 	gboolean _tmp1_ = FALSE;
 	ValadocApiSymbol* _tmp2_;
 	ValadocTagletsParam* _tmp3_;
 	ValadocApiSymbol* _tmp4_;
+	gboolean result = FALSE;
 	self = (ValadocTagletsParam*) base;
 	g_return_val_if_fail (taglet != NULL, FALSE);
-	if (G_TYPE_CHECK_INSTANCE_TYPE (taglet, VALADOC_TAGLETS_TYPE_PARAM) == FALSE) {
+	if (VALADOC_TAGLETS_IS_PARAM (taglet) == FALSE) {
 		result = FALSE;
 		return result;
 	}
@@ -668,13 +761,11 @@ valadoc_taglets_param_real_inheritable (ValadocContentTaglet* base,
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_taglets_param_real_copy (ValadocContentContentElement* base,
                                  ValadocContentContentElement* new_parent)
 {
 	ValadocTagletsParam * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocTagletsParam* param = NULL;
 	ValadocTagletsParam* _tmp0_;
 	ValadocTagletsParam* _tmp1_;
@@ -684,6 +775,7 @@ valadoc_taglets_param_real_copy (ValadocContentContentElement* base,
 	ValadocApiSymbol* _tmp5_;
 	ValadocTagletsParam* _tmp6_;
 	gint _tmp7_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocTagletsParam*) base;
 	_tmp0_ = valadoc_taglets_param_new ();
 	param = _tmp0_;
@@ -720,44 +812,40 @@ valadoc_taglets_param_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp14_;
 			gint _tmp15_;
-			gint _tmp16_;
 			ValadocContentBlock* element = NULL;
-			ValaList* _tmp17_;
-			gint _tmp18_;
-			gpointer _tmp19_;
+			ValaList* _tmp16_;
+			gpointer _tmp17_;
 			ValadocContentBlock* copy = NULL;
-			ValadocContentBlock* _tmp20_;
-			ValadocTagletsParam* _tmp21_;
-			ValadocContentContentElement* _tmp22_;
-			ValadocContentBlock* _tmp23_;
-			ValadocTagletsParam* _tmp24_;
-			ValaList* _tmp25_;
-			ValaList* _tmp26_;
-			ValadocContentBlock* _tmp27_;
+			ValadocContentBlock* _tmp18_;
+			ValadocTagletsParam* _tmp19_;
+			ValadocContentContentElement* _tmp20_;
+			ValadocContentBlock* _tmp21_;
+			ValadocTagletsParam* _tmp22_;
+			ValaList* _tmp23_;
+			ValaList* _tmp24_;
+			ValadocContentBlock* _tmp25_;
+			_element_index = _element_index + 1;
 			_tmp14_ = _element_index;
-			_element_index = _tmp14_ + 1;
-			_tmp15_ = _element_index;
-			_tmp16_ = _element_size;
-			if (!(_tmp15_ < _tmp16_)) {
+			_tmp15_ = _element_size;
+			if (!(_tmp14_ < _tmp15_)) {
 				break;
 			}
-			_tmp17_ = _element_list;
-			_tmp18_ = _element_index;
-			_tmp19_ = vala_list_get (_tmp17_, _tmp18_);
-			element = (ValadocContentBlock*) _tmp19_;
-			_tmp20_ = element;
-			_tmp21_ = param;
-			_tmp22_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp20_, (ValadocContentContentElement*) _tmp21_);
-			_tmp23_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp22_, VALADOC_CONTENT_TYPE_BLOCK) ? ((ValadocContentBlock*) _tmp22_) : NULL;
-			if (_tmp23_ == NULL) {
-				_g_object_unref0 (_tmp22_);
+			_tmp16_ = _element_list;
+			_tmp17_ = vala_list_get (_tmp16_, _element_index);
+			element = (ValadocContentBlock*) _tmp17_;
+			_tmp18_ = element;
+			_tmp19_ = param;
+			_tmp20_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp18_, (ValadocContentContentElement*) _tmp19_);
+			_tmp21_ = VALADOC_CONTENT_IS_BLOCK (_tmp20_) ? ((ValadocContentBlock*) _tmp20_) : NULL;
+			if (_tmp21_ == NULL) {
+				_g_object_unref0 (_tmp20_);
 			}
-			copy = _tmp23_;
-			_tmp24_ = param;
-			_tmp25_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp24_);
-			_tmp26_ = _tmp25_;
-			_tmp27_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp26_, _tmp27_);
+			copy = _tmp21_;
+			_tmp22_ = param;
+			_tmp23_ = valadoc_content_block_content_get_content ((ValadocContentBlockContent*) _tmp22_);
+			_tmp24_ = _tmp23_;
+			_tmp25_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp24_, _tmp25_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (element);
 		}
@@ -767,7 +855,6 @@ valadoc_taglets_param_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
 ValadocTagletsParam*
 valadoc_taglets_param_construct (GType object_type)
 {
@@ -776,139 +863,15 @@ valadoc_taglets_param_construct (GType object_type)
 	return self;
 }
 
-
 ValadocTagletsParam*
 valadoc_taglets_param_new (void)
 {
 	return valadoc_taglets_param_construct (VALADOC_TAGLETS_TYPE_PARAM);
 }
 
-
-const gchar*
-valadoc_taglets_param_get_parameter_name (ValadocTagletsParam* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_parameter_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-G_GNUC_INTERNAL void
-valadoc_taglets_param_set_parameter_name (ValadocTagletsParam* self,
-                                          const gchar* value)
-{
-	g_return_if_fail (self != NULL);
-	if (g_strcmp0 (value, valadoc_taglets_param_get_parameter_name (self)) != 0) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (value);
-		_g_free0 (self->priv->_parameter_name);
-		self->priv->_parameter_name = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_PARAMETER_NAME_PROPERTY]);
-	}
-}
-
-
-ValadocApiSymbol*
-valadoc_taglets_param_get_parameter (ValadocTagletsParam* self)
-{
-	ValadocApiSymbol* result;
-	ValadocApiSymbol* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_parameter;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_taglets_param_set_parameter (ValadocTagletsParam* self,
-                                     ValadocApiSymbol* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_param_get_parameter (self) != value) {
-		self->priv->_parameter = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_PARAMETER_PROPERTY]);
-	}
-}
-
-
-gint
-valadoc_taglets_param_get_position (ValadocTagletsParam* self)
-{
-	gint result;
-	gint _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_position;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_taglets_param_set_position (ValadocTagletsParam* self,
-                                    gint value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_param_get_position (self) != value) {
-		self->priv->_position = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_POSITION_PROPERTY]);
-	}
-}
-
-
-gboolean
-valadoc_taglets_param_get_is_c_self_param (ValadocTagletsParam* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_c_self_param;
-	result = _tmp0_;
-	return result;
-}
-
-
-G_GNUC_INTERNAL void
-valadoc_taglets_param_set_is_c_self_param (ValadocTagletsParam* self,
-                                           gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_param_get_is_c_self_param (self) != value) {
-		self->priv->_is_c_self_param = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_IS_C_SELF_PARAM_PROPERTY]);
-	}
-}
-
-
-gboolean
-valadoc_taglets_param_get_is_this (ValadocTagletsParam* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_is_this;
-	result = _tmp0_;
-	return result;
-}
-
-
-static void
-valadoc_taglets_param_set_is_this (ValadocTagletsParam* self,
-                                   gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_taglets_param_get_is_this (self) != value) {
-		self->priv->_is_this = value;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_IS_THIS_PROPERTY]);
-	}
-}
-
-
-static void
-valadoc_taglets_param_class_init (ValadocTagletsParamClass * klass)
+valadoc_taglets_param_class_init (ValadocTagletsParamClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_taglets_param_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocTagletsParam_private_offset);
@@ -925,9 +888,9 @@ valadoc_taglets_param_class_init (ValadocTagletsParamClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_TAGLETS_PARAM_IS_THIS_PROPERTY, valadoc_taglets_param_properties[VALADOC_TAGLETS_PARAM_IS_THIS_PROPERTY] = g_param_spec_boolean ("is-this", "is-this", "is-this", FALSE, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_taglets_param_valadoc_content_taglet_interface_init (ValadocContentTagletIface * iface)
+valadoc_taglets_param_valadoc_content_taglet_interface_init (ValadocContentTagletIface * iface,
+                                                             gpointer iface_data)
 {
 	valadoc_taglets_param_valadoc_content_taglet_parent_iface = g_type_interface_peek_parent (iface);
 	iface->get_parser_rule = (ValadocRule* (*) (ValadocContentTaglet*, ValadocRule*)) valadoc_taglets_param_real_get_parser_rule;
@@ -935,21 +898,20 @@ valadoc_taglets_param_valadoc_content_taglet_interface_init (ValadocContentTagle
 	iface->inheritable = (gboolean (*) (ValadocContentTaglet*, ValadocContentTaglet*)) valadoc_taglets_param_real_inheritable;
 }
 
-
 static void
-valadoc_taglets_param_valadoc_content_block_interface_init (ValadocContentBlockIface * iface)
+valadoc_taglets_param_valadoc_content_block_interface_init (ValadocContentBlockIface * iface,
+                                                            gpointer iface_data)
 {
 	valadoc_taglets_param_valadoc_content_block_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_taglets_param_instance_init (ValadocTagletsParam * self)
+valadoc_taglets_param_instance_init (ValadocTagletsParam * self,
+                                     gpointer klass)
 {
 	self->priv = valadoc_taglets_param_get_instance_private (self);
 	self->priv->_position = -1;
 }
-
 
 static void
 valadoc_taglets_param_finalize (GObject * obj)
@@ -960,25 +922,31 @@ valadoc_taglets_param_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_taglets_param_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_taglets_param_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsParamClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_param_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsParam), 0, (GInstanceInitFunc) valadoc_taglets_param_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_taglet_info = { (GInterfaceInitFunc) valadoc_taglets_param_valadoc_content_taglet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_taglets_param_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_taglets_param_type_id;
+	valadoc_taglets_param_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_BLOCK_CONTENT, "ValadocTagletsParam", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_taglets_param_type_id, VALADOC_CONTENT_TYPE_TAGLET, &valadoc_content_taglet_info);
+	g_type_add_interface_static (valadoc_taglets_param_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
+	ValadocTagletsParam_private_offset = g_type_add_instance_private (valadoc_taglets_param_type_id, sizeof (ValadocTagletsParamPrivate));
+	return valadoc_taglets_param_type_id;
+}
 
 GType
 valadoc_taglets_param_get_type (void)
 {
 	static volatile gsize valadoc_taglets_param_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_taglets_param_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocTagletsParamClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_taglets_param_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocTagletsParam), 0, (GInstanceInitFunc) valadoc_taglets_param_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_taglet_info = { (GInterfaceInitFunc) valadoc_taglets_param_valadoc_content_taglet_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
-		static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_taglets_param_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_taglets_param_type_id;
-		valadoc_taglets_param_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_BLOCK_CONTENT, "ValadocTagletsParam", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_taglets_param_type_id, VALADOC_CONTENT_TYPE_TAGLET, &valadoc_content_taglet_info);
-		g_type_add_interface_static (valadoc_taglets_param_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
-		ValadocTagletsParam_private_offset = g_type_add_instance_private (valadoc_taglets_param_type_id, sizeof (ValadocTagletsParamPrivate));
+		valadoc_taglets_param_type_id = valadoc_taglets_param_get_type_once ();
 		g_once_init_leave (&valadoc_taglets_param_type_id__volatile, valadoc_taglets_param_type_id);
 	}
 	return valadoc_taglets_param_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_taglets_param_get_property (GObject * object,
@@ -1010,7 +978,6 @@ _vala_valadoc_taglets_param_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_taglets_param_set_property (GObject * object,
                                           guint property_id,
@@ -1041,14 +1008,13 @@ _vala_valadoc_taglets_param_set_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1056,7 +1022,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1066,6 +1031,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

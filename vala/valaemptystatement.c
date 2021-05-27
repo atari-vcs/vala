@@ -23,12 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
-
-
+#include <glib.h>
 
 static gpointer vala_empty_statement_parent_class = NULL;
 static ValaStatementIface * vala_empty_statement_vala_statement_parent_iface = NULL;
@@ -37,7 +33,7 @@ static void vala_empty_statement_real_accept (ValaCodeNode* base,
                                        ValaCodeVisitor* visitor);
 static void vala_empty_statement_real_emit (ValaCodeNode* base,
                                      ValaCodeGenerator* codegen);
-
+static GType vala_empty_statement_get_type_once (void);
 
 /**
  * Creates a new empty statement.
@@ -50,19 +46,16 @@ vala_empty_statement_construct (GType object_type,
                                 ValaSourceReference* source)
 {
 	ValaEmptyStatement* self = NULL;
-	g_return_val_if_fail (source != NULL, NULL);
 	self = (ValaEmptyStatement*) vala_code_node_construct (object_type);
 	vala_code_node_set_source_reference ((ValaCodeNode*) self, source);
 	return self;
 }
-
 
 ValaEmptyStatement*
 vala_empty_statement_new (ValaSourceReference* source)
 {
 	return vala_empty_statement_construct (VALA_TYPE_EMPTY_STATEMENT, source);
 }
-
 
 static void
 vala_empty_statement_real_accept (ValaCodeNode* base,
@@ -74,7 +67,6 @@ vala_empty_statement_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_empty_statement (visitor, self);
 }
 
-
 static void
 vala_empty_statement_real_emit (ValaCodeNode* base,
                                 ValaCodeGenerator* codegen)
@@ -85,46 +77,51 @@ vala_empty_statement_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_empty_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
 static void
-vala_empty_statement_class_init (ValaEmptyStatementClass * klass)
+vala_empty_statement_class_init (ValaEmptyStatementClass * klass,
+                                 gpointer klass_data)
 {
 	vala_empty_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->accept = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_empty_statement_real_accept;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_empty_statement_real_emit;
 }
 
-
 static void
-vala_empty_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_empty_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                    gpointer iface_data)
 {
 	vala_empty_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_empty_statement_instance_init (ValaEmptyStatement * self)
+vala_empty_statement_instance_init (ValaEmptyStatement * self,
+                                    gpointer klass)
 {
 }
-
 
 /**
  * An empty statement.
  */
+static GType
+vala_empty_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaEmptyStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_empty_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaEmptyStatement), 0, (GInstanceInitFunc) vala_empty_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_empty_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_empty_statement_type_id;
+	vala_empty_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaEmptyStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_empty_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	return vala_empty_statement_type_id;
+}
+
 GType
 vala_empty_statement_get_type (void)
 {
 	static volatile gsize vala_empty_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_empty_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaEmptyStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_empty_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaEmptyStatement), 0, (GInstanceInitFunc) vala_empty_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_empty_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_empty_statement_type_id;
-		vala_empty_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaEmptyStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_empty_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+		vala_empty_statement_type_id = vala_empty_statement_get_type_once ();
 		g_once_init_leave (&vala_empty_statement_type_id__volatile, vala_empty_statement_type_id);
 	}
 	return vala_empty_statement_type_id__volatile;
 }
-
-
 

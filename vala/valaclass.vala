@@ -38,6 +38,12 @@ public class Vala.Class : ObjectTypeSymbol {
 	public bool is_abstract { get; set; }
 
 	/**
+	 * Specifies whether this class is sealed. Sealed classes may not be
+	 * sub-classed.
+	 */
+	public bool is_sealed { get; set; }
+
+	/**
 	 * Instances of compact classes are fast to create and have a
 	 * compact memory layout. Compact classes don't support runtime
 	 * type information or virtual methods.
@@ -45,7 +51,7 @@ public class Vala.Class : ObjectTypeSymbol {
 	public bool is_compact {
 		get {
 			if (_is_compact == null) {
-				if (base_class != null) {
+				if (base_class != null && !base_class.is_subtype_of (this)) {
 					_is_compact = base_class.is_compact;
 				} else {
 					_is_compact = get_attribute ("Compact") != null;
@@ -65,7 +71,7 @@ public class Vala.Class : ObjectTypeSymbol {
 	public bool is_immutable {
 		get {
 			if (_is_immutable == null) {
-				if (base_class != null) {
+				if (base_class != null && !base_class.is_subtype_of (this)) {
 					_is_immutable = base_class.is_immutable;
 				} else {
 					_is_immutable = get_attribute ("Immutable") != null;
@@ -76,6 +82,22 @@ public class Vala.Class : ObjectTypeSymbol {
 		set {
 			_is_immutable = value;
 			set_attribute ("Immutable", value);
+		}
+	}
+
+	/**
+	 * Instances of immutable classes are immutable after construction.
+	 */
+	public bool is_singleton {
+		get {
+			if (_is_singleton == null) {
+				_is_singleton = get_attribute ("SingleInstance") != null;
+			}
+			return _is_singleton;
+		}
+		set {
+			_is_singleton = value;
+			set_attribute ("SingleInstance", value);
 		}
 	}
 
@@ -91,20 +113,22 @@ public class Vala.Class : ObjectTypeSymbol {
 
 	private bool? _is_compact;
 	private bool? _is_immutable;
+	private bool? _is_singleton;
 
 	private List<DataType> base_types = new ArrayList<DataType> ();
+	private HashMap<Method,Method> implicit_implementations = new HashMap<Method,Method> (Symbol.hash_func, Symbol.equal_func);
 
 	/**
 	 * Specifies the default construction method.
 	 */
-	public CreationMethod default_construction_method { get; set; }
+	public CreationMethod? default_construction_method { get; private set; }
 
 	/**
 	 * Specifies the instance constructor.
 	 */
-	public Constructor constructor {
+	public Constructor? constructor {
 		get { return _constructor; }
-		set {
+		private set {
 			_constructor = value;
 			if (_constructor != null) {
 				_constructor.owner = scope;
@@ -115,9 +139,9 @@ public class Vala.Class : ObjectTypeSymbol {
 	/**
 	 * Specifies the class constructor.
 	 */
-	public Constructor class_constructor {
+	public Constructor? class_constructor {
 		get { return _class_constructor; }
-		set {
+		private set {
 			_class_constructor = value;
 			if (_class_constructor != null) {
 				_class_constructor.owner = scope;
@@ -128,9 +152,9 @@ public class Vala.Class : ObjectTypeSymbol {
 	/**
 	 * Specifies the static class constructor.
 	 */
-	public Constructor static_constructor {
+	public Constructor? static_constructor {
 		get { return _static_constructor; }
-		set {
+		private set {
 			_static_constructor = value;
 			if (_static_constructor != null) {
 				_static_constructor.owner = scope;
@@ -143,15 +167,10 @@ public class Vala.Class : ObjectTypeSymbol {
 	 */
 	public Destructor? destructor {
 		get { return _destructor; }
-		set {
+		private set {
 			_destructor = value;
 			if (_destructor != null) {
 				_destructor.owner = scope;
-				if (_destructor.this_parameter != null) {
-					_destructor.scope.remove (_destructor.this_parameter.name);
-				}
-				_destructor.this_parameter = new Parameter ("this", get_this_type ());
-				_destructor.scope.add (_destructor.this_parameter.name, _destructor.this_parameter);
 			}
 		}
 	}
@@ -161,7 +180,7 @@ public class Vala.Class : ObjectTypeSymbol {
 	 */
 	public Destructor? static_destructor {
 		get { return _static_destructor; }
-		set {
+		private set {
 			_static_destructor = value;
 			if (_static_destructor != null) {
 				_static_destructor.owner = scope;
@@ -174,7 +193,7 @@ public class Vala.Class : ObjectTypeSymbol {
 	 */
 	public Destructor? class_destructor {
 		get { return _class_destructor; }
-		set {
+		private set {
 			_class_destructor = value;
 			if (_class_destructor != null) {
 				_class_destructor.owner = scope;
@@ -191,9 +210,9 @@ public class Vala.Class : ObjectTypeSymbol {
 		}
 	}
 
-	Constructor _constructor;
-	Constructor _class_constructor;
-	Constructor _static_constructor;
+	Constructor? _constructor;
+	Constructor? _class_constructor;
+	Constructor? _static_constructor;
 	Destructor? _destructor;
 	Destructor? _class_destructor;
 	Destructor? _static_destructor;
@@ -222,11 +241,11 @@ public class Vala.Class : ObjectTypeSymbol {
 	}
 
 	/**
-	 * Returns a copy of the base type list.
+	 * Returns the base type list.
 	 *
 	 * @return list of base types
 	 */
-	public List<DataType> get_base_types () {
+	public unowned List<DataType> get_base_types () {
 		return base_types;
 	}
 
@@ -251,18 +270,18 @@ public class Vala.Class : ObjectTypeSymbol {
 	 * @param m a method
 	 */
 	public override void add_method (Method m) {
-		if (m.binding == MemberBinding.INSTANCE || m is CreationMethod) {
+		if (m.binding != MemberBinding.STATIC || m is CreationMethod) {
 			if (m.this_parameter != null) {
 				m.scope.remove (m.this_parameter.name);
 			}
-			m.this_parameter = new Parameter ("this", get_this_type ());
+			m.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (m, this), m.source_reference);
 			m.scope.add (m.this_parameter.name, m.this_parameter);
 		}
 		if (!(m.return_type is VoidType) && m.get_postconditions ().size > 0) {
 			if (m.result_var != null) {
 				m.scope.remove (m.result_var.name);
 			}
-			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, source_reference);
+			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, m.source_reference);
 			m.result_var.is_result = true;
 		}
 		if (m is CreationMethod) {
@@ -271,21 +290,30 @@ public class Vala.Class : ObjectTypeSymbol {
 				m.name = ".new";
 			}
 
-			var cm = (CreationMethod) m;
+			unowned CreationMethod cm = (CreationMethod) m;
 			if (cm.class_name != null && cm.class_name != name) {
 				// class_name is null for constructors generated by GIdlParser
 				Report.error (m.source_reference, "missing return type in method `%s.%s´".printf (get_full_name (), cm.class_name));
 				m.error = true;
 				return;
 			}
+			if (is_abstract && cm.access == SymbolAccessibility.PUBLIC) {
+				//TODO Report an error for external constructors too
+				if (external_package) {
+					Report.warning (m.source_reference, "Creation method of abstract class cannot be public.");
+				} else {
+					Report.error (m.source_reference, "Creation method of abstract class cannot be public.");
+					error = true;
+					return;
+				}
+			}
 		}
 
 		base.add_method (m);
-		// explicit interface method implementation
-		if (m.base_interface_type != null) {
-			scope.remove (m.name);
-			scope.add (null, m);
-		}
+	}
+
+	public HashMap<Method,Method> get_implicit_implementations () {
+		return implicit_implementations;
 	}
 
 	/**
@@ -296,8 +324,10 @@ public class Vala.Class : ObjectTypeSymbol {
 	public override void add_property (Property prop) {
 		base.add_property (prop);
 
-		prop.this_parameter = new Parameter ("this", get_this_type ());
-		prop.scope.add (prop.this_parameter.name, prop.this_parameter);
+		if (prop.binding != MemberBinding.STATIC) {
+			prop.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (prop, this), prop.source_reference);
+			prop.scope.add (prop.this_parameter.name, prop.this_parameter);
+		}
 
 		if (prop.field != null) {
 			add_field (prop.field);
@@ -305,40 +335,68 @@ public class Vala.Class : ObjectTypeSymbol {
 	}
 
 	public override void add_constructor (Constructor c) {
-		if (c.binding == MemberBinding.INSTANCE) {
+		switch (c.binding) {
+		case MemberBinding.INSTANCE:
 			if (constructor != null) {
 				Report.error (c.source_reference, "class already contains a constructor");
 			}
 			constructor = c;
-		} else if (c.binding == MemberBinding.CLASS) {
+			break;
+		case MemberBinding.CLASS:
 			if (class_constructor != null) {
 				Report.error (c.source_reference, "class already contains a class constructor");
 			}
 			class_constructor = c;
-		} else {
+			break;
+		case MemberBinding.STATIC:
 			if (static_constructor != null) {
 				Report.error (c.source_reference, "class already contains a static constructor");
 			}
 			static_constructor = c;
+			break;
+		default:
+			assert_not_reached ();
+		}
+
+		if (c.binding != MemberBinding.STATIC) {
+			if (c.this_parameter != null) {
+				c.scope.remove (c.this_parameter.name);
+			}
+			c.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (c, this), c.source_reference);
+			c.scope.add (c.this_parameter.name, c.this_parameter);
 		}
 	}
 
 	public override void add_destructor (Destructor d) {
-		if (d.binding == MemberBinding.INSTANCE) {
+		switch (d.binding) {
+		case MemberBinding.INSTANCE:
 			if (destructor != null) {
 				Report.error (d.source_reference, "class already contains a destructor");
 			}
 			destructor = d;
-		} else if (d.binding == MemberBinding.CLASS) {
+			break;
+		case MemberBinding.CLASS:
 			if (class_destructor != null) {
 				Report.error (d.source_reference, "class already contains a class destructor");
 			}
 			class_destructor = d;
-		} else {
+			break;
+		case MemberBinding.STATIC:
 			if (static_destructor != null) {
 				Report.error (d.source_reference, "class already contains a static destructor");
 			}
 			static_destructor = d;
+			break;
+		default:
+			assert_not_reached ();
+		}
+
+		if (d.binding != MemberBinding.STATIC) {
+			if (d.this_parameter != null) {
+				d.scope.remove (d.this_parameter.name);
+			}
+			d.this_parameter = new Parameter ("this", SemanticAnalyzer.get_this_type (d, this), d.source_reference);
+			d.scope.add (d.this_parameter.name, d.this_parameter);
 		}
 	}
 
@@ -351,34 +409,8 @@ public class Vala.Class : ObjectTypeSymbol {
 			type.accept (visitor);
 		}
 
-		foreach (TypeParameter p in get_type_parameters ()) {
-			p.accept (visitor);
-		}
-
-		/* process enums first to avoid order problems in C code */
-		foreach (Enum en in get_enums ()) {
-			en.accept (visitor);
-		}
-
-		foreach (Field f in get_fields ()) {
-			f.accept (visitor);
-		}
-
-		foreach (Constant c in get_constants ()) {
-			c.accept (visitor);
-		}
-
-		foreach (Method m in get_methods ()) {
-			m.accept (visitor);
-		}
-
-		foreach (Property prop in get_properties ()) {
-			prop.accept (visitor);
-		}
-
-		foreach (Signal sig in get_signals ()) {
-			sig.accept (visitor);
-		}
+		// Invoke common implementation in ObjectTypeSymbol
+		base.accept_children (visitor);
 
 		if (constructor != null) {
 			constructor.accept (visitor);
@@ -403,18 +435,6 @@ public class Vala.Class : ObjectTypeSymbol {
 		if (class_destructor != null) {
 			class_destructor.accept (visitor);
 		}
-
-		foreach (Class cl in get_classes ()) {
-			cl.accept (visitor);
-		}
-
-		foreach (Struct st in get_structs ()) {
-			st.accept (visitor);
-		}
-
-		foreach (Delegate d in get_delegates ()) {
-			d.accept (visitor);
-		}
 	}
 
 	public override bool is_reference_type () {
@@ -434,7 +454,8 @@ public class Vala.Class : ObjectTypeSymbol {
 		}
 
 		foreach (DataType base_type in base_types) {
-			if (base_type.data_type != null && base_type.data_type.is_subtype_of (t)) {
+			if (base_type.type_symbol != null && base_type.type_symbol != this
+			    && base_type.type_symbol.is_subtype_of (t)) {
 				return true;
 			}
 		}
@@ -454,7 +475,7 @@ public class Vala.Class : ObjectTypeSymbol {
 
 	private void get_all_prerequisites (Interface iface, List<TypeSymbol> list) {
 		foreach (DataType prereq in iface.get_prerequisites ()) {
-			TypeSymbol type = prereq.data_type;
+			TypeSymbol type = prereq.type_symbol;
 			/* skip on previous errors */
 			if (type == null) {
 				continue;
@@ -468,17 +489,27 @@ public class Vala.Class : ObjectTypeSymbol {
 		}
 	}
 
-	private bool class_is_a (Class cl, TypeSymbol t) {
-		if (cl == t) {
+	public bool is_a (ObjectTypeSymbol t) {
+		if (this == t) {
 			return true;
 		}
 
-		foreach (DataType base_type in cl.get_base_types ()) {
-			if (base_type.data_type is Class) {
-				if (class_is_a ((Class) base_type.data_type, t)) {
+		foreach (DataType base_type in get_base_types ()) {
+			if (base_type.type_symbol is Class) {
+				if (((Class) base_type.type_symbol).is_a (t)) {
 					return true;
 				}
-			} else if (base_type.data_type == t) {
+			} else if (base_type.type_symbol == t) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public bool implements (Interface i) {
+		foreach (DataType base_type in get_base_types ()) {
+			if (base_type.type_symbol == i) {
 				return true;
 			}
 		}
@@ -489,6 +520,10 @@ public class Vala.Class : ObjectTypeSymbol {
 	public override bool check (CodeContext context) {
 		if (checked) {
 			return !error;
+		}
+
+		if (!base.check (context)) {
+			return false;
 		}
 
 		checked = true;
@@ -521,7 +556,7 @@ public class Vala.Class : ObjectTypeSymbol {
 			}
 
 			int n_type_args = base_type_reference.get_type_arguments ().size;
-			int n_type_params = ((ObjectTypeSymbol) base_type_reference.data_type).get_type_parameters ().size;
+			int n_type_params = ((ObjectTypeSymbol) base_type_reference.type_symbol).get_type_parameters ().size;
 			if (n_type_args < n_type_params) {
 				error = true;
 				Report.error (base_type_reference.source_reference, "too few type arguments");
@@ -535,10 +570,51 @@ public class Vala.Class : ObjectTypeSymbol {
 
 		foreach (DataType type in base_types) {
 			type.check (context);
+			context.analyzer.check_type (type);
 		}
 
 		foreach (TypeParameter p in get_type_parameters ()) {
 			p.check (context);
+		}
+
+		if (base_class != null && base_class.is_singleton) {
+			error = true;
+			Report.error (source_reference, "`%s' cannot inherit from SingleInstance class `%s'".printf (get_full_name (), base_class.get_full_name ()));
+		}
+
+		if (is_singleton && !is_subtype_of (context.analyzer.object_type)) {
+			error = true;
+			Report.error (source_reference, "SingleInstance class `%s' requires inheritance from `GLib.Object'".printf (get_full_name ()));
+		}
+
+		/* singleton classes require an instance constructor */
+		if (is_singleton && constructor == null) {
+			var c = new Constructor (source_reference);
+			c.body = new Block (source_reference);
+			add_constructor (c);
+		}
+
+		if (base_class != null && base_class.is_sealed) {
+			error = true;
+			Report.error (source_reference, "`%s' cannot inherit from sealed class `%s'".printf (get_full_name (), base_class.get_full_name ()));
+		}
+
+		if (is_sealed) {
+			if (is_compact) {
+				error = true;
+				Report.error (source_reference, "Sealed class `%s' cannot be compact".printf (get_full_name ()));
+				return false;
+			}
+			if (is_abstract) {
+				error = true;
+				Report.error (source_reference, "Sealed class `%s' cannot be abstract".printf (get_full_name ()));
+				return false;
+			}
+			if (!external_package) {
+				error = true;
+				Report.error (source_reference, "Sealed classes are not fully supported yet");
+				return false;
+			}
 		}
 
 		/* process enums first to avoid order problems in C code */
@@ -611,6 +687,10 @@ public class Vala.Class : ObjectTypeSymbol {
 			cl.check (context);
 		}
 
+		foreach (Interface iface in get_interfaces ()) {
+			iface.check (context);
+		}
+
 		foreach (Struct st in get_structs ()) {
 			st.check (context);
 		}
@@ -622,7 +702,7 @@ public class Vala.Class : ObjectTypeSymbol {
 		/* compact classes cannot implement interfaces */
 		if (is_compact) {
 			foreach (DataType base_type in get_base_types ()) {
-				if (base_type.data_type is Interface) {
+				if (base_type.type_symbol is Interface) {
 					error = true;
 					Report.error (source_reference, "compact classes `%s' may not implement interfaces".printf (get_full_name ()));
 				}
@@ -642,14 +722,14 @@ public class Vala.Class : ObjectTypeSymbol {
 		/* gather all prerequisites */
 		List<TypeSymbol> prerequisites = new ArrayList<TypeSymbol> ();
 		foreach (DataType base_type in get_base_types ()) {
-			if (base_type.data_type is Interface) {
-				get_all_prerequisites ((Interface) base_type.data_type, prerequisites);
+			if (base_type.type_symbol is Interface) {
+				get_all_prerequisites ((Interface) base_type.type_symbol, prerequisites);
 			}
 		}
 		/* check whether all prerequisites are met */
-		List<string> missing_prereqs = new ArrayList<string> ();
+		List<string> missing_prereqs = new ArrayList<string> (str_equal);
 		foreach (TypeSymbol prereq in prerequisites) {
-			if (!class_is_a (this, prereq)) {
+			if (!is_a ((ObjectTypeSymbol) prereq)) {
 				missing_prereqs.insert (0, prereq.get_full_name ());
 			}
 		}
@@ -675,8 +755,8 @@ public class Vala.Class : ObjectTypeSymbol {
 		if (source_type == SourceFileType.SOURCE) {
 			/* all abstract symbols defined in base types have to be at least defined (or implemented) also in this type */
 			foreach (DataType base_type in get_base_types ()) {
-				if (base_type.data_type is Interface) {
-					Interface iface = (Interface) base_type.data_type;
+				if (base_type.type_symbol is Interface) {
+					unowned Interface iface = (Interface) base_type.type_symbol;
 
 					if (base_class != null && base_class.is_subtype_of (iface)) {
 						// reimplementation of interface, class is not required to reimplement all methods
@@ -691,14 +771,20 @@ public class Vala.Class : ObjectTypeSymbol {
 					foreach (Method m in iface.get_methods ()) {
 						if (m.is_abstract) {
 							var implemented = false;
-							var base_class = this;
-							while (base_class != null) {
+							unowned Class? base_class = this;
+							while (base_class != null && !implemented) {
 								foreach (var impl in base_class.get_methods ()) {
-									if (impl.name == m.name && (impl.base_interface_type == null || impl.base_interface_type.data_type == iface)) {
+									if (impl.base_interface_method == m || (base_class != this
+									    && impl.base_interface_method == null && impl.name == m.name
+									    && (impl.base_interface_type == null || impl.base_interface_type.type_symbol == iface)
+									    && impl.compatible_no_error (m))) {
 										// method is used as interface implementation, so it is not unused
 										impl.version.check (source_reference);
 										impl.used = true;
 										implemented = true;
+										if (impl.base_interface_method == null) {
+											implicit_implementations.set (m, impl);
+										}
 										break;
 									}
 								}
@@ -715,7 +801,7 @@ public class Vala.Class : ObjectTypeSymbol {
 					foreach (Property prop in iface.get_properties ()) {
 						if (prop.is_abstract) {
 							Symbol sym = null;
-							var base_class = this;
+							unowned Class? base_class = this;
 							while (base_class != null && !(sym is Property)) {
 								sym = base_class.scope.lookup (prop.name);
 								base_class = base_class.base_class;
@@ -742,7 +828,7 @@ public class Vala.Class : ObjectTypeSymbol {
 
 			/* all abstract symbols defined in base classes have to be implemented in non-abstract classes */
 			if (!is_abstract) {
-				var base_class = base_class;
+				unowned Class? base_class = base_class;
 				while (base_class != null && base_class.is_abstract) {
 					foreach (Method base_method in base_class.get_methods ()) {
 						if (base_method.is_abstract) {

@@ -23,10 +23,9 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valagee.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <gobject/gvaluecollector.h>
 
 typedef struct _ValaParamSpecMap ValaParamSpecMap;
@@ -43,7 +42,6 @@ struct _ValaMapPrivate {
 struct _ValaParamSpecMap {
 	GParamSpec parent_instance;
 };
-
 
 static gint ValaMap_private_offset;
 static gpointer vala_map_parent_class = NULL;
@@ -62,7 +60,7 @@ static gboolean vala_map_real_remove (ValaMap* self,
 static void vala_map_real_clear (ValaMap* self);
 static ValaMapIterator* vala_map_real_map_iterator (ValaMap* self);
 static void vala_map_finalize (ValaMap * obj);
-
+static GType vala_map_get_type_once (void);
 
 static inline gpointer
 vala_map_get_instance_private (ValaMap* self)
@@ -70,6 +68,12 @@ vala_map_get_instance_private (ValaMap* self)
 	return G_STRUCT_MEMBER_P (self, ValaMap_private_offset);
 }
 
+gint
+vala_map_get_size (ValaMap* self)
+{
+	g_return_val_if_fail (self != NULL, 0);
+	return VALA_MAP_GET_CLASS (self)->get_size (self);
+}
 
 /**
  * Returns the keys of this map as a read-only set.
@@ -83,14 +87,12 @@ vala_map_real_get_keys (ValaMap* self)
 	return NULL;
 }
 
-
 ValaSet*
 vala_map_get_keys (ValaMap* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_MAP_GET_CLASS (self)->get_keys (self);
 }
-
 
 /**
  * Returns the values of this map as a read-only collection.
@@ -104,14 +106,12 @@ vala_map_real_get_values (ValaMap* self)
 	return NULL;
 }
 
-
 ValaCollection*
 vala_map_get_values (ValaMap* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_MAP_GET_CLASS (self)->get_values (self);
 }
-
 
 /**
  * Determines whether this map contains the specified key.
@@ -129,7 +129,6 @@ vala_map_real_contains (ValaMap* self,
 	return _tmp0_;
 }
 
-
 gboolean
 vala_map_contains (ValaMap* self,
                    gconstpointer key)
@@ -137,7 +136,6 @@ vala_map_contains (ValaMap* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_MAP_GET_CLASS (self)->contains (self, key);
 }
-
 
 /**
  * Returns the value of the specified key in this map.
@@ -155,7 +153,6 @@ vala_map_real_get (ValaMap* self,
 	return NULL;
 }
 
-
 gpointer
 vala_map_get (ValaMap* self,
               gconstpointer key)
@@ -163,7 +160,6 @@ vala_map_get (ValaMap* self,
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_MAP_GET_CLASS (self)->get (self, key);
 }
-
 
 /**
  * Inserts a new key and value into this map.
@@ -180,7 +176,6 @@ vala_map_real_set (ValaMap* self,
 	return;
 }
 
-
 void
 vala_map_set (ValaMap* self,
               gconstpointer key,
@@ -189,7 +184,6 @@ vala_map_set (ValaMap* self,
 	g_return_if_fail (self != NULL);
 	VALA_MAP_GET_CLASS (self)->set (self, key, value);
 }
-
 
 /**
  * Removes the specified key from this map.
@@ -207,7 +201,6 @@ vala_map_real_remove (ValaMap* self,
 	return _tmp0_;
 }
 
-
 gboolean
 vala_map_remove (ValaMap* self,
                  gconstpointer key)
@@ -215,7 +208,6 @@ vala_map_remove (ValaMap* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_MAP_GET_CLASS (self)->remove (self, key);
 }
-
 
 /**
  * Removes all items from this collection. Must not be called on
@@ -228,14 +220,12 @@ vala_map_real_clear (ValaMap* self)
 	return;
 }
 
-
 void
 vala_map_clear (ValaMap* self)
 {
 	g_return_if_fail (self != NULL);
 	VALA_MAP_GET_CLASS (self)->clear (self);
 }
-
 
 /**
  * Returns a Iterator that can be used for simple iteration over a
@@ -251,14 +241,12 @@ vala_map_real_map_iterator (ValaMap* self)
 	return NULL;
 }
 
-
 ValaMapIterator*
 vala_map_map_iterator (ValaMap* self)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_MAP_GET_CLASS (self)->map_iterator (self);
 }
-
 
 ValaMap*
 vala_map_construct (GType object_type,
@@ -280,21 +268,11 @@ vala_map_construct (GType object_type,
 	return self;
 }
 
-
-gint
-vala_map_get_size (ValaMap* self)
-{
-	g_return_val_if_fail (self != NULL, 0);
-	return VALA_MAP_GET_CLASS (self)->get_size (self);
-}
-
-
 static void
 vala_value_map_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_map_free_value (GValue* value)
@@ -303,7 +281,6 @@ vala_value_map_free_value (GValue* value)
 		vala_map_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_map_copy_value (const GValue* src_value,
@@ -316,13 +293,11 @@ vala_value_map_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_map_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_map_collect_value (GValue* value,
@@ -345,7 +320,6 @@ vala_value_map_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_map_lcopy_value (const GValue* value,
                             guint n_collect_values,
@@ -367,7 +341,6 @@ vala_value_map_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_map (const gchar* name,
                      const gchar* nick,
@@ -382,14 +355,12 @@ vala_param_spec_map (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_map (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_MAP), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_map (GValue* value,
@@ -411,7 +382,6 @@ vala_value_set_map (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_map (GValue* value,
                      gpointer v_object)
@@ -431,9 +401,9 @@ vala_value_take_map (GValue* value,
 	}
 }
 
-
 static void
-vala_map_class_init (ValaMapClass * klass)
+vala_map_class_init (ValaMapClass * klass,
+                     gpointer klass_data)
 {
 	vala_map_parent_class = g_type_class_peek_parent (klass);
 	((ValaMapClass *) klass)->finalize = vala_map_finalize;
@@ -448,14 +418,13 @@ vala_map_class_init (ValaMapClass * klass)
 	((ValaMapClass *) klass)->map_iterator = (ValaMapIterator* (*) (ValaMap*)) vala_map_real_map_iterator;
 }
 
-
 static void
-vala_map_instance_init (ValaMap * self)
+vala_map_instance_init (ValaMap * self,
+                        gpointer klass)
 {
 	self->priv = vala_map_get_instance_private (self);
 	self->ref_count = 1;
 }
-
 
 static void
 vala_map_finalize (ValaMap * obj)
@@ -465,26 +434,32 @@ vala_map_finalize (ValaMap * obj)
 	g_signal_handlers_destroy (self);
 }
 
-
 /**
  * A map is a generic collection of key/value pairs.
  */
+static GType
+vala_map_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_map_init, vala_value_map_free_value, vala_value_map_copy_value, vala_value_map_peek_pointer, "p", vala_value_map_collect_value, "p", vala_value_map_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaMapClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_map_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaMap), 0, (GInstanceInitFunc) vala_map_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_map_type_id;
+	vala_map_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaMap", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
+	ValaMap_private_offset = g_type_add_instance_private (vala_map_type_id, sizeof (ValaMapPrivate));
+	return vala_map_type_id;
+}
+
 GType
 vala_map_get_type (void)
 {
 	static volatile gsize vala_map_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_map_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_map_init, vala_value_map_free_value, vala_value_map_copy_value, vala_value_map_peek_pointer, "p", vala_value_map_collect_value, "p", vala_value_map_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaMapClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_map_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaMap), 0, (GInstanceInitFunc) vala_map_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_map_type_id;
-		vala_map_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaMap", &g_define_type_info, &g_define_type_fundamental_info, G_TYPE_FLAG_ABSTRACT);
-		ValaMap_private_offset = g_type_add_instance_private (vala_map_type_id, sizeof (ValaMapPrivate));
+		vala_map_type_id = vala_map_get_type_once ();
 		g_once_init_leave (&vala_map_type_id__volatile, vala_map_type_id);
 	}
 	return vala_map_type_id__volatile;
 }
-
 
 gpointer
 vala_map_ref (gpointer instance)
@@ -494,7 +469,6 @@ vala_map_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_map_unref (gpointer instance)
@@ -506,6 +480,4 @@ vala_map_unref (gpointer instance)
 		g_type_free_instance ((GTypeInstance *) self);
 	}
 }
-
-
 

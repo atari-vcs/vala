@@ -24,13 +24,12 @@
  * 	Didier 'Ptitjes Villevalois <ptitjes@free.fr>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 enum  {
 	VALADOC_CONTENT_TABLE_0_PROPERTY,
@@ -44,7 +43,6 @@ static GParamSpec* valadoc_content_table_properties[VALADOC_CONTENT_TABLE_NUM_PR
 struct _ValadocContentTablePrivate {
 	ValaList* _rows;
 };
-
 
 static gint ValadocContentTable_private_offset;
 static gpointer valadoc_content_table_parent_class = NULL;
@@ -68,11 +66,11 @@ static gboolean valadoc_content_table_real_is_empty (ValadocContentContentElemen
 static ValadocContentContentElement* valadoc_content_table_real_copy (ValadocContentContentElement* base,
                                                                ValadocContentContentElement* new_parent);
 static void valadoc_content_table_finalize (GObject * obj);
+static GType valadoc_content_table_get_type_once (void);
 static void _vala_valadoc_content_table_get_property (GObject * object,
                                                guint property_id,
                                                GValue * value,
                                                GParamSpec * pspec);
-
 
 static inline gpointer
 valadoc_content_table_get_instance_private (ValadocContentTable* self)
@@ -80,6 +78,16 @@ valadoc_content_table_get_instance_private (ValadocContentTable* self)
 	return G_STRUCT_MEMBER_P (self, ValadocContentTable_private_offset);
 }
 
+ValaList*
+valadoc_content_table_get_rows (ValadocContentTable* self)
+{
+	ValaList* result;
+	ValaList* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_rows;
+	result = _tmp0_;
+	return result;
+}
 
 G_GNUC_INTERNAL ValadocContentTable*
 valadoc_content_table_construct (GType object_type)
@@ -95,20 +103,17 @@ valadoc_content_table_construct (GType object_type)
 	return self;
 }
 
-
 G_GNUC_INTERNAL ValadocContentTable*
 valadoc_content_table_new (void)
 {
 	return valadoc_content_table_construct (VALADOC_CONTENT_TYPE_TABLE);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static void
 valadoc_content_table_real_check (ValadocContentContentElement* base,
@@ -145,34 +150,29 @@ valadoc_content_table_real_check (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValadocContentTableRow* row = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValadocContentTableRow* _tmp11_;
-			ValadocContentTableRow* _tmp12_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValadocContentTableRow* _tmp9_;
+			ValadocContentTableRow* _tmp10_;
+			_row_index = _row_index + 1;
 			_tmp5_ = _row_index;
-			_row_index = _tmp5_ + 1;
-			_tmp6_ = _row_index;
-			_tmp7_ = _row_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _row_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _row_list;
-			_tmp9_ = _row_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			row = (ValadocContentTableRow*) _tmp10_;
-			_tmp11_ = row;
-			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp11_, (ValadocContentContentElement*) self);
-			_tmp12_ = row;
-			valadoc_content_content_element_check ((ValadocContentContentElement*) _tmp12_, api_root, container, file_path, reporter, settings);
+			_tmp7_ = _row_list;
+			_tmp8_ = vala_list_get (_tmp7_, _row_index);
+			row = (ValadocContentTableRow*) _tmp8_;
+			_tmp9_ = row;
+			valadoc_content_content_element_set_parent ((ValadocContentContentElement*) _tmp9_, (ValadocContentContentElement*) self);
+			_tmp10_ = row;
+			valadoc_content_content_element_check ((ValadocContentContentElement*) _tmp10_, api_root, container, file_path, reporter, settings);
 			_g_object_unref0 (row);
 		}
 		_vala_iterable_unref0 (_row_list);
 	}
 }
-
 
 static void
 valadoc_content_table_real_accept (ValadocContentContentElement* base,
@@ -183,7 +183,6 @@ valadoc_content_table_real_accept (ValadocContentContentElement* base,
 	g_return_if_fail (visitor != NULL);
 	valadoc_content_content_visitor_visit_table (visitor, self);
 }
-
 
 static void
 valadoc_content_table_real_accept_children (ValadocContentContentElement* base,
@@ -212,31 +211,26 @@ valadoc_content_table_real_accept_children (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValadocContentTableRow* element = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			ValadocContentTableRow* _tmp11_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValadocContentTableRow* _tmp9_;
+			_element_index = _element_index + 1;
 			_tmp5_ = _element_index;
-			_element_index = _tmp5_ + 1;
-			_tmp6_ = _element_index;
-			_tmp7_ = _element_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _element_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _element_list;
-			_tmp9_ = _element_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			element = (ValadocContentTableRow*) _tmp10_;
-			_tmp11_ = element;
-			valadoc_content_content_element_accept ((ValadocContentContentElement*) _tmp11_, visitor);
+			_tmp7_ = _element_list;
+			_tmp8_ = vala_list_get (_tmp7_, _element_index);
+			element = (ValadocContentTableRow*) _tmp8_;
+			_tmp9_ = element;
+			valadoc_content_content_element_accept ((ValadocContentContentElement*) _tmp9_, visitor);
 			_g_object_unref0 (element);
 		}
 		_vala_iterable_unref0 (_element_list);
 	}
 }
-
 
 static gboolean
 valadoc_content_table_real_is_empty (ValadocContentContentElement* base)
@@ -248,16 +242,15 @@ valadoc_content_table_real_is_empty (ValadocContentContentElement* base)
 	return result;
 }
 
-
 static ValadocContentContentElement*
 valadoc_content_table_real_copy (ValadocContentContentElement* base,
                                  ValadocContentContentElement* new_parent)
 {
 	ValadocContentTable * self;
-	ValadocContentContentElement* result = NULL;
 	ValadocContentTable* table = NULL;
 	ValadocContentTable* _tmp0_;
 	ValadocContentTable* _tmp1_;
+	ValadocContentContentElement* result = NULL;
 	self = (ValadocContentTable*) base;
 	_tmp0_ = valadoc_content_table_new ();
 	table = _tmp0_;
@@ -283,44 +276,40 @@ valadoc_content_table_real_copy (ValadocContentContentElement* base,
 		while (TRUE) {
 			gint _tmp7_;
 			gint _tmp8_;
-			gint _tmp9_;
 			ValadocContentTableRow* row = NULL;
-			ValaList* _tmp10_;
-			gint _tmp11_;
-			gpointer _tmp12_;
+			ValaList* _tmp9_;
+			gpointer _tmp10_;
 			ValadocContentTableRow* copy = NULL;
-			ValadocContentTableRow* _tmp13_;
-			ValadocContentTable* _tmp14_;
-			ValadocContentContentElement* _tmp15_;
-			ValadocContentTableRow* _tmp16_;
-			ValadocContentTable* _tmp17_;
-			ValaList* _tmp18_;
-			ValaList* _tmp19_;
-			ValadocContentTableRow* _tmp20_;
+			ValadocContentTableRow* _tmp11_;
+			ValadocContentTable* _tmp12_;
+			ValadocContentContentElement* _tmp13_;
+			ValadocContentTableRow* _tmp14_;
+			ValadocContentTable* _tmp15_;
+			ValaList* _tmp16_;
+			ValaList* _tmp17_;
+			ValadocContentTableRow* _tmp18_;
+			_row_index = _row_index + 1;
 			_tmp7_ = _row_index;
-			_row_index = _tmp7_ + 1;
-			_tmp8_ = _row_index;
-			_tmp9_ = _row_size;
-			if (!(_tmp8_ < _tmp9_)) {
+			_tmp8_ = _row_size;
+			if (!(_tmp7_ < _tmp8_)) {
 				break;
 			}
-			_tmp10_ = _row_list;
-			_tmp11_ = _row_index;
-			_tmp12_ = vala_list_get (_tmp10_, _tmp11_);
-			row = (ValadocContentTableRow*) _tmp12_;
-			_tmp13_ = row;
-			_tmp14_ = table;
-			_tmp15_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp13_, (ValadocContentContentElement*) _tmp14_);
-			_tmp16_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp15_, VALADOC_CONTENT_TYPE_TABLE_ROW) ? ((ValadocContentTableRow*) _tmp15_) : NULL;
-			if (_tmp16_ == NULL) {
-				_g_object_unref0 (_tmp15_);
+			_tmp9_ = _row_list;
+			_tmp10_ = vala_list_get (_tmp9_, _row_index);
+			row = (ValadocContentTableRow*) _tmp10_;
+			_tmp11_ = row;
+			_tmp12_ = table;
+			_tmp13_ = valadoc_content_content_element_copy ((ValadocContentContentElement*) _tmp11_, (ValadocContentContentElement*) _tmp12_);
+			_tmp14_ = VALADOC_CONTENT_IS_TABLE_ROW (_tmp13_) ? ((ValadocContentTableRow*) _tmp13_) : NULL;
+			if (_tmp14_ == NULL) {
+				_g_object_unref0 (_tmp13_);
 			}
-			copy = _tmp16_;
-			_tmp17_ = table;
-			_tmp18_ = valadoc_content_table_get_rows (_tmp17_);
-			_tmp19_ = _tmp18_;
-			_tmp20_ = copy;
-			vala_collection_add ((ValaCollection*) _tmp19_, _tmp20_);
+			copy = _tmp14_;
+			_tmp15_ = table;
+			_tmp16_ = valadoc_content_table_get_rows (_tmp15_);
+			_tmp17_ = _tmp16_;
+			_tmp18_ = copy;
+			vala_collection_add ((ValaCollection*) _tmp17_, _tmp18_);
 			_g_object_unref0 (copy);
 			_g_object_unref0 (row);
 		}
@@ -330,21 +319,9 @@ valadoc_content_table_real_copy (ValadocContentContentElement* base,
 	return result;
 }
 
-
-ValaList*
-valadoc_content_table_get_rows (ValadocContentTable* self)
-{
-	ValaList* result;
-	ValaList* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_rows;
-	result = _tmp0_;
-	return result;
-}
-
-
 static void
-valadoc_content_table_class_init (ValadocContentTableClass * klass)
+valadoc_content_table_class_init (ValadocContentTableClass * klass,
+                                  gpointer klass_data)
 {
 	valadoc_content_table_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocContentTable_private_offset);
@@ -358,20 +335,19 @@ valadoc_content_table_class_init (ValadocContentTableClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_CONTENT_TABLE_ROWS_PROPERTY, valadoc_content_table_properties[VALADOC_CONTENT_TABLE_ROWS_PROPERTY] = vala_param_spec_iterable ("rows", "rows", "rows", VALA_TYPE_LIST, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_content_table_valadoc_content_block_interface_init (ValadocContentBlockIface * iface)
+valadoc_content_table_valadoc_content_block_interface_init (ValadocContentBlockIface * iface,
+                                                            gpointer iface_data)
 {
 	valadoc_content_table_valadoc_content_block_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-valadoc_content_table_instance_init (ValadocContentTable * self)
+valadoc_content_table_instance_init (ValadocContentTable * self,
+                                     gpointer klass)
 {
 	self->priv = valadoc_content_table_get_instance_private (self);
 }
-
 
 static void
 valadoc_content_table_finalize (GObject * obj)
@@ -382,23 +358,29 @@ valadoc_content_table_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_content_table_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_content_table_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_table_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentTable), 0, (GInstanceInitFunc) valadoc_content_table_instance_init, NULL };
+	static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_table_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_content_table_type_id;
+	valadoc_content_table_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentTable", &g_define_type_info, 0);
+	g_type_add_interface_static (valadoc_content_table_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
+	ValadocContentTable_private_offset = g_type_add_instance_private (valadoc_content_table_type_id, sizeof (ValadocContentTablePrivate));
+	return valadoc_content_table_type_id;
+}
 
 GType
 valadoc_content_table_get_type (void)
 {
 	static volatile gsize valadoc_content_table_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_content_table_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocContentTableClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_content_table_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocContentTable), 0, (GInstanceInitFunc) valadoc_content_table_instance_init, NULL };
-		static const GInterfaceInfo valadoc_content_block_info = { (GInterfaceInitFunc) valadoc_content_table_valadoc_content_block_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_content_table_type_id;
-		valadoc_content_table_type_id = g_type_register_static (VALADOC_CONTENT_TYPE_CONTENT_ELEMENT, "ValadocContentTable", &g_define_type_info, 0);
-		g_type_add_interface_static (valadoc_content_table_type_id, VALADOC_CONTENT_TYPE_BLOCK, &valadoc_content_block_info);
-		ValadocContentTable_private_offset = g_type_add_instance_private (valadoc_content_table_type_id, sizeof (ValadocContentTablePrivate));
+		valadoc_content_table_type_id = valadoc_content_table_get_type_once ();
 		g_once_init_leave (&valadoc_content_table_type_id__volatile, valadoc_content_table_type_id);
 	}
 	return valadoc_content_table_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_content_table_get_property (GObject * object,
@@ -417,6 +399,4 @@ _vala_valadoc_content_table_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

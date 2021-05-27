@@ -23,7 +23,7 @@
 
 using Valadoc.Api;
 
-public class Valadoc.Drivers.SymbolResolver : Visitor {
+public class Valadoc.SymbolResolver : Visitor {
 	private Vala.HashMap<Vala.Symbol, Symbol> symbol_map;
 	private Valadoc.Api.Class glib_error;
 	private Api.Tree root;
@@ -37,9 +37,11 @@ public class Valadoc.Drivers.SymbolResolver : Visitor {
 		return symbol_map.get (symbol);
 	}
 
-	private void resolve_thrown_list (Symbol symbol, Vala.List<Vala.DataType> types) {
-		foreach (Vala.DataType type in types) {
-			Vala.ErrorDomain vala_edom = (Vala.ErrorDomain) type.data_type;
+	private void resolve_thrown_list (Symbol symbol, Vala.Symbol vala_symbol) {
+		var error_types = new Vala.ArrayList<Vala.DataType> ();
+		vala_symbol.get_error_types (error_types);
+		foreach (Vala.DataType type in error_types) {
+			unowned Vala.ErrorDomain? vala_edom = ((Vala.ErrorType) type).error_domain;
 			Symbol? edom = symbol_map.get (vala_edom);
 			symbol.add_child (edom ?? glib_error);
 		}
@@ -84,8 +86,8 @@ public class Valadoc.Drivers.SymbolResolver : Visitor {
 			reference.data_type = resolve (((Vala.DelegateType) vtyperef).delegate_symbol);
 		} else if (vtyperef is Vala.GenericType) {
 			reference.data_type = resolve (((Vala.GenericType) vtyperef).type_parameter);
-		} else if (vtyperef.data_type != null) {
-			reference.data_type = resolve (vtyperef.data_type);
+		} else if (vtyperef.type_symbol != null) {
+			reference.data_type = resolve (vtyperef.type_symbol);
 		}
 
 		// Type parameters:
@@ -216,7 +218,7 @@ public class Valadoc.Drivers.SymbolResolver : Visitor {
 
 		resolve_type_reference (item.return_type);
 
-		resolve_thrown_list (item, vala_delegate.get_error_types ());
+		resolve_thrown_list (item, vala_delegate);
 
 		item.accept_all_children (this, false);
 	}
@@ -248,7 +250,7 @@ public class Valadoc.Drivers.SymbolResolver : Visitor {
 			item.base_method = (Method?) resolve (base_vala_method);
 		}
 
-		resolve_thrown_list (item, vala_method.get_error_types ());
+		resolve_thrown_list (item, vala_method);
 
 		resolve_type_reference (item.return_type);
 
@@ -265,7 +267,7 @@ public class Valadoc.Drivers.SymbolResolver : Visitor {
 	/**
 	 * {@inheritDoc}
 	 */
-	public override void visit_formal_parameter (FormalParameter item) {
+	public override void visit_formal_parameter (Api.Parameter item) {
 		if (item.ellipsis) {
 			return;
 		}

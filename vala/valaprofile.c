@@ -23,28 +23,26 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 
-
-
-
-
+static GType
+vala_profile_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_PROFILE_GOBJECT, "VALA_PROFILE_GOBJECT", "gobject"}, {VALA_PROFILE_POSIX, "VALA_PROFILE_POSIX", "posix"}, {0, NULL, NULL}};
+	GType vala_profile_type_id;
+	vala_profile_type_id = g_enum_register_static ("ValaProfile", values);
+	return vala_profile_type_id;
+}
 
 GType
 vala_profile_get_type (void)
 {
 	static volatile gsize vala_profile_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_profile_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_PROFILE_GOBJECT, "VALA_PROFILE_GOBJECT", "gobject"}, {VALA_PROFILE_POSIX, "VALA_PROFILE_POSIX", "posix"}, {0, NULL, NULL}};
 		GType vala_profile_type_id;
-		vala_profile_type_id = g_enum_register_static ("ValaProfile", values);
+		vala_profile_type_id = vala_profile_get_type_once ();
 		g_once_init_leave (&vala_profile_type_id__volatile, vala_profile_type_id);
 	}
 	return vala_profile_type_id__volatile;
 }
-
-
 

@@ -23,13 +23,12 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
@@ -38,7 +37,6 @@ struct _ValaNamedArgumentPrivate {
 	gchar* _name;
 	ValaExpression* _inner;
 };
-
 
 static gint ValaNamedArgument_private_offset;
 static gpointer vala_named_argument_parent_class = NULL;
@@ -60,7 +58,7 @@ static void vala_named_argument_real_get_defined_variables (ValaCodeNode* base,
 static void vala_named_argument_real_get_used_variables (ValaCodeNode* base,
                                                   ValaCollection* collection);
 static void vala_named_argument_finalize (ValaCodeNode * obj);
-
+static GType vala_named_argument_get_type_once (void);
 
 static inline gpointer
 vala_named_argument_get_instance_private (ValaNamedArgument* self)
@@ -68,6 +66,58 @@ vala_named_argument_get_instance_private (ValaNamedArgument* self)
 	return G_STRUCT_MEMBER_P (self, ValaNamedArgument_private_offset);
 }
 
+const gchar*
+vala_named_argument_get_name (ValaNamedArgument* self)
+{
+	const gchar* result;
+	const gchar* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_name;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_named_argument_set_name (ValaNamedArgument* self,
+                              const gchar* value)
+{
+	gchar* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = g_strdup (value);
+	_g_free0 (self->priv->_name);
+	self->priv->_name = _tmp0_;
+}
+
+ValaExpression*
+vala_named_argument_get_inner (ValaNamedArgument* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_inner;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_named_argument_set_inner (ValaNamedArgument* self,
+                               ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_inner);
+	self->priv->_inner = _tmp0_;
+	_tmp1_ = self->priv->_inner;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 ValaNamedArgument*
 vala_named_argument_construct (GType object_type,
@@ -85,7 +135,6 @@ vala_named_argument_construct (GType object_type,
 	return self;
 }
 
-
 ValaNamedArgument*
 vala_named_argument_new (const gchar* name,
                          ValaExpression* inner,
@@ -93,7 +142,6 @@ vala_named_argument_new (const gchar* name,
 {
 	return vala_named_argument_construct (VALA_TYPE_NAMED_ARGUMENT, name, inner, source_reference);
 }
-
 
 static void
 vala_named_argument_real_accept (ValaCodeNode* base,
@@ -105,7 +153,6 @@ vala_named_argument_real_accept (ValaCodeNode* base,
 	vala_code_visitor_visit_named_argument (visitor, self);
 	vala_code_visitor_visit_expression (visitor, (ValaExpression*) self);
 }
-
 
 static void
 vala_named_argument_real_accept_children (ValaCodeNode* base,
@@ -120,7 +167,6 @@ vala_named_argument_real_accept_children (ValaCodeNode* base,
 	_tmp1_ = _tmp0_;
 	vala_code_node_accept ((ValaCodeNode*) _tmp1_, visitor);
 }
-
 
 static void
 vala_named_argument_real_replace_expression (ValaCodeNode* base,
@@ -140,14 +186,13 @@ vala_named_argument_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_named_argument_real_is_pure (ValaExpression* base)
 {
 	ValaNamedArgument * self;
-	gboolean result = FALSE;
 	ValaExpression* _tmp0_;
 	ValaExpression* _tmp1_;
+	gboolean result = FALSE;
 	self = (ValaNamedArgument*) base;
 	_tmp0_ = vala_named_argument_get_inner (self);
 	_tmp1_ = _tmp0_;
@@ -155,13 +200,11 @@ vala_named_argument_real_is_pure (ValaExpression* base)
 	return result;
 }
 
-
 static gboolean
 vala_named_argument_real_check (ValaCodeNode* base,
                                 ValaCodeContext* context)
 {
 	ValaNamedArgument * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
@@ -182,6 +225,7 @@ vala_named_argument_real_check (ValaCodeNode* base,
 	ValaDataType* _tmp19_;
 	gboolean _tmp20_;
 	gboolean _tmp21_;
+	gboolean result = FALSE;
 	self = (ValaNamedArgument*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -225,7 +269,6 @@ vala_named_argument_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
 static void
 vala_named_argument_real_emit (ValaCodeNode* base,
                                ValaCodeGenerator* codegen)
@@ -242,7 +285,6 @@ vala_named_argument_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression ((ValaCodeVisitor*) codegen, (ValaExpression*) self);
 }
 
-
 static void
 vala_named_argument_real_get_defined_variables (ValaCodeNode* base,
                                                 ValaCollection* collection)
@@ -256,7 +298,6 @@ vala_named_argument_real_get_defined_variables (ValaCodeNode* base,
 	_tmp1_ = _tmp0_;
 	vala_code_node_get_defined_variables ((ValaCodeNode*) _tmp1_, collection);
 }
-
 
 static void
 vala_named_argument_real_get_used_variables (ValaCodeNode* base,
@@ -272,67 +313,9 @@ vala_named_argument_real_get_used_variables (ValaCodeNode* base,
 	vala_code_node_get_used_variables ((ValaCodeNode*) _tmp1_, collection);
 }
 
-
-const gchar*
-vala_named_argument_get_name (ValaNamedArgument* self)
-{
-	const gchar* result;
-	const gchar* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_name;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_named_argument_set_name (ValaNamedArgument* self,
-                              const gchar* value)
-{
-	gchar* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = g_strdup (value);
-	_g_free0 (self->priv->_name);
-	self->priv->_name = _tmp0_;
-}
-
-
-ValaExpression*
-vala_named_argument_get_inner (ValaNamedArgument* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_inner;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_named_argument_set_inner (ValaNamedArgument* self,
-                               ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_inner);
-	self->priv->_inner = _tmp0_;
-	_tmp1_ = self->priv->_inner;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_named_argument_class_init (ValaNamedArgumentClass * klass)
+vala_named_argument_class_init (ValaNamedArgumentClass * klass,
+                                gpointer klass_data)
 {
 	vala_named_argument_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_named_argument_finalize;
@@ -347,13 +330,12 @@ vala_named_argument_class_init (ValaNamedArgumentClass * klass)
 	((ValaCodeNodeClass *) klass)->get_used_variables = (void (*) (ValaCodeNode*, ValaCollection*)) vala_named_argument_real_get_used_variables;
 }
 
-
 static void
-vala_named_argument_instance_init (ValaNamedArgument * self)
+vala_named_argument_instance_init (ValaNamedArgument * self,
+                                   gpointer klass)
 {
 	self->priv = vala_named_argument_get_instance_private (self);
 }
-
 
 static void
 vala_named_argument_finalize (ValaCodeNode * obj)
@@ -365,20 +347,25 @@ vala_named_argument_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_named_argument_parent_class)->finalize (obj);
 }
 
+static GType
+vala_named_argument_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaNamedArgumentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_named_argument_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNamedArgument), 0, (GInstanceInitFunc) vala_named_argument_instance_init, NULL };
+	GType vala_named_argument_type_id;
+	vala_named_argument_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaNamedArgument", &g_define_type_info, 0);
+	ValaNamedArgument_private_offset = g_type_add_instance_private (vala_named_argument_type_id, sizeof (ValaNamedArgumentPrivate));
+	return vala_named_argument_type_id;
+}
 
 GType
 vala_named_argument_get_type (void)
 {
 	static volatile gsize vala_named_argument_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_named_argument_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaNamedArgumentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_named_argument_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaNamedArgument), 0, (GInstanceInitFunc) vala_named_argument_instance_init, NULL };
 		GType vala_named_argument_type_id;
-		vala_named_argument_type_id = g_type_register_static (VALA_TYPE_EXPRESSION, "ValaNamedArgument", &g_define_type_info, 0);
-		ValaNamedArgument_private_offset = g_type_add_instance_private (vala_named_argument_type_id, sizeof (ValaNamedArgumentPrivate));
+		vala_named_argument_type_id = vala_named_argument_get_type_once ();
 		g_once_init_leave (&vala_named_argument_type_id__volatile, vala_named_argument_type_id);
 	}
 	return vala_named_argument_type_id__volatile;
 }
-
-
 

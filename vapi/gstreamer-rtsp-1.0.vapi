@@ -6,6 +6,7 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gst_rtsp_auth_credential_get_type ()")]
 		[Compact]
 		[GIR (name = "RTSPAuthCredential")]
+		[Version (since = "1.12")]
 		public class AuthCredential {
 			public weak string authorization;
 			public weak Gst.RTSP.AuthParam @params;
@@ -14,6 +15,7 @@ namespace Gst {
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gst_rtsp_auth_param_get_type ()")]
 		[Compact]
 		[GIR (name = "RTSPAuthParam")]
+		[Version (since = "1.12")]
 		public class AuthParam {
 			public weak string name;
 			public weak string value;
@@ -26,8 +28,14 @@ namespace Gst {
 		public class Connection {
 			public void clear_auth_params ();
 			public Gst.RTSP.Result close ();
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result connect (GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result connect_usec (int64 timeout);
+			[Version (deprecated = true, deprecated_since = "1.18", since = "1.8")]
 			public Gst.RTSP.Result connect_with_response (GLib.TimeVal timeout, Gst.RTSP.Message response);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result connect_with_response_usec (int64 timeout, Gst.RTSP.Message response);
 			public Gst.RTSP.Result do_tunnel (Gst.RTSP.Connection conn2);
 			public Gst.RTSP.Result flush (bool flush);
 			public Gst.RTSP.Result free ();
@@ -46,16 +54,37 @@ namespace Gst {
 			public Gst.RTSP.Url get_url ();
 			public unowned GLib.Socket get_write_socket ();
 			public bool is_tunneled ();
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result next_timeout (GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public int64 next_timeout_usec ();
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result poll (Gst.RTSP.Event events, Gst.RTSP.Event revents, GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result poll_usec (Gst.RTSP.Event events, Gst.RTSP.Event revents, int64 timeout);
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result read (uint8 data, uint size, GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result read_usec (uint8 data, uint size, int64 timeout);
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result receive (Gst.RTSP.Message message, GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result receive_usec (Gst.RTSP.Message message, int64 timeout);
 			public Gst.RTSP.Result reset_timeout ();
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result send (Gst.RTSP.Message message, GLib.TimeVal timeout);
+			[Version (deprecated = true, deprecated_since = "1.18", since = "1.16")]
+			public Gst.RTSP.Result send_messages ([CCode (array_length_cname = "n_messages", array_length_pos = 1.5, array_length_type = "guint")] Gst.RTSP.Message[] messages, GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result send_messages_usec ([CCode (array_length_cname = "n_messages", array_length_pos = 1.5, array_length_type = "guint")] Gst.RTSP.Message[] messages, int64 timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result send_usec (Gst.RTSP.Message message, int64 timeout);
 			[Version (since = "1.14")]
 			public void set_accept_certificate_func (owned Gst.RTSP.ConnectionAcceptCertificateFunc func);
 			public Gst.RTSP.Result set_auth (Gst.RTSP.AuthMethod method, string user, string pass);
 			public void set_auth_param (string param, string value);
+			[Version (since = "1.18")]
+			public void set_content_length_limit (uint limit);
 			public void set_http_mode (bool enable);
 			public void set_ip (string ip);
 			public Gst.RTSP.Result set_proxy (string host, uint port);
@@ -68,7 +97,10 @@ namespace Gst {
 			[Version (since = "1.2.1")]
 			public bool set_tls_validation_flags (GLib.TlsCertificateFlags flags);
 			public void set_tunneled (bool tunneled);
+			[Version (deprecated = true, deprecated_since = "1.18")]
 			public Gst.RTSP.Result write (uint8 data, uint size, GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result write_usec (uint8 data, uint size, int64 timeout);
 		}
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", lower_case_cprefix = "gst_rtsp_msg_", type_id = "gst_rtsp_msg_get_type ()")]
 		[Compact]
@@ -105,6 +137,9 @@ namespace Gst {
 			public Gst.RTSP.Result free ();
 			[CCode (cname = "gst_rtsp_message_get_body")]
 			public Gst.RTSP.Result get_body ([CCode (array_length_cname = "size", array_length_pos = 1.1, array_length_type = "guint")] out unowned uint8[] data);
+			[CCode (cname = "gst_rtsp_message_get_body_buffer")]
+			[Version (since = "1.16")]
+			public Gst.RTSP.Result get_body_buffer (out unowned Gst.Buffer buffer);
 			[CCode (cname = "gst_rtsp_message_get_header")]
 			public Gst.RTSP.Result get_header (Gst.RTSP.HeaderField field, out unowned string value, int indx);
 			[CCode (cname = "gst_rtsp_message_get_header_by_name")]
@@ -112,6 +147,9 @@ namespace Gst {
 			public Gst.RTSP.Result get_header_by_name (string header, out unowned string value, int index);
 			[CCode (cname = "gst_rtsp_message_get_type")]
 			public Gst.RTSP.MsgType get_type ();
+			[CCode (cname = "gst_rtsp_message_has_body_buffer")]
+			[Version (since = "1.16")]
+			public bool has_body_buffer ();
 			[CCode (cname = "gst_rtsp_message_init")]
 			public Gst.RTSP.Result init ();
 			[CCode (cname = "gst_rtsp_message_init_data")]
@@ -136,10 +174,19 @@ namespace Gst {
 			public Gst.RTSP.Result remove_header_by_name (string header, int index);
 			[CCode (cname = "gst_rtsp_message_set_body")]
 			public Gst.RTSP.Result set_body ([CCode (array_length_cname = "size", array_length_pos = 1.1, array_length_type = "guint")] uint8[] data);
+			[CCode (cname = "gst_rtsp_message_set_body_buffer")]
+			[Version (since = "1.16")]
+			public Gst.RTSP.Result set_body_buffer (Gst.Buffer buffer);
 			[CCode (cname = "gst_rtsp_message_steal_body")]
 			public Gst.RTSP.Result steal_body ([CCode (array_length_cname = "size", array_length_pos = 1.1, array_length_type = "guint")] out uint8[] data);
+			[CCode (cname = "gst_rtsp_message_steal_body_buffer")]
+			[Version (since = "1.16")]
+			public Gst.RTSP.Result steal_body_buffer (out Gst.Buffer buffer);
 			[CCode (cname = "gst_rtsp_message_take_body")]
 			public Gst.RTSP.Result take_body ([CCode (array_length_cname = "size", array_length_pos = 1.1, array_length_type = "guint")] owned uint8[] data);
+			[CCode (cname = "gst_rtsp_message_take_body_buffer")]
+			[Version (since = "1.16")]
+			public Gst.RTSP.Result take_body_buffer (owned Gst.Buffer buffer);
 			[CCode (cname = "gst_rtsp_message_take_header")]
 			public Gst.RTSP.Result take_header (Gst.RTSP.HeaderField field, owned string value);
 			[CCode (cname = "gst_rtsp_message_take_header_by_name")]
@@ -166,6 +213,8 @@ namespace Gst {
 			public void free ();
 			public Gst.RTSP.Result get_port (out uint16 port);
 			public string get_request_uri ();
+			[Version (since = "1.18")]
+			public string get_request_uri_with_control (string control_path);
 			public Gst.RTSP.Result set_port (uint16 port);
 		}
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", has_type_id = false)]
@@ -177,13 +226,17 @@ namespace Gst {
 			public void get_send_backlog (out size_t bytes, out uint messages);
 			public void reset ();
 			public Gst.RTSP.Result send_message (Gst.RTSP.Message message, out uint id);
+			[Version (since = "1.16")]
+			public Gst.RTSP.Result send_messages ([CCode (array_length_cname = "n_messages", array_length_pos = 1.5, array_length_type = "guint")] Gst.RTSP.Message[] messages, out uint id);
 			[Version (since = "1.4")]
 			public void set_flushing (bool flushing);
 			[Version (since = "1.2")]
 			public void set_send_backlog (size_t bytes, uint messages);
 			public void unref ();
-			[Version (since = "1.4")]
+			[Version (deprecated = true, deprecated_since = "1.18", since = "1.4")]
 			public Gst.RTSP.Result wait_backlog (GLib.TimeVal timeout);
+			[Version (since = "1.18")]
+			public Gst.RTSP.Result wait_backlog_usec (int64 timeout);
 			public Gst.RTSP.Result write_data ([CCode (array_length_cname = "size", array_length_pos = 1.5, array_length_type = "guint")] owned uint8[] data, out uint id);
 		}
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", type_id = "gst_rtsp_extension_get_type ()")]
@@ -366,6 +419,8 @@ namespace Gst {
 			MEDIA_PROPERTIES,
 			SEEK_STYLE,
 			ACCEPT_RANGES,
+			FRAMES,
+			RATE_CONTROL,
 			LAST
 		}
 		[CCode (cheader_filename = "gst/rtsp/rtsp.h", cprefix = "GST_RTSP_LOWER_TRANS_", type_id = "gst_rtsp_lower_trans_get_type ()")]

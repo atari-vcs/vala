@@ -45,8 +45,39 @@ namespace Vala {
 		return get_ccode_attribute(node).const_name;
 	}
 
-	public static string get_ccode_type_name (Interface iface) {
-		return get_ccode_attribute(iface).type_name;
+	public static string get_ccode_type_name (ObjectTypeSymbol sym) {
+		return get_ccode_attribute (sym).type_name;
+	}
+
+	public static string get_ccode_type_cast_function (ObjectTypeSymbol sym) {
+		assert (!(sym is Class && ((Class) sym).is_compact));
+		return get_ccode_upper_case_name (sym);
+	}
+
+	public static string get_ccode_type_get_function (ObjectTypeSymbol sym) {
+		var func_name = sym.get_attribute_string ("CCode", "type_get_function");
+		if (func_name != null) {
+			return func_name;
+		}
+		if (sym is Class) {
+			assert (!((Class) sym).is_compact);
+			return "%s_GET_CLASS".printf (get_ccode_upper_case_name (sym));
+		} else if (sym is Interface) {
+			return "%s_GET_INTERFACE".printf (get_ccode_upper_case_name (sym));
+		} else {
+			Report.error (sym.source_reference, "`CCode.type_get_function' not supported");
+			return "";
+		}
+	}
+
+	public static string get_ccode_class_get_private_function (Class cl) {
+		assert (!cl.is_compact);
+		return "%s_GET_CLASS_PRIVATE".printf (get_ccode_upper_case_name (cl));
+	}
+
+	public static string get_ccode_class_type_function (Class cl) {
+		assert (!cl.is_compact);
+		return "%s_CLASS".printf (get_ccode_upper_case_name (cl));
 	}
 
 	public static string get_ccode_lower_case_name (CodeNode node, string? infix = null) {
@@ -60,7 +91,7 @@ namespace Vala {
 			} else if (sym is Signal) {
 				return get_ccode_attribute (sym).name.replace ("-", "_");
 			} else if (sym is ErrorCode) {
-				return get_ccode_name (sym).down ();
+				return get_ccode_name (sym).ascii_down ();
 			} else {
 				return "%s%s%s".printf (get_ccode_lower_case_prefix (sym.parent_symbol), infix, get_ccode_lower_case_suffix (sym));
 			}
@@ -89,7 +120,7 @@ namespace Vala {
 			return "valavoid";
 		} else {
 			unowned DataType type = (DataType) node;
-			return get_ccode_lower_case_name (type.data_type, infix);
+			return get_ccode_lower_case_name (type.type_symbol, infix);
 		}
 	}
 
@@ -139,6 +170,24 @@ namespace Vala {
 		}
 	}
 
+	public static bool is_ref_function_void (DataType type) {
+		unowned Class? cl = type.type_symbol as Class;
+		if (cl != null) {
+			return get_ccode_ref_function_void (cl);
+		} else {
+			return false;
+		}
+	}
+
+	public static bool is_free_function_address_of (DataType type) {
+		unowned Class? cl = type.type_symbol as Class;
+		if (cl != null) {
+			return get_ccode_free_function_address_of (cl);
+		} else {
+			return false;
+		}
+	}
+
 	public static bool get_ccode_ref_function_void (Class cl) {
 		return get_ccode_attribute(cl).ref_function_void;
 	}
@@ -178,12 +227,18 @@ namespace Vala {
 		return get_ccode_free_function (sym) == "g_boxed_free";
 	}
 
-	public static bool get_ccode_finish_instance (CodeNode node) {
-		return get_ccode_attribute (node).finish_instance;
+	public static bool get_ccode_finish_instance (Method m) {
+		assert (m.coroutine);
+		return get_ccode_attribute (m).finish_instance;
 	}
 
 	public static string get_ccode_type_id (CodeNode node) {
 		return get_ccode_attribute(node).type_id;
+	}
+
+	public static string get_ccode_type_function (TypeSymbol sym) {
+		assert (!((sym is Class && ((Class) sym).is_compact) || sym is ErrorCode || sym is ErrorDomain || sym is Delegate));
+		return "%s_get_type".printf (get_ccode_lower_case_name (sym));
 	}
 
 	public static string get_ccode_marshaller_type_name (CodeNode node) {
@@ -218,6 +273,11 @@ namespace Vala {
 		}
 	}
 
+	public static string get_ccode_class_type_check_function (Class cl) {
+		assert (!cl.is_compact);
+		return "%s_CLASS".printf (get_ccode_type_check_function (cl));
+	}
+
 	public static string get_ccode_default_value (TypeSymbol sym) {
 		return get_ccode_attribute(sym).default_value;
 	}
@@ -242,12 +302,24 @@ namespace Vala {
 		}
 	}
 
+	public static double get_ccode_error_pos (Callable c) {
+		return c.get_attribute_double ("CCode", "error_pos", -1);
+	}
+
 	public static bool get_ccode_array_length (CodeNode node) {
 		return get_ccode_attribute(node).array_length;
 	}
 
-	public static string? get_ccode_array_length_type (CodeNode node) {
-		return get_ccode_attribute(node).array_length_type;
+	public static string get_ccode_array_length_type (CodeNode node) {
+		if (node is ArrayType) {
+			return get_ccode_name (((ArrayType) node).length_type);
+		} else if (node is DataType) {
+			Report.error (node.source_reference, "`CCode.array_length_type' not supported");
+			return "";
+		} else {
+			assert (node is Method || node is Parameter || node is Delegate || node is Property || node is Field);
+			return get_ccode_attribute(node).array_length_type;
+		}
 	}
 
 	public static bool get_ccode_array_null_terminated (CodeNode node) {
@@ -309,6 +381,10 @@ namespace Vala {
 		return get_ccode_attribute(variable).delegate_target_name;
 	}
 
+	public static string get_ccode_delegate_target_destroy_notify_name (Variable variable) {
+		return get_ccode_attribute(variable).delegate_target_destroy_notify_name;
+	}
+
 	public static double get_ccode_pos (Parameter param) {
 		return get_ccode_attribute(param).pos;
 	}
@@ -347,14 +423,17 @@ namespace Vala {
 	}
 
 	public static string get_ccode_finish_name (Method m) {
+		assert (m.coroutine);
 		return get_ccode_attribute(m).finish_name;
 	}
 
 	public static string get_ccode_finish_vfunc_name (Method m) {
+		assert (m.coroutine);
 		return get_ccode_attribute(m).finish_vfunc_name;
 	}
 
 	public static string get_ccode_finish_real_name (Method m) {
+		assert (m.coroutine);
 		return get_ccode_attribute(m).finish_real_name;
 	}
 
@@ -364,6 +443,10 @@ namespace Vala {
 
 	public static bool get_ccode_concrete_accessor (Property p) {
 		return p.get_attribute ("ConcreteAccessor") != null;
+	}
+
+	public static bool get_ccode_has_emitter (Signal sig) {
+		return sig.get_attribute ("HasEmitter") != null;
 	}
 
 	public static bool get_ccode_has_type_id (TypeSymbol sym) {
@@ -381,6 +464,10 @@ namespace Vala {
 
 	public static double get_ccode_generic_type_pos (Method m) {
 		return m.get_attribute_double ("CCode", "generic_type_pos");
+	}
+
+	public static bool get_ccode_no_wrapper (Method m) {
+		return m.get_attribute ("NoWrapper") != null;
 	}
 
 	public static string get_ccode_sentinel (Method m) {

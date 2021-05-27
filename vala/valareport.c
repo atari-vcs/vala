@@ -23,19 +23,16 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <stdio.h>
 #include <gmodule.h>
 #include <gobject/gvaluecollector.h>
 
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_regex_unref0(var) ((var == NULL) ? NULL : (var = (g_regex_unref (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 #define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
 #define _g_module_close0(var) ((var == NULL) ? NULL : (var = (g_module_close (var), NULL)))
 typedef gint (*ValaReportAttyFunc) (gint fd);
@@ -61,7 +58,6 @@ struct _ValaReportPrivate {
 struct _ValaParamSpecReport {
 	GParamSpec parent_instance;
 };
-
 
 static gint ValaReport_private_offset;
 static gpointer vala_report_parent_class = NULL;
@@ -95,6 +91,7 @@ static void vala_report_real_err (ValaReport* self,
                            ValaSourceReference* source,
                            const gchar* message);
 static void vala_report_finalize (ValaReport * obj);
+static GType vala_report_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -103,27 +100,49 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-
 static inline gpointer
 vala_report_get_instance_private (ValaReport* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaReport_private_offset);
 }
 
+static GType
+vala_report_colored_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_REPORT_COLORED_AUTO, "VALA_REPORT_COLORED_AUTO", "auto"}, {VALA_REPORT_COLORED_NEVER, "VALA_REPORT_COLORED_NEVER", "never"}, {VALA_REPORT_COLORED_ALWAYS, "VALA_REPORT_COLORED_ALWAYS", "always"}, {0, NULL, NULL}};
+	GType vala_report_colored_type_id;
+	vala_report_colored_type_id = g_enum_register_static ("ValaReportColored", values);
+	return vala_report_colored_type_id;
+}
 
 GType
 vala_report_colored_get_type (void)
 {
 	static volatile gsize vala_report_colored_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_report_colored_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_REPORT_COLORED_AUTO, "VALA_REPORT_COLORED_AUTO", "auto"}, {VALA_REPORT_COLORED_NEVER, "VALA_REPORT_COLORED_NEVER", "never"}, {VALA_REPORT_COLORED_ALWAYS, "VALA_REPORT_COLORED_ALWAYS", "always"}, {0, NULL, NULL}};
 		GType vala_report_colored_type_id;
-		vala_report_colored_type_id = g_enum_register_static ("ValaReportColored", values);
+		vala_report_colored_type_id = vala_report_colored_get_type_once ();
 		g_once_init_leave (&vala_report_colored_type_id__volatile, vala_report_colored_type_id);
 	}
 	return vala_report_colored_type_id__volatile;
 }
 
+gboolean
+vala_report_get_enable_warnings (ValaReport* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_enable_warnings;
+	return result;
+}
+
+void
+vala_report_set_enable_warnings (ValaReport* self,
+                                 gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_enable_warnings = value;
+}
 
 /**
  * Set all colors by string
@@ -137,7 +156,6 @@ vala_report_set_colors (ValaReport* self,
                         const gchar* str,
                         ValaReportColored colored_output)
 {
-	gboolean result = FALSE;
 	gchar* error_color = NULL;
 	gchar* warning_color = NULL;
 	gchar* note_color = NULL;
@@ -152,7 +170,8 @@ vala_report_set_colors (ValaReport* self,
 	gchar** _tmp8_;
 	gint _tmp8__length1;
 	gboolean _tmp37_ = FALSE;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (str != NULL, FALSE);
 	{
@@ -162,15 +181,15 @@ vala_report_set_colors (ValaReport* self,
 			GRegex* _tmp1_ = NULL;
 			GRegex* _tmp2_;
 			GRegex* _tmp4_;
-			_tmp2_ = g_regex_new ("^\\s*[0-9]+(;[0-9]*)*\\s*$", 0, 0, &_inner_error_);
+			_tmp2_ = g_regex_new ("^\\s*[0-9]+(;[0-9]*)*\\s*$", 0, 0, &_inner_error0_);
 			_tmp1_ = _tmp2_;
-			if (G_UNLIKELY (_inner_error_ != NULL)) {
+			if (G_UNLIKELY (_inner_error0_ != NULL)) {
 				gboolean _tmp3_ = FALSE;
-				if (_inner_error_->domain == G_REGEX_ERROR) {
-					goto __catch22_g_regex_error;
+				if (_inner_error0_->domain == G_REGEX_ERROR) {
+					goto __catch0_g_regex_error;
 				}
-				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-				g_clear_error (&_inner_error_);
+				g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+				g_clear_error (&_inner_error0_);
 				return _tmp3_;
 			}
 			_tmp4_ = _tmp1_;
@@ -180,20 +199,17 @@ vala_report_set_colors (ValaReport* self,
 			_g_regex_unref0 (_tmp1_);
 		}
 	}
-	goto __finally22;
-	__catch22_g_regex_error:
+	goto __finally0;
+	__catch0_g_regex_error:
 	{
-		GError* e = NULL;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		g_assert_not_reached ();
-		_g_error_free0 (e);
 	}
-	__finally22:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gboolean _tmp5_ = FALSE;
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp5_;
 	}
 	error_color = NULL;
@@ -215,7 +231,7 @@ vala_report_set_colors (ValaReport* self,
 		gint fragment_it = 0;
 		fragment_collection = _tmp8_;
 		fragment_collection_length1 = _tmp8__length1;
-		for (fragment_it = 0; fragment_it < _tmp8__length1; fragment_it = fragment_it + 1) {
+		for (fragment_it = 0; fragment_it < fragment_collection_length1; fragment_it = fragment_it + 1) {
 			const gchar* fragment = NULL;
 			fragment = fragment_collection[fragment_it];
 			{
@@ -515,7 +531,6 @@ vala_report_set_colors (ValaReport* self,
 	return result;
 }
 
-
 /**
  * Set the error verbosity.
  */
@@ -527,7 +542,6 @@ vala_report_set_verbose_errors (ValaReport* self,
 	self->priv->verbose_errors = verbose;
 }
 
-
 /**
  * Returns the total number of warnings reported.
  */
@@ -535,13 +549,10 @@ gint
 vala_report_get_warnings (ValaReport* self)
 {
 	gint result = 0;
-	gint _tmp0_;
 	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->warnings;
-	result = _tmp0_;
+	result = self->warnings;
 	return result;
 }
-
 
 /**
  * Returns the total number of errors reported.
@@ -550,13 +561,10 @@ gint
 vala_report_get_errors (ValaReport* self)
 {
 	gint result = 0;
-	gint _tmp0_;
 	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->errors;
-	result = _tmp0_;
+	result = self->errors;
 	return result;
 }
-
 
 /**
  * Pretty-print the actual line of offending code if possible.
@@ -565,14 +573,13 @@ static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
-
 
 static void
 vala_report_report_source (ValaReport* self,
@@ -580,150 +587,129 @@ vala_report_report_source (ValaReport* self,
 {
 	ValaSourceLocation _tmp0_ = {0};
 	ValaSourceLocation _tmp1_;
-	gint _tmp2_;
-	ValaSourceLocation _tmp3_ = {0};
-	ValaSourceLocation _tmp4_;
-	gint _tmp5_;
+	ValaSourceLocation _tmp2_ = {0};
+	ValaSourceLocation _tmp3_;
 	gchar* offending_line = NULL;
-	ValaSourceFile* _tmp6_;
-	ValaSourceFile* _tmp7_;
-	ValaSourceLocation _tmp8_ = {0};
-	ValaSourceLocation _tmp9_;
-	gint _tmp10_;
-	gchar* _tmp11_;
-	const gchar* _tmp12_;
+	ValaSourceFile* _tmp4_;
+	ValaSourceFile* _tmp5_;
+	ValaSourceLocation _tmp6_ = {0};
+	ValaSourceLocation _tmp7_;
+	gchar* _tmp8_;
+	const gchar* _tmp9_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (source != NULL);
 	vala_source_reference_get_begin (source, &_tmp0_);
 	_tmp1_ = _tmp0_;
-	_tmp2_ = _tmp1_.line;
-	vala_source_reference_get_end (source, &_tmp3_);
-	_tmp4_ = _tmp3_;
-	_tmp5_ = _tmp4_.line;
-	if (_tmp2_ != _tmp5_) {
+	vala_source_reference_get_end (source, &_tmp2_);
+	_tmp3_ = _tmp2_;
+	if (_tmp1_.line != _tmp3_.line) {
 		return;
 	}
-	_tmp6_ = vala_source_reference_get_file (source);
+	_tmp4_ = vala_source_reference_get_file (source);
+	_tmp5_ = _tmp4_;
+	vala_source_reference_get_begin (source, &_tmp6_);
 	_tmp7_ = _tmp6_;
-	vala_source_reference_get_begin (source, &_tmp8_);
-	_tmp9_ = _tmp8_;
-	_tmp10_ = _tmp9_.line;
-	_tmp11_ = vala_source_file_get_source_line (_tmp7_, _tmp10_);
-	offending_line = _tmp11_;
-	_tmp12_ = offending_line;
-	if (_tmp12_ != NULL) {
-		FILE* _tmp13_;
-		const gchar* _tmp14_;
+	_tmp8_ = vala_source_file_get_source_line (_tmp5_, _tmp7_.line);
+	offending_line = _tmp8_;
+	_tmp9_ = offending_line;
+	if (_tmp9_ != NULL) {
+		FILE* _tmp10_;
+		const gchar* _tmp11_;
 		gint idx = 0;
-		FILE* _tmp25_;
-		const gchar* _tmp26_;
-		FILE* _tmp40_;
-		const gchar* _tmp41_;
-		FILE* _tmp42_;
-		_tmp13_ = stderr;
-		_tmp14_ = offending_line;
-		fprintf (_tmp13_, "%s\n", _tmp14_);
+		FILE* _tmp19_;
+		const gchar* _tmp20_;
+		FILE* _tmp30_;
+		const gchar* _tmp31_;
+		FILE* _tmp32_;
+		_tmp10_ = stderr;
+		_tmp11_ = offending_line;
+		fprintf (_tmp10_, "%s\n", _tmp11_);
 		{
-			gboolean _tmp15_ = FALSE;
+			gboolean _tmp12_ = FALSE;
 			idx = 1;
-			_tmp15_ = TRUE;
+			_tmp12_ = TRUE;
 			while (TRUE) {
-				gint _tmp17_;
-				ValaSourceLocation _tmp18_ = {0};
-				ValaSourceLocation _tmp19_;
-				gint _tmp20_;
-				const gchar* _tmp21_;
-				gint _tmp22_;
-				if (!_tmp15_) {
-					gint _tmp16_;
-					_tmp16_ = idx;
-					idx = _tmp16_ + 1;
+				ValaSourceLocation _tmp14_ = {0};
+				ValaSourceLocation _tmp15_;
+				const gchar* _tmp16_;
+				if (!_tmp12_) {
+					gint _tmp13_;
+					idx = idx + 1;
+					_tmp13_ = idx;
 				}
-				_tmp15_ = FALSE;
-				_tmp17_ = idx;
-				vala_source_reference_get_begin (source, &_tmp18_);
-				_tmp19_ = _tmp18_;
-				_tmp20_ = _tmp19_.column;
-				if (!(_tmp17_ < _tmp20_)) {
+				_tmp12_ = FALSE;
+				vala_source_reference_get_begin (source, &_tmp14_);
+				_tmp15_ = _tmp14_;
+				if (!(idx < _tmp15_.column)) {
 					break;
 				}
-				_tmp21_ = offending_line;
-				_tmp22_ = idx;
-				if (string_get (_tmp21_, (glong) (_tmp22_ - 1)) == '\t') {
-					FILE* _tmp23_;
-					_tmp23_ = stderr;
-					fprintf (_tmp23_, "\t");
+				_tmp16_ = offending_line;
+				if (string_get (_tmp16_, (glong) (idx - 1)) == '\t') {
+					FILE* _tmp17_;
+					_tmp17_ = stderr;
+					fprintf (_tmp17_, "\t");
 				} else {
-					FILE* _tmp24_;
-					_tmp24_ = stderr;
-					fprintf (_tmp24_, " ");
+					FILE* _tmp18_;
+					_tmp18_ = stderr;
+					fprintf (_tmp18_, " ");
 				}
 			}
 		}
-		_tmp25_ = stderr;
-		_tmp26_ = self->priv->caret_color_start;
-		fputs (_tmp26_, _tmp25_);
+		_tmp19_ = stderr;
+		_tmp20_ = self->priv->caret_color_start;
+		fputs (_tmp20_, _tmp19_);
 		{
-			ValaSourceLocation _tmp27_ = {0};
-			ValaSourceLocation _tmp28_;
-			gint _tmp29_;
-			gboolean _tmp30_ = FALSE;
-			vala_source_reference_get_begin (source, &_tmp27_);
-			_tmp28_ = _tmp27_;
-			_tmp29_ = _tmp28_.column;
-			idx = _tmp29_;
-			_tmp30_ = TRUE;
+			ValaSourceLocation _tmp21_ = {0};
+			ValaSourceLocation _tmp22_;
+			gboolean _tmp23_ = FALSE;
+			vala_source_reference_get_begin (source, &_tmp21_);
+			_tmp22_ = _tmp21_;
+			idx = _tmp22_.column;
+			_tmp23_ = TRUE;
 			while (TRUE) {
-				gint _tmp32_;
-				ValaSourceLocation _tmp33_ = {0};
-				ValaSourceLocation _tmp34_;
-				gint _tmp35_;
-				const gchar* _tmp36_;
-				gint _tmp37_;
-				if (!_tmp30_) {
-					gint _tmp31_;
-					_tmp31_ = idx;
-					idx = _tmp31_ + 1;
+				ValaSourceLocation _tmp25_ = {0};
+				ValaSourceLocation _tmp26_;
+				const gchar* _tmp27_;
+				if (!_tmp23_) {
+					gint _tmp24_;
+					idx = idx + 1;
+					_tmp24_ = idx;
 				}
-				_tmp30_ = FALSE;
-				_tmp32_ = idx;
-				vala_source_reference_get_end (source, &_tmp33_);
-				_tmp34_ = _tmp33_;
-				_tmp35_ = _tmp34_.column;
-				if (!(_tmp32_ <= _tmp35_)) {
+				_tmp23_ = FALSE;
+				vala_source_reference_get_end (source, &_tmp25_);
+				_tmp26_ = _tmp25_;
+				if (!(idx <= _tmp26_.column)) {
 					break;
 				}
-				_tmp36_ = offending_line;
-				_tmp37_ = idx;
-				if (string_get (_tmp36_, (glong) (_tmp37_ - 1)) == '\t') {
-					FILE* _tmp38_;
-					_tmp38_ = stderr;
-					fprintf (_tmp38_, "\t");
+				_tmp27_ = offending_line;
+				if (string_get (_tmp27_, (glong) (idx - 1)) == '\t') {
+					FILE* _tmp28_;
+					_tmp28_ = stderr;
+					fprintf (_tmp28_, "\t");
 				} else {
-					FILE* _tmp39_;
-					_tmp39_ = stderr;
-					fprintf (_tmp39_, "^");
+					FILE* _tmp29_;
+					_tmp29_ = stderr;
+					fprintf (_tmp29_, "^");
 				}
 			}
 		}
-		_tmp40_ = stderr;
-		_tmp41_ = self->priv->caret_color_end;
-		fputs (_tmp41_, _tmp40_);
-		_tmp42_ = stderr;
-		fprintf (_tmp42_, "\n");
+		_tmp30_ = stderr;
+		_tmp31_ = self->priv->caret_color_end;
+		fputs (_tmp31_, _tmp30_);
+		_tmp32_ = stderr;
+		fprintf (_tmp32_, "\n");
 	}
 	_g_free0 (offending_line);
 }
-
 
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -738,17 +724,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -765,37 +749,29 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gint
 string_index_of_char (const gchar* self,
                       gunichar c,
                       gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -811,7 +787,6 @@ string_index_of_char (const gchar* self,
 	}
 }
 
-
 static const gchar*
 string_offset (const gchar* self,
                glong offset)
@@ -822,145 +797,103 @@ string_offset (const gchar* self,
 	return result;
 }
 
-
 static void
 vala_report_print_highlighted_message (ValaReport* self,
                                        const gchar* message)
 {
 	gint start = 0;
 	gint cur = 0;
-	FILE* _tmp38_;
-	gint _tmp39_;
-	const gchar* _tmp40_;
+	FILE* _tmp19_;
+	const gchar* _tmp20_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	start = 0;
 	cur = 0;
 	while (TRUE) {
-		gint _tmp0_;
-		gboolean _tmp1_ = FALSE;
-		gint _tmp2_;
-		_tmp0_ = cur;
-		if (!(string_get (message, (glong) _tmp0_) != '\0')) {
+		gboolean _tmp0_ = FALSE;
+		if (!(string_get (message, (glong) cur) != '\0')) {
 			break;
 		}
-		_tmp2_ = cur;
-		if (string_get (message, (glong) _tmp2_) == '\'') {
-			_tmp1_ = TRUE;
+		if (string_get (message, (glong) cur) == '\'') {
+			_tmp0_ = TRUE;
 		} else {
-			gint _tmp3_;
-			_tmp3_ = cur;
-			_tmp1_ = string_get (message, (glong) _tmp3_) == '`';
+			_tmp0_ = string_get (message, (glong) cur) == '`';
 		}
-		if (_tmp1_) {
-			const gchar* _tmp4_ = NULL;
-			gint _tmp5_;
+		if (_tmp0_) {
+			const gchar* _tmp1_ = NULL;
 			const gchar* end_chars = NULL;
-			FILE* _tmp6_;
-			gint _tmp7_;
-			gint _tmp8_;
-			gint _tmp9_;
-			gchar* _tmp10_;
-			gchar* _tmp11_;
-			gint _tmp12_;
-			gint _tmp13_;
-			gint _tmp19_;
-			_tmp5_ = cur;
-			if (string_get (message, (glong) _tmp5_) == '`') {
-				_tmp4_ = "`'";
+			FILE* _tmp2_;
+			gchar* _tmp3_;
+			gchar* _tmp4_;
+			gint _tmp5_;
+			if (string_get (message, (glong) cur) == '`') {
+				_tmp1_ = "`'";
 			} else {
-				_tmp4_ = "'";
+				_tmp1_ = "'";
 			}
-			end_chars = _tmp4_;
-			_tmp6_ = stderr;
-			_tmp7_ = start;
-			_tmp8_ = cur;
-			_tmp9_ = start;
-			_tmp10_ = string_substring (message, (glong) _tmp7_, (glong) (_tmp8_ - _tmp9_));
-			_tmp11_ = _tmp10_;
-			fputs (_tmp11_, _tmp6_);
-			_g_free0 (_tmp11_);
-			_tmp12_ = cur;
-			start = _tmp12_;
-			_tmp13_ = cur;
-			cur = _tmp13_ + 1;
+			end_chars = _tmp1_;
+			_tmp2_ = stderr;
+			_tmp3_ = string_substring (message, (glong) start, (glong) (cur - start));
+			_tmp4_ = _tmp3_;
+			fputs (_tmp4_, _tmp2_);
+			_g_free0 (_tmp4_);
+			start = cur;
+			_tmp5_ = cur;
+			cur = _tmp5_ + 1;
 			while (TRUE) {
-				gboolean _tmp14_ = FALSE;
-				gint _tmp15_;
-				gint _tmp18_;
-				_tmp15_ = cur;
-				if (string_get (message, (glong) _tmp15_) != '\0') {
-					const gchar* _tmp16_;
-					gint _tmp17_;
-					_tmp16_ = end_chars;
-					_tmp17_ = cur;
-					_tmp14_ = string_index_of_char (_tmp16_, (gunichar) string_get (message, (glong) _tmp17_), 0) < 0;
+				gboolean _tmp6_ = FALSE;
+				gint _tmp8_;
+				if (string_get (message, (glong) cur) != '\0') {
+					const gchar* _tmp7_;
+					_tmp7_ = end_chars;
+					_tmp6_ = string_index_of_char (_tmp7_, (gunichar) string_get (message, (glong) cur), 0) < 0;
 				} else {
-					_tmp14_ = FALSE;
+					_tmp6_ = FALSE;
 				}
-				if (!_tmp14_) {
+				if (!_tmp6_) {
 					break;
 				}
-				_tmp18_ = cur;
-				cur = _tmp18_ + 1;
+				_tmp8_ = cur;
+				cur = _tmp8_ + 1;
 			}
-			_tmp19_ = cur;
-			if (string_get (message, (glong) _tmp19_) == '\0') {
-				FILE* _tmp20_;
-				gint _tmp21_;
-				gint _tmp22_;
-				gint _tmp23_;
-				gchar* _tmp24_;
-				gchar* _tmp25_;
-				gint _tmp26_;
-				_tmp20_ = stderr;
-				_tmp21_ = start;
-				_tmp22_ = cur;
-				_tmp23_ = start;
-				_tmp24_ = string_substring (message, (glong) _tmp21_, (glong) (_tmp22_ - _tmp23_));
-				_tmp25_ = _tmp24_;
-				fputs (_tmp25_, _tmp20_);
-				_g_free0 (_tmp25_);
-				_tmp26_ = cur;
-				start = _tmp26_;
+			if (string_get (message, (glong) cur) == '\0') {
+				FILE* _tmp9_;
+				gchar* _tmp10_;
+				gchar* _tmp11_;
+				_tmp9_ = stderr;
+				_tmp10_ = string_substring (message, (glong) start, (glong) (cur - start));
+				_tmp11_ = _tmp10_;
+				fputs (_tmp11_, _tmp9_);
+				_g_free0 (_tmp11_);
+				start = cur;
 			} else {
-				gint _tmp27_;
-				FILE* _tmp28_;
-				const gchar* _tmp29_;
-				gint _tmp30_;
-				gint _tmp31_;
-				gint _tmp32_;
-				gchar* _tmp33_;
-				gchar* _tmp34_;
-				const gchar* _tmp35_;
-				gint _tmp36_;
-				_tmp27_ = cur;
-				cur = _tmp27_ + 1;
-				_tmp28_ = stderr;
-				_tmp29_ = self->priv->quote_color_start;
-				_tmp30_ = start;
-				_tmp31_ = cur;
-				_tmp32_ = start;
-				_tmp33_ = string_substring (message, (glong) _tmp30_, (glong) (_tmp31_ - _tmp32_));
-				_tmp34_ = _tmp33_;
-				_tmp35_ = self->priv->quote_color_end;
-				fprintf (_tmp28_, "%s%s%s", _tmp29_, _tmp34_, _tmp35_);
-				_g_free0 (_tmp34_);
-				_tmp36_ = cur;
-				start = _tmp36_;
+				gint _tmp12_;
+				FILE* _tmp13_;
+				const gchar* _tmp14_;
+				gchar* _tmp15_;
+				gchar* _tmp16_;
+				const gchar* _tmp17_;
+				_tmp12_ = cur;
+				cur = _tmp12_ + 1;
+				_tmp13_ = stderr;
+				_tmp14_ = self->priv->quote_color_start;
+				_tmp15_ = string_substring (message, (glong) start, (glong) (cur - start));
+				_tmp16_ = _tmp15_;
+				_tmp17_ = self->priv->quote_color_end;
+				fprintf (_tmp13_, "%s%s%s", _tmp14_, _tmp16_, _tmp17_);
+				_g_free0 (_tmp16_);
+				start = cur;
 			}
 		} else {
-			gint _tmp37_;
-			_tmp37_ = cur;
-			cur = _tmp37_ + 1;
+			gint _tmp18_;
+			_tmp18_ = cur;
+			cur = _tmp18_ + 1;
 		}
 	}
-	_tmp38_ = stderr;
-	_tmp39_ = start;
-	_tmp40_ = string_offset (message, (glong) _tmp39_);
-	fputs (_tmp40_, _tmp38_);
+	_tmp19_ = stderr;
+	_tmp20_ = string_offset (message, (glong) start);
+	fputs (_tmp20_, _tmp19_);
 }
-
 
 static void
 vala_report_print_message (ValaReport* self,
@@ -1008,7 +941,6 @@ vala_report_print_message (ValaReport* self,
 	}
 }
 
-
 /**
  * Reports the specified message as note.
  *
@@ -1023,7 +955,6 @@ vala_report_real_note (ValaReport* self,
 	gboolean _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
-	gboolean _tmp3_;
 	g_return_if_fail (message != NULL);
 	_tmp0_ = self->priv->_enable_warnings;
 	if (!_tmp0_) {
@@ -1031,10 +962,8 @@ vala_report_real_note (ValaReport* self,
 	}
 	_tmp1_ = self->priv->note_color_start;
 	_tmp2_ = self->priv->note_color_end;
-	_tmp3_ = self->priv->verbose_errors;
-	vala_report_print_message (self, source, "note", _tmp1_, _tmp2_, message, _tmp3_);
+	vala_report_print_message (self, source, "note", _tmp1_, _tmp2_, message, self->priv->verbose_errors);
 }
-
 
 void
 vala_report_note (ValaReport* self,
@@ -1044,7 +973,6 @@ vala_report_note (ValaReport* self,
 	g_return_if_fail (self != NULL);
 	VALA_REPORT_GET_CLASS (self)->note (self, source, message);
 }
-
 
 /**
  * Reports the specified message as deprecation warning.
@@ -1073,7 +1001,6 @@ vala_report_real_depr (ValaReport* self,
 	vala_report_print_message (self, source, "warning", _tmp2_, _tmp3_, message, FALSE);
 }
 
-
 void
 vala_report_depr (ValaReport* self,
                   ValaSourceReference* source,
@@ -1082,7 +1009,6 @@ vala_report_depr (ValaReport* self,
 	g_return_if_fail (self != NULL);
 	VALA_REPORT_GET_CLASS (self)->depr (self, source, message);
 }
-
 
 /**
  * Reports the specified message as warning.
@@ -1099,7 +1025,6 @@ vala_report_real_warn (ValaReport* self,
 	gint _tmp1_;
 	const gchar* _tmp2_;
 	const gchar* _tmp3_;
-	gboolean _tmp4_;
 	g_return_if_fail (message != NULL);
 	_tmp0_ = self->priv->_enable_warnings;
 	if (!_tmp0_) {
@@ -1109,10 +1034,8 @@ vala_report_real_warn (ValaReport* self,
 	self->warnings = _tmp1_ + 1;
 	_tmp2_ = self->priv->warning_color_start;
 	_tmp3_ = self->priv->warning_color_end;
-	_tmp4_ = self->priv->verbose_errors;
-	vala_report_print_message (self, source, "warning", _tmp2_, _tmp3_, message, _tmp4_);
+	vala_report_print_message (self, source, "warning", _tmp2_, _tmp3_, message, self->priv->verbose_errors);
 }
-
 
 void
 vala_report_warn (ValaReport* self,
@@ -1122,7 +1045,6 @@ vala_report_warn (ValaReport* self,
 	g_return_if_fail (self != NULL);
 	VALA_REPORT_GET_CLASS (self)->warn (self, source, message);
 }
-
 
 /**
  * Reports the specified message as error.
@@ -1138,16 +1060,13 @@ vala_report_real_err (ValaReport* self,
 	gint _tmp0_;
 	const gchar* _tmp1_;
 	const gchar* _tmp2_;
-	gboolean _tmp3_;
 	g_return_if_fail (message != NULL);
 	_tmp0_ = self->errors;
 	self->errors = _tmp0_ + 1;
 	_tmp1_ = self->priv->error_color_start;
 	_tmp2_ = self->priv->error_color_end;
-	_tmp3_ = self->priv->verbose_errors;
-	vala_report_print_message (self, source, "error", _tmp1_, _tmp2_, message, _tmp3_);
+	vala_report_print_message (self, source, "error", _tmp1_, _tmp2_, message, self->priv->verbose_errors);
 }
-
 
 void
 vala_report_err (ValaReport* self,
@@ -1157,7 +1076,6 @@ vala_report_err (ValaReport* self,
 	g_return_if_fail (self != NULL);
 	VALA_REPORT_GET_CLASS (self)->err (self, source, message);
 }
-
 
 void
 vala_report_notice (ValaSourceReference* source,
@@ -1176,7 +1094,6 @@ vala_report_notice (ValaSourceReference* source,
 	_vala_code_context_unref0 (_tmp1_);
 }
 
-
 void
 vala_report_deprecated (ValaSourceReference* source,
                         const gchar* message)
@@ -1193,7 +1110,6 @@ vala_report_deprecated (ValaSourceReference* source,
 	vala_report_depr (_tmp3_, source, message);
 	_vala_code_context_unref0 (_tmp1_);
 }
-
 
 void
 vala_report_experimental (ValaSourceReference* source,
@@ -1212,7 +1128,6 @@ vala_report_experimental (ValaSourceReference* source,
 	_vala_code_context_unref0 (_tmp1_);
 }
 
-
 void
 vala_report_warning (ValaSourceReference* source,
                      const gchar* message)
@@ -1229,7 +1144,6 @@ vala_report_warning (ValaSourceReference* source,
 	vala_report_warn (_tmp3_, source, message);
 	_vala_code_context_unref0 (_tmp1_);
 }
-
 
 void
 vala_report_error (ValaSourceReference* source,
@@ -1248,12 +1162,10 @@ vala_report_error (ValaSourceReference* source,
 	_vala_code_context_unref0 (_tmp1_);
 }
 
-
 static gboolean
 vala_report_is_atty (ValaReport* self,
                      gint fd)
 {
-	gboolean result = FALSE;
 	GModule* module = NULL;
 	GModule* _tmp0_;
 	GModule* _tmp1_;
@@ -1264,6 +1176,7 @@ vala_report_is_atty (ValaReport* self,
 	ValaReportAttyFunc func = NULL;
 	void* _tmp5_;
 	ValaReportAttyFunc _tmp6_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	_tmp0_ = g_module_open (NULL, G_MODULE_BIND_LAZY);
 	module = _tmp0_;
@@ -1290,7 +1203,6 @@ vala_report_is_atty (ValaReport* self,
 	return result;
 }
 
-
 ValaReport*
 vala_report_construct (GType object_type)
 {
@@ -1299,41 +1211,17 @@ vala_report_construct (GType object_type)
 	return self;
 }
 
-
 ValaReport*
 vala_report_new (void)
 {
 	return vala_report_construct (VALA_TYPE_REPORT);
 }
 
-
-gboolean
-vala_report_get_enable_warnings (ValaReport* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_enable_warnings;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_report_set_enable_warnings (ValaReport* self,
-                                 gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_enable_warnings = value;
-}
-
-
 static void
 vala_value_report_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 vala_value_report_free_value (GValue* value)
@@ -1342,7 +1230,6 @@ vala_value_report_free_value (GValue* value)
 		vala_report_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 vala_value_report_copy_value (const GValue* src_value,
@@ -1355,13 +1242,11 @@ vala_value_report_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 vala_value_report_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 vala_value_report_collect_value (GValue* value,
@@ -1384,7 +1269,6 @@ vala_value_report_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 vala_value_report_lcopy_value (const GValue* value,
                                guint n_collect_values,
@@ -1406,7 +1290,6 @@ vala_value_report_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 GParamSpec*
 vala_param_spec_report (const gchar* name,
                         const gchar* nick,
@@ -1421,14 +1304,12 @@ vala_param_spec_report (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 gpointer
 vala_value_get_report (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, VALA_TYPE_REPORT), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 void
 vala_value_set_report (GValue* value,
@@ -1450,7 +1331,6 @@ vala_value_set_report (GValue* value,
 	}
 }
 
-
 void
 vala_value_take_report (GValue* value,
                         gpointer v_object)
@@ -1470,9 +1350,9 @@ vala_value_take_report (GValue* value,
 	}
 }
 
-
 static void
-vala_report_class_init (ValaReportClass * klass)
+vala_report_class_init (ValaReportClass * klass,
+                        gpointer klass_data)
 {
 	vala_report_parent_class = g_type_class_peek_parent (klass);
 	((ValaReportClass *) klass)->finalize = vala_report_finalize;
@@ -1483,9 +1363,9 @@ vala_report_class_init (ValaReportClass * klass)
 	((ValaReportClass *) klass)->err = (void (*) (ValaReport*, ValaSourceReference*, const gchar*)) vala_report_real_err;
 }
 
-
 static void
-vala_report_instance_init (ValaReport * self)
+vala_report_instance_init (ValaReport * self,
+                           gpointer klass)
 {
 	gchar* _tmp0_;
 	gchar* _tmp1_;
@@ -1516,7 +1396,6 @@ vala_report_instance_init (ValaReport * self)
 	self->ref_count = 1;
 }
 
-
 static void
 vala_report_finalize (ValaReport * obj)
 {
@@ -1531,26 +1410,32 @@ vala_report_finalize (ValaReport * obj)
 	_g_free0 (self->priv->quote_color_start);
 }
 
-
 /**
  * Namespace to centralize reporting warnings and errors.
  */
+static GType
+vala_report_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { vala_value_report_init, vala_value_report_free_value, vala_value_report_copy_value, vala_value_report_peek_pointer, "p", vala_value_report_collect_value, "p", vala_value_report_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (ValaReportClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_report_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaReport), 0, (GInstanceInitFunc) vala_report_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType vala_report_type_id;
+	vala_report_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaReport", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	ValaReport_private_offset = g_type_add_instance_private (vala_report_type_id, sizeof (ValaReportPrivate));
+	return vala_report_type_id;
+}
+
 GType
 vala_report_get_type (void)
 {
 	static volatile gsize vala_report_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_report_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { vala_value_report_init, vala_value_report_free_value, vala_value_report_copy_value, vala_value_report_peek_pointer, "p", vala_value_report_collect_value, "p", vala_value_report_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (ValaReportClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_report_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaReport), 0, (GInstanceInitFunc) vala_report_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType vala_report_type_id;
-		vala_report_type_id = g_type_register_fundamental (g_type_fundamental_next (), "ValaReport", &g_define_type_info, &g_define_type_fundamental_info, 0);
-		ValaReport_private_offset = g_type_add_instance_private (vala_report_type_id, sizeof (ValaReportPrivate));
+		vala_report_type_id = vala_report_get_type_once ();
 		g_once_init_leave (&vala_report_type_id__volatile, vala_report_type_id);
 	}
 	return vala_report_type_id__volatile;
 }
-
 
 gpointer
 vala_report_ref (gpointer instance)
@@ -1560,7 +1445,6 @@ vala_report_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 void
 vala_report_unref (gpointer instance)
@@ -1573,14 +1457,13 @@ vala_report_unref (gpointer instance)
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1588,7 +1471,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1599,11 +1481,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1612,6 +1493,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

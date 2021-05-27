@@ -23,13 +23,12 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
 #include <valagee.h>
+#include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #define _vala_map_unref0(var) ((var == NULL) ? NULL : (var = (vala_map_unref (var), NULL)))
 #define _vala_comment_unref0(var) ((var == NULL) ? NULL : (var = (vala_comment_unref (var), NULL)))
@@ -39,7 +38,6 @@ struct _ValaGirCommentPrivate {
 	ValaComment* _return_content;
 };
 
-
 static gint ValaGirComment_private_offset;
 static gpointer vala_gir_comment_parent_class = NULL;
 
@@ -47,7 +45,7 @@ G_GNUC_INTERNAL void vala_gir_comment_add_content_for_parameter (ValaGirComment*
                                                  const gchar* name,
                                                  ValaComment* comment);
 static void vala_gir_comment_finalize (ValaComment * obj);
-
+static GType vala_gir_comment_get_type_once (void);
 
 static inline gpointer
 vala_gir_comment_get_instance_private (ValaGirComment* self)
@@ -55,13 +53,12 @@ vala_gir_comment_get_instance_private (ValaGirComment* self)
 	return G_STRUCT_MEMBER_P (self, ValaGirComment_private_offset);
 }
 
-
 ValaMapIterator*
 vala_gir_comment_parameter_iterator (ValaGirComment* self)
 {
-	ValaMapIterator* result = NULL;
 	ValaHashMap* _tmp0_;
 	ValaMapIterator* _tmp1_;
+	ValaMapIterator* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->parameter_content;
 	_tmp1_ = vala_map_map_iterator ((ValaMap*) _tmp0_);
@@ -69,6 +66,33 @@ vala_gir_comment_parameter_iterator (ValaGirComment* self)
 	return result;
 }
 
+ValaComment*
+vala_gir_comment_get_return_content (ValaGirComment* self)
+{
+	ValaComment* result;
+	ValaComment* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_return_content;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_comment_ref0 (gpointer self)
+{
+	return self ? vala_comment_ref (self) : NULL;
+}
+
+void
+vala_gir_comment_set_return_content (ValaGirComment* self,
+                                     ValaComment* value)
+{
+	ValaComment* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_comment_ref0 (value);
+	_vala_comment_unref0 (self->priv->_return_content);
+	self->priv->_return_content = _tmp0_;
+}
 
 ValaGirComment*
 vala_gir_comment_construct (GType object_type,
@@ -86,14 +110,12 @@ vala_gir_comment_construct (GType object_type,
 	return self;
 }
 
-
 ValaGirComment*
 vala_gir_comment_new (const gchar* comment,
                       ValaSourceReference* _source_reference)
 {
 	return vala_gir_comment_construct (VALA_TYPE_GIR_COMMENT, comment, _source_reference);
 }
-
 
 G_GNUC_INTERNAL void
 vala_gir_comment_add_content_for_parameter (ValaGirComment* self,
@@ -108,14 +130,13 @@ vala_gir_comment_add_content_for_parameter (ValaGirComment* self,
 	vala_map_set ((ValaMap*) _tmp0_, name, comment);
 }
 
-
 ValaComment*
 vala_gir_comment_get_content_for_parameter (ValaGirComment* self,
                                             const gchar* name)
 {
-	ValaComment* result = NULL;
 	ValaHashMap* _tmp0_;
 	gpointer _tmp1_;
+	ValaComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->parameter_content;
@@ -124,49 +145,18 @@ vala_gir_comment_get_content_for_parameter (ValaGirComment* self,
 	return result;
 }
 
-
-ValaComment*
-vala_gir_comment_get_return_content (ValaGirComment* self)
-{
-	ValaComment* result;
-	ValaComment* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_return_content;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_comment_ref0 (gpointer self)
-{
-	return self ? vala_comment_ref (self) : NULL;
-}
-
-
-void
-vala_gir_comment_set_return_content (ValaGirComment* self,
-                                     ValaComment* value)
-{
-	ValaComment* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_comment_ref0 (value);
-	_vala_comment_unref0 (self->priv->_return_content);
-	self->priv->_return_content = _tmp0_;
-}
-
-
 static void
-vala_gir_comment_class_init (ValaGirCommentClass * klass)
+vala_gir_comment_class_init (ValaGirCommentClass * klass,
+                             gpointer klass_data)
 {
 	vala_gir_comment_parent_class = g_type_class_peek_parent (klass);
 	((ValaCommentClass *) klass)->finalize = vala_gir_comment_finalize;
 	g_type_class_adjust_private_offset (klass, &ValaGirComment_private_offset);
 }
 
-
 static void
-vala_gir_comment_instance_init (ValaGirComment * self)
+vala_gir_comment_instance_init (ValaGirComment * self,
+                                gpointer klass)
 {
 	GHashFunc _tmp0_;
 	GEqualFunc _tmp1_;
@@ -180,7 +170,6 @@ vala_gir_comment_instance_init (ValaGirComment * self)
 	self->priv->parameter_content = _tmp3_;
 }
 
-
 static void
 vala_gir_comment_finalize (ValaComment * obj)
 {
@@ -191,23 +180,28 @@ vala_gir_comment_finalize (ValaComment * obj)
 	VALA_COMMENT_CLASS (vala_gir_comment_parent_class)->finalize (obj);
 }
 
-
 /**
  * A documentation comment used by valadoc
  */
+static GType
+vala_gir_comment_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaGirCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_gir_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaGirComment), 0, (GInstanceInitFunc) vala_gir_comment_instance_init, NULL };
+	GType vala_gir_comment_type_id;
+	vala_gir_comment_type_id = g_type_register_static (VALA_TYPE_COMMENT, "ValaGirComment", &g_define_type_info, 0);
+	ValaGirComment_private_offset = g_type_add_instance_private (vala_gir_comment_type_id, sizeof (ValaGirCommentPrivate));
+	return vala_gir_comment_type_id;
+}
+
 GType
 vala_gir_comment_get_type (void)
 {
 	static volatile gsize vala_gir_comment_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_gir_comment_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaGirCommentClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_gir_comment_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaGirComment), 0, (GInstanceInitFunc) vala_gir_comment_instance_init, NULL };
 		GType vala_gir_comment_type_id;
-		vala_gir_comment_type_id = g_type_register_static (VALA_TYPE_COMMENT, "ValaGirComment", &g_define_type_info, 0);
-		ValaGirComment_private_offset = g_type_add_instance_private (vala_gir_comment_type_id, sizeof (ValaGirCommentPrivate));
+		vala_gir_comment_type_id = vala_gir_comment_get_type_once ();
 		g_once_init_leave (&vala_gir_comment_type_id__volatile, vala_gir_comment_type_id);
 	}
 	return vala_gir_comment_type_id__volatile;
 }
-
-
 

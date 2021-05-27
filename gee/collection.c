@@ -23,10 +23,9 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valagee.h"
+#include <glib-object.h>
+#include <glib.h>
 #include <float.h>
 #include <math.h>
 
@@ -38,7 +37,6 @@ struct _ValaCollectionPrivate {
 	GBoxedCopyFunc g_dup_func;
 	GDestroyNotify g_destroy_func;
 };
-
 
 static gint ValaCollection_private_offset;
 static gpointer vala_collection_parent_class = NULL;
@@ -53,36 +51,30 @@ static void vala_collection_real_clear (ValaCollection* self);
 static gboolean vala_collection_real_add_all (ValaCollection* self,
                                        ValaCollection* collection);
 static gpointer* vala_collection_real_to_array (ValaCollection* self,
-                                         int* result_length1);
+                                         gint* result_length1);
 static gboolean* vala_collection_to_bool_array (ValaCollection* coll,
-                                         int* result_length1);
+                                         gint* result_length1);
 static gchar* vala_collection_to_char_array (ValaCollection* coll,
-                                      int* result_length1);
+                                      gint* result_length1);
 static guchar* vala_collection_to_uchar_array (ValaCollection* coll,
-                                        int* result_length1);
+                                        gint* result_length1);
 static gint* vala_collection_to_int_array (ValaCollection* coll,
-                                    int* result_length1);
+                                    gint* result_length1);
 static guint* vala_collection_to_uint_array (ValaCollection* coll,
-                                      int* result_length1);
+                                      gint* result_length1);
 static gint64** vala_collection_to_int64_array (ValaCollection* coll,
-                                         int* result_length1);
+                                         gint* result_length1);
 static guint64** vala_collection_to_uint64_array (ValaCollection* coll,
-                                           int* result_length1);
+                                           gint* result_length1);
 static glong* vala_collection_to_long_array (ValaCollection* coll,
-                                      int* result_length1);
+                                      gint* result_length1);
 static gulong* vala_collection_to_ulong_array (ValaCollection* coll,
-                                        int* result_length1);
+                                        gint* result_length1);
 static gfloat** vala_collection_to_float_array (ValaCollection* coll,
-                                         int* result_length1);
+                                         gint* result_length1);
 static gdouble** vala_collection_to_double_array (ValaCollection* coll,
-                                           int* result_length1);
-static void _vala_array_destroy (gpointer array,
-                          gint array_length,
-                          GDestroyNotify destroy_func);
-static void _vala_array_free (gpointer array,
-                       gint array_length,
-                       GDestroyNotify destroy_func);
-
+                                           gint* result_length1);
+static GType vala_collection_get_type_once (void);
 
 static inline gpointer
 vala_collection_get_instance_private (ValaCollection* self)
@@ -90,6 +82,33 @@ vala_collection_get_instance_private (ValaCollection* self)
 	return G_STRUCT_MEMBER_P (self, ValaCollection_private_offset);
 }
 
+gint
+vala_collection_get_size (ValaCollection* self)
+{
+	g_return_val_if_fail (self != NULL, 0);
+	return VALA_COLLECTION_GET_CLASS (self)->get_size (self);
+}
+
+gboolean
+vala_collection_get_is_empty (ValaCollection* self)
+{
+	g_return_val_if_fail (self != NULL, FALSE);
+	return VALA_COLLECTION_GET_CLASS (self)->get_is_empty (self);
+}
+
+static gboolean
+vala_collection_real_get_is_empty (ValaCollection* base)
+{
+	gboolean result;
+	ValaCollection* self;
+	gint _tmp0_;
+	gint _tmp1_;
+	self = base;
+	_tmp0_ = vala_collection_get_size (self);
+	_tmp1_ = _tmp0_;
+	result = _tmp1_ == 0;
+	return result;
+}
 
 /**
  * Determines whether this collection contains the specified item.
@@ -107,7 +126,6 @@ vala_collection_real_contains (ValaCollection* self,
 	return _tmp0_;
 }
 
-
 gboolean
 vala_collection_contains (ValaCollection* self,
                           gconstpointer item)
@@ -115,7 +133,6 @@ vala_collection_contains (ValaCollection* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_COLLECTION_GET_CLASS (self)->contains (self, item);
 }
-
 
 /**
  * Adds an item to this collection. Must not be called on read-only
@@ -134,7 +151,6 @@ vala_collection_real_add (ValaCollection* self,
 	return _tmp0_;
 }
 
-
 gboolean
 vala_collection_add (ValaCollection* self,
                      gconstpointer item)
@@ -142,7 +158,6 @@ vala_collection_add (ValaCollection* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_COLLECTION_GET_CLASS (self)->add (self, item);
 }
-
 
 /**
  * Removes the first occurrence of an item from this collection. Must not
@@ -161,7 +176,6 @@ vala_collection_real_remove (ValaCollection* self,
 	return _tmp0_;
 }
 
-
 gboolean
 vala_collection_remove (ValaCollection* self,
                         gconstpointer item)
@@ -169,7 +183,6 @@ vala_collection_remove (ValaCollection* self,
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_COLLECTION_GET_CLASS (self)->remove (self, item);
 }
-
 
 /**
  * Removes all items from this collection. Must not be called on
@@ -182,14 +195,12 @@ vala_collection_real_clear (ValaCollection* self)
 	return;
 }
 
-
 void
 vala_collection_clear (ValaCollection* self)
 {
 	g_return_if_fail (self != NULL);
 	VALA_COLLECTION_GET_CLASS (self)->clear (self);
 }
-
 
 /**
  * Adds all items in the input collection to this collection.
@@ -203,8 +214,8 @@ static gboolean
 vala_collection_real_add_all (ValaCollection* self,
                               ValaCollection* collection)
 {
-	gboolean result = FALSE;
 	gboolean changed = FALSE;
+	gboolean result = FALSE;
 	g_return_val_if_fail (collection != NULL, FALSE);
 	changed = FALSE;
 	{
@@ -247,7 +258,6 @@ vala_collection_real_add_all (ValaCollection* self,
 	return result;
 }
 
-
 gboolean
 vala_collection_add_all (ValaCollection* self,
                          ValaCollection* collection)
@@ -256,7 +266,6 @@ vala_collection_add_all (ValaCollection* self,
 	return VALA_COLLECTION_GET_CLASS (self)->add_all (self, collection);
 }
 
-
 /**
  * Returns an array containing all of items from this collection.
  *
@@ -264,266 +273,240 @@ vala_collection_add_all (ValaCollection* self,
  */
 static gpointer*
 vala_collection_real_to_array (ValaCollection* self,
-                               int* result_length1)
+                               gint* result_length1)
 {
-	gpointer* result = NULL;
 	GType t = 0UL;
-	GType _tmp0_;
+	gpointer* result = NULL;
 	t = self->priv->g_type;
-	_tmp0_ = t;
-	if (_tmp0_ == G_TYPE_BOOLEAN) {
-		gint _tmp1_ = 0;
-		gboolean* _tmp2_;
-		gpointer* _tmp3_;
-		gint _tmp3__length1;
-		_tmp2_ = vala_collection_to_bool_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp1_);
-		_tmp3_ = (gpointer*) _tmp2_;
-		_tmp3__length1 = _tmp1_;
+	if (t == G_TYPE_BOOLEAN) {
+		gint _tmp0_ = 0;
+		gboolean* _tmp1_;
+		gpointer* _tmp2_;
+		gint _tmp2__length1;
+		_tmp1_ = vala_collection_to_bool_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp0_);
+		_tmp2_ = (gpointer*) _tmp1_;
+		_tmp2__length1 = _tmp0_;
 		if (result_length1) {
-			*result_length1 = _tmp3__length1;
+			*result_length1 = _tmp2__length1;
 		}
-		result = _tmp3_;
+		result = _tmp2_;
 		return result;
 	} else {
-		GType _tmp4_;
-		_tmp4_ = t;
-		if (_tmp4_ == G_TYPE_CHAR) {
-			gint _tmp5_ = 0;
-			gchar* _tmp6_;
-			gpointer* _tmp7_;
-			gint _tmp7__length1;
-			_tmp6_ = vala_collection_to_char_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp5_);
-			_tmp7_ = (gpointer*) _tmp6_;
-			_tmp7__length1 = _tmp5_;
+		if (t == G_TYPE_CHAR) {
+			gint _tmp3_ = 0;
+			gchar* _tmp4_;
+			gpointer* _tmp5_;
+			gint _tmp5__length1;
+			_tmp4_ = vala_collection_to_char_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp3_);
+			_tmp5_ = (gpointer*) _tmp4_;
+			_tmp5__length1 = _tmp3_;
 			if (result_length1) {
-				*result_length1 = _tmp7__length1;
+				*result_length1 = _tmp5__length1;
 			}
-			result = _tmp7_;
+			result = _tmp5_;
 			return result;
 		} else {
-			GType _tmp8_;
-			_tmp8_ = t;
-			if (_tmp8_ == G_TYPE_UCHAR) {
-				gint _tmp9_ = 0;
-				guchar* _tmp10_;
-				gpointer* _tmp11_;
-				gint _tmp11__length1;
-				_tmp10_ = vala_collection_to_uchar_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp9_);
-				_tmp11_ = (gpointer*) _tmp10_;
-				_tmp11__length1 = _tmp9_;
+			if (t == G_TYPE_UCHAR) {
+				gint _tmp6_ = 0;
+				guchar* _tmp7_;
+				gpointer* _tmp8_;
+				gint _tmp8__length1;
+				_tmp7_ = vala_collection_to_uchar_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp6_);
+				_tmp8_ = (gpointer*) _tmp7_;
+				_tmp8__length1 = _tmp6_;
 				if (result_length1) {
-					*result_length1 = _tmp11__length1;
+					*result_length1 = _tmp8__length1;
 				}
-				result = _tmp11_;
+				result = _tmp8_;
 				return result;
 			} else {
-				GType _tmp12_;
-				_tmp12_ = t;
-				if (_tmp12_ == G_TYPE_INT) {
-					gint _tmp13_ = 0;
-					gint* _tmp14_;
-					gpointer* _tmp15_;
-					gint _tmp15__length1;
-					_tmp14_ = vala_collection_to_int_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp13_);
-					_tmp15_ = (gpointer*) _tmp14_;
-					_tmp15__length1 = _tmp13_;
+				if (t == G_TYPE_INT) {
+					gint _tmp9_ = 0;
+					gint* _tmp10_;
+					gpointer* _tmp11_;
+					gint _tmp11__length1;
+					_tmp10_ = vala_collection_to_int_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp9_);
+					_tmp11_ = (gpointer*) _tmp10_;
+					_tmp11__length1 = _tmp9_;
 					if (result_length1) {
-						*result_length1 = _tmp15__length1;
+						*result_length1 = _tmp11__length1;
 					}
-					result = _tmp15_;
+					result = _tmp11_;
 					return result;
 				} else {
-					GType _tmp16_;
-					_tmp16_ = t;
-					if (_tmp16_ == G_TYPE_UINT) {
-						gint _tmp17_ = 0;
-						guint* _tmp18_;
-						gpointer* _tmp19_;
-						gint _tmp19__length1;
-						_tmp18_ = vala_collection_to_uint_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp17_);
-						_tmp19_ = (gpointer*) _tmp18_;
-						_tmp19__length1 = _tmp17_;
+					if (t == G_TYPE_UINT) {
+						gint _tmp12_ = 0;
+						guint* _tmp13_;
+						gpointer* _tmp14_;
+						gint _tmp14__length1;
+						_tmp13_ = vala_collection_to_uint_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp12_);
+						_tmp14_ = (gpointer*) _tmp13_;
+						_tmp14__length1 = _tmp12_;
 						if (result_length1) {
-							*result_length1 = _tmp19__length1;
+							*result_length1 = _tmp14__length1;
 						}
-						result = _tmp19_;
+						result = _tmp14_;
 						return result;
 					} else {
-						GType _tmp20_;
-						_tmp20_ = t;
-						if (_tmp20_ == G_TYPE_INT64) {
-							gint _tmp21_ = 0;
-							gint64** _tmp22_;
-							gpointer* _tmp23_;
-							gint _tmp23__length1;
-							_tmp22_ = vala_collection_to_int64_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp21_);
-							_tmp23_ = (gpointer*) _tmp22_;
-							_tmp23__length1 = _tmp21_;
+						if (t == G_TYPE_INT64) {
+							gint _tmp15_ = 0;
+							gint64** _tmp16_;
+							gpointer* _tmp17_;
+							gint _tmp17__length1;
+							_tmp16_ = vala_collection_to_int64_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp15_);
+							_tmp17_ = (gpointer*) _tmp16_;
+							_tmp17__length1 = _tmp15_;
 							if (result_length1) {
-								*result_length1 = _tmp23__length1;
+								*result_length1 = _tmp17__length1;
 							}
-							result = _tmp23_;
+							result = _tmp17_;
 							return result;
 						} else {
-							GType _tmp24_;
-							_tmp24_ = t;
-							if (_tmp24_ == G_TYPE_UINT64) {
-								gint _tmp25_ = 0;
-								guint64** _tmp26_;
-								gpointer* _tmp27_;
-								gint _tmp27__length1;
-								_tmp26_ = vala_collection_to_uint64_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp25_);
-								_tmp27_ = (gpointer*) _tmp26_;
-								_tmp27__length1 = _tmp25_;
+							if (t == G_TYPE_UINT64) {
+								gint _tmp18_ = 0;
+								guint64** _tmp19_;
+								gpointer* _tmp20_;
+								gint _tmp20__length1;
+								_tmp19_ = vala_collection_to_uint64_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp18_);
+								_tmp20_ = (gpointer*) _tmp19_;
+								_tmp20__length1 = _tmp18_;
 								if (result_length1) {
-									*result_length1 = _tmp27__length1;
+									*result_length1 = _tmp20__length1;
 								}
-								result = _tmp27_;
+								result = _tmp20_;
 								return result;
 							} else {
-								GType _tmp28_;
-								_tmp28_ = t;
-								if (_tmp28_ == G_TYPE_LONG) {
-									gint _tmp29_ = 0;
-									glong* _tmp30_;
-									gpointer* _tmp31_;
-									gint _tmp31__length1;
-									_tmp30_ = vala_collection_to_long_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp29_);
-									_tmp31_ = (gpointer*) _tmp30_;
-									_tmp31__length1 = _tmp29_;
+								if (t == G_TYPE_LONG) {
+									gint _tmp21_ = 0;
+									glong* _tmp22_;
+									gpointer* _tmp23_;
+									gint _tmp23__length1;
+									_tmp22_ = vala_collection_to_long_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp21_);
+									_tmp23_ = (gpointer*) _tmp22_;
+									_tmp23__length1 = _tmp21_;
 									if (result_length1) {
-										*result_length1 = _tmp31__length1;
+										*result_length1 = _tmp23__length1;
 									}
-									result = _tmp31_;
+									result = _tmp23_;
 									return result;
 								} else {
-									GType _tmp32_;
-									_tmp32_ = t;
-									if (_tmp32_ == G_TYPE_ULONG) {
-										gint _tmp33_ = 0;
-										gulong* _tmp34_;
-										gpointer* _tmp35_;
-										gint _tmp35__length1;
-										_tmp34_ = vala_collection_to_ulong_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp33_);
-										_tmp35_ = (gpointer*) _tmp34_;
-										_tmp35__length1 = _tmp33_;
+									if (t == G_TYPE_ULONG) {
+										gint _tmp24_ = 0;
+										gulong* _tmp25_;
+										gpointer* _tmp26_;
+										gint _tmp26__length1;
+										_tmp25_ = vala_collection_to_ulong_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp24_);
+										_tmp26_ = (gpointer*) _tmp25_;
+										_tmp26__length1 = _tmp24_;
 										if (result_length1) {
-											*result_length1 = _tmp35__length1;
+											*result_length1 = _tmp26__length1;
 										}
-										result = _tmp35_;
+										result = _tmp26_;
 										return result;
 									} else {
-										GType _tmp36_;
-										_tmp36_ = t;
-										if (_tmp36_ == G_TYPE_FLOAT) {
-											gint _tmp37_ = 0;
-											gfloat** _tmp38_;
-											gpointer* _tmp39_;
-											gint _tmp39__length1;
-											_tmp38_ = vala_collection_to_float_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp37_);
-											_tmp39_ = (gpointer*) _tmp38_;
-											_tmp39__length1 = _tmp37_;
+										if (t == G_TYPE_FLOAT) {
+											gint _tmp27_ = 0;
+											gfloat** _tmp28_;
+											gpointer* _tmp29_;
+											gint _tmp29__length1;
+											_tmp28_ = vala_collection_to_float_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp27_);
+											_tmp29_ = (gpointer*) _tmp28_;
+											_tmp29__length1 = _tmp27_;
 											if (result_length1) {
-												*result_length1 = _tmp39__length1;
+												*result_length1 = _tmp29__length1;
 											}
-											result = _tmp39_;
+											result = _tmp29_;
 											return result;
 										} else {
-											GType _tmp40_;
-											_tmp40_ = t;
-											if (_tmp40_ == G_TYPE_DOUBLE) {
-												gint _tmp41_ = 0;
-												gdouble** _tmp42_;
-												gpointer* _tmp43_;
-												gint _tmp43__length1;
-												_tmp42_ = vala_collection_to_double_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp41_);
-												_tmp43_ = (gpointer*) _tmp42_;
-												_tmp43__length1 = _tmp41_;
+											if (t == G_TYPE_DOUBLE) {
+												gint _tmp30_ = 0;
+												gdouble** _tmp31_;
+												gpointer* _tmp32_;
+												gint _tmp32__length1;
+												_tmp31_ = vala_collection_to_double_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp30_);
+												_tmp32_ = (gpointer*) _tmp31_;
+												_tmp32__length1 = _tmp30_;
 												if (result_length1) {
-													*result_length1 = _tmp43__length1;
+													*result_length1 = _tmp32__length1;
 												}
-												result = _tmp43_;
+												result = _tmp32_;
 												return result;
 											} else {
-												gboolean _tmp44_ = FALSE;
-												GType _tmp45_;
-												_tmp45_ = t;
-												if (G_TYPE_IS_ENUM (_tmp45_)) {
-													_tmp44_ = TRUE;
+												gboolean _tmp33_ = FALSE;
+												if (G_TYPE_IS_ENUM (t)) {
+													_tmp33_ = TRUE;
 												} else {
-													GType _tmp46_;
-													_tmp46_ = t;
-													_tmp44_ = G_TYPE_IS_FLAGS (_tmp46_);
+													_tmp33_ = G_TYPE_IS_FLAGS (t);
 												}
-												if (_tmp44_) {
-													gint _tmp47_ = 0;
-													gint* _tmp48_;
-													gpointer* _tmp49_;
-													gint _tmp49__length1;
-													_tmp48_ = vala_collection_to_int_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp47_);
-													_tmp49_ = (gpointer*) _tmp48_;
-													_tmp49__length1 = _tmp47_;
+												if (_tmp33_) {
+													gint _tmp34_ = 0;
+													gint* _tmp35_;
+													gpointer* _tmp36_;
+													gint _tmp36__length1;
+													_tmp35_ = vala_collection_to_int_array (G_TYPE_CHECK_INSTANCE_CAST (self, VALA_TYPE_COLLECTION, ValaCollection), &_tmp34_);
+													_tmp36_ = (gpointer*) _tmp35_;
+													_tmp36__length1 = _tmp34_;
 													if (result_length1) {
-														*result_length1 = _tmp49__length1;
+														*result_length1 = _tmp36__length1;
 													}
-													result = _tmp49_;
+													result = _tmp36_;
 													return result;
 												} else {
 													gpointer* array = NULL;
-													gint _tmp50_;
-													gint _tmp51_;
-													gpointer* _tmp52_;
+													gint _tmp37_;
+													gint _tmp38_;
+													gpointer* _tmp39_;
 													gint array_length1;
 													gint _array_size_;
 													gint index = 0;
-													gpointer* _tmp60_;
-													gint _tmp60__length1;
-													_tmp50_ = vala_collection_get_size (self);
-													_tmp51_ = _tmp50_;
-													_tmp52_ = g_new0 (gpointer, _tmp51_);
-													array = _tmp52_;
-													array_length1 = _tmp51_;
+													gpointer* _tmp47_;
+													gint _tmp47__length1;
+													_tmp37_ = vala_collection_get_size (self);
+													_tmp38_ = _tmp37_;
+													_tmp39_ = g_new0 (gpointer, _tmp38_);
+													array = _tmp39_;
+													array_length1 = _tmp38_;
 													_array_size_ = array_length1;
 													index = 0;
 													{
 														ValaIterator* _element_it = NULL;
-														ValaIterator* _tmp53_;
-														_tmp53_ = vala_iterable_iterator ((ValaIterable*) self);
-														_element_it = _tmp53_;
+														ValaIterator* _tmp40_;
+														_tmp40_ = vala_iterable_iterator ((ValaIterable*) self);
+														_element_it = _tmp40_;
 														while (TRUE) {
-															ValaIterator* _tmp54_;
+															ValaIterator* _tmp41_;
 															gpointer element = NULL;
-															ValaIterator* _tmp55_;
-															gpointer _tmp56_;
-															gpointer* _tmp57_;
-															gint _tmp57__length1;
-															gint _tmp58_;
-															gpointer _tmp59_;
-															_tmp54_ = _element_it;
-															if (!vala_iterator_next (_tmp54_)) {
+															ValaIterator* _tmp42_;
+															gpointer _tmp43_;
+															gpointer* _tmp44_;
+															gint _tmp44__length1;
+															gint _tmp45_;
+															gpointer _tmp46_;
+															_tmp41_ = _element_it;
+															if (!vala_iterator_next (_tmp41_)) {
 																break;
 															}
-															_tmp55_ = _element_it;
-															_tmp56_ = vala_iterator_get (_tmp55_);
-															element = _tmp56_;
-															_tmp57_ = array;
-															_tmp57__length1 = array_length1;
-															_tmp58_ = index;
-															index = _tmp58_ + 1;
-															_tmp59_ = element;
+															_tmp42_ = _element_it;
+															_tmp43_ = vala_iterator_get (_tmp42_);
+															element = _tmp43_;
+															_tmp44_ = array;
+															_tmp44__length1 = array_length1;
+															_tmp45_ = index;
+															index = _tmp45_ + 1;
+															_tmp46_ = element;
 															element = NULL;
-															((_tmp57_[_tmp58_] == NULL) || (self->priv->g_destroy_func == NULL)) ? NULL : (_tmp57_[_tmp58_] = (self->priv->g_destroy_func (_tmp57_[_tmp58_]), NULL));
-															_tmp57_[_tmp58_] = _tmp59_;
+															((_tmp44_[_tmp45_] == NULL) || (self->priv->g_destroy_func == NULL)) ? NULL : (_tmp44_[_tmp45_] = (self->priv->g_destroy_func (_tmp44_[_tmp45_]), NULL));
+															_tmp44_[_tmp45_] = _tmp46_;
 															((element == NULL) || (self->priv->g_destroy_func == NULL)) ? NULL : (element = (self->priv->g_destroy_func (element), NULL));
 														}
 														_vala_iterator_unref0 (_element_it);
 													}
-													_tmp60_ = array;
-													_tmp60__length1 = array_length1;
+													_tmp47_ = array;
+													_tmp47__length1 = array_length1;
 													if (result_length1) {
-														*result_length1 = _tmp60__length1;
+														*result_length1 = _tmp47__length1;
 													}
-													result = _tmp60_;
+													result = _tmp47_;
 													return result;
 												}
 											}
@@ -539,21 +522,18 @@ vala_collection_real_to_array (ValaCollection* self,
 	}
 }
 
-
 gpointer*
 vala_collection_to_array (ValaCollection* self,
-                          int* result_length1)
+                          gint* result_length1)
 {
 	g_return_val_if_fail (self != NULL, NULL);
 	return VALA_COLLECTION_GET_CLASS (self)->to_array (self, result_length1);
 }
 
-
 static gboolean*
 vala_collection_to_bool_array (ValaCollection* coll,
-                               int* result_length1)
+                               gint* result_length1)
 {
-	gboolean* result = NULL;
 	gboolean* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -563,6 +543,7 @@ vala_collection_to_bool_array (ValaCollection* coll,
 	gint index = 0;
 	gboolean* _tmp10_;
 	gint _tmp10__length1;
+	gboolean* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -610,12 +591,10 @@ vala_collection_to_bool_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gchar*
 vala_collection_to_char_array (ValaCollection* coll,
-                               int* result_length1)
+                               gint* result_length1)
 {
-	gchar* result = NULL;
 	gchar* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -625,6 +604,7 @@ vala_collection_to_char_array (ValaCollection* coll,
 	gint index = 0;
 	gchar* _tmp10_;
 	gint _tmp10__length1;
+	gchar* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -672,12 +652,10 @@ vala_collection_to_char_array (ValaCollection* coll,
 	return result;
 }
 
-
 static guchar*
 vala_collection_to_uchar_array (ValaCollection* coll,
-                                int* result_length1)
+                                gint* result_length1)
 {
-	guchar* result = NULL;
 	guchar* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -687,6 +665,7 @@ vala_collection_to_uchar_array (ValaCollection* coll,
 	gint index = 0;
 	guchar* _tmp10_;
 	gint _tmp10__length1;
+	guchar* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -734,12 +713,10 @@ vala_collection_to_uchar_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gint*
 vala_collection_to_int_array (ValaCollection* coll,
-                              int* result_length1)
+                              gint* result_length1)
 {
-	gint* result = NULL;
 	gint* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -749,6 +726,7 @@ vala_collection_to_int_array (ValaCollection* coll,
 	gint index = 0;
 	gint* _tmp10_;
 	gint _tmp10__length1;
+	gint* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -796,12 +774,10 @@ vala_collection_to_int_array (ValaCollection* coll,
 	return result;
 }
 
-
 static guint*
 vala_collection_to_uint_array (ValaCollection* coll,
-                               int* result_length1)
+                               gint* result_length1)
 {
-	guint* result = NULL;
 	guint* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -811,6 +787,7 @@ vala_collection_to_uint_array (ValaCollection* coll,
 	gint index = 0;
 	guint* _tmp10_;
 	gint _tmp10__length1;
+	guint* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -858,12 +835,10 @@ vala_collection_to_uint_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gint64**
 vala_collection_to_int64_array (ValaCollection* coll,
-                                int* result_length1)
+                                gint* result_length1)
 {
-	gint64** result = NULL;
 	gint64** array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -873,6 +848,7 @@ vala_collection_to_int64_array (ValaCollection* coll,
 	gint index = 0;
 	gint64** _tmp10_;
 	gint _tmp10__length1;
+	gint64** result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -923,12 +899,10 @@ vala_collection_to_int64_array (ValaCollection* coll,
 	return result;
 }
 
-
 static guint64**
 vala_collection_to_uint64_array (ValaCollection* coll,
-                                 int* result_length1)
+                                 gint* result_length1)
 {
-	guint64** result = NULL;
 	guint64** array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -938,6 +912,7 @@ vala_collection_to_uint64_array (ValaCollection* coll,
 	gint index = 0;
 	guint64** _tmp10_;
 	gint _tmp10__length1;
+	guint64** result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -988,12 +963,10 @@ vala_collection_to_uint64_array (ValaCollection* coll,
 	return result;
 }
 
-
 static glong*
 vala_collection_to_long_array (ValaCollection* coll,
-                               int* result_length1)
+                               gint* result_length1)
 {
-	glong* result = NULL;
 	glong* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -1003,6 +976,7 @@ vala_collection_to_long_array (ValaCollection* coll,
 	gint index = 0;
 	glong* _tmp10_;
 	gint _tmp10__length1;
+	glong* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -1050,12 +1024,10 @@ vala_collection_to_long_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gulong*
 vala_collection_to_ulong_array (ValaCollection* coll,
-                                int* result_length1)
+                                gint* result_length1)
 {
-	gulong* result = NULL;
 	gulong* array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -1065,6 +1037,7 @@ vala_collection_to_ulong_array (ValaCollection* coll,
 	gint index = 0;
 	gulong* _tmp10_;
 	gint _tmp10__length1;
+	gulong* result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -1112,12 +1085,10 @@ vala_collection_to_ulong_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gfloat**
 vala_collection_to_float_array (ValaCollection* coll,
-                                int* result_length1)
+                                gint* result_length1)
 {
-	gfloat** result = NULL;
 	gfloat** array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -1127,6 +1098,7 @@ vala_collection_to_float_array (ValaCollection* coll,
 	gint index = 0;
 	gfloat** _tmp10_;
 	gint _tmp10__length1;
+	gfloat** result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -1177,12 +1149,10 @@ vala_collection_to_float_array (ValaCollection* coll,
 	return result;
 }
 
-
 static gdouble**
 vala_collection_to_double_array (ValaCollection* coll,
-                                 int* result_length1)
+                                 gint* result_length1)
 {
-	gdouble** result = NULL;
 	gdouble** array = NULL;
 	gint _tmp0_;
 	gint _tmp1_;
@@ -1192,6 +1162,7 @@ vala_collection_to_double_array (ValaCollection* coll,
 	gint index = 0;
 	gdouble** _tmp10_;
 	gint _tmp10__length1;
+	gdouble** result = NULL;
 	g_return_val_if_fail (coll != NULL, NULL);
 	_tmp0_ = vala_collection_get_size (coll);
 	_tmp1_ = _tmp0_;
@@ -1242,7 +1213,6 @@ vala_collection_to_double_array (ValaCollection* coll,
 	return result;
 }
 
-
 ValaCollection*
 vala_collection_construct (GType object_type,
                            GType g_type,
@@ -1257,40 +1227,9 @@ vala_collection_construct (GType object_type,
 	return self;
 }
 
-
-gint
-vala_collection_get_size (ValaCollection* self)
-{
-	g_return_val_if_fail (self != NULL, 0);
-	return VALA_COLLECTION_GET_CLASS (self)->get_size (self);
-}
-
-
-gboolean
-vala_collection_get_is_empty (ValaCollection* self)
-{
-	g_return_val_if_fail (self != NULL, FALSE);
-	return VALA_COLLECTION_GET_CLASS (self)->get_is_empty (self);
-}
-
-
-static gboolean
-vala_collection_real_get_is_empty (ValaCollection* base)
-{
-	gboolean result;
-	ValaCollection* self;
-	gint _tmp0_;
-	gint _tmp1_;
-	self = base;
-	_tmp0_ = vala_collection_get_size (self);
-	_tmp1_ = _tmp0_;
-	result = _tmp1_ == 0;
-	return result;
-}
-
-
 static void
-vala_collection_class_init (ValaCollectionClass * klass)
+vala_collection_class_init (ValaCollectionClass * klass,
+                            gpointer klass_data)
 {
 	vala_collection_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValaCollection_private_offset);
@@ -1299,61 +1238,40 @@ vala_collection_class_init (ValaCollectionClass * klass)
 	((ValaCollectionClass *) klass)->remove = (gboolean (*) (ValaCollection*, gconstpointer)) vala_collection_real_remove;
 	((ValaCollectionClass *) klass)->clear = (void (*) (ValaCollection*)) vala_collection_real_clear;
 	((ValaCollectionClass *) klass)->add_all = (gboolean (*) (ValaCollection*, ValaCollection*)) vala_collection_real_add_all;
-	((ValaCollectionClass *) klass)->to_array = (gpointer* (*) (ValaCollection*, int*)) vala_collection_real_to_array;
+	((ValaCollectionClass *) klass)->to_array = (gpointer* (*) (ValaCollection*, gint*)) vala_collection_real_to_array;
 	VALA_COLLECTION_CLASS (klass)->get_is_empty = vala_collection_real_get_is_empty;
 }
 
-
 static void
-vala_collection_instance_init (ValaCollection * self)
+vala_collection_instance_init (ValaCollection * self,
+                               gpointer klass)
 {
 	self->priv = vala_collection_get_instance_private (self);
 }
-
 
 /**
  * Serves as the base interface for implementing collection classes. Defines
  * size, iteration, and modification methods.
  */
+static GType
+vala_collection_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCollectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_collection_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCollection), 0, (GInstanceInitFunc) vala_collection_instance_init, NULL };
+	GType vala_collection_type_id;
+	vala_collection_type_id = g_type_register_static (VALA_TYPE_ITERABLE, "ValaCollection", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	ValaCollection_private_offset = g_type_add_instance_private (vala_collection_type_id, sizeof (ValaCollectionPrivate));
+	return vala_collection_type_id;
+}
+
 GType
 vala_collection_get_type (void)
 {
 	static volatile gsize vala_collection_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_collection_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCollectionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_collection_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCollection), 0, (GInstanceInitFunc) vala_collection_instance_init, NULL };
 		GType vala_collection_type_id;
-		vala_collection_type_id = g_type_register_static (VALA_TYPE_ITERABLE, "ValaCollection", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		ValaCollection_private_offset = g_type_add_instance_private (vala_collection_type_id, sizeof (ValaCollectionPrivate));
+		vala_collection_type_id = vala_collection_get_type_once ();
 		g_once_init_leave (&vala_collection_type_id__volatile, vala_collection_type_id);
 	}
 	return vala_collection_type_id__volatile;
 }
-
-
-static void
-_vala_array_destroy (gpointer array,
-                     gint array_length,
-                     GDestroyNotify destroy_func)
-{
-	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
-		for (i = 0; i < array_length; i = i + 1) {
-			if (((gpointer*) array)[i] != NULL) {
-				destroy_func (((gpointer*) array)[i]);
-			}
-		}
-	}
-}
-
-
-static void
-_vala_array_free (gpointer array,
-                  gint array_length,
-                  GDestroyNotify destroy_func)
-{
-	_vala_array_destroy (array, array_length, destroy_func);
-	g_free (array);
-}
-
-
 

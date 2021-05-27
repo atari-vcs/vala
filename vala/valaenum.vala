@@ -80,11 +80,11 @@ public class Vala.Enum : TypeSymbol {
 			return;
 		}
 		if (m.binding == MemberBinding.INSTANCE) {
-			m.this_parameter = new Parameter ("this", new EnumValueType (this));
+			m.this_parameter = new Parameter ("this", new EnumValueType (this), m.source_reference);
 			m.scope.add (m.this_parameter.name, m.this_parameter);
 		}
 		if (!(m.return_type is VoidType) && m.get_postconditions ().size > 0) {
-			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, source_reference);
+			m.result_var = new LocalVariable (m.return_type.copy (), "result", null, m.source_reference);
 			m.result_var.is_result = true;
 		}
 
@@ -103,34 +103,29 @@ public class Vala.Enum : TypeSymbol {
 	}
 
 	/**
-	 * Returns a copy of the list of enum values.
+	 * Returns the list of enum values.
 	 *
 	 * @return list of enum values
 	 */
-	public List<EnumValue> get_values () {
+	public unowned List<EnumValue> get_values () {
 		return values;
 	}
 
-	// used by vapigen
-	public void remove_all_values () {
-		values.clear ();
-	}
-
 	/**
-	 * Returns a copy of the list of methods.
+	 * Returns the list of methods.
 	 *
 	 * @return list of methods
 	 */
-	public List<Method> get_methods () {
+	public unowned List<Method> get_methods () {
 		return methods;
 	}
 
 	/**
-	 * Returns a copy of the list of constants.
+	 * Returns the list of constants.
 	 *
 	 * @return list of constants
 	 */
-	public List<Constant> get_constants () {
+	public unowned List<Constant> get_constants () {
 		return constants;
 	}
 

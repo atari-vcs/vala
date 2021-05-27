@@ -503,6 +503,8 @@ namespace Gdk {
 		public const uint AudioPause;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_AudioPlay")]
 		public const uint AudioPlay;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_AudioPreset")]
+		public const uint AudioPreset;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_AudioPrev")]
 		public const uint AudioPrev;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_AudioRaiseVolume")]
@@ -1703,6 +1705,8 @@ namespace Gdk {
 		public const uint KbdLightOnOff;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Kcedilla")]
 		public const uint Kcedilla;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Keyboard")]
+		public const uint Keyboard;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Korean_Won")]
 		public const uint Korean_Won;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_L")]
@@ -2069,6 +2073,8 @@ namespace Gdk {
 		public const uint R8;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_R9")]
 		public const uint R9;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_RFKill")]
+		public const uint RFKill;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Racute")]
 		public const uint Racute;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Rcaron")]
@@ -2689,6 +2695,8 @@ namespace Gdk {
 		public const uint W;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_WLAN")]
 		public const uint WLAN;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_WWAN")]
+		public const uint WWAN;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_WWW")]
 		public const uint WWW;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_Wacute")]
@@ -3477,6 +3485,8 @@ namespace Gdk {
 		public const uint dead_abovereversedcomma;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_abovering")]
 		public const uint dead_abovering;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_aboveverticalline")]
+		public const uint dead_aboveverticalline;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_acute")]
 		public const uint dead_acute;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_belowbreve")]
@@ -3495,6 +3505,8 @@ namespace Gdk {
 		public const uint dead_belowring;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_belowtilde")]
 		public const uint dead_belowtilde;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_belowverticalline")]
+		public const uint dead_belowverticalline;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_breve")]
 		public const uint dead_breve;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_capital_schwa")]
@@ -3531,6 +3543,10 @@ namespace Gdk {
 		public const uint dead_invertedbreve;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_iota")]
 		public const uint dead_iota;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_longsolidusoverlay")]
+		public const uint dead_longsolidusoverlay;
+		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_lowline")]
+		public const uint dead_lowline;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_macron")]
 		public const uint dead_macron;
 		[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_KEY_dead_o")]
@@ -4558,7 +4574,7 @@ namespace Gdk {
 		[Version (since = "2.2")]
 		public static bool owner_set_for_display (Gdk.Display display, Gdk.Window? owner, Gdk.Atom selection, uint32 time_, bool send_event);
 		[CCode (cheader_filename = "gdk/gdk.h")]
-		public static int property_get (Gdk.Window requestor, [CCode (array_length = false, type = "guchar**")] uint8[] data, Gdk.Atom prop_type, int prop_format);
+		public static int property_get (Gdk.Window requestor, [CCode (array_length = false, type = "guchar**")] uint8[] data, out Gdk.Atom prop_type, out int prop_format);
 		[CCode (cheader_filename = "gdk/gdk.h")]
 		public static void send_notify (Gdk.Window requestor, Gdk.Atom selection, Gdk.Atom target, Gdk.Atom property, uint32 time_);
 		[CCode (cheader_filename = "gdk/gdk.h")]
@@ -4670,7 +4686,7 @@ namespace Gdk {
 		[Version (deprecated = true, deprecated_since = "3.20.", since = "3.0")]
 		public Gdk.GrabStatus grab (Gdk.Window window, Gdk.GrabOwnership grab_ownership, bool owner_events, Gdk.EventMask event_mask, Gdk.Cursor? cursor, uint32 time_);
 		[Version (since = "3.0")]
-		public GLib.List<weak Gdk.Atom> list_axes ();
+		public GLib.List<Gdk.Atom> list_axes ();
 		public GLib.List<weak Gdk.Device>? list_slave_devices ();
 		public void set_axis_use (uint index_, Gdk.AxisUse use);
 		public void set_key (uint index_, uint keyval, Gdk.ModifierType modifiers);
@@ -5029,7 +5045,8 @@ namespace Gdk {
 	[CCode (cheader_filename = "gdk/gdk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gdk_event_get_type ()")]
 	[Compact]
 	public class EventButton : Gdk.Event {
-		public double axes;
+		[CCode (array_length = false)]
+		public weak double[] axes;
 		public uint button;
 		public weak Gdk.Device device;
 		public int8 send_event;
@@ -5257,7 +5274,8 @@ namespace Gdk {
 	[CCode (cheader_filename = "gdk/gdk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gdk_event_get_type ()")]
 	[Compact]
 	public class EventTouch : Gdk.Event {
-		public double axes;
+		[CCode (array_length = false)]
+		public weak double[] axes;
 		public weak Gdk.Device device;
 		public bool emulating_pointer;
 		public int8 send_event;
@@ -5334,7 +5352,7 @@ namespace Gdk {
 		[Version (since = "3.8")]
 		public void end_updating ();
 		[Version (since = "3.8")]
-		public Gdk.FrameTimings? get_current_timings ();
+		public unowned Gdk.FrameTimings? get_current_timings ();
 		[Version (since = "3.8")]
 		public int64 get_frame_counter ();
 		[Version (since = "3.8")]
@@ -5344,7 +5362,7 @@ namespace Gdk {
 		[Version (since = "3.8")]
 		public void get_refresh_info (int64 base_time, out int64 refresh_interval_return, out int64 presentation_time_return);
 		[Version (since = "3.8")]
-		public Gdk.FrameTimings? get_timings (int64 frame_counter);
+		public unowned Gdk.FrameTimings? get_timings (int64 frame_counter);
 		[Version (since = "3.8")]
 		public void request_phase (Gdk.FrameClockPhase phase);
 		public signal void after_paint ();
@@ -5930,7 +5948,7 @@ namespace Gdk {
 		public static Gdk.Atom intern_static_string (string atom_name);
 		public string name ();
 	}
-	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_color_get_type ()")]
+	[CCode (cheader_filename = "gdk/gdk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gdk_color_get_type ()")]
 	[Version (deprecated = true, deprecated_since = "3.14")]
 	public struct Color {
 		public uint32 pixel;
@@ -5970,7 +5988,7 @@ namespace Gdk {
 		public int x;
 		public int y;
 	}
-	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_rgba_get_type ()")]
+	[CCode (cheader_filename = "gdk/gdk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gdk_rgba_get_type ()")]
 	public struct RGBA {
 		public double red;
 		public double green;
@@ -5989,7 +6007,7 @@ namespace Gdk {
 		[Version (since = "3.0")]
 		public string to_string ();
 	}
-	[CCode (cheader_filename = "gdk/gdk.h", type_id = "gdk_rectangle_get_type ()")]
+	[CCode (cheader_filename = "gdk/gdk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "gdk_rectangle_get_type ()")]
 	public struct Rectangle : Cairo.RectangleInt {
 		[Version (since = "3.20")]
 		public bool equal (Gdk.Rectangle rect2);
@@ -6642,8 +6660,14 @@ namespace Gdk {
 	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_EVENT_STOP")]
 	[Version (since = "3.4")]
 	public const bool EVENT_STOP;
+	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_MAJOR_VERSION")]
+	public const int MAJOR_VERSION;
 	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_MAX_TIMECOORD_AXES")]
 	public const int MAX_TIMECOORD_AXES;
+	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_MICRO_VERSION")]
+	public const int MICRO_VERSION;
+	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_MINOR_VERSION")]
+	public const int MINOR_VERSION;
 	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_PARENT_RELATIVE")]
 	public const int PARENT_RELATIVE;
 	[CCode (cheader_filename = "gdk/gdk.h", cname = "GDK_PRIORITY_REDRAW")]
@@ -6800,7 +6824,7 @@ namespace Gdk {
 	public static unowned Cairo.Surface? offscreen_window_get_surface (Gdk.Window window);
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	[Version (since = "2.18")]
-	public static void offscreen_window_set_embedder (Gdk.Window window, Gdk.Window? embedder);
+	public static void offscreen_window_set_embedder (Gdk.Window window, Gdk.Window embedder);
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	public static Pango.Context pango_context_get ();
 	[CCode (cheader_filename = "gdk/gdk.h")]
@@ -6810,7 +6834,7 @@ namespace Gdk {
 	[Version (since = "2.2")]
 	public static Pango.Context pango_context_get_for_screen (Gdk.Screen screen);
 	[CCode (cheader_filename = "gdk/gdk.h")]
-	public static Cairo.Region pango_layout_get_clip_region (Pango.Layout layout, int x_origin, int y_origin, int index_ranges, int n_ranges);
+	public static Cairo.Region pango_layout_get_clip_region (Pango.Layout layout, int x_origin, int y_origin, [CCode (array_length_cname = "n_ranges", array_length_pos = 4.1, type = "const gint*")] int[] index_ranges);
 	[CCode (cheader_filename = "gdk/gdk.h")]
 	[Version (since = "2.2")]
 	public static void parse_args ([CCode (array_length_cname = "argc", array_length_pos = 0.5)] ref unowned string[] argv);

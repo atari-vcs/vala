@@ -23,17 +23,16 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <stdio.h>
 #include <valadoc.h>
 #include <vala.h>
+#include <valacodegen.h>
 #include <locale.h>
 #include <glib/gstdio.h>
-
 
 #define TYPE_VALA_DOC (vala_doc_get_type ())
 #define VALA_DOC(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_VALA_DOC, ValaDoc))
@@ -52,17 +51,39 @@ enum  {
 static GParamSpec* vala_doc_properties[VALA_DOC_NUM_PROPERTIES];
 #define _g_free0(var) (var = (g_free (var), NULL))
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
+#define _vala_code_context_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_context_unref (var), NULL)))
 
-#define VALADOC_DRIVERS_TYPE_DRIVER (valadoc_drivers_driver_get_type ())
-#define VALADOC_DRIVERS_DRIVER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_DRIVERS_TYPE_DRIVER, ValadocDriversDriver))
-#define VALADOC_DRIVERS_DRIVER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_DRIVERS_TYPE_DRIVER, ValadocDriversDriverClass))
-#define VALADOC_DRIVERS_IS_DRIVER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_DRIVERS_TYPE_DRIVER))
-#define VALADOC_DRIVERS_IS_DRIVER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_DRIVERS_TYPE_DRIVER))
-#define VALADOC_DRIVERS_DRIVER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_DRIVERS_TYPE_DRIVER, ValadocDriversDriverClass))
+#define VALADOC_TYPE_TREE_BUILDER (valadoc_tree_builder_get_type ())
+#define VALADOC_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilder))
+#define VALADOC_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
+#define VALADOC_IS_TREE_BUILDER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_IS_TREE_BUILDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_TREE_BUILDER))
+#define VALADOC_TREE_BUILDER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_TREE_BUILDER, ValadocTreeBuilderClass))
 
-typedef struct _ValadocDriversDriver ValadocDriversDriver;
-typedef struct _ValadocDriversDriverClass ValadocDriversDriverClass;
+typedef struct _ValadocTreeBuilder ValadocTreeBuilder;
+typedef struct _ValadocTreeBuilderClass ValadocTreeBuilderClass;
 #define _valadoc_api_tree_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_tree_unref (var), NULL)))
+#define _vala_code_visitor_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_visitor_unref (var), NULL)))
+
+#define VALADOC_TYPE_SYMBOL_RESOLVER (valadoc_symbol_resolver_get_type ())
+#define VALADOC_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolver))
+#define VALADOC_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolverClass))
+#define VALADOC_IS_SYMBOL_RESOLVER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_SYMBOL_RESOLVER))
+#define VALADOC_IS_SYMBOL_RESOLVER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_SYMBOL_RESOLVER))
+#define VALADOC_SYMBOL_RESOLVER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_SYMBOL_RESOLVER, ValadocSymbolResolverClass))
+
+typedef struct _ValadocSymbolResolver ValadocSymbolResolver;
+typedef struct _ValadocSymbolResolverClass ValadocSymbolResolverClass;
+
+#define VALADOC_TYPE_GIR_WRITER (valadoc_gir_writer_get_type ())
+#define VALADOC_GIR_WRITER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), VALADOC_TYPE_GIR_WRITER, ValadocGirWriter))
+#define VALADOC_GIR_WRITER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), VALADOC_TYPE_GIR_WRITER, ValadocGirWriterClass))
+#define VALADOC_IS_GIR_WRITER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), VALADOC_TYPE_GIR_WRITER))
+#define VALADOC_IS_GIR_WRITER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), VALADOC_TYPE_GIR_WRITER))
+#define VALADOC_GIR_WRITER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), VALADOC_TYPE_GIR_WRITER, ValadocGirWriterClass))
+
+typedef struct _ValadocGirWriter ValadocGirWriter;
+typedef struct _ValadocGirWriterClass ValadocGirWriterClass;
 #define _g_option_context_free0(var) ((var == NULL) ? NULL : (var = (g_option_context_free (var), NULL)))
 #define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 
@@ -75,21 +96,44 @@ struct _ValaDocClass {
 	GObjectClass parent_class;
 };
 
-
 static gpointer vala_doc_parent_class = NULL;
-static gchar* vala_doc_wikidirectory;
-static gchar* vala_doc_wikidirectory = NULL;
-static gchar* vala_doc_pkg_version;
-static gchar* vala_doc_pkg_version = NULL;
-static gchar* vala_doc_docletpath;
-static gchar* vala_doc_docletpath = NULL;
-static gchar** vala_doc_pluginargs;
-static gchar** vala_doc_pluginargs = NULL;
 static gchar* vala_doc_directory;
-static gchar* vala_doc_directory = NULL;
+static gchar* vala_doc_basedir;
+static gchar** vala_doc_defines;
+static gchar* vala_doc_profile;
+static gboolean vala_doc_experimental;
+static gboolean vala_doc_experimental_non_null;
+static gchar** vala_doc_metadata_directories;
+static gchar** vala_doc_gir_directories;
+static gchar** vala_doc_vapi_directories;
+static gchar** vala_doc_packages;
+static gchar** vala_doc_import_directories;
+static gchar** vala_doc_import_packages;
+static gchar** vala_doc_alternative_resource_dirs;
+static gchar* vala_doc_wikidirectory;
+static gboolean vala_doc_with_deps;
+static gchar* vala_doc_docletpath;
+static gchar** vala_doc_pluginargs;
+static gboolean vala_doc__protected;
+static gboolean vala_doc__internal;
+static gboolean vala_doc__private;
+static gboolean vala_doc_use_svg_images;
 static gchar* vala_doc_pkg_name;
-static gchar* vala_doc_pkg_name = NULL;
+static gchar* vala_doc_pkg_version;
 static gchar* vala_doc_gir_name;
+static gboolean vala_doc_version;
+static gboolean vala_doc_force;
+static gboolean vala_doc_fatal_warnings;
+static gboolean vala_doc_verbose;
+static gboolean vala_doc_disable_diagnostic_colors;
+static gchar* vala_doc_target_glib;
+static gchar** vala_doc_tsources;
+static gchar* vala_doc_wikidirectory = NULL;
+static gchar* vala_doc_pkg_version = NULL;
+static gchar* vala_doc_docletpath = NULL;
+static gchar** vala_doc_pluginargs = NULL;
+static gchar* vala_doc_directory = NULL;
+static gchar* vala_doc_pkg_name = NULL;
 static gchar* vala_doc_gir_name = NULL;
 static gchar* vala_doc_gir_namespace;
 static gchar* vala_doc_gir_namespace = NULL;
@@ -97,60 +141,40 @@ static gchar* vala_doc_gir_version;
 static gchar* vala_doc_gir_version = NULL;
 static gboolean vala_doc_add_inherited;
 static gboolean vala_doc_add_inherited = FALSE;
-static gboolean vala_doc__protected;
 static gboolean vala_doc__protected = TRUE;
-static gboolean vala_doc__internal;
 static gboolean vala_doc__internal = FALSE;
-static gboolean vala_doc_with_deps;
 static gboolean vala_doc_with_deps = FALSE;
-static gboolean vala_doc__private;
 static gboolean vala_doc__private = FALSE;
-static gboolean vala_doc_version;
 static gboolean vala_doc_version = FALSE;
-static gboolean vala_doc_use_svg_images;
 static gboolean vala_doc_use_svg_images = FALSE;
-static gboolean vala_doc_disable_diagnostic_colors;
 static gboolean vala_doc_disable_diagnostic_colors = FALSE;
-static gboolean vala_doc_verbose;
 static gboolean vala_doc_verbose = FALSE;
-static gboolean vala_doc_force;
 static gboolean vala_doc_force = FALSE;
-static gchar* vala_doc_basedir;
+static gboolean vala_doc_fatal_warnings = FALSE;
 static gchar* vala_doc_basedir = NULL;
-static gchar** vala_doc_defines;
 static gchar** vala_doc_defines = NULL;
-static gboolean vala_doc_experimental;
 static gboolean vala_doc_experimental = FALSE;
-static gboolean vala_doc_experimental_non_null;
 static gboolean vala_doc_experimental_non_null = FALSE;
-static gchar* vala_doc_profile;
 static gchar* vala_doc_profile = NULL;
-static gchar** vala_doc_import_packages;
 static gchar** vala_doc_import_packages = NULL;
-static gchar** vala_doc_import_directories;
 static gchar** vala_doc_import_directories = NULL;
-static gchar** vala_doc_vapi_directories;
 static gchar** vala_doc_vapi_directories = NULL;
-static gchar** vala_doc_metadata_directories;
 static gchar** vala_doc_metadata_directories = NULL;
-static gchar** vala_doc_gir_directories;
 static gchar** vala_doc_gir_directories = NULL;
-static gchar** vala_doc_tsources;
 static gchar** vala_doc_tsources = NULL;
-static gchar** vala_doc_packages;
 static gchar** vala_doc_packages = NULL;
-static gchar** vala_doc_alternative_resource_dirs;
 static gchar** vala_doc_alternative_resource_dirs = NULL;
-static gchar* vala_doc_target_glib;
 static gchar* vala_doc_target_glib = NULL;
 
 GType vala_doc_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValaDoc, g_object_unref)
 #define VALA_DOC_DEFAULT_COLORS "error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01"
 static gboolean vala_doc_option_deprecated (const gchar* option_name,
                                      const gchar* val,
                                      void* data,
                                      GError** error);
-static gint vala_doc_quit (ValadocErrorReporter* reporter);
+static gint vala_doc_quit (ValadocErrorReporter* reporter,
+                    gboolean pop_context);
 static gboolean vala_doc_check_pkg_name (void);
 static gchar* vala_doc_get_pkg_name (ValaDoc* self);
 static ValadocModuleLoader* vala_doc_create_module_loader (ValaDoc* self,
@@ -159,29 +183,44 @@ static ValadocModuleLoader* vala_doc_create_module_loader (ValaDoc* self,
 static gint vala_doc_run (ValaDoc* self,
                    ValadocErrorReporter* reporter);
 static gchar** _vala_array_dup1 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup2 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup3 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup4 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup5 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup6 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup7 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup8 (gchar** self,
-                          int length);
-GType valadoc_drivers_driver_get_type (void) G_GNUC_CONST;
-ValadocDriversDriver* valadoc_drivers_driver_new (void);
-ValadocDriversDriver* valadoc_drivers_driver_construct (GType object_type);
+                          gint length);
+GType valadoc_tree_builder_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocTreeBuilder, vala_code_visitor_unref)
+ValadocTreeBuilder* valadoc_tree_builder_new (void);
+ValadocTreeBuilder* valadoc_tree_builder_construct (GType object_type);
+ValadocApiTree* valadoc_tree_builder_build (ValadocTreeBuilder* self,
+                                            ValadocSettings* settings,
+                                            ValadocErrorReporter* reporter);
+GType valadoc_symbol_resolver_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocSymbolResolver, g_object_unref)
+ValadocSymbolResolver* valadoc_symbol_resolver_new (ValadocTreeBuilder* builder);
+ValadocSymbolResolver* valadoc_symbol_resolver_construct (GType object_type,
+                                                          ValadocTreeBuilder* builder);
+GType valadoc_gir_writer_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ValadocGirWriter, vala_code_visitor_unref)
+ValadocGirWriter* valadoc_gir_writer_new (ValadocSymbolResolver* resolver);
+ValadocGirWriter* valadoc_gir_writer_construct (GType object_type,
+                                                ValadocSymbolResolver* resolver);
 static gint vala_doc_main (gchar** args,
-                    int args_length1);
+                    gint args_length1);
 ValaDoc* vala_doc_new (void);
 ValaDoc* vala_doc_construct (GType object_type);
 static void vala_doc_finalize (GObject * obj);
+static GType vala_doc_get_type_once (void);
 static void _vala_array_destroy (gpointer array,
                           gint array_length,
                           GDestroyNotify destroy_func);
@@ -190,7 +229,7 @@ static void _vala_array_free (gpointer array,
                        GDestroyNotify destroy_func);
 static gint _vala_array_length (gpointer array);
 
-static const GOptionEntry VALA_DOC_options[32] = {{"directory", 'o', 0, G_OPTION_ARG_FILENAME, &vala_doc_directory, "Output directory", "DIRECTORY"}, {"basedir", 'b', 0, G_OPTION_ARG_FILENAME, &vala_doc_basedir, "Base source directory", "DIRECTORY"}, {"define", 'D', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_defines, "Define SYMBOL", "SYMBOL..."}, {"profile", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_profile, "Use the given profile instead of the default", "PROFILE"}, {"enable-experimental", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental, "Enable experimental features", NULL}, {"enable-experimental-non-null", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental_non_null, "Enable experimental enhancements for non-null types", NULL}, {"metadatadir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_metadata_directories, "Look for GIR .metadata files in DIRECTORY", "DIRECTORY..."}, {"girdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_gir_directories, "Look for .gir files in DIRECTORY", "DIRECTORY..."}, {"vapidir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_vapi_directories, "Look for package bindings in DIRECTORY", "DIRECTORY..."}, {"pkg", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"driver", (gchar) 0, (gint) G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, (void*) vala_doc_option_deprecated, "Name of an driver or path to a custom driver (DEPRECATED AND IGNORED)", NULL}, {"importdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_import_directories, "Look for external documentation in DIRECTORY", "DIRECTORY..."}, {"import", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_import_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"alternative-resource-dir", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_alternative_resource_dirs, "Alternative resource directories", "DIRECTORY..."}, {"wiki", (gchar) 0, 0, G_OPTION_ARG_FILENAME, &vala_doc_wikidirectory, "Wiki directory", "DIRECTORY"}, {"deps", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_with_deps, "Adds packages to the documentation", NULL}, {"doclet", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_docletpath, "Name of an included doclet or path to custom doclet", "PLUGIN"}, {"doclet-arg", 'X', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_pluginargs, "Pass arguments to the doclet", "ARG"}, {"no-protected", (gchar) 0, (gint) G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE, &vala_doc__protected, "Removes protected elements from documentation", NULL}, {"internal", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__internal, "Adds internal elements to documentation", NULL}, {"private", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__private, "Adds private elements to documentation", NULL}, {"use-svg-images", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_use_svg_images, "Generate SVG image charts instead of PNG", NULL}, {"package-name", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_name, "package name", "NAME"}, {"package-version", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_version, "package version", "VERSION"}, {"gir", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_gir_name, "GObject-Introspection repository file name", "NAME-VERSION.gir"}, {"version", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_version, "Display version number", NULL}, {"force", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_force, "force", NULL}, {"verbose", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_verbose, "Show all warnings", NULL}, {"no-color", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_disable_diagnostic_colors, "Disable colored output", NULL}, {"target-glib", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_target_glib, "Target version of glib for code generation", "MAJOR.MINOR"}, {G_OPTION_REMAINING, (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_tsources, NULL, "FILE..."}, {NULL}};
+static const GOptionEntry VALA_DOC_options[33] = {{"directory", 'o', 0, G_OPTION_ARG_FILENAME, &vala_doc_directory, "Output directory", "DIRECTORY"}, {"basedir", 'b', 0, G_OPTION_ARG_FILENAME, &vala_doc_basedir, "Base source directory", "DIRECTORY"}, {"define", 'D', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_defines, "Define SYMBOL", "SYMBOL..."}, {"profile", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_profile, "Use the given profile instead of the default", "PROFILE"}, {"enable-experimental", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental, "Enable experimental features", NULL}, {"enable-experimental-non-null", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_experimental_non_null, "Enable experimental enhancements for non-null types", NULL}, {"metadatadir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_metadata_directories, "Look for GIR .metadata files in DIRECTORY", "DIRECTORY..."}, {"girdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_gir_directories, "Look for .gir files in DIRECTORY", "DIRECTORY..."}, {"vapidir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_vapi_directories, "Look for package bindings in DIRECTORY", "DIRECTORY..."}, {"pkg", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"driver", (gchar) 0, (gint) G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, (void*) vala_doc_option_deprecated, "Name of an driver or path to a custom driver (DEPRECATED AND IGNORED)", NULL}, {"importdir", (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_import_directories, "Look for external documentation in DIRECTORY", "DIRECTORY..."}, {"import", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_import_packages, "Include binding for PACKAGE", "PACKAGE..."}, {"alternative-resource-dir", (gchar) 0, 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_alternative_resource_dirs, "Alternative resource directories", "DIRECTORY..."}, {"wiki", (gchar) 0, 0, G_OPTION_ARG_FILENAME, &vala_doc_wikidirectory, "Wiki directory", "DIRECTORY"}, {"deps", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_with_deps, "Adds packages to the documentation", NULL}, {"doclet", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_docletpath, "Name of an included doclet or path to custom doclet", "PLUGIN"}, {"doclet-arg", 'X', 0, G_OPTION_ARG_STRING_ARRAY, &vala_doc_pluginargs, "Pass arguments to the doclet", "ARG"}, {"no-protected", (gchar) 0, (gint) G_OPTION_FLAG_REVERSE, G_OPTION_ARG_NONE, &vala_doc__protected, "Removes protected elements from documentation", NULL}, {"internal", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__internal, "Adds internal elements to documentation", NULL}, {"private", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc__private, "Adds private elements to documentation", NULL}, {"use-svg-images", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_use_svg_images, "Generate SVG image charts instead of PNG", NULL}, {"package-name", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_name, "package name", "NAME"}, {"package-version", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_pkg_version, "package version", "VERSION"}, {"gir", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_gir_name, "GObject-Introspection repository file name", "NAME-VERSION.gir"}, {"version", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_version, "Display version number", NULL}, {"force", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_force, "force", NULL}, {"fatal-warnings", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_fatal_warnings, "Treat warnings as fatal", NULL}, {"verbose", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_verbose, "Show all warnings", NULL}, {"no-color", (gchar) 0, 0, G_OPTION_ARG_NONE, &vala_doc_disable_diagnostic_colors, "Disable colored output", NULL}, {"target-glib", (gchar) 0, 0, G_OPTION_ARG_STRING, &vala_doc_target_glib, "Target version of glib for code generation", "'MAJOR.MINOR', or 'auto'"}, {G_OPTION_REMAINING, (gchar) 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &vala_doc_tsources, NULL, "FILE..."}, {NULL}};
 
 static gboolean
 vala_doc_option_deprecated (const gchar* option_name,
@@ -198,8 +237,8 @@ vala_doc_option_deprecated (const gchar* option_name,
                             void* data,
                             GError** error)
 {
-	gboolean result = FALSE;
 	FILE* _tmp0_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (option_name != NULL, FALSE);
 	_tmp0_ = stdout;
 	fprintf (_tmp0_, "Command-line option `%s` is deprecated and will be ignored\n", option_name);
@@ -207,53 +246,74 @@ vala_doc_option_deprecated (const gchar* option_name,
 	return result;
 }
 
-
 static gint
-vala_doc_quit (ValadocErrorReporter* reporter)
+vala_doc_quit (ValadocErrorReporter* reporter,
+               gboolean pop_context)
 {
-	gint result = 0;
-	gint _tmp0_;
+	gboolean _tmp0_ = FALSE;
 	gint _tmp1_;
+	gint _tmp2_;
+	gint result = 0;
 	g_return_val_if_fail (reporter != NULL, 0);
-	_tmp0_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp1_ = _tmp0_;
-	if (_tmp1_ == 0) {
-		FILE* _tmp2_;
-		gint _tmp3_;
-		gint _tmp4_;
-		_tmp2_ = stdout;
-		_tmp3_ = valadoc_error_reporter_get_warnings (reporter);
-		_tmp4_ = _tmp3_;
-		fprintf (_tmp2_, "Succeeded - %d warning(s)\n", _tmp4_);
+	_tmp1_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp2_ = _tmp1_;
+	if (_tmp2_ == 0) {
+		gboolean _tmp3_ = FALSE;
+		if (!vala_doc_fatal_warnings) {
+			_tmp3_ = TRUE;
+		} else {
+			gint _tmp4_;
+			gint _tmp5_;
+			_tmp4_ = valadoc_error_reporter_get_warnings (reporter);
+			_tmp5_ = _tmp4_;
+			_tmp3_ = _tmp5_ == 0;
+		}
+		_tmp0_ = _tmp3_;
+	} else {
+		_tmp0_ = FALSE;
+	}
+	if (_tmp0_) {
+		FILE* _tmp6_;
+		gint _tmp7_;
+		gint _tmp8_;
+		_tmp6_ = stdout;
+		_tmp7_ = valadoc_error_reporter_get_warnings (reporter);
+		_tmp8_ = _tmp7_;
+		fprintf (_tmp6_, "Succeeded - %d warning(s)\n", _tmp8_);
+		if (pop_context) {
+			vala_code_context_pop ();
+		}
 		result = 0;
 		return result;
 	} else {
-		FILE* _tmp5_;
-		gint _tmp6_;
-		gint _tmp7_;
-		gint _tmp8_;
-		gint _tmp9_;
-		_tmp5_ = stdout;
-		_tmp6_ = valadoc_error_reporter_get_errors (reporter);
-		_tmp7_ = _tmp6_;
-		_tmp8_ = valadoc_error_reporter_get_warnings (reporter);
-		_tmp9_ = _tmp8_;
-		fprintf (_tmp5_, "Failed: %d error(s), %d warning(s)\n", _tmp7_, _tmp9_);
+		FILE* _tmp9_;
+		gint _tmp10_;
+		gint _tmp11_;
+		gint _tmp12_;
+		gint _tmp13_;
+		_tmp9_ = stdout;
+		_tmp10_ = valadoc_error_reporter_get_errors (reporter);
+		_tmp11_ = _tmp10_;
+		_tmp12_ = valadoc_error_reporter_get_warnings (reporter);
+		_tmp13_ = _tmp12_;
+		fprintf (_tmp9_, "Failed: %d error(s), %d warning(s)\n", _tmp11_, _tmp13_);
+		if (pop_context) {
+			vala_code_context_pop ();
+		}
 		result = 1;
 		return result;
 	}
 }
 
-
 static gboolean
 vala_doc_check_pkg_name (void)
 {
-	gboolean result = FALSE;
 	const gchar* _tmp0_;
 	gboolean _tmp1_ = FALSE;
 	const gchar* _tmp2_;
 	gchar** _tmp4_;
 	gint _tmp4__length1;
+	gboolean result = FALSE;
 	_tmp0_ = vala_doc_pkg_name;
 	if (_tmp0_ == NULL) {
 		result = TRUE;
@@ -280,7 +340,7 @@ vala_doc_check_pkg_name (void)
 		gint package_it = 0;
 		package_collection = _tmp4_;
 		package_collection_length1 = _tmp4__length1;
-		for (package_it = 0; package_it < _tmp4__length1; package_it = package_it + 1) {
+		for (package_it = 0; package_it < package_collection_length1; package_it = package_it + 1) {
 			gchar* _tmp5_;
 			gchar* package = NULL;
 			_tmp5_ = g_strdup (package_collection[package_it]);
@@ -303,14 +363,13 @@ vala_doc_check_pkg_name (void)
 	return result;
 }
 
-
 static gchar*
 vala_doc_get_pkg_name (ValaDoc* self)
 {
-	gchar* result = NULL;
 	const gchar* _tmp0_;
 	const gchar* _tmp6_;
 	gchar* _tmp7_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = vala_doc_pkg_name;
 	if (_tmp0_ == NULL) {
@@ -338,14 +397,12 @@ vala_doc_get_pkg_name (ValaDoc* self)
 	return result;
 }
 
-
 static ValadocModuleLoader*
 vala_doc_create_module_loader (ValaDoc* self,
                                ValadocErrorReporter* reporter,
                                ValadocDoclet* * doclet)
 {
 	ValadocDoclet* _vala_doclet = NULL;
-	ValadocModuleLoader* result = NULL;
 	ValadocModuleLoader* modules = NULL;
 	ValadocModuleLoader* _tmp0_;
 	gchar* pluginpath = NULL;
@@ -356,6 +413,7 @@ vala_doc_create_module_loader (ValaDoc* self,
 	const gchar* _tmp5_;
 	ValadocDoclet* _tmp6_;
 	ValadocDoclet* _tmp7_;
+	ValadocModuleLoader* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (reporter != NULL, NULL);
 	_tmp0_ = valadoc_module_loader_get_instance ();
@@ -405,140 +463,154 @@ vala_doc_create_module_loader (ValaDoc* self,
 	return result;
 }
 
-
 static gchar**
 _vala_array_dup1 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup2 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup3 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup4 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup5 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup6 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup7 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup8 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gint
 vala_doc_run (ValaDoc* self,
               ValadocErrorReporter* reporter)
 {
-	gint result = 0;
 	ValadocSettings* settings = NULL;
 	ValadocSettings* _tmp0_;
 	ValadocSettings* _tmp1_;
@@ -555,58 +627,62 @@ vala_doc_run (ValaDoc* self,
 	const gchar* _tmp23_;
 	gchar* _tmp24_;
 	ValadocSettings* _tmp25_;
-	gboolean _tmp26_;
+	ValadocSettings* _tmp26_;
 	ValadocSettings* _tmp27_;
-	gboolean _tmp28_;
+	ValadocSettings* _tmp28_;
 	ValadocSettings* _tmp29_;
-	gboolean _tmp30_;
-	ValadocSettings* _tmp31_;
-	gboolean _tmp32_;
+	ValadocSettings* _tmp30_;
+	const gchar* _tmp31_;
+	gchar* _tmp32_;
 	ValadocSettings* _tmp33_;
-	gboolean _tmp34_;
-	ValadocSettings* _tmp35_;
-	const gchar* _tmp36_;
-	gchar* _tmp37_;
-	ValadocSettings* _tmp38_;
-	gboolean _tmp39_;
+	ValadocSettings* _tmp34_;
+	const gchar* _tmp35_;
+	gchar* _tmp36_;
+	ValadocSettings* _tmp37_;
+	gchar** _tmp38_;
+	gint _tmp38__length1;
+	gchar** _tmp39_;
+	gint _tmp39__length1;
 	ValadocSettings* _tmp40_;
-	const gchar* _tmp41_;
-	gchar* _tmp42_;
-	ValadocSettings* _tmp43_;
-	gchar** _tmp44_;
-	gint _tmp44__length1;
-	gchar** _tmp45_;
-	gint _tmp45__length1;
-	ValadocSettings* _tmp46_;
-	gboolean _tmp47_;
+	ValadocSettings* _tmp41_;
+	ValadocSettings* _tmp42_;
+	const gchar* _tmp43_;
+	gchar* _tmp44_;
+	ValadocSettings* _tmp45_;
+	const gchar* _tmp46_;
+	gchar* _tmp47_;
 	ValadocSettings* _tmp48_;
-	gboolean _tmp49_;
-	ValadocSettings* _tmp50_;
-	const gchar* _tmp51_;
-	gchar* _tmp52_;
-	ValadocSettings* _tmp53_;
-	const gchar* _tmp54_;
-	gchar* _tmp55_;
-	ValadocSettings* _tmp56_;
-	gchar** _tmp57_;
-	gint _tmp57__length1;
-	gchar** _tmp58_;
-	gint _tmp58__length1;
-	ValadocSettings* _tmp59_;
-	gchar** _tmp60_;
-	gint _tmp60__length1;
-	gchar** _tmp61_;
-	gint _tmp61__length1;
-	ValadocSettings* _tmp62_;
+	gchar** _tmp49_;
+	gint _tmp49__length1;
+	gchar** _tmp50_;
+	gint _tmp50__length1;
+	ValadocSettings* _tmp51_;
+	gchar** _tmp52_;
+	gint _tmp52__length1;
+	gchar** _tmp53_;
+	gint _tmp53__length1;
+	ValadocSettings* _tmp54_;
+	gchar** _tmp55_;
+	gint _tmp55__length1;
+	gchar** _tmp56_;
+	gint _tmp56__length1;
+	ValadocSettings* _tmp57_;
+	const gchar* _tmp58_;
+	gchar* _tmp59_;
+	ValadocSettings* _tmp60_;
+	ValadocSettings* _tmp61_;
+	gchar** _tmp62_;
+	gint _tmp62__length1;
 	gchar** _tmp63_;
 	gint _tmp63__length1;
-	gchar** _tmp64_;
-	gint _tmp64__length1;
-	ValadocSettings* _tmp65_;
-	const gchar* _tmp66_;
-	gchar* _tmp67_;
-	ValadocSettings* _tmp68_;
-	gboolean _tmp69_;
+	ValadocSettings* _tmp64_;
+	gchar** _tmp65_;
+	gint _tmp65__length1;
+	gchar** _tmp66_;
+	gint _tmp66__length1;
+	ValadocSettings* _tmp67_;
+	const gchar* _tmp68_;
+	gchar* _tmp69_;
 	ValadocSettings* _tmp70_;
 	gchar** _tmp71_;
 	gint _tmp71__length1;
@@ -617,79 +693,75 @@ vala_doc_run (ValaDoc* self,
 	gint _tmp74__length1;
 	gchar** _tmp75_;
 	gint _tmp75__length1;
-	ValadocSettings* _tmp76_;
-	const gchar* _tmp77_;
-	gchar* _tmp78_;
-	ValadocSettings* _tmp79_;
-	gchar** _tmp80_;
-	gint _tmp80__length1;
-	gchar** _tmp81_;
-	gint _tmp81__length1;
-	ValadocSettings* _tmp82_;
-	gchar** _tmp83_;
-	gint _tmp83__length1;
-	gchar** _tmp84_;
-	gint _tmp84__length1;
-	ValadocDriversDriver* driver = NULL;
-	ValadocDriversDriver* _tmp85_;
+	ValaCodeContext* context = NULL;
+	ValaCodeContext* _tmp76_;
+	ValaCodeContext* _tmp77_;
 	ValadocDoclet* doclet = NULL;
 	ValadocModuleLoader* modules = NULL;
-	ValadocDoclet* _tmp86_ = NULL;
-	ValadocModuleLoader* _tmp87_;
-	gboolean _tmp88_ = FALSE;
-	gint _tmp89_;
-	gint _tmp90_;
+	ValadocDoclet* _tmp78_ = NULL;
+	ValadocModuleLoader* _tmp79_;
+	gboolean _tmp80_ = FALSE;
+	gint _tmp81_;
+	gint _tmp82_;
+	ValadocTreeBuilder* builder = NULL;
+	ValadocTreeBuilder* _tmp84_;
 	ValadocApiTree* doctree = NULL;
-	ValadocDriversDriver* _tmp92_;
-	ValadocSettings* _tmp93_;
-	ValadocApiTree* _tmp94_;
-	gint _tmp95_;
-	gint _tmp96_;
+	ValadocTreeBuilder* _tmp85_;
+	ValadocSettings* _tmp86_;
+	ValadocApiTree* _tmp87_;
+	gint _tmp88_;
+	gint _tmp89_;
+	ValadocSymbolResolver* resolver = NULL;
+	ValadocTreeBuilder* _tmp90_;
+	ValadocSymbolResolver* _tmp91_;
+	ValadocApiTree* _tmp92_;
+	ValadocSymbolResolver* _tmp93_;
 	ValadocApiChildSymbolRegistrar* registrar = NULL;
-	ValadocApiChildSymbolRegistrar* _tmp97_;
-	ValadocApiTree* _tmp98_;
-	ValadocApiChildSymbolRegistrar* _tmp99_;
+	ValadocApiChildSymbolRegistrar* _tmp94_;
+	ValadocApiTree* _tmp95_;
+	ValadocApiChildSymbolRegistrar* _tmp96_;
 	ValadocDocumentationParser* docparser = NULL;
-	ValadocSettings* _tmp100_;
+	ValadocSettings* _tmp97_;
+	ValadocApiTree* _tmp98_;
+	ValadocModuleLoader* _tmp99_;
+	ValadocDocumentationParser* _tmp100_;
 	ValadocApiTree* _tmp101_;
-	ValadocModuleLoader* _tmp102_;
-	ValadocDocumentationParser* _tmp103_;
-	ValadocApiTree* _tmp104_;
 	ValadocImporterDocumentationImporter** importers = NULL;
-	ValadocApiTree* _tmp105_;
-	ValadocDocumentationParser* _tmp106_;
-	ValadocModuleLoader* _tmp107_;
-	ValadocSettings* _tmp108_;
-	ValadocImporterValadocDocumentationImporter* _tmp109_;
-	ValadocApiTree* _tmp110_;
-	ValadocDocumentationParser* _tmp111_;
-	ValadocModuleLoader* _tmp112_;
-	ValadocSettings* _tmp113_;
-	ValadocImporterGirDocumentationImporter* _tmp114_;
-	ValadocImporterDocumentationImporter** _tmp115_;
+	ValadocApiTree* _tmp102_;
+	ValadocDocumentationParser* _tmp103_;
+	ValadocModuleLoader* _tmp104_;
+	ValadocSettings* _tmp105_;
+	ValadocImporterValadocDocumentationImporter* _tmp106_;
+	ValadocApiTree* _tmp107_;
+	ValadocDocumentationParser* _tmp108_;
+	ValadocModuleLoader* _tmp109_;
+	ValadocSettings* _tmp110_;
+	ValadocImporterGirDocumentationImporter* _tmp111_;
+	ValadocImporterDocumentationImporter** _tmp112_;
 	gint importers_length1;
 	gint _importers_size_;
-	ValadocApiTree* _tmp116_;
-	ValadocDocumentationParser* _tmp117_;
-	gint _tmp118_;
-	gint _tmp119_;
-	ValadocApiTree* _tmp120_;
-	ValadocImporterDocumentationImporter** _tmp121_;
-	gint _tmp121__length1;
-	gchar** _tmp122_;
-	gint _tmp122__length1;
-	gchar** _tmp123_;
-	gint _tmp123__length1;
-	gint _tmp124_;
+	ValadocApiTree* _tmp113_;
+	ValadocDocumentationParser* _tmp114_;
+	gint _tmp115_;
+	gint _tmp116_;
+	ValadocApiTree* _tmp117_;
+	ValadocImporterDocumentationImporter** _tmp118_;
+	gint _tmp118__length1;
+	gchar** _tmp119_;
+	gint _tmp119__length1;
+	gchar** _tmp120_;
+	gint _tmp120__length1;
+	gint _tmp121_;
+	gint _tmp122_;
+	ValadocApiTree* _tmp123_;
+	ValadocDocumentationParser* _tmp124_;
 	gint _tmp125_;
-	ValadocApiTree* _tmp126_;
-	ValadocDocumentationParser* _tmp127_;
-	gint _tmp128_;
-	gint _tmp129_;
-	const gchar* _tmp130_;
-	ValadocDoclet* _tmp135_;
-	ValadocSettings* _tmp136_;
-	ValadocApiTree* _tmp137_;
+	gint _tmp126_;
+	const gchar* _tmp127_;
+	ValadocDoclet* _tmp150_;
+	ValadocSettings* _tmp151_;
+	ValadocApiTree* _tmp152_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	g_return_val_if_fail (reporter != NULL, 0);
 	_tmp0_ = valadoc_settings_new ();
@@ -749,311 +821,365 @@ vala_doc_run (ValaDoc* self,
 	_g_free0 (_tmp22_->pkg_version);
 	_tmp22_->pkg_version = _tmp24_;
 	_tmp25_ = settings;
-	_tmp26_ = vala_doc_add_inherited;
-	_tmp25_->add_inherited = _tmp26_;
+	_tmp25_->add_inherited = vala_doc_add_inherited;
+	_tmp26_ = settings;
+	_tmp26_->_protected = vala_doc__protected;
 	_tmp27_ = settings;
-	_tmp28_ = vala_doc__protected;
-	_tmp27_->_protected = _tmp28_;
+	_tmp27_->_internal = vala_doc__internal;
+	_tmp28_ = settings;
+	_tmp28_->with_deps = vala_doc_with_deps;
 	_tmp29_ = settings;
-	_tmp30_ = vala_doc__internal;
-	_tmp29_->_internal = _tmp30_;
-	_tmp31_ = settings;
-	_tmp32_ = vala_doc_with_deps;
-	_tmp31_->with_deps = _tmp32_;
+	_tmp29_->_private = vala_doc__private;
+	_tmp30_ = settings;
+	_tmp31_ = vala_doc_directory;
+	_tmp32_ = vala_code_context_realpath (_tmp31_);
+	_g_free0 (_tmp30_->path);
+	_tmp30_->path = _tmp32_;
 	_tmp33_ = settings;
-	_tmp34_ = vala_doc__private;
-	_tmp33_->_private = _tmp34_;
-	_tmp35_ = settings;
-	_tmp36_ = vala_doc_directory;
-	_tmp37_ = vala_code_context_realpath (_tmp36_);
-	_g_free0 (_tmp35_->path);
-	_tmp35_->path = _tmp37_;
-	_tmp38_ = settings;
-	_tmp39_ = vala_doc_verbose;
-	_tmp38_->verbose = _tmp39_;
+	_tmp33_->verbose = vala_doc_verbose;
+	_tmp34_ = settings;
+	_tmp35_ = vala_doc_wikidirectory;
+	_tmp36_ = g_strdup (_tmp35_);
+	_g_free0 (_tmp34_->wiki_directory);
+	_tmp34_->wiki_directory = _tmp36_;
+	_tmp37_ = settings;
+	_tmp38_ = vala_doc_pluginargs;
+	_tmp38__length1 = _vala_array_length (vala_doc_pluginargs);
+	_tmp39_ = (_tmp38_ != NULL) ? _vala_array_dup1 (_tmp38_, _tmp38__length1) : ((gpointer) _tmp38_);
+	_tmp39__length1 = _tmp38__length1;
+	_tmp37_->pluginargs = (_vala_array_free (_tmp37_->pluginargs, _tmp37_->pluginargs_length1, (GDestroyNotify) g_free), NULL);
+	_tmp37_->pluginargs = _tmp39_;
+	_tmp37_->pluginargs_length1 = _tmp39__length1;
 	_tmp40_ = settings;
-	_tmp41_ = vala_doc_wikidirectory;
-	_tmp42_ = g_strdup (_tmp41_);
-	_g_free0 (_tmp40_->wiki_directory);
-	_tmp40_->wiki_directory = _tmp42_;
-	_tmp43_ = settings;
-	_tmp44_ = vala_doc_pluginargs;
-	_tmp44__length1 = _vala_array_length (vala_doc_pluginargs);
-	_tmp45_ = (_tmp44_ != NULL) ? _vala_array_dup1 (_tmp44_, _tmp44__length1) : ((gpointer) _tmp44_);
-	_tmp45__length1 = _tmp44__length1;
-	_tmp43_->pluginargs = (_vala_array_free (_tmp43_->pluginargs, _tmp43_->pluginargs_length1, (GDestroyNotify) g_free), NULL);
-	_tmp43_->pluginargs = _tmp45_;
-	_tmp43_->pluginargs_length1 = _tmp45__length1;
-	_tmp46_ = settings;
-	_tmp47_ = vala_doc_experimental;
-	_tmp46_->experimental = _tmp47_;
+	_tmp40_->experimental = vala_doc_experimental;
+	_tmp41_ = settings;
+	_tmp41_->experimental_non_null = vala_doc_experimental_non_null;
+	_tmp42_ = settings;
+	_tmp43_ = vala_doc_basedir;
+	_tmp44_ = g_strdup (_tmp43_);
+	_g_free0 (_tmp42_->basedir);
+	_tmp42_->basedir = _tmp44_;
+	_tmp45_ = settings;
+	_tmp46_ = vala_doc_directory;
+	_tmp47_ = g_strdup (_tmp46_);
+	_g_free0 (_tmp45_->directory);
+	_tmp45_->directory = _tmp47_;
 	_tmp48_ = settings;
-	_tmp49_ = vala_doc_experimental_non_null;
-	_tmp48_->experimental_non_null = _tmp49_;
-	_tmp50_ = settings;
-	_tmp51_ = vala_doc_basedir;
-	_tmp52_ = g_strdup (_tmp51_);
-	_g_free0 (_tmp50_->basedir);
-	_tmp50_->basedir = _tmp52_;
-	_tmp53_ = settings;
-	_tmp54_ = vala_doc_directory;
-	_tmp55_ = g_strdup (_tmp54_);
-	_g_free0 (_tmp53_->directory);
-	_tmp53_->directory = _tmp55_;
-	_tmp56_ = settings;
-	_tmp57_ = vala_doc_vapi_directories;
-	_tmp57__length1 = _vala_array_length (vala_doc_vapi_directories);
-	_tmp58_ = (_tmp57_ != NULL) ? _vala_array_dup2 (_tmp57_, _tmp57__length1) : ((gpointer) _tmp57_);
-	_tmp58__length1 = _tmp57__length1;
-	_tmp56_->vapi_directories = (_vala_array_free (_tmp56_->vapi_directories, _tmp56_->vapi_directories_length1, (GDestroyNotify) g_free), NULL);
-	_tmp56_->vapi_directories = _tmp58_;
-	_tmp56_->vapi_directories_length1 = _tmp58__length1;
-	_tmp59_ = settings;
-	_tmp60_ = vala_doc_metadata_directories;
-	_tmp60__length1 = _vala_array_length (vala_doc_metadata_directories);
-	_tmp61_ = (_tmp60_ != NULL) ? _vala_array_dup3 (_tmp60_, _tmp60__length1) : ((gpointer) _tmp60_);
-	_tmp61__length1 = _tmp60__length1;
-	_tmp59_->metadata_directories = (_vala_array_free (_tmp59_->metadata_directories, _tmp59_->metadata_directories_length1, (GDestroyNotify) g_free), NULL);
-	_tmp59_->metadata_directories = _tmp61_;
-	_tmp59_->metadata_directories_length1 = _tmp61__length1;
-	_tmp62_ = settings;
-	_tmp63_ = vala_doc_gir_directories;
-	_tmp63__length1 = _vala_array_length (vala_doc_gir_directories);
-	_tmp64_ = (_tmp63_ != NULL) ? _vala_array_dup4 (_tmp63_, _tmp63__length1) : ((gpointer) _tmp63_);
-	_tmp64__length1 = _tmp63__length1;
-	_tmp62_->gir_directories = (_vala_array_free (_tmp62_->gir_directories, _tmp62_->gir_directories_length1, (GDestroyNotify) g_free), NULL);
-	_tmp62_->gir_directories = _tmp64_;
-	_tmp62_->gir_directories_length1 = _tmp64__length1;
-	_tmp65_ = settings;
-	_tmp66_ = vala_doc_target_glib;
-	_tmp67_ = g_strdup (_tmp66_);
-	_g_free0 (_tmp65_->target_glib);
-	_tmp65_->target_glib = _tmp67_;
-	_tmp68_ = settings;
-	_tmp69_ = vala_doc_use_svg_images;
-	_tmp68_->use_svg_images = _tmp69_;
+	_tmp49_ = vala_doc_vapi_directories;
+	_tmp49__length1 = _vala_array_length (vala_doc_vapi_directories);
+	_tmp50_ = (_tmp49_ != NULL) ? _vala_array_dup2 (_tmp49_, _tmp49__length1) : ((gpointer) _tmp49_);
+	_tmp50__length1 = _tmp49__length1;
+	_tmp48_->vapi_directories = (_vala_array_free (_tmp48_->vapi_directories, _tmp48_->vapi_directories_length1, (GDestroyNotify) g_free), NULL);
+	_tmp48_->vapi_directories = _tmp50_;
+	_tmp48_->vapi_directories_length1 = _tmp50__length1;
+	_tmp51_ = settings;
+	_tmp52_ = vala_doc_metadata_directories;
+	_tmp52__length1 = _vala_array_length (vala_doc_metadata_directories);
+	_tmp53_ = (_tmp52_ != NULL) ? _vala_array_dup3 (_tmp52_, _tmp52__length1) : ((gpointer) _tmp52_);
+	_tmp53__length1 = _tmp52__length1;
+	_tmp51_->metadata_directories = (_vala_array_free (_tmp51_->metadata_directories, _tmp51_->metadata_directories_length1, (GDestroyNotify) g_free), NULL);
+	_tmp51_->metadata_directories = _tmp53_;
+	_tmp51_->metadata_directories_length1 = _tmp53__length1;
+	_tmp54_ = settings;
+	_tmp55_ = vala_doc_gir_directories;
+	_tmp55__length1 = _vala_array_length (vala_doc_gir_directories);
+	_tmp56_ = (_tmp55_ != NULL) ? _vala_array_dup4 (_tmp55_, _tmp55__length1) : ((gpointer) _tmp55_);
+	_tmp56__length1 = _tmp55__length1;
+	_tmp54_->gir_directories = (_vala_array_free (_tmp54_->gir_directories, _tmp54_->gir_directories_length1, (GDestroyNotify) g_free), NULL);
+	_tmp54_->gir_directories = _tmp56_;
+	_tmp54_->gir_directories_length1 = _tmp56__length1;
+	_tmp57_ = settings;
+	_tmp58_ = vala_doc_target_glib;
+	_tmp59_ = g_strdup (_tmp58_);
+	_g_free0 (_tmp57_->target_glib);
+	_tmp57_->target_glib = _tmp59_;
+	_tmp60_ = settings;
+	_tmp60_->use_svg_images = vala_doc_use_svg_images;
+	_tmp61_ = settings;
+	_tmp62_ = vala_doc_tsources;
+	_tmp62__length1 = _vala_array_length (vala_doc_tsources);
+	_tmp63_ = (_tmp62_ != NULL) ? _vala_array_dup5 (_tmp62_, _tmp62__length1) : ((gpointer) _tmp62_);
+	_tmp63__length1 = _tmp62__length1;
+	_tmp61_->source_files = (_vala_array_free (_tmp61_->source_files, _tmp61_->source_files_length1, (GDestroyNotify) g_free), NULL);
+	_tmp61_->source_files = _tmp63_;
+	_tmp61_->source_files_length1 = _tmp63__length1;
+	_tmp64_ = settings;
+	_tmp65_ = vala_doc_packages;
+	_tmp65__length1 = _vala_array_length (vala_doc_packages);
+	_tmp66_ = (_tmp65_ != NULL) ? _vala_array_dup6 (_tmp65_, _tmp65__length1) : ((gpointer) _tmp65_);
+	_tmp66__length1 = _tmp65__length1;
+	_tmp64_->packages = (_vala_array_free (_tmp64_->packages, _tmp64_->packages_length1, (GDestroyNotify) g_free), NULL);
+	_tmp64_->packages = _tmp66_;
+	_tmp64_->packages_length1 = _tmp66__length1;
+	_tmp67_ = settings;
+	_tmp68_ = vala_doc_profile;
+	_tmp69_ = g_strdup (_tmp68_);
+	_g_free0 (_tmp67_->profile);
+	_tmp67_->profile = _tmp69_;
 	_tmp70_ = settings;
-	_tmp71_ = vala_doc_tsources;
-	_tmp71__length1 = _vala_array_length (vala_doc_tsources);
-	_tmp72_ = (_tmp71_ != NULL) ? _vala_array_dup5 (_tmp71_, _tmp71__length1) : ((gpointer) _tmp71_);
+	_tmp71_ = vala_doc_defines;
+	_tmp71__length1 = _vala_array_length (vala_doc_defines);
+	_tmp72_ = (_tmp71_ != NULL) ? _vala_array_dup7 (_tmp71_, _tmp71__length1) : ((gpointer) _tmp71_);
 	_tmp72__length1 = _tmp71__length1;
-	_tmp70_->source_files = (_vala_array_free (_tmp70_->source_files, _tmp70_->source_files_length1, (GDestroyNotify) g_free), NULL);
-	_tmp70_->source_files = _tmp72_;
-	_tmp70_->source_files_length1 = _tmp72__length1;
+	_tmp70_->defines = (_vala_array_free (_tmp70_->defines, _tmp70_->defines_length1, (GDestroyNotify) g_free), NULL);
+	_tmp70_->defines = _tmp72_;
+	_tmp70_->defines_length1 = _tmp72__length1;
 	_tmp73_ = settings;
-	_tmp74_ = vala_doc_packages;
-	_tmp74__length1 = _vala_array_length (vala_doc_packages);
-	_tmp75_ = (_tmp74_ != NULL) ? _vala_array_dup6 (_tmp74_, _tmp74__length1) : ((gpointer) _tmp74_);
+	_tmp74_ = vala_doc_alternative_resource_dirs;
+	_tmp74__length1 = _vala_array_length (vala_doc_alternative_resource_dirs);
+	_tmp75_ = (_tmp74_ != NULL) ? _vala_array_dup8 (_tmp74_, _tmp74__length1) : ((gpointer) _tmp74_);
 	_tmp75__length1 = _tmp74__length1;
-	_tmp73_->packages = (_vala_array_free (_tmp73_->packages, _tmp73_->packages_length1, (GDestroyNotify) g_free), NULL);
-	_tmp73_->packages = _tmp75_;
-	_tmp73_->packages_length1 = _tmp75__length1;
-	_tmp76_ = settings;
-	_tmp77_ = vala_doc_profile;
-	_tmp78_ = g_strdup (_tmp77_);
-	_g_free0 (_tmp76_->profile);
-	_tmp76_->profile = _tmp78_;
-	_tmp79_ = settings;
-	_tmp80_ = vala_doc_defines;
-	_tmp80__length1 = _vala_array_length (vala_doc_defines);
-	_tmp81_ = (_tmp80_ != NULL) ? _vala_array_dup7 (_tmp80_, _tmp80__length1) : ((gpointer) _tmp80_);
-	_tmp81__length1 = _tmp80__length1;
-	_tmp79_->defines = (_vala_array_free (_tmp79_->defines, _tmp79_->defines_length1, (GDestroyNotify) g_free), NULL);
-	_tmp79_->defines = _tmp81_;
-	_tmp79_->defines_length1 = _tmp81__length1;
-	_tmp82_ = settings;
-	_tmp83_ = vala_doc_alternative_resource_dirs;
-	_tmp83__length1 = _vala_array_length (vala_doc_alternative_resource_dirs);
-	_tmp84_ = (_tmp83_ != NULL) ? _vala_array_dup8 (_tmp83_, _tmp83__length1) : ((gpointer) _tmp83_);
-	_tmp84__length1 = _tmp83__length1;
-	_tmp82_->alternative_resource_dirs = (_vala_array_free (_tmp82_->alternative_resource_dirs, _tmp82_->alternative_resource_dirs_length1, (GDestroyNotify) g_free), NULL);
-	_tmp82_->alternative_resource_dirs = _tmp84_;
-	_tmp82_->alternative_resource_dirs_length1 = _tmp84__length1;
-	_tmp85_ = valadoc_drivers_driver_new ();
-	driver = _tmp85_;
+	_tmp73_->alternative_resource_dirs = (_vala_array_free (_tmp73_->alternative_resource_dirs, _tmp73_->alternative_resource_dirs_length1, (GDestroyNotify) g_free), NULL);
+	_tmp73_->alternative_resource_dirs = _tmp75_;
+	_tmp73_->alternative_resource_dirs_length1 = _tmp75__length1;
+	_tmp76_ = vala_code_context_new ();
+	context = _tmp76_;
+	_tmp77_ = context;
+	vala_code_context_push (_tmp77_);
 	doclet = NULL;
-	_tmp87_ = vala_doc_create_module_loader (self, reporter, &_tmp86_);
+	_tmp79_ = vala_doc_create_module_loader (self, reporter, &_tmp78_);
 	_g_object_unref0 (doclet);
-	doclet = _tmp86_;
-	modules = _tmp87_;
-	_tmp89_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp90_ = _tmp89_;
-	if (_tmp90_ > 0) {
-		_tmp88_ = TRUE;
+	doclet = _tmp78_;
+	modules = _tmp79_;
+	_tmp81_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp82_ = _tmp81_;
+	if (_tmp82_ > 0) {
+		_tmp80_ = TRUE;
 	} else {
-		ValadocModuleLoader* _tmp91_;
-		_tmp91_ = modules;
-		_tmp88_ = _tmp91_ == NULL;
+		ValadocModuleLoader* _tmp83_;
+		_tmp83_ = modules;
+		_tmp80_ = _tmp83_ == NULL;
 	}
-	if (_tmp88_) {
-		result = vala_doc_quit (reporter);
+	if (_tmp80_) {
+		result = vala_doc_quit (reporter, TRUE);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp92_ = driver;
-	_tmp93_ = settings;
-	_tmp94_ = valadoc_driver_build ((ValadocDriver*) _tmp92_, _tmp93_, reporter);
-	doctree = _tmp94_;
-	_tmp95_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp96_ = _tmp95_;
-	if (_tmp96_ > 0) {
+	_tmp84_ = valadoc_tree_builder_new ();
+	builder = _tmp84_;
+	_tmp85_ = builder;
+	_tmp86_ = settings;
+	_tmp87_ = valadoc_tree_builder_build (_tmp85_, _tmp86_, reporter);
+	doctree = _tmp87_;
+	_tmp88_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp89_ = _tmp88_;
+	if (_tmp89_ > 0) {
 		_g_object_unref0 (doclet);
 		doclet = NULL;
-		result = vala_doc_quit (reporter);
+		result = vala_doc_quit (reporter, TRUE);
 		_valadoc_api_tree_unref0 (doctree);
+		_vala_code_visitor_unref0 (builder);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp97_ = valadoc_api_child_symbol_registrar_new ();
-	registrar = _tmp97_;
+	_tmp90_ = builder;
+	_tmp91_ = valadoc_symbol_resolver_new (_tmp90_);
+	resolver = _tmp91_;
+	_tmp92_ = doctree;
+	_tmp93_ = resolver;
+	valadoc_api_tree_accept (_tmp92_, (ValadocApiVisitor*) _tmp93_);
+	_tmp94_ = valadoc_api_child_symbol_registrar_new ();
+	registrar = _tmp94_;
+	_tmp95_ = doctree;
+	_tmp96_ = registrar;
+	valadoc_api_tree_accept (_tmp95_, (ValadocApiVisitor*) _tmp96_);
+	_tmp97_ = settings;
 	_tmp98_ = doctree;
-	_tmp99_ = registrar;
-	valadoc_api_tree_accept (_tmp98_, (ValadocApiVisitor*) _tmp99_);
-	_tmp100_ = settings;
+	_tmp99_ = modules;
+	_tmp100_ = valadoc_documentation_parser_new (_tmp97_, reporter, _tmp98_, _tmp99_);
+	docparser = _tmp100_;
 	_tmp101_ = doctree;
-	_tmp102_ = modules;
-	_tmp103_ = valadoc_documentation_parser_new (_tmp100_, reporter, _tmp101_, _tmp102_);
-	docparser = _tmp103_;
-	_tmp104_ = doctree;
-	if (!valadoc_api_tree_create_tree (_tmp104_)) {
-		result = vala_doc_quit (reporter);
+	if (!valadoc_api_tree_create_tree (_tmp101_)) {
+		result = vala_doc_quit (reporter, TRUE);
 		_g_object_unref0 (docparser);
 		_g_object_unref0 (registrar);
+		_g_object_unref0 (resolver);
 		_valadoc_api_tree_unref0 (doctree);
+		_vala_code_visitor_unref0 (builder);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp105_ = doctree;
-	_tmp106_ = docparser;
-	_tmp107_ = modules;
-	_tmp108_ = settings;
-	_tmp109_ = valadoc_importer_valadoc_documentation_importer_new (_tmp105_, _tmp106_, _tmp107_, _tmp108_, reporter);
-	_tmp110_ = doctree;
-	_tmp111_ = docparser;
-	_tmp112_ = modules;
-	_tmp113_ = settings;
-	_tmp114_ = valadoc_importer_gir_documentation_importer_new (_tmp110_, _tmp111_, _tmp112_, _tmp113_, reporter);
-	_tmp115_ = g_new0 (ValadocImporterDocumentationImporter*, 2 + 1);
-	_tmp115_[0] = (ValadocImporterDocumentationImporter*) _tmp109_;
-	_tmp115_[1] = (ValadocImporterDocumentationImporter*) _tmp114_;
-	importers = _tmp115_;
+	_tmp102_ = doctree;
+	_tmp103_ = docparser;
+	_tmp104_ = modules;
+	_tmp105_ = settings;
+	_tmp106_ = valadoc_importer_valadoc_documentation_importer_new (_tmp102_, _tmp103_, _tmp104_, _tmp105_, reporter);
+	_tmp107_ = doctree;
+	_tmp108_ = docparser;
+	_tmp109_ = modules;
+	_tmp110_ = settings;
+	_tmp111_ = valadoc_importer_gir_documentation_importer_new (_tmp107_, _tmp108_, _tmp109_, _tmp110_, reporter);
+	_tmp112_ = g_new0 (ValadocImporterDocumentationImporter*, 2 + 1);
+	_tmp112_[0] = (ValadocImporterDocumentationImporter*) _tmp106_;
+	_tmp112_[1] = (ValadocImporterDocumentationImporter*) _tmp111_;
+	importers = _tmp112_;
 	importers_length1 = 2;
 	_importers_size_ = importers_length1;
-	_tmp116_ = doctree;
-	_tmp117_ = docparser;
-	valadoc_api_tree_parse_comments (_tmp116_, _tmp117_);
-	_tmp118_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp119_ = _tmp118_;
-	if (_tmp119_ > 0) {
-		result = vala_doc_quit (reporter);
+	_tmp113_ = doctree;
+	_tmp114_ = docparser;
+	valadoc_api_tree_parse_comments (_tmp113_, _tmp114_);
+	_tmp115_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp116_ = _tmp115_;
+	if (_tmp116_ > 0) {
+		result = vala_doc_quit (reporter, TRUE);
 		importers = (_vala_array_free (importers, importers_length1, (GDestroyNotify) g_object_unref), NULL);
 		_g_object_unref0 (docparser);
 		_g_object_unref0 (registrar);
+		_g_object_unref0 (resolver);
 		_valadoc_api_tree_unref0 (doctree);
+		_vala_code_visitor_unref0 (builder);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp120_ = doctree;
-	_tmp121_ = importers;
-	_tmp121__length1 = importers_length1;
-	_tmp122_ = vala_doc_import_packages;
-	_tmp122__length1 = _vala_array_length (vala_doc_import_packages);
-	_tmp123_ = vala_doc_import_directories;
-	_tmp123__length1 = _vala_array_length (vala_doc_import_directories);
-	valadoc_api_tree_import_comments (_tmp120_, _tmp121_, _tmp121__length1, _tmp122_, _tmp122__length1, _tmp123_, _tmp123__length1);
-	_tmp124_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp125_ = _tmp124_;
-	if (_tmp125_ > 0) {
-		result = vala_doc_quit (reporter);
+	_tmp117_ = doctree;
+	_tmp118_ = importers;
+	_tmp118__length1 = importers_length1;
+	_tmp119_ = vala_doc_import_packages;
+	_tmp119__length1 = _vala_array_length (vala_doc_import_packages);
+	_tmp120_ = vala_doc_import_directories;
+	_tmp120__length1 = _vala_array_length (vala_doc_import_directories);
+	valadoc_api_tree_import_comments (_tmp117_, _tmp118_, (gint) _tmp118__length1, _tmp119_, (gint) _tmp119__length1, _tmp120_, (gint) _tmp120__length1);
+	_tmp121_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp122_ = _tmp121_;
+	if (_tmp122_ > 0) {
+		result = vala_doc_quit (reporter, TRUE);
 		importers = (_vala_array_free (importers, importers_length1, (GDestroyNotify) g_object_unref), NULL);
 		_g_object_unref0 (docparser);
 		_g_object_unref0 (registrar);
+		_g_object_unref0 (resolver);
 		_valadoc_api_tree_unref0 (doctree);
+		_vala_code_visitor_unref0 (builder);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp126_ = doctree;
-	_tmp127_ = docparser;
-	valadoc_api_tree_check_comments (_tmp126_, _tmp127_);
-	_tmp128_ = valadoc_error_reporter_get_errors (reporter);
-	_tmp129_ = _tmp128_;
-	if (_tmp129_ > 0) {
-		result = vala_doc_quit (reporter);
+	_tmp123_ = doctree;
+	_tmp124_ = docparser;
+	valadoc_api_tree_check_comments (_tmp123_, _tmp124_);
+	_tmp125_ = valadoc_error_reporter_get_errors (reporter);
+	_tmp126_ = _tmp125_;
+	if (_tmp126_ > 0) {
+		result = vala_doc_quit (reporter, TRUE);
 		importers = (_vala_array_free (importers, importers_length1, (GDestroyNotify) g_object_unref), NULL);
 		_g_object_unref0 (docparser);
 		_g_object_unref0 (registrar);
+		_g_object_unref0 (resolver);
 		_valadoc_api_tree_unref0 (doctree);
+		_vala_code_visitor_unref0 (builder);
 		_g_object_unref0 (modules);
 		_g_object_unref0 (doclet);
-		_g_object_unref0 (driver);
+		_vala_code_context_unref0 (context);
 		_g_object_unref0 (settings);
 		return result;
 	}
-	_tmp130_ = vala_doc_gir_name;
-	if (_tmp130_ != NULL) {
-		ValadocDriversDriver* _tmp131_;
-		ValadocSettings* _tmp132_;
-		gint _tmp133_;
-		gint _tmp134_;
-		_tmp131_ = driver;
-		_tmp132_ = settings;
-		valadoc_driver_write_gir ((ValadocDriver*) _tmp131_, _tmp132_, reporter);
-		_tmp133_ = valadoc_error_reporter_get_errors (reporter);
-		_tmp134_ = _tmp133_;
-		if (_tmp134_ > 0) {
-			result = vala_doc_quit (reporter);
+	_tmp127_ = vala_doc_gir_name;
+	if (_tmp127_ != NULL) {
+		ValadocGirWriter* gir_writer = NULL;
+		ValadocSymbolResolver* _tmp128_;
+		ValadocGirWriter* _tmp129_;
+		ValadocGirWriter* _tmp130_;
+		ValadocApiTree* _tmp131_;
+		ValaCodeContext* _tmp132_;
+		ValaCodeContext* _tmp133_;
+		ValadocSettings* _tmp134_;
+		const gchar* _tmp135_;
+		ValadocSettings* _tmp136_;
+		const gchar* _tmp137_;
+		ValadocSettings* _tmp138_;
+		const gchar* _tmp139_;
+		gchar* _tmp140_;
+		gchar* _tmp141_;
+		ValadocSettings* _tmp142_;
+		const gchar* _tmp143_;
+		ValadocSettings* _tmp144_;
+		const gchar* _tmp145_;
+		ValadocSettings* _tmp146_;
+		const gchar* _tmp147_;
+		gint _tmp148_;
+		gint _tmp149_;
+		_tmp128_ = resolver;
+		_tmp129_ = valadoc_gir_writer_new (_tmp128_);
+		gir_writer = _tmp129_;
+		_tmp130_ = gir_writer;
+		_tmp131_ = doctree;
+		_tmp132_ = valadoc_api_tree_get_context (_tmp131_);
+		_tmp133_ = _tmp132_;
+		_tmp134_ = settings;
+		_tmp135_ = _tmp134_->gir_directory;
+		_tmp136_ = settings;
+		_tmp137_ = _tmp136_->gir_namespace;
+		_tmp138_ = settings;
+		_tmp139_ = _tmp138_->gir_version;
+		_tmp140_ = g_strdup_printf ("%s-%s.gir", _tmp137_, _tmp139_);
+		_tmp141_ = _tmp140_;
+		_tmp142_ = settings;
+		_tmp143_ = _tmp142_->gir_namespace;
+		_tmp144_ = settings;
+		_tmp145_ = _tmp144_->gir_version;
+		_tmp146_ = settings;
+		_tmp147_ = _tmp146_->pkg_name;
+		vala_gir_writer_write_file ((ValaGIRWriter*) _tmp130_, _tmp133_, _tmp135_, _tmp141_, _tmp143_, _tmp145_, _tmp147_, NULL);
+		_g_free0 (_tmp141_);
+		_tmp148_ = valadoc_error_reporter_get_errors (reporter);
+		_tmp149_ = _tmp148_;
+		if (_tmp149_ > 0) {
+			result = vala_doc_quit (reporter, TRUE);
+			_vala_code_visitor_unref0 (gir_writer);
 			importers = (_vala_array_free (importers, importers_length1, (GDestroyNotify) g_object_unref), NULL);
 			_g_object_unref0 (docparser);
 			_g_object_unref0 (registrar);
+			_g_object_unref0 (resolver);
 			_valadoc_api_tree_unref0 (doctree);
+			_vala_code_visitor_unref0 (builder);
 			_g_object_unref0 (modules);
 			_g_object_unref0 (doclet);
-			_g_object_unref0 (driver);
+			_vala_code_context_unref0 (context);
 			_g_object_unref0 (settings);
 			return result;
 		}
+		_vala_code_visitor_unref0 (gir_writer);
 	}
-	_tmp135_ = doclet;
-	_tmp136_ = settings;
-	_tmp137_ = doctree;
-	valadoc_doclet_process (_tmp135_, _tmp136_, _tmp137_, reporter);
-	result = vala_doc_quit (reporter);
+	_tmp150_ = doclet;
+	_tmp151_ = settings;
+	_tmp152_ = doctree;
+	valadoc_doclet_process (_tmp150_, _tmp151_, _tmp152_, reporter);
+	result = vala_doc_quit (reporter, TRUE);
 	importers = (_vala_array_free (importers, importers_length1, (GDestroyNotify) g_object_unref), NULL);
 	_g_object_unref0 (docparser);
 	_g_object_unref0 (registrar);
+	_g_object_unref0 (resolver);
 	_valadoc_api_tree_unref0 (doctree);
+	_vala_code_visitor_unref0 (builder);
 	_g_object_unref0 (modules);
 	_g_object_unref0 (doclet);
-	_g_object_unref0 (driver);
+	_vala_code_context_unref0 (context);
 	_g_object_unref0 (settings);
 	return result;
 }
-
 
 static gint
 string_last_index_of_char (const gchar* self,
                            gunichar c,
                            gint start_index)
 {
-	gint result = 0;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	gint result = 0;
 	g_return_val_if_fail (self != NULL, 0);
 	_tmp0_ = g_utf8_strrchr (((gchar*) self) + start_index, (gssize) -1, c);
 	_result_ = _tmp0_;
@@ -1069,15 +1195,14 @@ string_last_index_of_char (const gchar* self,
 	}
 }
 
-
 static glong
 string_strnlen (gchar* str,
                 glong maxlen)
 {
-	glong result = 0L;
 	gchar* end = NULL;
 	gchar* _tmp0_;
 	gchar* _tmp1_;
+	glong result = 0L;
 	_tmp0_ = memchr (str, 0, (gsize) maxlen);
 	end = _tmp0_;
 	_tmp1_ = end;
@@ -1092,17 +1217,15 @@ string_strnlen (gchar* str,
 	}
 }
 
-
 static gchar*
 string_substring (const gchar* self,
                   glong offset,
                   glong len)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gboolean _tmp0_ = FALSE;
-	glong _tmp6_;
-	gchar* _tmp7_;
+	gchar* _tmp3_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	if (offset >= ((glong) 0)) {
 		_tmp0_ = len >= ((glong) 0);
@@ -1119,47 +1242,38 @@ string_substring (const gchar* self,
 		string_length = (glong) _tmp2_;
 	}
 	if (offset < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		offset = _tmp3_ + offset;
+		offset = string_length + offset;
 		g_return_val_if_fail (offset >= ((glong) 0), NULL);
 	} else {
-		glong _tmp4_;
-		_tmp4_ = string_length;
-		g_return_val_if_fail (offset <= _tmp4_, NULL);
+		g_return_val_if_fail (offset <= string_length, NULL);
 	}
 	if (len < ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		len = _tmp5_ - offset;
+		len = string_length - offset;
 	}
-	_tmp6_ = string_length;
-	g_return_val_if_fail ((offset + len) <= _tmp6_, NULL);
-	_tmp7_ = g_strndup (((gchar*) self) + offset, (gsize) len);
-	result = _tmp7_;
+	g_return_val_if_fail ((offset + len) <= string_length, NULL);
+	_tmp3_ = g_strndup (((gchar*) self) + offset, (gsize) len);
+	result = _tmp3_;
 	return result;
 }
-
 
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
 
-
 static gboolean
 string_contains (const gchar* self,
                  const gchar* needle)
 {
-	gboolean result = FALSE;
 	gchar* _tmp0_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (needle != NULL, FALSE);
 	_tmp0_ = strstr ((gchar*) self, (gchar*) needle);
@@ -1167,30 +1281,27 @@ string_contains (const gchar* self,
 	return result;
 }
 
-
 static gint
 vala_doc_main (gchar** args,
-               int args_length1)
+               gint args_length1)
 {
-	gint result = 0;
 	ValadocErrorReporter* reporter = NULL;
 	ValadocErrorReporter* _tmp0_;
-	gboolean _tmp13_;
-	gboolean _tmp19_;
-	const gchar* _tmp21_;
-	const gchar* _tmp26_;
-	const gchar* _tmp34_;
-	gchar** _tmp38_;
-	gint _tmp38__length1;
-	ValadocErrorReporter* _tmp45_;
-	gint _tmp46_;
-	gint _tmp47_;
-	const gchar* _tmp49_;
+	const gchar* _tmp19_;
+	const gchar* _tmp24_;
+	const gchar* _tmp30_;
+	gchar** _tmp34_;
+	gint _tmp34__length1;
+	ValadocErrorReporter* _tmp41_;
+	gint _tmp42_;
+	gint _tmp43_;
+	const gchar* _tmp45_;
 	ValaDoc* valadoc = NULL;
-	ValaDoc* _tmp87_;
-	ValaDoc* _tmp88_;
-	ValadocErrorReporter* _tmp89_;
-	GError * _inner_error_ = NULL;
+	ValaDoc* _tmp77_;
+	ValaDoc* _tmp78_;
+	ValadocErrorReporter* _tmp79_;
+	GError* _inner_error0_ = NULL;
+	gint result = 0;
 	setlocale (LC_ALL, "");
 	_tmp0_ = valadoc_error_reporter_new (NULL);
 	reporter = _tmp0_;
@@ -1207,23 +1318,22 @@ vala_doc_main (gchar** args,
 		_tmp3_ = opt_context;
 		g_option_context_add_main_entries (_tmp3_, VALA_DOC_options, NULL);
 		_tmp4_ = opt_context;
-		g_option_context_parse (_tmp4_, &args_length1, &args, &_inner_error_);
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		g_option_context_parse (_tmp4_, (gint*) (&args_length1), &args, &_inner_error0_);
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
 			gint _tmp5_ = -1;
 			_g_option_context_free0 (opt_context);
-			if (_inner_error_->domain == G_OPTION_ERROR) {
-				goto __catch1_g_option_error;
+			if (_inner_error0_->domain == G_OPTION_ERROR) {
+				goto __catch0_g_option_error;
 			}
-			_g_option_context_free0 (opt_context);
 			_g_object_unref0 (reporter);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return _tmp5_;
 		}
 		_g_option_context_free0 (opt_context);
 	}
-	goto __finally1;
-	__catch1_g_option_error:
+	goto __finally0;
+	__catch0_g_option_error:
 	{
 		GError* e = NULL;
 		ValadocErrorReporter* _tmp6_;
@@ -1232,8 +1342,8 @@ vala_doc_main (gchar** args,
 		FILE* _tmp9_;
 		const gchar* _tmp10_;
 		ValadocErrorReporter* _tmp11_;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		e = _inner_error0_;
+		_inner_error0_ = NULL;
 		_tmp6_ = reporter;
 		_tmp7_ = e;
 		_tmp8_ = _tmp7_->message;
@@ -1242,289 +1352,272 @@ vala_doc_main (gchar** args,
 		_tmp10_ = args[0];
 		fprintf (_tmp9_, "Run '%s --help' to see a full list of available command line options.\n", _tmp10_);
 		_tmp11_ = reporter;
-		result = vala_doc_quit (_tmp11_);
+		result = vala_doc_quit (_tmp11_, FALSE);
 		_g_error_free0 (e);
 		_g_object_unref0 (reporter);
 		return result;
 	}
-	__finally1:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
+	__finally0:
+	if (G_UNLIKELY (_inner_error0_ != NULL)) {
 		gint _tmp12_ = -1;
 		_g_object_unref0 (reporter);
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+		g_clear_error (&_inner_error0_);
 		return _tmp12_;
 	}
-	_tmp13_ = vala_doc_disable_diagnostic_colors;
-	if (_tmp13_ == FALSE) {
+	if (vala_doc_disable_diagnostic_colors == FALSE) {
 		const gchar* env_colors = NULL;
+		const gchar* _tmp13_;
 		const gchar* _tmp14_;
-		const gchar* _tmp15_;
-		_tmp14_ = g_getenv ("VALA_COLORS");
-		env_colors = _tmp14_;
-		_tmp15_ = env_colors;
-		if (_tmp15_ != NULL) {
-			ValadocErrorReporter* _tmp16_;
-			const gchar* _tmp17_;
-			_tmp16_ = reporter;
-			_tmp17_ = env_colors;
-			valadoc_error_reporter_set_colors (_tmp16_, _tmp17_);
+		_tmp13_ = g_getenv ("VALA_COLORS");
+		env_colors = _tmp13_;
+		_tmp14_ = env_colors;
+		if (_tmp14_ != NULL) {
+			ValadocErrorReporter* _tmp15_;
+			const gchar* _tmp16_;
+			_tmp15_ = reporter;
+			_tmp16_ = env_colors;
+			valadoc_error_reporter_set_colors (_tmp15_, _tmp16_);
 		} else {
-			ValadocErrorReporter* _tmp18_;
-			_tmp18_ = reporter;
-			valadoc_error_reporter_set_colors (_tmp18_, VALA_DOC_DEFAULT_COLORS);
+			ValadocErrorReporter* _tmp17_;
+			_tmp17_ = reporter;
+			valadoc_error_reporter_set_colors (_tmp17_, VALA_DOC_DEFAULT_COLORS);
 		}
 	}
-	_tmp19_ = vala_doc_version;
-	if (_tmp19_) {
-		FILE* _tmp20_;
-		_tmp20_ = stdout;
-		fprintf (_tmp20_, "Valadoc %s\n", VALA_BUILD_VERSION);
+	if (vala_doc_version) {
+		FILE* _tmp18_;
+		_tmp18_ = stdout;
+		fprintf (_tmp18_, "Valadoc %s\n", VALA_BUILD_VERSION);
 		result = 0;
 		_g_object_unref0 (reporter);
 		return result;
 	}
-	_tmp21_ = vala_doc_directory;
-	if (_tmp21_ == NULL) {
-		ValadocErrorReporter* _tmp22_;
-		ValadocErrorReporter* _tmp23_;
-		_tmp22_ = reporter;
-		valadoc_error_reporter_simple_error (_tmp22_, NULL, "No output directory specified.");
-		_tmp23_ = reporter;
-		result = vala_doc_quit (_tmp23_);
+	_tmp19_ = vala_doc_directory;
+	if (_tmp19_ == NULL) {
+		ValadocErrorReporter* _tmp20_;
+		ValadocErrorReporter* _tmp21_;
+		_tmp20_ = reporter;
+		valadoc_error_reporter_simple_error (_tmp20_, NULL, "No output directory specified.");
+		_tmp21_ = reporter;
+		result = vala_doc_quit (_tmp21_, FALSE);
 		_g_object_unref0 (reporter);
 		return result;
 	}
 	if (!vala_doc_check_pkg_name ()) {
-		ValadocErrorReporter* _tmp24_;
-		ValadocErrorReporter* _tmp25_;
-		_tmp24_ = reporter;
-		valadoc_error_reporter_simple_error (_tmp24_, NULL, "File already exists");
-		_tmp25_ = reporter;
-		result = vala_doc_quit (_tmp25_);
+		ValadocErrorReporter* _tmp22_;
+		ValadocErrorReporter* _tmp23_;
+		_tmp22_ = reporter;
+		valadoc_error_reporter_simple_error (_tmp22_, NULL, "File already exists");
+		_tmp23_ = reporter;
+		result = vala_doc_quit (_tmp23_, FALSE);
 		_g_object_unref0 (reporter);
 		return result;
 	}
-	_tmp26_ = vala_doc_directory;
-	if (g_file_test (_tmp26_, G_FILE_TEST_EXISTS)) {
-		gboolean _tmp27_;
-		_tmp27_ = vala_doc_force;
-		if (_tmp27_ == TRUE) {
+	_tmp24_ = vala_doc_directory;
+	if (g_file_test (_tmp24_, G_FILE_TEST_EXISTS)) {
+		if (vala_doc_force == TRUE) {
 			gboolean tmp = FALSE;
-			const gchar* _tmp28_;
-			gboolean _tmp29_;
-			_tmp28_ = vala_doc_directory;
-			tmp = valadoc_remove_directory (_tmp28_);
-			_tmp29_ = tmp;
-			if (_tmp29_ == FALSE) {
-				ValadocErrorReporter* _tmp30_;
-				ValadocErrorReporter* _tmp31_;
-				_tmp30_ = reporter;
-				valadoc_error_reporter_simple_error (_tmp30_, NULL, "Can't remove directory.");
-				_tmp31_ = reporter;
-				result = vala_doc_quit (_tmp31_);
+			const gchar* _tmp25_;
+			_tmp25_ = vala_doc_directory;
+			tmp = valadoc_remove_directory (_tmp25_);
+			if (tmp == FALSE) {
+				ValadocErrorReporter* _tmp26_;
+				ValadocErrorReporter* _tmp27_;
+				_tmp26_ = reporter;
+				valadoc_error_reporter_simple_error (_tmp26_, NULL, "Can't remove directory.");
+				_tmp27_ = reporter;
+				result = vala_doc_quit (_tmp27_, FALSE);
 				_g_object_unref0 (reporter);
 				return result;
 			}
 		} else {
+			ValadocErrorReporter* _tmp28_;
+			ValadocErrorReporter* _tmp29_;
+			_tmp28_ = reporter;
+			valadoc_error_reporter_simple_error (_tmp28_, NULL, "File already exists");
+			_tmp29_ = reporter;
+			result = vala_doc_quit (_tmp29_, FALSE);
+			_g_object_unref0 (reporter);
+			return result;
+		}
+	}
+	_tmp30_ = vala_doc_wikidirectory;
+	if (_tmp30_ != NULL) {
+		const gchar* _tmp31_;
+		_tmp31_ = vala_doc_wikidirectory;
+		if (!g_file_test (_tmp31_, G_FILE_TEST_IS_DIR)) {
 			ValadocErrorReporter* _tmp32_;
 			ValadocErrorReporter* _tmp33_;
 			_tmp32_ = reporter;
-			valadoc_error_reporter_simple_error (_tmp32_, NULL, "File already exists");
+			valadoc_error_reporter_simple_error (_tmp32_, NULL, "Wiki-directory does not exist.");
 			_tmp33_ = reporter;
-			result = vala_doc_quit (_tmp33_);
+			result = vala_doc_quit (_tmp33_, FALSE);
 			_g_object_unref0 (reporter);
 			return result;
 		}
 	}
-	_tmp34_ = vala_doc_wikidirectory;
-	if (_tmp34_ != NULL) {
-		const gchar* _tmp35_;
-		_tmp35_ = vala_doc_wikidirectory;
-		if (!g_file_test (_tmp35_, G_FILE_TEST_IS_DIR)) {
-			ValadocErrorReporter* _tmp36_;
-			ValadocErrorReporter* _tmp37_;
-			_tmp36_ = reporter;
-			valadoc_error_reporter_simple_error (_tmp36_, NULL, "Wiki-directory does not exist.");
-			_tmp37_ = reporter;
-			result = vala_doc_quit (_tmp37_);
-			_g_object_unref0 (reporter);
-			return result;
-		}
-	}
-	_tmp38_ = vala_doc_alternative_resource_dirs;
-	_tmp38__length1 = _vala_array_length (vala_doc_alternative_resource_dirs);
+	_tmp34_ = vala_doc_alternative_resource_dirs;
+	_tmp34__length1 = _vala_array_length (vala_doc_alternative_resource_dirs);
 	{
 		gchar** dir_collection = NULL;
 		gint dir_collection_length1 = 0;
 		gint _dir_collection_size_ = 0;
 		gint dir_it = 0;
-		dir_collection = _tmp38_;
-		dir_collection_length1 = _tmp38__length1;
-		for (dir_it = 0; dir_it < _tmp38__length1; dir_it = dir_it + 1) {
+		dir_collection = _tmp34_;
+		dir_collection_length1 = _tmp34__length1;
+		for (dir_it = 0; dir_it < dir_collection_length1; dir_it = dir_it + 1) {
 			const gchar* dir = NULL;
 			dir = dir_collection[dir_it];
 			{
-				const gchar* _tmp39_;
-				_tmp39_ = dir;
-				if (!g_file_test (_tmp39_, G_FILE_TEST_IS_DIR)) {
+				const gchar* _tmp35_;
+				_tmp35_ = dir;
+				if (!g_file_test (_tmp35_, G_FILE_TEST_IS_DIR)) {
+					ValadocErrorReporter* _tmp36_;
+					const gchar* _tmp37_;
+					gchar* _tmp38_;
+					gchar* _tmp39_;
 					ValadocErrorReporter* _tmp40_;
-					const gchar* _tmp41_;
-					gchar* _tmp42_;
-					gchar* _tmp43_;
-					ValadocErrorReporter* _tmp44_;
+					_tmp36_ = reporter;
+					_tmp37_ = dir;
+					_tmp38_ = g_strdup_printf ("alternative resource directory '%s' does not exist.", _tmp37_);
+					_tmp39_ = _tmp38_;
+					valadoc_error_reporter_simple_error (_tmp36_, NULL, "%s", _tmp39_);
+					_g_free0 (_tmp39_);
 					_tmp40_ = reporter;
-					_tmp41_ = dir;
-					_tmp42_ = g_strdup_printf ("alternative resource directory '%s' does not exist.", _tmp41_);
-					_tmp43_ = _tmp42_;
-					valadoc_error_reporter_simple_error (_tmp40_, NULL, "%s", _tmp43_);
-					_g_free0 (_tmp43_);
-					_tmp44_ = reporter;
-					result = vala_doc_quit (_tmp44_);
+					result = vala_doc_quit (_tmp40_, FALSE);
 					_g_object_unref0 (reporter);
 					return result;
 				}
 			}
 		}
 	}
-	_tmp45_ = reporter;
-	_tmp46_ = valadoc_error_reporter_get_errors (_tmp45_);
-	_tmp47_ = _tmp46_;
-	if (_tmp47_ > 0) {
-		ValadocErrorReporter* _tmp48_;
-		_tmp48_ = reporter;
-		result = vala_doc_quit (_tmp48_);
+	_tmp41_ = reporter;
+	_tmp42_ = valadoc_error_reporter_get_errors (_tmp41_);
+	_tmp43_ = _tmp42_;
+	if (_tmp43_ > 0) {
+		ValadocErrorReporter* _tmp44_;
+		_tmp44_ = reporter;
+		result = vala_doc_quit (_tmp44_, FALSE);
 		_g_object_unref0 (reporter);
 		return result;
 	}
-	_tmp49_ = vala_doc_gir_name;
-	if (_tmp49_ != NULL) {
+	_tmp45_ = vala_doc_gir_name;
+	if (_tmp45_ != NULL) {
 		glong gir_len = 0L;
-		const gchar* _tmp50_;
-		gint _tmp51_;
-		gint _tmp52_;
+		const gchar* _tmp46_;
+		gint _tmp47_;
+		gint _tmp48_;
 		gint last_hyphen = 0;
-		const gchar* _tmp53_;
-		gboolean _tmp54_ = FALSE;
-		gint _tmp55_;
-		const gchar* _tmp60_;
-		gint _tmp61_;
-		gchar* _tmp62_;
+		const gchar* _tmp49_;
+		gboolean _tmp50_ = FALSE;
+		const gchar* _tmp55_;
+		gchar* _tmp56_;
+		const gchar* _tmp57_;
+		gchar* _tmp58_;
+		const gchar* _tmp59_;
+		gboolean _tmp60_ = FALSE;
+		gboolean _tmp61_ = FALSE;
+		gboolean _tmp62_ = FALSE;
 		const gchar* _tmp63_;
-		gint _tmp64_;
-		glong _tmp65_;
-		gint _tmp66_;
-		gchar* _tmp67_;
-		const gchar* _tmp68_;
-		gboolean _tmp69_ = FALSE;
-		gboolean _tmp70_ = FALSE;
-		gboolean _tmp71_ = FALSE;
-		const gchar* _tmp72_;
 		gboolean report_warning = FALSE;
-		gchar** _tmp79_;
-		gint _tmp79__length1;
-		gboolean _tmp84_;
-		_tmp50_ = vala_doc_gir_name;
-		_tmp51_ = strlen (_tmp50_);
-		_tmp52_ = _tmp51_;
-		gir_len = (glong) _tmp52_;
-		_tmp53_ = vala_doc_gir_name;
-		last_hyphen = string_last_index_of_char (_tmp53_, (gunichar) '-', 0);
-		_tmp55_ = last_hyphen;
-		if (_tmp55_ == -1) {
-			_tmp54_ = TRUE;
+		gchar** _tmp70_;
+		gint _tmp70__length1;
+		_tmp46_ = vala_doc_gir_name;
+		_tmp47_ = strlen (_tmp46_);
+		_tmp48_ = _tmp47_;
+		gir_len = (glong) _tmp48_;
+		_tmp49_ = vala_doc_gir_name;
+		last_hyphen = string_last_index_of_char (_tmp49_, (gunichar) '-', 0);
+		if (last_hyphen == -1) {
+			_tmp50_ = TRUE;
 		} else {
-			const gchar* _tmp56_;
-			_tmp56_ = vala_doc_gir_name;
-			_tmp54_ = !g_str_has_suffix (_tmp56_, ".gir");
+			const gchar* _tmp51_;
+			_tmp51_ = vala_doc_gir_name;
+			_tmp50_ = !g_str_has_suffix (_tmp51_, ".gir");
 		}
-		if (_tmp54_) {
-			ValadocErrorReporter* _tmp57_;
-			const gchar* _tmp58_;
-			ValadocErrorReporter* _tmp59_;
-			_tmp57_ = reporter;
-			_tmp58_ = vala_doc_gir_name;
-			valadoc_error_reporter_simple_error (_tmp57_, NULL, "GIR file name '%s' is not well-formed, expected NAME-VERSION.gir", _tmp58_);
-			_tmp59_ = reporter;
-			result = vala_doc_quit (_tmp59_);
+		if (_tmp50_) {
+			ValadocErrorReporter* _tmp52_;
+			const gchar* _tmp53_;
+			ValadocErrorReporter* _tmp54_;
+			_tmp52_ = reporter;
+			_tmp53_ = vala_doc_gir_name;
+			valadoc_error_reporter_simple_error (_tmp52_, NULL, "GIR file name '%s' is not well-formed, expected NAME-VERSION.gir", _tmp53_);
+			_tmp54_ = reporter;
+			result = vala_doc_quit (_tmp54_, FALSE);
 			_g_object_unref0 (reporter);
 			return result;
 		}
-		_tmp60_ = vala_doc_gir_name;
-		_tmp61_ = last_hyphen;
-		_tmp62_ = string_substring (_tmp60_, (glong) 0, (glong) _tmp61_);
+		_tmp55_ = vala_doc_gir_name;
+		_tmp56_ = string_substring (_tmp55_, (glong) 0, (glong) last_hyphen);
 		_g_free0 (vala_doc_gir_namespace);
-		vala_doc_gir_namespace = _tmp62_;
-		_tmp63_ = vala_doc_gir_name;
-		_tmp64_ = last_hyphen;
-		_tmp65_ = gir_len;
-		_tmp66_ = last_hyphen;
-		_tmp67_ = string_substring (_tmp63_, (glong) (_tmp64_ + 1), (_tmp65_ - _tmp66_) - 5);
+		vala_doc_gir_namespace = _tmp56_;
+		_tmp57_ = vala_doc_gir_name;
+		_tmp58_ = string_substring (_tmp57_, (glong) (last_hyphen + 1), (gir_len - last_hyphen) - 5);
 		_g_free0 (vala_doc_gir_version);
-		vala_doc_gir_version = _tmp67_;
-		_tmp68_ = vala_doc_gir_version;
-		g_strcanon (_tmp68_, "0123456789.", '?');
-		_tmp72_ = vala_doc_gir_namespace;
-		if (g_strcmp0 (_tmp72_, "") == 0) {
-			_tmp71_ = TRUE;
+		vala_doc_gir_version = _tmp58_;
+		_tmp59_ = vala_doc_gir_version;
+		g_strcanon (_tmp59_, "0123456789.", '?');
+		_tmp63_ = vala_doc_gir_namespace;
+		if (g_strcmp0 (_tmp63_, "") == 0) {
+			_tmp62_ = TRUE;
 		} else {
-			const gchar* _tmp73_;
-			_tmp73_ = vala_doc_gir_version;
-			_tmp71_ = g_strcmp0 (_tmp73_, "") == 0;
+			const gchar* _tmp64_;
+			_tmp64_ = vala_doc_gir_version;
+			_tmp62_ = g_strcmp0 (_tmp64_, "") == 0;
 		}
-		if (_tmp71_) {
-			_tmp70_ = TRUE;
+		if (_tmp62_) {
+			_tmp61_ = TRUE;
 		} else {
-			const gchar* _tmp74_;
-			_tmp74_ = vala_doc_gir_version;
-			_tmp70_ = !g_ascii_isdigit (string_get (_tmp74_, (glong) 0));
+			const gchar* _tmp65_;
+			_tmp65_ = vala_doc_gir_version;
+			_tmp61_ = !g_ascii_isdigit (string_get (_tmp65_, (glong) 0));
 		}
-		if (_tmp70_) {
-			_tmp69_ = TRUE;
+		if (_tmp61_) {
+			_tmp60_ = TRUE;
 		} else {
-			const gchar* _tmp75_;
-			_tmp75_ = vala_doc_gir_version;
-			_tmp69_ = string_contains (_tmp75_, "?");
+			const gchar* _tmp66_;
+			_tmp66_ = vala_doc_gir_version;
+			_tmp60_ = string_contains (_tmp66_, "?");
 		}
-		if (_tmp69_) {
-			ValadocErrorReporter* _tmp76_;
-			const gchar* _tmp77_;
-			ValadocErrorReporter* _tmp78_;
-			_tmp76_ = reporter;
-			_tmp77_ = vala_doc_gir_name;
-			valadoc_error_reporter_simple_error (_tmp76_, NULL, "GIR file name '%s' is not well-formed, expected NAME-VERSION.gir", _tmp77_);
-			_tmp78_ = reporter;
-			result = vala_doc_quit (_tmp78_);
+		if (_tmp60_) {
+			ValadocErrorReporter* _tmp67_;
+			const gchar* _tmp68_;
+			ValadocErrorReporter* _tmp69_;
+			_tmp67_ = reporter;
+			_tmp68_ = vala_doc_gir_name;
+			valadoc_error_reporter_simple_error (_tmp67_, NULL, "GIR file name '%s' is not well-formed, expected NAME-VERSION.gir", _tmp68_);
+			_tmp69_ = reporter;
+			result = vala_doc_quit (_tmp69_, FALSE);
 			_g_object_unref0 (reporter);
 			return result;
 		}
 		report_warning = TRUE;
-		_tmp79_ = vala_doc_tsources;
-		_tmp79__length1 = _vala_array_length (vala_doc_tsources);
+		_tmp70_ = vala_doc_tsources;
+		_tmp70__length1 = _vala_array_length (vala_doc_tsources);
 		{
 			gchar** source_collection = NULL;
 			gint source_collection_length1 = 0;
 			gint _source_collection_size_ = 0;
 			gint source_it = 0;
-			source_collection = _tmp79_;
-			source_collection_length1 = _tmp79__length1;
-			for (source_it = 0; source_it < _tmp79__length1; source_it = source_it + 1) {
-				gchar* _tmp80_;
+			source_collection = _tmp70_;
+			source_collection_length1 = _tmp70__length1;
+			for (source_it = 0; source_it < source_collection_length1; source_it = source_it + 1) {
+				gchar* _tmp71_;
 				gchar* source = NULL;
-				_tmp80_ = g_strdup (source_collection[source_it]);
-				source = _tmp80_;
+				_tmp71_ = g_strdup (source_collection[source_it]);
+				source = _tmp71_;
 				{
-					gboolean _tmp81_ = FALSE;
-					const gchar* _tmp82_;
-					_tmp82_ = source;
-					if (g_str_has_suffix (_tmp82_, ".vala")) {
-						_tmp81_ = TRUE;
+					gboolean _tmp72_ = FALSE;
+					const gchar* _tmp73_;
+					_tmp73_ = source;
+					if (g_str_has_suffix (_tmp73_, ".vala")) {
+						_tmp72_ = TRUE;
 					} else {
-						const gchar* _tmp83_;
-						_tmp83_ = source;
-						_tmp81_ = g_str_has_suffix (_tmp83_, ".gs");
+						const gchar* _tmp74_;
+						_tmp74_ = source;
+						_tmp72_ = g_str_has_suffix (_tmp74_, ".gs");
 					}
-					if (_tmp81_) {
+					if (_tmp72_) {
 						report_warning = FALSE;
 						_g_free0 (source);
 						break;
@@ -1533,28 +1626,26 @@ vala_doc_main (gchar** args,
 				}
 			}
 		}
-		_tmp84_ = report_warning;
-		if (_tmp84_ == TRUE) {
-			ValadocErrorReporter* _tmp85_;
-			ValadocErrorReporter* _tmp86_;
-			_tmp85_ = reporter;
-			valadoc_error_reporter_simple_error (_tmp85_, NULL, "No source file specified to be compiled to gir.");
-			_tmp86_ = reporter;
-			result = vala_doc_quit (_tmp86_);
+		if (report_warning == TRUE) {
+			ValadocErrorReporter* _tmp75_;
+			ValadocErrorReporter* _tmp76_;
+			_tmp75_ = reporter;
+			valadoc_error_reporter_simple_error (_tmp75_, NULL, "No source file specified to be compiled to gir.");
+			_tmp76_ = reporter;
+			result = vala_doc_quit (_tmp76_, FALSE);
 			_g_object_unref0 (reporter);
 			return result;
 		}
 	}
-	_tmp87_ = vala_doc_new ();
-	valadoc = _tmp87_;
-	_tmp88_ = valadoc;
-	_tmp89_ = reporter;
-	result = vala_doc_run (_tmp88_, _tmp89_);
+	_tmp77_ = vala_doc_new ();
+	valadoc = _tmp77_;
+	_tmp78_ = valadoc;
+	_tmp79_ = reporter;
+	result = vala_doc_run (_tmp78_, _tmp79_);
 	_g_object_unref0 (valadoc);
 	_g_object_unref0 (reporter);
 	return result;
 }
-
 
 int
 main (int argc,
@@ -1562,7 +1653,6 @@ main (int argc,
 {
 	return vala_doc_main (argv, argc);
 }
-
 
 ValaDoc*
 vala_doc_construct (GType object_type)
@@ -1572,27 +1662,25 @@ vala_doc_construct (GType object_type)
 	return self;
 }
 
-
 ValaDoc*
 vala_doc_new (void)
 {
 	return vala_doc_construct (TYPE_VALA_DOC);
 }
 
-
 static void
-vala_doc_class_init (ValaDocClass * klass)
+vala_doc_class_init (ValaDocClass * klass,
+                     gpointer klass_data)
 {
 	vala_doc_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = vala_doc_finalize;
 }
 
-
 static void
-vala_doc_instance_init (ValaDoc * self)
+vala_doc_instance_init (ValaDoc * self,
+                        gpointer klass)
 {
 }
-
 
 static void
 vala_doc_finalize (GObject * obj)
@@ -1602,20 +1690,26 @@ vala_doc_finalize (GObject * obj)
 	G_OBJECT_CLASS (vala_doc_parent_class)->finalize (obj);
 }
 
+static GType
+vala_doc_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaDocClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_doc_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDoc), 0, (GInstanceInitFunc) vala_doc_instance_init, NULL };
+	GType vala_doc_type_id;
+	vala_doc_type_id = g_type_register_static (G_TYPE_OBJECT, "ValaDoc", &g_define_type_info, 0);
+	return vala_doc_type_id;
+}
 
 GType
 vala_doc_get_type (void)
 {
 	static volatile gsize vala_doc_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_doc_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaDocClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_doc_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDoc), 0, (GInstanceInitFunc) vala_doc_instance_init, NULL };
 		GType vala_doc_type_id;
-		vala_doc_type_id = g_type_register_static (G_TYPE_OBJECT, "ValaDoc", &g_define_type_info, 0);
+		vala_doc_type_id = vala_doc_get_type_once ();
 		g_once_init_leave (&vala_doc_type_id__volatile, vala_doc_type_id);
 	}
 	return vala_doc_type_id__volatile;
 }
-
 
 static void
 _vala_array_destroy (gpointer array,
@@ -1623,7 +1717,7 @@ _vala_array_destroy (gpointer array,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -1631,7 +1725,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -1642,11 +1735,10 @@ _vala_array_free (gpointer array,
 	g_free (array);
 }
 
-
 static gint
 _vala_array_length (gpointer array)
 {
-	int length;
+	gint length;
 	length = 0;
 	if (array) {
 		while (((gpointer*) array)[length]) {
@@ -1655,6 +1747,4 @@ _vala_array_length (gpointer array)
 	}
 	return length;
 }
-
-
 

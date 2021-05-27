@@ -165,16 +165,6 @@ public class Vala.CodeContext {
 
 	public Profile profile { get; set; }
 
-	/**
-	 * Target major version number of glib for code generation.
-	 */
-	public int target_glib_major { get; set; }
-
-	/**
-	 * Target minor version number of glib for code generation.
-	 */
-	public int target_glib_minor { get; set; }
-
 	public bool verbose_mode { get; set; }
 
 	public bool version_header { get; set; }
@@ -182,6 +172,11 @@ public class Vala.CodeContext {
 	public bool nostdpkg { get; set; }
 
 	public bool use_fast_vapi { get; set; }
+
+	/**
+	 * Continue as much as possible after an error.
+	 */
+	public bool keep_going { get; set; }
 
 	/**
 	 * Include comments in generated vapi.
@@ -213,7 +208,8 @@ public class Vala.CodeContext {
 	public string[] gresources_directories { get; set; default = {}; }
 
 	private List<SourceFile> source_files = new ArrayList<SourceFile> ();
-	private List<string> c_source_files = new ArrayList<string> ();
+	private Map<string,unowned SourceFile> source_files_map = new HashMap<string,unowned SourceFile> (str_hash, str_equal);
+	private List<string> c_source_files = new ArrayList<string> (str_equal);
 	private Namespace _root = new Namespace (null);
 
 	private List<string> packages = new ArrayList<string> (str_equal);
@@ -221,6 +217,9 @@ public class Vala.CodeContext {
 	private Set<string> defines = new HashSet<string> (str_hash, str_equal);
 
 	static StaticPrivate context_stack_key = StaticPrivate ();
+
+	int target_glib_major;
+	int target_glib_minor;
 
 	/**
 	 * The root namespace of the symbol tree.
@@ -246,6 +245,8 @@ public class Vala.CodeContext {
 	public UsedAttr used_attr { get; set; }
 
 	public CodeContext () {
+		add_default_defines ();
+
 		resolver = new SymbolResolver ();
 		analyzer = new SemanticAnalyzer ();
 		flow_analyzer = new FlowAnalyzer ();
@@ -257,6 +258,10 @@ public class Vala.CodeContext {
 	 */
 	public static CodeContext get () {
 		List<CodeContext>* context_stack = context_stack_key.get ();
+
+		if (context_stack == null || context_stack->size == 0) {
+			error ("internal: No context available to get");
+		}
 
 		return context_stack->get (context_stack->size - 1);
 	}
@@ -280,24 +285,28 @@ public class Vala.CodeContext {
 	public static void pop () {
 		List<CodeContext>* context_stack = context_stack_key.get ();
 
+		if (context_stack == null || context_stack->size == 0) {
+			error ("internal: No context available to pop");
+		}
+
 		context_stack->remove_at (context_stack->size - 1);
 	}
 
 	/**
-	 * Returns a copy of the list of source files.
+	 * Returns the list of source files.
 	 *
 	 * @return list of source files
 	 */
-	public List<SourceFile> get_source_files () {
+	public unowned List<SourceFile> get_source_files () {
 		return source_files;
 	}
 
 	/**
-	 * Returns a copy of the list of C source files.
+	 * Returns the list of C source files.
 	 *
 	 * @return list of C source files
 	 */
-	public List<string> get_c_source_files () {
+	public unowned List<string> get_c_source_files () {
 		return c_source_files;
 	}
 
@@ -307,7 +316,23 @@ public class Vala.CodeContext {
 	 * @param file a source file
 	 */
 	public void add_source_file (SourceFile file) {
+		if (source_files_map.contains (file.filename)) {
+			Report.warning (null, "Ignoring source file `%s', which was already added to this context".printf (file.filename));
+			return;
+		}
+
 		source_files.add (file);
+		source_files_map.set (file.filename, file);
+	}
+
+	/**
+	 * Returns the source file for a given path.
+	 *
+	 * @param filename a path to a source file
+	 * @return the source file if found
+	 */
+	public unowned Vala.SourceFile? get_source_file (string filename) {
+		return source_files_map.get (filename);
 	}
 
 	/**
@@ -320,11 +345,11 @@ public class Vala.CodeContext {
 	}
 
 	/**
-	 * Returns a copy of the list of used packages.
+	 * Returns the list of used packages.
 	 *
 	 * @return list of used packages
 	 */
-	public List<string> get_packages () {
+	public unowned List<string> get_packages () {
 		return packages;
 	}
 
@@ -374,7 +399,13 @@ public class Vala.CodeContext {
 
 		add_package (pkg);
 
-		add_source_file (new SourceFile (this, SourceFileType.PACKAGE, path));
+		var rpath = realpath (path);
+		var source_file = new SourceFile (this, SourceFileType.PACKAGE, path);
+
+		add_source_file (source_file);
+		if (rpath != path) {
+			source_files_map.set (rpath, source_file);
+		}
 
 		if (verbose_mode) {
 			stdout.printf ("Loaded package `%s'\n", path);
@@ -450,11 +481,17 @@ public class Vala.CodeContext {
 			}
 
 			add_source_file (source_file);
+			if (rpath != filename) {
+				source_files_map.set (filename, source_file);
+			}
 		} else if (filename.has_suffix (".vapi") || filename.has_suffix (".gir")) {
 			var source_file = new SourceFile (this, SourceFileType.PACKAGE, rpath, null, cmdline);
 			source_file.relative_filename = filename;
 
 			add_source_file (source_file);
+			if (rpath != filename) {
+				source_files_map.set (filename, source_file);
+			}
 		} else if (filename.has_suffix (".c")) {
 			add_c_source_file (rpath);
 		} else if (filename.has_suffix (".h")) {
@@ -491,12 +528,14 @@ public class Vala.CodeContext {
 	public void check () {
 		resolver.resolve (this);
 
-		if (report.get_errors () > 0) {
+		if (!keep_going && report.get_errors () > 0) {
 			return;
 		}
 
 		analyzer.analyze (this);
 
+		// Don't run the FlowAnalyzer if we have semantic errors, since
+		// the messages from FlowAnalyzer will usually be nonsensical.
 		if (report.get_errors () > 0) {
 			return;
 		}
@@ -511,11 +550,87 @@ public class Vala.CodeContext {
 	}
 
 	public void add_define (string define) {
+		if (is_defined (define)) {
+			Report.warning (null, "`%s' is already defined".printf (define));
+			if (/VALA_0_\d+/.match_all (define)) {
+				Report.warning (null, "`VALA_0_XX' defines are automatically added up to current compiler version in use");
+			} else if (/GLIB_2_\d+/.match_all (define)) {
+				Report.warning (null, "`GLIB_2_XX' defines are automatically added up to targeted glib version");
+			}
+		}
 		defines.add (define);
 	}
 
 	public bool is_defined (string define) {
 		return (define in defines);
+	}
+
+	void add_default_defines () {
+		int api_major = 0;
+		int api_minor = 0;
+
+		if (API_VERSION.scanf ("%d.%d", out api_major, out api_minor) != 2
+		    || api_major > 0
+		    || api_minor % 2 != 0) {
+			Report.error (null, "Invalid format for Vala.API_VERSION");
+			return;
+		}
+
+		for (int i = 2; i <= api_minor; i += 2) {
+			defines.add ("VALA_0_%d".printf (i));
+		}
+
+		target_glib_major = 2;
+		target_glib_minor = 48;
+
+		for (int i = 16; i <= target_glib_minor; i += 2) {
+			defines.add ("GLIB_2_%d".printf (i));
+		}
+	}
+
+	/**
+	 * Set the target version of glib for code generation.
+	 *
+	 * This may be called once or not at all.
+	 *
+	 * @param target_glib a string of the format "%d.%d"
+	 */
+	public void set_target_glib_version (string target_glib) {
+		int glib_major = 0;
+		int glib_minor = 0;
+
+		if (target_glib == "auto") {
+			var available_glib = pkg_config_modversion ("glib-2.0");
+			if (available_glib != null && available_glib.scanf ("%d.%d", out glib_major, out glib_minor) >= 2) {
+				glib_minor -= ++glib_minor % 2;
+				set_target_glib_version ("%d.%d".printf (glib_major, glib_minor));
+				return;
+			}
+		}
+
+		glib_major = target_glib_major;
+		glib_minor = target_glib_minor;
+
+		if (target_glib != null && target_glib.scanf ("%d.%d", out glib_major, out glib_minor) != 2
+		    || glib_minor % 2 != 0) {
+			Report.error (null, "Only a stable version of GLib can be targeted, use MAJOR.MINOR format with MINOR as an even number");
+		}
+
+		if (glib_major != 2) {
+			Report.error (null, "This version of valac only supports GLib 2");
+		}
+
+		if (glib_minor <= target_glib_minor) {
+			// no additional defines needed
+			return;
+		}
+
+		for (int i = target_glib_major + 2; i <= glib_minor; i += 2) {
+			defines.add ("GLIB_2_%d".printf (i));
+		}
+
+		target_glib_major = glib_major;
+		target_glib_minor = glib_minor;
 	}
 
 	public string? get_vapi_path (string pkg) {
@@ -614,6 +729,29 @@ public class Vala.CodeContext {
 			}
 		}
 		stream.printf ("\n\n");
+	}
+
+	public void write_external_dependencies (string filename) {
+		var stream = FileStream.open (filename, "w");
+
+		if (stream == null) {
+			Report.error (null, "unable to open `%s' for writing".printf (filename));
+			return;
+		}
+
+		bool first = true;
+		foreach (var src in source_files) {
+			if (src.file_type != SourceFileType.SOURCE && src.used) {
+				if (first) {
+					first = false;
+					stream.printf ("%s: ", filename);
+				} else {
+					stream.puts (" \\\n\t");
+				}
+				stream.printf ("%s", src.filename);
+			}
+		}
+		stream.puts ("\n\n");
 	}
 
 	private static bool ends_with_dir_separator (string s) {
@@ -717,11 +855,13 @@ public class Vala.CodeContext {
 
 		try {
 			Process.spawn_command_line_sync (pc, out output, null, out exit_status);
-			if (exit_status != 0) {
+			if (exit_status == 0) {
 				output = output[0:-1];
 				if (output == "") {
 					output = null;
 				}
+			} else {
+				output = null;
 			}
 		} catch (SpawnError e) {
 			output = null;

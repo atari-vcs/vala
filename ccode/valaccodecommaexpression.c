@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
 #include <valagee.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
@@ -36,21 +35,19 @@ struct _ValaCCodeCommaExpressionPrivate {
 	ValaList* inner;
 };
 
-
 static gint ValaCCodeCommaExpression_private_offset;
 static gpointer vala_ccode_comma_expression_parent_class = NULL;
 
 static void vala_ccode_comma_expression_real_write (ValaCCodeNode* base,
                                              ValaCCodeWriter* writer);
 static void vala_ccode_comma_expression_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_comma_expression_get_type_once (void);
 
 static inline gpointer
 vala_ccode_comma_expression_get_instance_private (ValaCCodeCommaExpression* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValaCCodeCommaExpression_private_offset);
 }
-
 
 /**
  * Appends the specified expression to the expression list.
@@ -68,7 +65,6 @@ vala_ccode_comma_expression_append_expression (ValaCCodeCommaExpression* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, expr);
 }
 
-
 void
 vala_ccode_comma_expression_set_expression (ValaCCodeCommaExpression* self,
                                             gint index,
@@ -81,27 +77,24 @@ vala_ccode_comma_expression_set_expression (ValaCCodeCommaExpression* self,
 	vala_list_set (_tmp0_, index, expr);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 ValaList*
 vala_ccode_comma_expression_get_inner (ValaCCodeCommaExpression* self)
 {
-	ValaList* result = NULL;
 	ValaList* _tmp0_;
 	ValaList* _tmp1_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->inner;
 	_tmp1_ = _vala_iterable_ref0 (_tmp0_);
 	result = _tmp1_;
 	return result;
 }
-
 
 static void
 vala_ccode_comma_expression_real_write (ValaCCodeNode* base,
@@ -133,39 +126,32 @@ vala_ccode_comma_expression_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCCodeExpression* expr = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			gboolean _tmp11_;
-			ValaCCodeExpression* _tmp12_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCCodeExpression* _tmp9_;
+			_expr_index = _expr_index + 1;
 			_tmp5_ = _expr_index;
-			_expr_index = _tmp5_ + 1;
-			_tmp6_ = _expr_index;
-			_tmp7_ = _expr_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _expr_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _expr_list;
-			_tmp9_ = _expr_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			expr = (ValaCCodeExpression*) _tmp10_;
-			_tmp11_ = first;
-			if (!_tmp11_) {
+			_tmp7_ = _expr_list;
+			_tmp8_ = vala_list_get (_tmp7_, _expr_index);
+			expr = (ValaCCodeExpression*) _tmp8_;
+			if (!first) {
 				vala_ccode_writer_write_string (writer, ", ");
 			} else {
 				first = FALSE;
 			}
-			_tmp12_ = expr;
-			vala_ccode_node_write ((ValaCCodeNode*) _tmp12_, writer);
+			_tmp9_ = expr;
+			vala_ccode_node_write ((ValaCCodeNode*) _tmp9_, writer);
 			_vala_ccode_node_unref0 (expr);
 		}
 		_vala_iterable_unref0 (_expr_list);
 	}
 	vala_ccode_writer_write_string (writer, ")");
 }
-
 
 ValaCCodeCommaExpression*
 vala_ccode_comma_expression_construct (GType object_type)
@@ -175,16 +161,15 @@ vala_ccode_comma_expression_construct (GType object_type)
 	return self;
 }
 
-
 ValaCCodeCommaExpression*
 vala_ccode_comma_expression_new (void)
 {
 	return vala_ccode_comma_expression_construct (VALA_TYPE_CCODE_COMMA_EXPRESSION);
 }
 
-
 static void
-vala_ccode_comma_expression_class_init (ValaCCodeCommaExpressionClass * klass)
+vala_ccode_comma_expression_class_init (ValaCCodeCommaExpressionClass * klass,
+                                        gpointer klass_data)
 {
 	vala_ccode_comma_expression_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_comma_expression_finalize;
@@ -192,9 +177,9 @@ vala_ccode_comma_expression_class_init (ValaCCodeCommaExpressionClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_comma_expression_real_write;
 }
 
-
 static void
-vala_ccode_comma_expression_instance_init (ValaCCodeCommaExpression * self)
+vala_ccode_comma_expression_instance_init (ValaCCodeCommaExpression * self,
+                                           gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -203,7 +188,6 @@ vala_ccode_comma_expression_instance_init (ValaCCodeCommaExpression * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_EXPRESSION, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->inner = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_comma_expression_finalize (ValaCCodeNode * obj)
@@ -214,23 +198,28 @@ vala_ccode_comma_expression_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_comma_expression_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a comma separated expression list in the C code.
  */
+static GType
+vala_ccode_comma_expression_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeCommaExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_comma_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeCommaExpression), 0, (GInstanceInitFunc) vala_ccode_comma_expression_instance_init, NULL };
+	GType vala_ccode_comma_expression_type_id;
+	vala_ccode_comma_expression_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeCommaExpression", &g_define_type_info, 0);
+	ValaCCodeCommaExpression_private_offset = g_type_add_instance_private (vala_ccode_comma_expression_type_id, sizeof (ValaCCodeCommaExpressionPrivate));
+	return vala_ccode_comma_expression_type_id;
+}
+
 GType
 vala_ccode_comma_expression_get_type (void)
 {
 	static volatile gsize vala_ccode_comma_expression_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_comma_expression_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeCommaExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_comma_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeCommaExpression), 0, (GInstanceInitFunc) vala_ccode_comma_expression_instance_init, NULL };
 		GType vala_ccode_comma_expression_type_id;
-		vala_ccode_comma_expression_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeCommaExpression", &g_define_type_info, 0);
-		ValaCCodeCommaExpression_private_offset = g_type_add_instance_private (vala_ccode_comma_expression_type_id, sizeof (ValaCCodeCommaExpressionPrivate));
+		vala_ccode_comma_expression_type_id = vala_ccode_comma_expression_get_type_once ();
 		g_once_init_leave (&vala_ccode_comma_expression_type_id__volatile, vala_ccode_comma_expression_type_id);
 	}
 	return vala_ccode_comma_expression_type_id__volatile;
 }
-
-
 

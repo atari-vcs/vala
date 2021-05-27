@@ -23,17 +23,14 @@
  * 	Luca Bruno <lucabru@src.gnome.org>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
-
 static gpointer vala_array_copy_method_parent_class = NULL;
 
-
+static GType vala_array_copy_method_get_type_once (void);
 
 /**
  * Creates a new array copy method.
@@ -47,7 +44,6 @@ vala_array_copy_method_construct (GType object_type,
 	ValaArrayCopyMethod* self = NULL;
 	ValaInvalidType* _tmp0_;
 	ValaInvalidType* _tmp1_;
-	g_return_val_if_fail (source_reference != NULL, NULL);
 	_tmp0_ = vala_invalid_type_new ();
 	_tmp1_ = _tmp0_;
 	self = (ValaArrayCopyMethod*) vala_method_construct (object_type, "copy", (ValaDataType*) _tmp1_, source_reference, NULL);
@@ -56,42 +52,46 @@ vala_array_copy_method_construct (GType object_type,
 	return self;
 }
 
-
 ValaArrayCopyMethod*
 vala_array_copy_method_new (ValaSourceReference* source_reference)
 {
 	return vala_array_copy_method_construct (VALA_TYPE_ARRAY_COPY_METHOD, source_reference);
 }
 
-
 static void
-vala_array_copy_method_class_init (ValaArrayCopyMethodClass * klass)
+vala_array_copy_method_class_init (ValaArrayCopyMethodClass * klass,
+                                   gpointer klass_data)
 {
 	vala_array_copy_method_parent_class = g_type_class_peek_parent (klass);
 }
 
-
 static void
-vala_array_copy_method_instance_init (ValaArrayCopyMethod * self)
+vala_array_copy_method_instance_init (ValaArrayCopyMethod * self,
+                                      gpointer klass)
 {
 }
-
 
 /**
  * Represents the Array.copy method.
  */
+static GType
+vala_array_copy_method_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaArrayCopyMethodClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_copy_method_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayCopyMethod), 0, (GInstanceInitFunc) vala_array_copy_method_instance_init, NULL };
+	GType vala_array_copy_method_type_id;
+	vala_array_copy_method_type_id = g_type_register_static (VALA_TYPE_METHOD, "ValaArrayCopyMethod", &g_define_type_info, 0);
+	return vala_array_copy_method_type_id;
+}
+
 GType
 vala_array_copy_method_get_type (void)
 {
 	static volatile gsize vala_array_copy_method_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_array_copy_method_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaArrayCopyMethodClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_copy_method_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayCopyMethod), 0, (GInstanceInitFunc) vala_array_copy_method_instance_init, NULL };
 		GType vala_array_copy_method_type_id;
-		vala_array_copy_method_type_id = g_type_register_static (VALA_TYPE_METHOD, "ValaArrayCopyMethod", &g_define_type_info, 0);
+		vala_array_copy_method_type_id = vala_array_copy_method_get_type_once ();
 		g_once_init_leave (&vala_array_copy_method_type_id__volatile, vala_array_copy_method_type_id);
 	}
 	return vala_array_copy_method_type_id__volatile;
 }
-
-
 

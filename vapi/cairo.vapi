@@ -20,10 +20,18 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
+#if GOBJECT
+[CCode (cheader_filename = "cairo-gobject.h", gir_namespace = "cairo", gir_version = "1.0")]
+#else
 [CCode (cheader_filename = "cairo.h", gir_namespace = "cairo", gir_version = "1.0")]
+#endif
 namespace Cairo {
 	[CCode (lower_case_cprefix = "CAIRO_MIME_TYPE_")]
 	namespace MimeType {
+		public const string CCITT_FAX;
+		public const string CCITT_FAX_PARAMS;
+		public const string EPS;
+		public const string EPS_PARAMS;
 		public const string JBIG2;
 		public const string JBIG2_GLOBAL;
 		public const string JBIG2_GLOBAL_ID;
@@ -33,7 +41,11 @@ namespace Cairo {
 		public const string UNIQUE_ID;
 		public const string URI;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_t", cprefix = "cairo_", ref_function = "cairo_reference", unref_function = "cairo_destroy", type_id = "cairo_gobject_context_get_type ()")]
+#else
 	[CCode (cname = "cairo_t", cprefix = "cairo_", ref_function = "cairo_reference", unref_function = "cairo_destroy")]
+#endif
 	[Compact]
 	public class Context {
 		[CCode (cname = "cairo_create")]
@@ -58,7 +70,7 @@ namespace Cairo {
 		public void font_extents (out Cairo.FontExtents extents);
 		public Cairo.Antialias get_antialias ();
 		public void get_current_point (out double x, out double y);
-		public void get_dash (double[]? dashes, double[]? offset);
+		public void get_dash ([CCode (array_length = false)] double[]? dashes, [CCode (array_length = false)] double[]? offset);
 		public int get_dash_count ();
 		public Cairo.FillRule get_fill_rule ();
 		public unowned Cairo.FontFace get_font_face ();
@@ -132,11 +144,15 @@ namespace Cairo {
 		public void show_glyphs (Cairo.Glyph[] glyphs);
 		public void show_page ();
 		public void show_text (string utf8);
-		public Cairo.Status show_text_glyphs (string utf8, int utf8_len, Cairo.Glyph[] glyphs, Cairo.TextCluster[] clusters, out Cairo.TextClusterFlags cluster_flags);
+		public Cairo.Status show_text_glyphs (string utf8, int utf8_len, Cairo.Glyph[] glyphs, Cairo.TextCluster[] clusters, Cairo.TextClusterFlags cluster_flags);
 		public Cairo.Status status ();
 		public void stroke ();
 		public void stroke_extents (out double x1, out double y1, out double x2, out double y2);
 		public void stroke_preserve ();
+		[Version (since = "1.16")]
+		public void tag_begin (string tag_name, string attributes);
+		[Version (since = "1.16")]
+		public void tag_end (string tag_name);
 		public void text_extents (string utf8, out Cairo.TextExtents extents);
 		public void text_path (string utf8);
 		public void transform (Cairo.Matrix matrix);
@@ -144,7 +160,11 @@ namespace Cairo {
 		public void user_to_device (ref double x, ref double y);
 		public void user_to_device_distance (ref double dx, ref double dy);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy", type_id = "cairo_gobject_device_get_type ()")]
+#else
 	[CCode (cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy")]
+#endif
 	[Compact]
 	public class Device {
 		public Cairo.Status acquire ();
@@ -159,7 +179,11 @@ namespace Cairo {
 		public Cairo.Status set_user_data<G> (Cairo.UserDataKey? key, owned G? data);
 		public Cairo.Status status ();
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy", type_id = "cairo_gobject_device_get_type ()")]
+#else
 	[CCode (cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy")]
+#endif
 	[Compact]
 	public class DeviceObserver {
 		protected DeviceObserver ();
@@ -171,7 +195,11 @@ namespace Cairo {
 		public Cairo.Status print (Cairo.WriteFunc write_func);
 		public double stroke_elapsed ();
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy", type_id = "cairo_gobject_font_face_get_type ()")]
+#else
 	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy")]
+#endif
 	[Compact]
 	public class FontFace {
 		public uint get_reference_count ();
@@ -182,7 +210,11 @@ namespace Cairo {
 		public Cairo.Status set_user_data<G> (Cairo.UserDataKey? key, owned G? data);
 		public Cairo.Status status ();
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_font_options_t", copy_function = "cairo_font_options_copy", free_function = "cairo_font_options_destroy", type_id = "cairo_gobject_font_options_get_type ()")]
+#else
 	[CCode (cname = "cairo_font_options_t", copy_function = "cairo_font_options_copy", free_function = "cairo_font_options_destroy")]
+#endif
 	[Compact]
 	public class FontOptions {
 		[CCode (cname = "cairo_font_options_create")]
@@ -192,15 +224,23 @@ namespace Cairo {
 		public Cairo.HintMetrics get_hint_metrics ();
 		public Cairo.HintStyle get_hint_style ();
 		public Cairo.SubpixelOrder get_subpixel_order ();
+		[Version (since = "1.16")]
+		public unowned string? get_variations ();
 		public ulong hash ();
 		public void merge (Cairo.FontOptions other);
 		public void set_antialias (Cairo.Antialias antialias);
 		public void set_hint_metrics (Cairo.HintMetrics hint_metrics);
 		public void set_hint_style (Cairo.HintStyle hint_style);
 		public void set_subpixel_order (Cairo.SubpixelOrder subpixel_order);
+		[Version (since = "1.16")]
+		public void set_variations (string? variations);
 		public Cairo.Status status ();
 	}
-	[CCode (cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class ImageSurface : Cairo.Surface {
 		[CCode (cname = "cairo_image_surface_create")]
@@ -218,7 +258,11 @@ namespace Cairo {
 		public int get_stride ();
 		public int get_width ();
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy", type_id = "cairo_gobject_pattern_get_type ()")]
+#else
 	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy")]
+#endif
 	[Compact]
 	public class MeshPattern : Cairo.Pattern {
 		[CCode (cname = "cairo_pattern_create_mesh")]
@@ -236,7 +280,7 @@ namespace Cairo {
 		public void set_corner_color_rgb (uint corner_num, double red, double green, double blue);
 		public void set_corner_color_rgba (uint corner_num, double red, double green, double blue, double alpha);
 	}
-	[CCode (cname = "cairo_path_t", free_function = "cairo_path_destroy")]
+	[CCode (cname = "cairo_path_t", free_function = "cairo_path_destroy", has_type_id = false)]
 	[Compact]
 	public class Path {
 		[CCode (array_length = false)]
@@ -244,7 +288,11 @@ namespace Cairo {
 		public int num_data;
 		public Cairo.Status status;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy", type_id = "cairo_gobject_pattern_get_type ()")]
+#else
 	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy")]
+#endif
 	[Compact]
 	public class Pattern {
 		public void add_color_stop_rgb (double offset, double red, double green, double blue);
@@ -276,17 +324,33 @@ namespace Cairo {
 		public Cairo.Status set_user_data<G> (Cairo.UserDataKey? key, owned G? data);
 		public Cairo.Status status ();
 	}
-	[CCode (cheader_filename = "cairo-pdf.h", cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cheader_filename = "cairo-pdf.h,cairo-gobject.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cheader_filename = "cairo-pdf.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class PdfSurface : Cairo.Surface {
 		[CCode (cname = "cairo_pdf_surface_create")]
 		public PdfSurface (string? filename, double width_in_points, double height_in_points);
+		[Version (since = "1.16")]
+		public int add_outline (int parent_id, string utf8, string link_attribs, Cairo.PdfOutlineFlags flags);
 		[CCode (cname = "cairo_pdf_surface_create_for_stream")]
 		public PdfSurface.for_stream (Cairo.WriteFunc write_func, double width_in_points, double height_in_points);
 		public void restrict_to_version (Cairo.PdfVersion version);
+		[Version (since = "1.16")]
+		public void set_metadata (Cairo.PdfMetadata metadata, string utf8);
+		[Version (since = "1.16")]
+		public void set_page_label (string utf8);
 		public void set_size (double width_in_points, double height_in_points);
+		[Version (since = "1.16")]
+		public void set_thumbnail_size (int width, int height);
 	}
-	[CCode (cheader_filename = "cairo-ps.h", cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cheader_filename = "cairo-ps.h,cairo-gobject.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cheader_filename = "cairo-ps.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class PsSurface : Cairo.Surface {
 		[CCode (cname = "cairo_ps_surface_create")]
@@ -302,11 +366,15 @@ namespace Cairo {
 		public void set_eps (bool eps);
 		public void set_size (double width_in_points, double height_in_points);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy", type_id = "cairo_gobject_pattern_get_type ()")]
+#else
 	[CCode (cname = "cairo_pattern_t", ref_function = "cairo_pattern_reference", unref_function = "cairo_pattern_destroy")]
+#endif
 	[Compact]
 	public class RasterSourcePattern : Cairo.Pattern {
 		[CCode (cname = "cairo_pattern_create_raster_source")]
-		public RasterSourcePattern ();
+		public RasterSourcePattern (void* data, Cairo.Content content, int width, int height);
 		public void get_acquire (out Cairo.RasterSourceAcquireFunc acquire, out Cairo.RasterSourceReleaseFunc release);
 		public void* get_callback_data ();
 		public Cairo.RasterSourceCopyFunc get_copy ();
@@ -318,7 +386,11 @@ namespace Cairo {
 		public void set_finish (Cairo.RasterSourceFinishFunc finish);
 		public void set_snapshot (Cairo.RasterSourceSnapshotFunc snapshot);
 	}
-	[CCode (cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class RecordingSurface : Cairo.Surface {
 		[CCode (cname = "cairo_recording_surface_create")]
@@ -326,14 +398,18 @@ namespace Cairo {
 		public bool get_extents (out Cairo.Rectangle extents);
 		public void ink_extents (out double x0, out double y0, out double width, out double height);
 	}
-	[CCode (cname = "cairo_rectangle_list_t", free_function = "cairo_rectangle_list_destroy")]
+	[CCode (cname = "cairo_rectangle_list_t", free_function = "cairo_rectangle_list_destroy", has_type_id = false)]
 	[Compact]
 	public class RectangleList {
 		[CCode (array_length_cname = "num_rectangles")]
 		public Cairo.Rectangle[] rectangles;
 		public Cairo.Status status;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_region_t", ref_function = "cairo_region_reference", unref_function = "cairo_region_destroy", type_id = "cairo_gobject_region_get_type ()")]
+#else
 	[CCode (cname = "cairo_region_t", ref_function = "cairo_region_reference", unref_function = "cairo_region_destroy")]
+#endif
 	[Compact]
 	public class Region {
 		[CCode (cname = "cairo_region_create")]
@@ -361,7 +437,11 @@ namespace Cairo {
 		public Cairo.Status xor (Cairo.Region other);
 		public Cairo.Status xor_rectangle (Cairo.RectangleInt rectangle);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_scaled_font_t", ref_function = "cairo_scaled_font_reference", unref_function = "cairo_scaled_font_destroy", type_id = "cairo_gobject_scaled_font_get_type ()")]
+#else
 	[CCode (cname = "cairo_scaled_font_t", ref_function = "cairo_scaled_font_reference", unref_function = "cairo_scaled_font_destroy")]
+#endif
 	[Compact]
 	public class ScaledFont {
 		[CCode (cname = "cairo_scaled_font_create")]
@@ -387,7 +467,7 @@ namespace Cairo {
 		[CCode (cname = "cairo_win32_scaled_font_get_logical_to_device")]
 		public Cairo.Matrix win32_get_logical_to_device ();
 	}
-	[CCode (cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy")]
+	[CCode (cheader_filename = "cairo-script.h", cname = "cairo_device_t", ref_function = "cairo_device_reference", unref_function = "cairo_device_destroy", has_type_id = false)]
 	[Compact]
 	public class Script : Cairo.Device {
 		[CCode (cname = "cairo_script_create")]
@@ -395,12 +475,16 @@ namespace Cairo {
 		[CCode (cname = "cairo_script_create_for_stream")]
 		public Script.for_stream (Cairo.WriteFunc write_func);
 		[CCode (cname = "cairo_script_from_recording_surface")]
-		public Script.from_recording_surface ([CCode (type = "cairo_surface_t")] Cairo.RecordingSurface recording_surface);
+		public static Cairo.Status from_recording_surface (out Cairo.Script script, Cairo.RecordingSurface recording_surface);
 		public Cairo.ScriptMode get_mode ();
 		public void set_mode (Cairo.ScriptMode mode);
 		public void write_comment (string comment, int len = -1);
 	}
-	[CCode (cheader_filename = "cairo-svg.h", cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cheader_filename = "cairo-svg.h,cairo-gobject.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cheader_filename = "cairo-svg.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class ScriptSurface : Cairo.Surface {
 		[CCode (cname = "cairo_script_surface_create")]
@@ -408,7 +492,11 @@ namespace Cairo {
 		[CCode (cname = "cairo_script_surface_create_for_target")]
 		public ScriptSurface.for_target (Cairo.Script script, Cairo.Surface target);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
 	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class Surface {
 		public void copy_page ();
@@ -448,7 +536,11 @@ namespace Cairo {
 		public Cairo.Status write_to_png (string filename);
 		public Cairo.Status write_to_png_stream (Cairo.WriteFunc write_func);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
 	[CCode (cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class SurfaceObserver {
 		[CCode (cname = "cairo_surface_create_observer")]
@@ -463,16 +555,24 @@ namespace Cairo {
 		public double elapsed ();
 		public Cairo.Status print (Cairo.WriteFunc write_func);
 	}
-	[CCode (cheader_filename = "cairo-svg.h", cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cheader_filename = "cairo-svg.h,cairo-gobject.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cheader_filename = "cairo-svg.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class SvgSurface : Cairo.Surface {
 		[CCode (cname = "cairo_svg_surface_create")]
 		public SvgSurface (string filename, double width_in_points, double height_in_points);
 		[CCode (cname = "cairo_svg_surface_create_for_stream")]
 		public SvgSurface.for_stream (Cairo.WriteFunc write_func, double width_in_points, double height_in_points);
+		[Version (since = "1.16")]
+		public Cairo.SvgUnit get_document_unit ();
 		public void restrict_to_version (Cairo.SvgVersion version);
+		[Version (since = "1.16")]
+		public void set_document_unit (Cairo.SvgUnit unit);
 	}
-	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy")]
+	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy", has_type_id = false)]
 	[Compact]
 	public class ToyFontFace : Cairo.FontFace {
 		[CCode (cname = "cairo_toy_font_face_create")]
@@ -481,7 +581,7 @@ namespace Cairo {
 		public Cairo.FontSlant get_slant ();
 		public Cairo.FontWeight get_weight ();
 	}
-	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy")]
+	[CCode (cname = "cairo_font_face_t", ref_function = "cairo_font_face_reference", unref_function = "cairo_font_face_destroy", has_type_id = false)]
 	[Compact]
 	public class UserFontFace : Cairo.FontFace {
 		[CCode (cname = "cairo_user_font_face_create")]
@@ -495,11 +595,19 @@ namespace Cairo {
 		public void set_text_to_glyphs_func (Cairo.UserScaledFontTextToGlyphsFunc text_to_glyphs_func);
 		public void set_unicode_to_glyph_func (Cairo.UserScaledFontUnicodeToGlyphFunc unicode_to_glyph_func);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_scaled_font_t", ref_function = "cairo_scaled_font_reference", unref_function = "cairo_scaled_font_destroy", type_id = "cairo_gobject_scaled_font_get_type ()")]
+#else
 	[CCode (cname = "cairo_scaled_font_t", ref_function = "cairo_scaled_font_reference", unref_function = "cairo_scaled_font_destroy")]
+#endif
 	[Compact]
 	public class UserScaledFont {
 	}
-	[CCode (cheader_filename = "cairo-xlib.h", cname = "cairo_surface_t")]
+#if GOBJECT
+	[CCode (cheader_filename = "cairo-xlib.h,cairo-gobject.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy", type_id = "cairo_gobject_surface_get_type ()")]
+#else
+	[CCode (cheader_filename = "cairo-xlib.h", cname = "cairo_surface_t", ref_function = "cairo_surface_reference", unref_function = "cairo_surface_destroy")]
+#endif
 	[Compact]
 	public class XlibSurface : Cairo.Surface {
 		[CCode (cname = "cairo_xlib_surface_create")]
@@ -530,7 +638,11 @@ namespace Cairo {
 		public double x;
 		public double y;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_matrix_t", type_id = "cairo_gobject_matrix_get_type ()")]
+#else
 	[CCode (cname = "cairo_matrix_t", has_type_id = false)]
+#endif
 	public struct Matrix {
 		public double xx;
 		public double yx;
@@ -565,14 +677,22 @@ namespace Cairo {
 		public double x;
 		public double y;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_rectangle_t", type_id = "cairo_gobject_rectangle_get_type ()")]
+#else
 	[CCode (cname = "cairo_rectangle_t", has_type_id = false)]
+#endif
 	public struct Rectangle {
 		public double x;
 		public double y;
 		public double width;
 		public double height;
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_rectangle_int_t", type_id = "cairo_gobject_rectangle_int_get_type ()")]
+#else
 	[CCode (cname = "cairo_rectangle_int_t", has_type_id = false)]
+#endif
 	public struct RectangleInt {
 		public int x;
 		public int y;
@@ -596,7 +716,11 @@ namespace Cairo {
 	[CCode (cname = "cairo_user_data_key_t", has_copy_function = false, has_destroy_function = false, has_type_id = false, lvalue_access = false)]
 	public struct UserDataKey {
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_antialias_t", type_id = "cairo_gobject_antialias_get_type ()")]
+#else
 	[CCode (cname = "cairo_antialias_t", has_type_id = false)]
+#endif
 	public enum Antialias {
 		DEFAULT,
 		NONE,
@@ -606,13 +730,21 @@ namespace Cairo {
 		GOOD,
 		BEST
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_content_t", type_id = "cairo_gobject_content_get_type ()")]
+#else
 	[CCode (cname = "cairo_content_t", has_type_id = false)]
+#endif
 	public enum Content {
 		COLOR,
 		ALPHA,
 		COLOR_ALPHA
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_device_type_t", type_id = "cairo_gobject_device_type_get_type ()")]
+#else
 	[CCode (cname = "cairo_device_type_t", has_type_id = false)]
+#endif
 	public enum DeviceType {
 		DRM,
 		GL,
@@ -623,19 +755,31 @@ namespace Cairo {
 		COGL,
 		WIN32
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_extend_t", type_id = "cairo_gobject_extend_get_type ()")]
+#else
 	[CCode (cname = "cairo_extend_t", has_type_id = false)]
+#endif
 	public enum Extend {
 		NONE,
 		REPEAT,
 		REFLECT,
 		PAD
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_fill_rule_t", type_id = "cairo_gobject_fill_rule_get_type ()")]
+#else
 	[CCode (cname = "cairo_fill_rule_t", has_type_id = false)]
+#endif
 	public enum FillRule {
 		WINDING,
 		EVEN_ODD
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_filter_t", type_id = "cairo_gobject_filter_get_type ()")]
+#else
 	[CCode (cname = "cairo_filter_t", has_type_id = false)]
+#endif
 	public enum Filter {
 		FAST,
 		GOOD,
@@ -644,13 +788,21 @@ namespace Cairo {
 		BILINEAR,
 		GAUSSIAN
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_font_slant_t", type_id = "cairo_gobject_font_slant_get_type ()")]
+#else
 	[CCode (cname = "cairo_font_slant_t", has_type_id = false)]
+#endif
 	public enum FontSlant {
 		NORMAL,
 		ITALIC,
 		OBLIQUE
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_font_type_t", type_id = "cairo_gobject_font_type_get_type ()")]
+#else
 	[CCode (cname = "cairo_font_type_t", has_type_id = false)]
+#endif
 	public enum FontType {
 		TOY,
 		FT,
@@ -658,12 +810,20 @@ namespace Cairo {
 		QUARTZ,
 		USER
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_font_weight_t", type_id = "cairo_gobject_font_weight_get_type ()")]
+#else
 	[CCode (cname = "cairo_font_weight_t", has_type_id = false)]
+#endif
 	public enum FontWeight {
 		NORMAL,
 		BOLD
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_format_t", type_id = "cairo_gobject_format_get_type ()")]
+#else
 	[CCode (cname = "cairo_format_t", has_type_id = false)]
+#endif
 	public enum Format {
 		ARGB32,
 		RGB24,
@@ -673,13 +833,21 @@ namespace Cairo {
 		RGB30;
 		public int stride_for_width (int width);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_hint_metrics_t", type_id = "cairo_gobject_hint_metrics_get_type ()")]
+#else
 	[CCode (cname = "cairo_hint_metrics_t", has_type_id = false)]
+#endif
 	public enum HintMetrics {
 		DEFAULT,
 		OFF,
 		ON
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_hint_style_t", type_id = "cairo_gobject_hint_style_get_type ()")]
+#else
 	[CCode (cname = "cairo_hint_style_t", has_type_id = false)]
+#endif
 	public enum HintStyle {
 		DEFAULT,
 		NONE,
@@ -687,19 +855,31 @@ namespace Cairo {
 		MEDIUM,
 		FULL
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_line_cap_t", type_id = "cairo_gobject_line_cap_get_type ()")]
+#else
 	[CCode (cname = "cairo_line_cap_t", has_type_id = false)]
+#endif
 	public enum LineCap {
 		BUTT,
 		ROUND,
 		SQUARE
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_line_join_t", type_id = "cairo_gobject_line_join_get_type ()")]
+#else
 	[CCode (cname = "cairo_line_join_t", has_type_id = false)]
+#endif
 	public enum LineJoin {
 		MITER,
 		ROUND,
 		BEVEL
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_operator_t", type_id = "cairo_gobject_operator_get_type ()")]
+#else
 	[CCode (cname = "cairo_operator_t", has_type_id = false)]
+#endif
 	public enum Operator {
 		CLEAR,
 		SOURCE,
@@ -731,14 +911,22 @@ namespace Cairo {
 		HSL_COLOR,
 		HSL_LUMINOSITY
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_path_data_type_t", cprefix = "CAIRO_PATH_", type_id = "cairo_gobject_path_data_type_get_type ()")]
+#else
 	[CCode (cname = "cairo_path_data_type_t", cprefix = "CAIRO_PATH_", has_type_id = false)]
+#endif
 	public enum PathDataType {
 		MOVE_TO,
 		LINE_TO,
 		CURVE_TO,
 		CLOSE_PATH
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_pattern_type_t", type_id = "cairo_gobject_pattern_type_get_type ()")]
+#else
 	[CCode (cname = "cairo_pattern_type_t", has_type_id = false)]
+#endif
 	public enum PatternType {
 		SOLID,
 		SURFACE,
@@ -746,6 +934,24 @@ namespace Cairo {
 		RADIAL,
 		MESH,
 		RASTER_SOURCE
+	}
+	[CCode (cname = "cairo_pdf_metadata_t", cprefix = "CAIRO_PDF_METADATA_", has_type_id = false)]
+	[Version (since = "1.16")]
+	public enum PdfMetadata {
+		TITLE,
+		AUTHOR,
+		SUBJECT,
+		KEYWORDS,
+		CREATOR,
+		CREATE_DATE,
+		MOD_DATE
+	}
+	[CCode (cname = "cairo_pdf_outline_flags_t", cprefix = "CAIRO_PDF_OUTLINE_FLAG_", has_type_id = false)]
+	[Version (since = "1.16")]
+	public enum PdfOutlineFlags {
+		OPEN,
+		BOLD,
+		ITALIC
 	}
 	[CCode (cname = "cairo_pdf_version_t", cprefix = "CAIRO_PDF_", has_type_id = false)]
 	public enum PdfVersion {
@@ -765,18 +971,26 @@ namespace Cairo {
 		[CCode (cname = "cairo_ps_get_levels")]
 		public static void get_levels (out unowned Cairo.PsLevel[] levels);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_region_overlap_t", type_id = "cairo_gobject_region_overlap_get_type ()")]
+#else
 	[CCode (cname = "cairo_region_overlap_t", has_type_id = false)]
+#endif
 	public enum RegionOverlap {
 		IN,
 		OUT,
 		PART
 	}
-	[CCode (cname = "cairo_script_mode_t", has_type_id = false)]
+	[CCode (cheader_filename = "cairo-script.h", cname = "cairo_script_mode_t", has_type_id = false)]
 	public enum ScriptMode {
 		ASCII,
 		BINARY
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_status_t", type_id = "cairo_gobject_status_get_type ()")]
+#else
 	[CCode (cname = "cairo_status_t", has_type_id = false)]
+#endif
 	public enum Status {
 		SUCCESS,
 		NO_MEMORY,
@@ -819,11 +1033,17 @@ namespace Cairo {
 		JBIG2_GLOBAL_MISSING,
 		PNG_ERROR,
 		FREETYPE_ERROR,
-		WIN32_GDI_ERROR;
+		WIN32_GDI_ERROR,
+		TAG_ERROR,
+		LAST_STATUS;
 		[CCode (cname = "cairo_status_to_string")]
 		public unowned string to_string ();
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_subpixel_order_t", type_id = "cairo_gobject_subpixel_order_get_type ()")]
+#else
 	[CCode (cname = "cairo_subpixel_order_t", has_type_id = false)]
+#endif
 	public enum SubpixelOrder {
 		DEFAULT,
 		RGB,
@@ -831,12 +1051,16 @@ namespace Cairo {
 		VRGB,
 		VBGR
 	}
-	[CCode (cname = "cairo_surface_observer_mode_t", has_type_id = false)]
+	[CCode (cname = "cairo_surface_observer_mode_t", cprefix = "CAIRO_SURFACE_OBSERVER_", has_type_id = false)]
 	public enum SurfaceObserverMode {
 		NORMAL,
 		RECORD_OPERATIONS
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_surface_type_t", type_id = "cairo_gobject_surface_type_get_type ()")]
+#else
 	[CCode (cname = "cairo_surface_type_t", has_type_id = false)]
+#endif
 	public enum SurfaceType {
 		IMAGE,
 		PDF,
@@ -864,6 +1088,20 @@ namespace Cairo {
 		SUBSURFACE,
 		COGL
 	}
+	[CCode (cname = "cairo_svg_unit_t", cprefix = "CAIRO_SVG_UNIT_", has_type_id = false)]
+	[Version (since = "1.16")]
+	public enum SvgUnit {
+		USER,
+		EM,
+		EX,
+		PX,
+		IN,
+		CM,
+		MM,
+		PT,
+		PC,
+		PERCENT
+	}
 	[CCode (cname = "cairo_svg_version_t", cprefix = "CAIRO_SVG_", has_type_id = false)]
 	public enum SvgVersion {
 		VERSION_1_1,
@@ -873,7 +1111,11 @@ namespace Cairo {
 		[CCode (cname = "cairo_svg_get_versions")]
 		public static void get_versions (out unowned Cairo.SvgVersion[] versions);
 	}
+#if GOBJECT
+	[CCode (cname = "cairo_text_cluster_flags_t", cprefix = "CAIRO_TEXT_CLUSTER_FLAG_", type_id = "cairo_gobject_text_cluster_flags_get_type ()")]
+#else
 	[CCode (cname = "cairo_text_cluster_flags_t", cprefix = "CAIRO_TEXT_CLUSTER_FLAG_", has_type_id = false)]
+#endif
 	public enum TextClusterFlags {
 		BACKWARD
 	}
@@ -895,12 +1137,18 @@ namespace Cairo {
 	public delegate Cairo.Status UserScaledFontInitFunc (Cairo.UserScaledFont scaled_font, Cairo.Context cr, Cairo.FontExtents extents);
 	[CCode (cname = "cairo_user_scaled_font_render_glyph_func_t", has_target = false)]
 	public delegate Cairo.Status UserScaledFontRenderGlyphFunc (Cairo.UserScaledFont scaled_font, ulong glyph, Cairo.Context cr, out Cairo.TextExtents extents);
-	[CCode (cname = "cairo_user_font_face_get_text_to_glyphs_func", has_target = false)]
+	[CCode (cname = "cairo_user_scaled_font_text_to_glyphs_func_t", has_target = false)]
 	public delegate Cairo.Status UserScaledFontTextToGlyphsFunc (Cairo.UserScaledFont scaled_font, string utf8, int utf8_len, out Cairo.Glyph[] glyphs, out Cairo.TextCluster[] clusters, out Cairo.TextClusterFlags cluster_flags);
 	[CCode (cname = "cairo_user_scaled_font_unicode_to_glyph_func_t", has_target = false)]
 	public delegate Cairo.Status UserScaledFontUnicodeToGlyphFunc (Cairo.UserScaledFont scaled_font, ulong unicode, out ulong glyph_index);
 	[CCode (cname = "cairo_write_func_t", instance_pos = 0)]
 	public delegate Cairo.Status WriteFunc (uchar[] data);
+	[CCode (cname = "CAIRO_PDF_OUTLINE_ROOT")]
+	public const int PDF_OUTLINE_ROOT;
+	[CCode (cname = "CAIRO_TAG_DEST")]
+	public const string TAG_DEST;
+	[CCode (cname = "CAIRO_TAG_LINK")]
+	public const string TAG_LINK;
 	public static int version ();
 	public static unowned string version_string ();
 }

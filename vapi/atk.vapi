@@ -68,8 +68,10 @@ namespace Atk {
 		[CCode (has_construct_function = false)]
 		protected Object ();
 		public bool add_relationship (Atk.RelationType relationship, Atk.Object target);
-		[Version (deprecated = true)]
+		[Version (deprecated = true, deprecated_since = "2.12")]
 		public virtual uint connect_property_change_handler (Atk.PropertyChangeHandler handler);
+		[Version (since = "2.34")]
+		public unowned string get_accessible_id ();
 		[Version (since = "1.12")]
 		public virtual Atk.AttributeSet get_attributes ();
 		public virtual unowned string get_description ();
@@ -92,9 +94,11 @@ namespace Atk {
 		public Atk.Object ref_accessible_child (int i);
 		public virtual Atk.RelationSet ref_relation_set ();
 		public virtual Atk.StateSet ref_state_set ();
-		[Version (deprecated = true)]
+		[Version (deprecated = true, deprecated_since = "2.12")]
 		public virtual void remove_property_change_handler (uint handler_id);
 		public bool remove_relationship (Atk.RelationType relationship, Atk.Object target);
+		[Version (since = "2.34")]
+		public void set_accessible_id (string name);
 		public virtual void set_description (string description);
 		public virtual void set_name (string name);
 		public virtual void set_parent (Atk.Object parent);
@@ -154,11 +158,14 @@ namespace Atk {
 	[CCode (cheader_filename = "atk/atk.h", type_id = "atk_plug_get_type ()")]
 	public class Plug : Atk.Object, Atk.Component {
 		[CCode (has_construct_function = false, type = "AtkObject*")]
+		[Version (since = "1.30")]
 		public Plug ();
 		[Version (since = "1.30")]
 		public string get_id ();
 		[NoWrapper]
 		public virtual string get_object_id ();
+		[Version (since = "2.35.0")]
+		public void set_child (Atk.Object child);
 	}
 	[CCode (cheader_filename = "atk/atk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "atk_range_get_type ()")]
 	[Compact]
@@ -264,7 +271,7 @@ namespace Atk {
 		[Version (deprecated = true, deprecated_since = "2.9.4")]
 		public static uint add_focus_tracker (Atk.EventListener focus_tracker);
 		[CCode (cheader_filename = "atk/atk.h", cname = "atk_add_global_event_listener")]
-		public static uint add_global_event_listener ([CCode (type = "GSignalEmissionHook")] Atk.SignalEmissionHook listener, string event_type);
+		public static uint add_global_event_listener (GLib.SignalEmissionHook listener, string event_type);
 		[CCode (cheader_filename = "atk/atk.h", cname = "atk_add_key_event_listener")]
 		public static uint add_key_event_listener (Atk.KeySnoopFunc listener);
 		[CCode (cheader_filename = "atk/atk.h", cname = "atk_focus_tracker_init")]
@@ -476,7 +483,7 @@ namespace Atk {
 		public abstract bool add_selection (int start_offset, int end_offset);
 		[Version (since = "1.3")]
 		public static void free_ranges ([CCode (array_length = false)] Atk.TextRange[] ranges);
-		[CCode (array_length = false, array_null_terminated = true, cname = "atk_text_get_bounded_ranges")]
+		[CCode (array_length = false, array_null_terminated = true)]
 		[Version (since = "1.3")]
 		public virtual Atk.TextRange[] get_bounded_ranges (Atk.TextRectangle rect, Atk.CoordType coord_type, Atk.TextClipType x_clip_type, Atk.TextClipType y_clip_type);
 		public abstract int get_caret_offset ();
@@ -500,6 +507,10 @@ namespace Atk {
 		[Version (deprecated = true, deprecated_since = "2.9.3")]
 		public abstract string get_text_before_offset (int offset, Atk.TextBoundary boundary_type, out int start_offset, out int end_offset);
 		public abstract bool remove_selection (int selection_num);
+		[Version (since = "2.32")]
+		public abstract bool scroll_substring_to (int start_offset, int end_offset, Atk.ScrollType type);
+		[Version (since = "2.32")]
+		public abstract bool scroll_substring_to_point (int start_offset, int end_offset, Atk.CoordType coords, int x, int y);
 		public abstract bool set_caret_offset (int offset);
 		public abstract bool set_selection (int selection_num, int start_offset, int end_offset);
 		public virtual signal void text_attributes_changed ();
@@ -578,7 +589,7 @@ namespace Atk {
 		public GLib.Value old_value;
 		public GLib.Value new_value;
 	}
-	[CCode (cheader_filename = "atk/atk.h", type_id = "atk_rectangle_get_type ()")]
+	[CCode (cheader_filename = "atk/atk.h", copy_function = "g_boxed_copy", free_function = "g_boxed_free", type_id = "atk_rectangle_get_type ()")]
 	public struct Rectangle {
 		public int x;
 		public int y;
@@ -781,6 +792,10 @@ namespace Atk {
 		SUBSCRIPT,
 		SUPERSCRIPT,
 		FOOTNOTE,
+		CONTENT_DELETION,
+		CONTENT_INSERTION,
+		MARK,
+		SUGGESTION,
 		LAST_DEFINED;
 		[CCode (cheader_filename = "atk/atk.h")]
 		public static Atk.Role for_name (string name);
@@ -886,6 +901,7 @@ namespace Atk {
 		STRETCH,
 		VARIANT,
 		STYLE,
+		TEXT_POSITION,
 		LAST_DEFINED;
 		[CCode (cheader_filename = "atk/atk.h")]
 		public static Atk.TextAttribute for_name (string name);
@@ -958,8 +974,6 @@ namespace Atk {
 	[CCode (cheader_filename = "atk/atk.h", has_target = false)]
 	[Version (deprecated = true)]
 	public delegate void PropertyChangeHandler (Atk.Object obj, Atk.PropertyValues vals);
-	[CCode (cheader_filename = "atk/atk.h", cname = "GSignalEmissionHook", has_target = false)]
-	public delegate bool SignalEmissionHook (GLib.SignalInvocationHint ihint, [CCode (array_length_pos = 1.9)] Atk.Value[] param_values, void* data);
 	[CCode (cheader_filename = "atk/atk.h", cname = "ATK_BINARY_AGE")]
 	[Version (since = "2.7.4")]
 	public const int BINARY_AGE;

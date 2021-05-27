@@ -23,17 +23,14 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
-
 static gpointer vala_array_length_field_parent_class = NULL;
 
-
+static GType vala_array_length_field_get_type_once (void);
 
 /**
  * Creates a new array length field.
@@ -47,7 +44,6 @@ vala_array_length_field_construct (GType object_type,
 	ValaArrayLengthField* self = NULL;
 	ValaInvalidType* _tmp0_;
 	ValaInvalidType* _tmp1_;
-	g_return_val_if_fail (source_reference != NULL, NULL);
 	_tmp0_ = vala_invalid_type_new ();
 	_tmp1_ = _tmp0_;
 	self = (ValaArrayLengthField*) vala_field_construct (object_type, "length", (ValaDataType*) _tmp1_, NULL, source_reference, NULL);
@@ -56,42 +52,46 @@ vala_array_length_field_construct (GType object_type,
 	return self;
 }
 
-
 ValaArrayLengthField*
 vala_array_length_field_new (ValaSourceReference* source_reference)
 {
 	return vala_array_length_field_construct (VALA_TYPE_ARRAY_LENGTH_FIELD, source_reference);
 }
 
-
 static void
-vala_array_length_field_class_init (ValaArrayLengthFieldClass * klass)
+vala_array_length_field_class_init (ValaArrayLengthFieldClass * klass,
+                                    gpointer klass_data)
 {
 	vala_array_length_field_parent_class = g_type_class_peek_parent (klass);
 }
 
-
 static void
-vala_array_length_field_instance_init (ValaArrayLengthField * self)
+vala_array_length_field_instance_init (ValaArrayLengthField * self,
+                                       gpointer klass)
 {
 }
-
 
 /**
  * Represents the Array.length field.
  */
+static GType
+vala_array_length_field_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaArrayLengthFieldClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_length_field_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayLengthField), 0, (GInstanceInitFunc) vala_array_length_field_instance_init, NULL };
+	GType vala_array_length_field_type_id;
+	vala_array_length_field_type_id = g_type_register_static (VALA_TYPE_FIELD, "ValaArrayLengthField", &g_define_type_info, 0);
+	return vala_array_length_field_type_id;
+}
+
 GType
 vala_array_length_field_get_type (void)
 {
 	static volatile gsize vala_array_length_field_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_array_length_field_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaArrayLengthFieldClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_length_field_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayLengthField), 0, (GInstanceInitFunc) vala_array_length_field_instance_init, NULL };
 		GType vala_array_length_field_type_id;
-		vala_array_length_field_type_id = g_type_register_static (VALA_TYPE_FIELD, "ValaArrayLengthField", &g_define_type_info, 0);
+		vala_array_length_field_type_id = vala_array_length_field_get_type_once ();
 		g_once_init_leave (&vala_array_length_field_type_id__volatile, vala_array_length_field_type_id);
 	}
 	return vala_array_length_field_type_id__volatile;
 }
-
-
 

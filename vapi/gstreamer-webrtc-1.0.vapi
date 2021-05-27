@@ -27,6 +27,55 @@ namespace Gst {
 		[NoAccessorMethod]
 		public Gst.WebRTCICETransport transport { owned get; }
 	}
+	[CCode (cheader_filename = "gst/webrtc/webrtc.h", lower_case_csuffix = "webrtc_data_channel", type_id = "gst_webrtc_data_channel_get_type ()")]
+	[Version (since = "1.18")]
+	public abstract class WebRTCDataChannel : GLib.Object {
+		[CCode (array_length = false)]
+		public weak void* _padding[4];
+		public GLib.Mutex @lock;
+		[CCode (has_construct_function = false)]
+		protected WebRTCDataChannel ();
+		[NoAccessorMethod]
+		public uint64 buffered_amount { get; }
+		[NoAccessorMethod]
+		public uint64 buffered_amount_low_threshold { get; set; }
+		[NoAccessorMethod]
+		public int id { get; construct; }
+		[NoAccessorMethod]
+		public string label { owned get; construct; }
+		[NoAccessorMethod]
+		public int max_packet_lifetime { get; construct; }
+		[NoAccessorMethod]
+		public int max_retransmits { get; construct; }
+		[NoAccessorMethod]
+		public bool negotiated { get; construct; }
+		[NoAccessorMethod]
+		public bool ordered { get; construct; }
+		[NoAccessorMethod]
+		public Gst.WebRTCPriorityType priority { get; construct; }
+		[NoAccessorMethod]
+		public string protocol { owned get; construct; }
+		[NoAccessorMethod]
+		public Gst.WebRTCDataChannelState ready_state { get; }
+		[HasEmitter]
+		public virtual signal void close ();
+		[HasEmitter]
+		public signal void on_buffered_amount_low ();
+		[HasEmitter]
+		public signal void on_close ();
+		[HasEmitter]
+		public signal void on_error (GLib.Error error);
+		[HasEmitter]
+		public signal void on_message_data (GLib.Bytes? data);
+		[HasEmitter]
+		public signal void on_message_string (string? str);
+		[HasEmitter]
+		public signal void on_open ();
+		[HasEmitter]
+		public virtual signal void send_data (GLib.Bytes? data);
+		[HasEmitter]
+		public virtual signal void send_string (string? str);
+	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", lower_case_csuffix = "webrtc_ice_transport", type_id = "gst_webrtc_ice_transport_get_type ()")]
 	public abstract class WebRTCICETransport : Gst.Object {
 		[CCode (array_length = false)]
@@ -80,12 +129,14 @@ namespace Gst {
 		public weak void* _padding[4];
 		public weak Gst.Caps codec_preferences;
 		public Gst.WebRTCRTPTransceiverDirection current_direction;
-		public Gst.WebRTCRTPTransceiverDirection direction;
 		public weak string mid;
 		public uint mline;
 		public bool stopped;
 		[CCode (has_construct_function = false)]
 		protected WebRTCRTPTransceiver ();
+		[NoAccessorMethod]
+		[Version (since = "1.18")]
+		public Gst.WebRTCRTPTransceiverDirection direction { get; set; }
 		[NoAccessorMethod]
 		public uint mlineindex { get; construct; }
 		[NoAccessorMethod]
@@ -101,9 +152,11 @@ namespace Gst {
 		[CCode (has_construct_function = false)]
 		public WebRTCSessionDescription (Gst.WebRTCSDPType type, owned Gst.SDP.Message sdp);
 		public Gst.WebRTCSessionDescription copy ();
+		[DestroysInstance]
 		public void free ();
 	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_BUNDLE_POLICY_", type_id = "gst_webrtc_bundle_policy_get_type ()")]
+	[Version (since = "1.16")]
 	public enum WebRTCBundlePolicy {
 		NONE,
 		BALANCED,
@@ -126,6 +179,7 @@ namespace Gst {
 		CONNECTED
 	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_DATA_CHANNEL_STATE_", type_id = "gst_webrtc_data_channel_state_get_type ()")]
+	[Version (since = "1.16")]
 	public enum WebRTCDataChannelState {
 		NEW,
 		CONNECTING,
@@ -134,6 +188,7 @@ namespace Gst {
 		CLOSED
 	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_FEC_TYPE_", type_id = "gst_webrtc_fec_type_get_type ()")]
+	[Version (since = "1.14.1")]
 	public enum WebRTCFECType {
 		NONE,
 		ULP_RED
@@ -164,6 +219,12 @@ namespace Gst {
 		CONTROLLED,
 		CONTROLLING
 	}
+	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_ICE_TRANSPORT_POLICY_", type_id = "gst_webrtc_ice_transport_policy_get_type ()")]
+	[Version (since = "1.16")]
+	public enum WebRTCICETransportPolicy {
+		ALL,
+		RELAY
+	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_PEER_CONNECTION_STATE_", type_id = "gst_webrtc_peer_connection_state_get_type ()")]
 	public enum WebRTCPeerConnectionState {
 		NEW,
@@ -174,6 +235,7 @@ namespace Gst {
 		CLOSED
 	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_PRIORITY_TYPE_", type_id = "gst_webrtc_priority_type_get_type ()")]
+	[Version (since = "1.16")]
 	public enum WebRTCPriorityType {
 		VERY_LOW,
 		LOW,
@@ -189,6 +251,7 @@ namespace Gst {
 		SENDRECV
 	}
 	[CCode (cheader_filename = "gst/webrtc/webrtc.h", cprefix = "GST_WEBRTC_SCTP_TRANSPORT_STATE_", type_id = "gst_webrtc_sctp_transport_state_get_type ()")]
+	[Version (since = "1.16")]
 	public enum WebRTCSCTPTransportState {
 		NEW,
 		CONNECTING,

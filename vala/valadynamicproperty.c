@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -36,14 +34,13 @@ struct _ValaDynamicPropertyPrivate {
 	ValaDataType* _dynamic_type;
 };
 
-
 static gint ValaDynamicProperty_private_offset;
 static gpointer vala_dynamic_property_parent_class = NULL;
 
 static gboolean vala_dynamic_property_real_check (ValaCodeNode* base,
                                            ValaCodeContext* context);
 static void vala_dynamic_property_finalize (ValaCodeNode * obj);
-
+static GType vala_dynamic_property_get_type_once (void);
 
 static inline gpointer
 vala_dynamic_property_get_instance_private (ValaDynamicProperty* self)
@@ -51,6 +48,33 @@ vala_dynamic_property_get_instance_private (ValaDynamicProperty* self)
 	return G_STRUCT_MEMBER_P (self, ValaDynamicProperty_private_offset);
 }
 
+ValaDataType*
+vala_dynamic_property_get_dynamic_type (ValaDynamicProperty* self)
+{
+	ValaDataType* result;
+	ValaDataType* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_dynamic_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_dynamic_property_set_dynamic_type (ValaDynamicProperty* self,
+                                        ValaDataType* value)
+{
+	ValaDataType* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_dynamic_type);
+	self->priv->_dynamic_type = _tmp0_;
+}
 
 ValaDynamicProperty*
 vala_dynamic_property_construct (GType object_type,
@@ -67,7 +91,6 @@ vala_dynamic_property_construct (GType object_type,
 	return self;
 }
 
-
 ValaDynamicProperty*
 vala_dynamic_property_new (ValaDataType* dynamic_type,
                            const gchar* name,
@@ -76,7 +99,6 @@ vala_dynamic_property_new (ValaDataType* dynamic_type,
 {
 	return vala_dynamic_property_construct (VALA_TYPE_DYNAMIC_PROPERTY, dynamic_type, name, source_reference, comment);
 }
-
 
 static gboolean
 vala_dynamic_property_real_check (ValaCodeNode* base,
@@ -90,40 +112,9 @@ vala_dynamic_property_real_check (ValaCodeNode* base,
 	return result;
 }
 
-
-ValaDataType*
-vala_dynamic_property_get_dynamic_type (ValaDynamicProperty* self)
-{
-	ValaDataType* result;
-	ValaDataType* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_dynamic_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_dynamic_property_set_dynamic_type (ValaDynamicProperty* self,
-                                        ValaDataType* value)
-{
-	ValaDataType* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_dynamic_type);
-	self->priv->_dynamic_type = _tmp0_;
-}
-
-
 static void
-vala_dynamic_property_class_init (ValaDynamicPropertyClass * klass)
+vala_dynamic_property_class_init (ValaDynamicPropertyClass * klass,
+                                  gpointer klass_data)
 {
 	vala_dynamic_property_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_dynamic_property_finalize;
@@ -131,13 +122,12 @@ vala_dynamic_property_class_init (ValaDynamicPropertyClass * klass)
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_dynamic_property_real_check;
 }
 
-
 static void
-vala_dynamic_property_instance_init (ValaDynamicProperty * self)
+vala_dynamic_property_instance_init (ValaDynamicProperty * self,
+                                     gpointer klass)
 {
 	self->priv = vala_dynamic_property_get_instance_private (self);
 }
-
 
 static void
 vala_dynamic_property_finalize (ValaCodeNode * obj)
@@ -148,23 +138,28 @@ vala_dynamic_property_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_dynamic_property_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a late bound property.
  */
+static GType
+vala_dynamic_property_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaDynamicPropertyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_dynamic_property_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDynamicProperty), 0, (GInstanceInitFunc) vala_dynamic_property_instance_init, NULL };
+	GType vala_dynamic_property_type_id;
+	vala_dynamic_property_type_id = g_type_register_static (VALA_TYPE_PROPERTY, "ValaDynamicProperty", &g_define_type_info, 0);
+	ValaDynamicProperty_private_offset = g_type_add_instance_private (vala_dynamic_property_type_id, sizeof (ValaDynamicPropertyPrivate));
+	return vala_dynamic_property_type_id;
+}
+
 GType
 vala_dynamic_property_get_type (void)
 {
 	static volatile gsize vala_dynamic_property_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_dynamic_property_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaDynamicPropertyClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_dynamic_property_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaDynamicProperty), 0, (GInstanceInitFunc) vala_dynamic_property_instance_init, NULL };
 		GType vala_dynamic_property_type_id;
-		vala_dynamic_property_type_id = g_type_register_static (VALA_TYPE_PROPERTY, "ValaDynamicProperty", &g_define_type_info, 0);
-		ValaDynamicProperty_private_offset = g_type_add_instance_private (vala_dynamic_property_type_id, sizeof (ValaDynamicPropertyPrivate));
+		vala_dynamic_property_type_id = vala_dynamic_property_get_type_once ();
 		g_once_init_leave (&vala_dynamic_property_type_id__volatile, vala_dynamic_property_type_id);
 	}
 	return vala_dynamic_property_type_id__volatile;
 }
-
-
 

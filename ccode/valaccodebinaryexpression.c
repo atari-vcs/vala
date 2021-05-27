@@ -23,10 +23,8 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <glib.h>
 
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
 
@@ -36,7 +34,6 @@ struct _ValaCCodeBinaryExpressionPrivate {
 	ValaCCodeExpression* _right;
 };
 
-
 static gint ValaCCodeBinaryExpression_private_offset;
 static gpointer vala_ccode_binary_expression_parent_class = NULL;
 
@@ -45,7 +42,7 @@ static void vala_ccode_binary_expression_real_write (ValaCCodeNode* base,
 static void vala_ccode_binary_expression_real_write_inner (ValaCCodeExpression* base,
                                                     ValaCCodeWriter* writer);
 static void vala_ccode_binary_expression_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_binary_expression_get_type_once (void);
 
 static inline gpointer
 vala_ccode_binary_expression_get_instance_private (ValaCCodeBinaryExpression* self)
@@ -53,6 +50,74 @@ vala_ccode_binary_expression_get_instance_private (ValaCCodeBinaryExpression* se
 	return G_STRUCT_MEMBER_P (self, ValaCCodeBinaryExpression_private_offset);
 }
 
+ValaCCodeBinaryOperator
+vala_ccode_binary_expression_get_operator (ValaCCodeBinaryExpression* self)
+{
+	ValaCCodeBinaryOperator result;
+	ValaCCodeBinaryOperator _tmp0_;
+	g_return_val_if_fail (self != NULL, 0);
+	_tmp0_ = self->priv->_operator;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_binary_expression_set_operator (ValaCCodeBinaryExpression* self,
+                                           ValaCCodeBinaryOperator value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_operator = value;
+}
+
+ValaCCodeExpression*
+vala_ccode_binary_expression_get_left (ValaCCodeBinaryExpression* self)
+{
+	ValaCCodeExpression* result;
+	ValaCCodeExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_left;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_ccode_node_ref0 (gpointer self)
+{
+	return self ? vala_ccode_node_ref (self) : NULL;
+}
+
+void
+vala_ccode_binary_expression_set_left (ValaCCodeBinaryExpression* self,
+                                       ValaCCodeExpression* value)
+{
+	ValaCCodeExpression* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_left);
+	self->priv->_left = _tmp0_;
+}
+
+ValaCCodeExpression*
+vala_ccode_binary_expression_get_right (ValaCCodeBinaryExpression* self)
+{
+	ValaCCodeExpression* result;
+	ValaCCodeExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_right;
+	result = _tmp0_;
+	return result;
+}
+
+void
+vala_ccode_binary_expression_set_right (ValaCCodeBinaryExpression* self,
+                                        ValaCCodeExpression* value)
+{
+	ValaCCodeExpression* _tmp0_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_ccode_node_ref0 (value);
+	_vala_ccode_node_unref0 (self->priv->_right);
+	self->priv->_right = _tmp0_;
+}
 
 ValaCCodeBinaryExpression*
 vala_ccode_binary_expression_construct (GType object_type,
@@ -70,7 +135,6 @@ vala_ccode_binary_expression_construct (GType object_type,
 	return self;
 }
 
-
 ValaCCodeBinaryExpression*
 vala_ccode_binary_expression_new (ValaCCodeBinaryOperator op,
                                   ValaCCodeExpression* l,
@@ -78,7 +142,6 @@ vala_ccode_binary_expression_new (ValaCCodeBinaryOperator op,
 {
 	return vala_ccode_binary_expression_construct (VALA_TYPE_CCODE_BINARY_EXPRESSION, op, l, r);
 }
-
 
 static void
 vala_ccode_binary_expression_real_write (ValaCCodeNode* base,
@@ -193,7 +256,6 @@ vala_ccode_binary_expression_real_write (ValaCCodeNode* base,
 	vala_ccode_expression_write_inner (_tmp2_, writer);
 }
 
-
 static void
 vala_ccode_binary_expression_real_write_inner (ValaCCodeExpression* base,
                                                ValaCCodeWriter* writer)
@@ -206,85 +268,9 @@ vala_ccode_binary_expression_real_write_inner (ValaCCodeExpression* base,
 	vala_ccode_writer_write_string (writer, ")");
 }
 
-
-ValaCCodeBinaryOperator
-vala_ccode_binary_expression_get_operator (ValaCCodeBinaryExpression* self)
-{
-	ValaCCodeBinaryOperator result;
-	ValaCCodeBinaryOperator _tmp0_;
-	g_return_val_if_fail (self != NULL, 0);
-	_tmp0_ = self->priv->_operator;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_binary_expression_set_operator (ValaCCodeBinaryExpression* self,
-                                           ValaCCodeBinaryOperator value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_operator = value;
-}
-
-
-ValaCCodeExpression*
-vala_ccode_binary_expression_get_left (ValaCCodeBinaryExpression* self)
-{
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_left;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_ccode_node_ref0 (gpointer self)
-{
-	return self ? vala_ccode_node_ref (self) : NULL;
-}
-
-
-void
-vala_ccode_binary_expression_set_left (ValaCCodeBinaryExpression* self,
-                                       ValaCCodeExpression* value)
-{
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_left);
-	self->priv->_left = _tmp0_;
-}
-
-
-ValaCCodeExpression*
-vala_ccode_binary_expression_get_right (ValaCCodeBinaryExpression* self)
-{
-	ValaCCodeExpression* result;
-	ValaCCodeExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_right;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_binary_expression_set_right (ValaCCodeBinaryExpression* self,
-                                        ValaCCodeExpression* value)
-{
-	ValaCCodeExpression* _tmp0_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_ccode_node_ref0 (value);
-	_vala_ccode_node_unref0 (self->priv->_right);
-	self->priv->_right = _tmp0_;
-}
-
-
 static void
-vala_ccode_binary_expression_class_init (ValaCCodeBinaryExpressionClass * klass)
+vala_ccode_binary_expression_class_init (ValaCCodeBinaryExpressionClass * klass,
+                                         gpointer klass_data)
 {
 	vala_ccode_binary_expression_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_binary_expression_finalize;
@@ -293,13 +279,12 @@ vala_ccode_binary_expression_class_init (ValaCCodeBinaryExpressionClass * klass)
 	((ValaCCodeExpressionClass *) klass)->write_inner = (void (*) (ValaCCodeExpression*, ValaCCodeWriter*)) vala_ccode_binary_expression_real_write_inner;
 }
 
-
 static void
-vala_ccode_binary_expression_instance_init (ValaCCodeBinaryExpression * self)
+vala_ccode_binary_expression_instance_init (ValaCCodeBinaryExpression * self,
+                                            gpointer klass)
 {
 	self->priv = vala_ccode_binary_expression_get_instance_private (self);
 }
-
 
 static void
 vala_ccode_binary_expression_finalize (ValaCCodeNode * obj)
@@ -311,37 +296,49 @@ vala_ccode_binary_expression_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_binary_expression_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents an expression with two operands in C code.
  */
+static GType
+vala_ccode_binary_expression_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBinaryExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_binary_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBinaryExpression), 0, (GInstanceInitFunc) vala_ccode_binary_expression_instance_init, NULL };
+	GType vala_ccode_binary_expression_type_id;
+	vala_ccode_binary_expression_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeBinaryExpression", &g_define_type_info, 0);
+	ValaCCodeBinaryExpression_private_offset = g_type_add_instance_private (vala_ccode_binary_expression_type_id, sizeof (ValaCCodeBinaryExpressionPrivate));
+	return vala_ccode_binary_expression_type_id;
+}
+
 GType
 vala_ccode_binary_expression_get_type (void)
 {
 	static volatile gsize vala_ccode_binary_expression_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_binary_expression_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBinaryExpressionClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_binary_expression_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBinaryExpression), 0, (GInstanceInitFunc) vala_ccode_binary_expression_instance_init, NULL };
 		GType vala_ccode_binary_expression_type_id;
-		vala_ccode_binary_expression_type_id = g_type_register_static (VALA_TYPE_CCODE_EXPRESSION, "ValaCCodeBinaryExpression", &g_define_type_info, 0);
-		ValaCCodeBinaryExpression_private_offset = g_type_add_instance_private (vala_ccode_binary_expression_type_id, sizeof (ValaCCodeBinaryExpressionPrivate));
+		vala_ccode_binary_expression_type_id = vala_ccode_binary_expression_get_type_once ();
 		g_once_init_leave (&vala_ccode_binary_expression_type_id__volatile, vala_ccode_binary_expression_type_id);
 	}
 	return vala_ccode_binary_expression_type_id__volatile;
 }
 
+static GType
+vala_ccode_binary_operator_get_type_once (void)
+{
+	static const GEnumValue values[] = {{VALA_CCODE_BINARY_OPERATOR_PLUS, "VALA_CCODE_BINARY_OPERATOR_PLUS", "plus"}, {VALA_CCODE_BINARY_OPERATOR_MINUS, "VALA_CCODE_BINARY_OPERATOR_MINUS", "minus"}, {VALA_CCODE_BINARY_OPERATOR_MUL, "VALA_CCODE_BINARY_OPERATOR_MUL", "mul"}, {VALA_CCODE_BINARY_OPERATOR_DIV, "VALA_CCODE_BINARY_OPERATOR_DIV", "div"}, {VALA_CCODE_BINARY_OPERATOR_MOD, "VALA_CCODE_BINARY_OPERATOR_MOD", "mod"}, {VALA_CCODE_BINARY_OPERATOR_SHIFT_LEFT, "VALA_CCODE_BINARY_OPERATOR_SHIFT_LEFT", "shift-left"}, {VALA_CCODE_BINARY_OPERATOR_SHIFT_RIGHT, "VALA_CCODE_BINARY_OPERATOR_SHIFT_RIGHT", "shift-right"}, {VALA_CCODE_BINARY_OPERATOR_LESS_THAN, "VALA_CCODE_BINARY_OPERATOR_LESS_THAN", "less-than"}, {VALA_CCODE_BINARY_OPERATOR_GREATER_THAN, "VALA_CCODE_BINARY_OPERATOR_GREATER_THAN", "greater-than"}, {VALA_CCODE_BINARY_OPERATOR_LESS_THAN_OR_EQUAL, "VALA_CCODE_BINARY_OPERATOR_LESS_THAN_OR_EQUAL", "less-than-or-equal"}, {VALA_CCODE_BINARY_OPERATOR_GREATER_THAN_OR_EQUAL, "VALA_CCODE_BINARY_OPERATOR_GREATER_THAN_OR_EQUAL", "greater-than-or-equal"}, {VALA_CCODE_BINARY_OPERATOR_EQUALITY, "VALA_CCODE_BINARY_OPERATOR_EQUALITY", "equality"}, {VALA_CCODE_BINARY_OPERATOR_INEQUALITY, "VALA_CCODE_BINARY_OPERATOR_INEQUALITY", "inequality"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_AND, "VALA_CCODE_BINARY_OPERATOR_BITWISE_AND", "bitwise-and"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_OR, "VALA_CCODE_BINARY_OPERATOR_BITWISE_OR", "bitwise-or"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_XOR, "VALA_CCODE_BINARY_OPERATOR_BITWISE_XOR", "bitwise-xor"}, {VALA_CCODE_BINARY_OPERATOR_AND, "VALA_CCODE_BINARY_OPERATOR_AND", "and"}, {VALA_CCODE_BINARY_OPERATOR_OR, "VALA_CCODE_BINARY_OPERATOR_OR", "or"}, {0, NULL, NULL}};
+	GType vala_ccode_binary_operator_type_id;
+	vala_ccode_binary_operator_type_id = g_enum_register_static ("ValaCCodeBinaryOperator", values);
+	return vala_ccode_binary_operator_type_id;
+}
 
 GType
 vala_ccode_binary_operator_get_type (void)
 {
 	static volatile gsize vala_ccode_binary_operator_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_binary_operator_type_id__volatile)) {
-		static const GEnumValue values[] = {{VALA_CCODE_BINARY_OPERATOR_PLUS, "VALA_CCODE_BINARY_OPERATOR_PLUS", "plus"}, {VALA_CCODE_BINARY_OPERATOR_MINUS, "VALA_CCODE_BINARY_OPERATOR_MINUS", "minus"}, {VALA_CCODE_BINARY_OPERATOR_MUL, "VALA_CCODE_BINARY_OPERATOR_MUL", "mul"}, {VALA_CCODE_BINARY_OPERATOR_DIV, "VALA_CCODE_BINARY_OPERATOR_DIV", "div"}, {VALA_CCODE_BINARY_OPERATOR_MOD, "VALA_CCODE_BINARY_OPERATOR_MOD", "mod"}, {VALA_CCODE_BINARY_OPERATOR_SHIFT_LEFT, "VALA_CCODE_BINARY_OPERATOR_SHIFT_LEFT", "shift-left"}, {VALA_CCODE_BINARY_OPERATOR_SHIFT_RIGHT, "VALA_CCODE_BINARY_OPERATOR_SHIFT_RIGHT", "shift-right"}, {VALA_CCODE_BINARY_OPERATOR_LESS_THAN, "VALA_CCODE_BINARY_OPERATOR_LESS_THAN", "less-than"}, {VALA_CCODE_BINARY_OPERATOR_GREATER_THAN, "VALA_CCODE_BINARY_OPERATOR_GREATER_THAN", "greater-than"}, {VALA_CCODE_BINARY_OPERATOR_LESS_THAN_OR_EQUAL, "VALA_CCODE_BINARY_OPERATOR_LESS_THAN_OR_EQUAL", "less-than-or-equal"}, {VALA_CCODE_BINARY_OPERATOR_GREATER_THAN_OR_EQUAL, "VALA_CCODE_BINARY_OPERATOR_GREATER_THAN_OR_EQUAL", "greater-than-or-equal"}, {VALA_CCODE_BINARY_OPERATOR_EQUALITY, "VALA_CCODE_BINARY_OPERATOR_EQUALITY", "equality"}, {VALA_CCODE_BINARY_OPERATOR_INEQUALITY, "VALA_CCODE_BINARY_OPERATOR_INEQUALITY", "inequality"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_AND, "VALA_CCODE_BINARY_OPERATOR_BITWISE_AND", "bitwise-and"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_OR, "VALA_CCODE_BINARY_OPERATOR_BITWISE_OR", "bitwise-or"}, {VALA_CCODE_BINARY_OPERATOR_BITWISE_XOR, "VALA_CCODE_BINARY_OPERATOR_BITWISE_XOR", "bitwise-xor"}, {VALA_CCODE_BINARY_OPERATOR_AND, "VALA_CCODE_BINARY_OPERATOR_AND", "and"}, {VALA_CCODE_BINARY_OPERATOR_OR, "VALA_CCODE_BINARY_OPERATOR_OR", "or"}, {0, NULL, NULL}};
 		GType vala_ccode_binary_operator_type_id;
-		vala_ccode_binary_operator_type_id = g_enum_register_static ("ValaCCodeBinaryOperator", values);
+		vala_ccode_binary_operator_type_id = vala_ccode_binary_operator_get_type_once ();
 		g_once_init_leave (&vala_ccode_binary_operator_type_id__volatile, vala_ccode_binary_operator_type_id);
 	}
 	return vala_ccode_binary_operator_type_id__volatile;
 }
-
-
 

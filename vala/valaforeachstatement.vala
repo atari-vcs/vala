@@ -22,8 +22,9 @@
 
 
 /**
- * Represents a foreach statement in the source code. Foreach statements iterate
- * over the elements of a collection.
+ * Represents a foreach statement in the source code.
+ *
+ * Foreach statements iterate over the elements of a collection.
  */
 public class Vala.ForeachStatement : Block {
 	/**
@@ -102,7 +103,7 @@ public class Vala.ForeachStatement : Block {
 	 * @param source_reference  reference to source code
 	 * @return                  newly created foreach statement
 	 */
-	public ForeachStatement (DataType? type_reference, string variable_name, Expression collection, Block body, SourceReference source_reference) {
+	public ForeachStatement (DataType? type_reference, string variable_name, Expression collection, Block body, SourceReference? source_reference = null) {
 		base (source_reference);
 		this.variable_name = variable_name;
 		this.collection = collection;
@@ -154,6 +155,10 @@ public class Vala.ForeachStatement : Block {
 
 		checked = true;
 
+		if (type_reference == null) {
+			type_reference = new VarType ();
+		}
+
 		// analyze collection expression first, used for type inference
 		if (!collection.check (context)) {
 			// ignore inner error
@@ -168,7 +173,7 @@ public class Vala.ForeachStatement : Block {
 		var collection_type = collection.value_type.copy ();
 		collection.target_type = collection_type.copy ();
 
-		if (collection_type.is_array ()) {
+		if (collection_type is ArrayType) {
 			var array_type = (ArrayType) collection_type;
 
 			// can't use inline-allocated array for temporary variable
@@ -195,7 +200,8 @@ public class Vala.ForeachStatement : Block {
 		if (get_method == null) {
 			return false;
 		}
-		if (get_method.get_parameters ().size != 1) {
+		unowned List<Parameter> parameters = get_method.get_parameters ();
+		if (parameters.size != 1 || !(parameters[0].variable_type is IntegerType)) {
 			return false;
 		}
 		var size_property = collection_type.get_member ("size") as Property;
@@ -324,9 +330,13 @@ public class Vala.ForeachStatement : Block {
 
 	bool analyze_element_type (DataType element_type) {
 		// analyze element type
-		if (type_reference == null) {
+		if (type_reference is VarType) {
 			// var type
 			type_reference = element_type.copy ();
+			// FIXME Only follows "unowned var" otherwise inherit ownership of element-type
+			if (!type_reference.value_owned) {
+				type_reference.value_owned = false;
+			}
 		} else if (!element_type.compatible (type_reference)) {
 			error = true;
 			Report.error (source_reference, "Foreach: Cannot convert from `%s' to `%s'".printf (element_type.to_string (), type_reference.to_string ()));
@@ -342,9 +352,13 @@ public class Vala.ForeachStatement : Block {
 
 	bool check_without_iterator (CodeContext context, DataType collection_type, DataType element_type) {
 		// analyze element type
-		if (type_reference == null) {
+		if (type_reference is VarType) {
 			// var type
 			type_reference = element_type.copy ();
+			// FIXME Only follows "unowned var" otherwise inherit ownership of element-type
+			if (!type_reference.value_owned) {
+				type_reference.value_owned = false;
+			}
 		} else if (!element_type.compatible (type_reference)) {
 			error = true;
 			Report.error (source_reference, "Foreach: Cannot convert from `%s' to `%s'".printf (element_type.to_string (), type_reference.to_string ()));
@@ -380,10 +394,15 @@ public class Vala.ForeachStatement : Block {
 		add_local_variable (collection_variable);
 		collection_variable.active = true;
 
-		add_error_types (collection.get_error_types ());
-		add_error_types (body.get_error_types ());
-
 		return !error;
+	}
+
+	public override void get_error_types (Collection<DataType> collection, SourceReference? source_reference = null) {
+		if (source_reference == null) {
+			source_reference = this.source_reference;
+		}
+		this.collection.get_error_types (collection, source_reference);
+		body.get_error_types (collection, source_reference);
 	}
 
 	public override void emit (CodeGenerator codegen) {
@@ -405,6 +424,8 @@ public class Vala.ForeachStatement : Block {
 	}
 
 	public override void get_defined_variables (Collection<Variable> collection) {
-		collection.add (element_variable);
+		if (element_variable != null) {
+			collection.add (element_variable);
+		}
 	}
 }

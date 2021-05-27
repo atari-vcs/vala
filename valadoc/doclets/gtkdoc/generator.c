@@ -23,18 +23,17 @@
  * 	Luca Bruno <lethalman88@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include <valadoc.h>
+#include <glib-object.h>
 #include <valagee.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <glib/gstdio.h>
 #include <float.h>
 #include <math.h>
+#include <vala.h>
 #include <gobject/gvaluecollector.h>
-
 
 #define GTKDOC_TYPE_GENERATOR (gtkdoc_generator_get_type ())
 #define GTKDOC_GENERATOR(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTKDOC_TYPE_GENERATOR, GtkdocGenerator))
@@ -140,7 +139,6 @@ typedef struct _GtkdocCommentConverter GtkdocCommentConverter;
 typedef struct _GtkdocCommentConverterClass GtkdocCommentConverterClass;
 typedef struct _GtkdocCommentConverterPrivate GtkdocCommentConverterPrivate;
 #define _g_regex_unref0(var) ((var == NULL) ? NULL : (var = (g_regex_unref (var), NULL)))
-#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 typedef struct _GtkdocDBusMemberPrivate GtkdocDBusMemberPrivate;
 
 #define GTKDOC_DBUS_TYPE_PARAMETER (gtkdoc_dbus_parameter_get_type ())
@@ -157,7 +155,6 @@ typedef enum  {
 	GTKDOC_DBUS_PARAMETER_DIRECTION_IN,
 	GTKDOC_DBUS_PARAMETER_DIRECTION_OUT
 } GtkdocDBusParameterDirection;
-
 
 #define GTKDOC_DBUS_PARAMETER_TYPE_DIRECTION (gtkdoc_dbus_parameter_direction_get_type ())
 #define _gtkdoc_dbus_parameter_unref0(var) ((var == NULL) ? NULL : (var = (gtkdoc_dbus_parameter_unref (var), NULL)))
@@ -298,12 +295,12 @@ struct _GtkdocGeneratorParamSpecFileData {
 	GParamSpec parent_instance;
 };
 
-
 static gint GtkdocGenerator_private_offset;
 static gpointer gtkdoc_generator_parent_class = NULL;
 static gpointer gtkdoc_generator_file_data_parent_class = NULL;
 
 GType gtkdoc_generator_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGenerator, g_object_unref)
 gpointer gtkdoc_dbus_interface_ref (gpointer instance);
 void gtkdoc_dbus_interface_unref (gpointer instance);
 GParamSpec* gtkdoc_dbus_param_spec_interface (const gchar* name,
@@ -317,6 +314,7 @@ void gtkdoc_dbus_value_take_interface (GValue* value,
                                        gpointer v_object);
 gpointer gtkdoc_dbus_value_get_interface (const GValue* value);
 GType gtkdoc_dbus_interface_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusInterface, gtkdoc_dbus_interface_unref)
 static gpointer gtkdoc_generator_file_data_ref (gpointer instance);
 static void gtkdoc_generator_file_data_unref (gpointer instance);
 static GParamSpec* gtkdoc_generator_param_spec_file_data (const gchar* name,
@@ -330,6 +328,7 @@ static void gtkdoc_generator_value_take_file_data (GValue* value,
                                             gpointer v_object) G_GNUC_UNUSED;
 static gpointer gtkdoc_generator_value_get_file_data (const GValue* value) G_GNUC_UNUSED;
 static GType gtkdoc_generator_file_data_get_type (void) G_GNUC_CONST G_GNUC_UNUSED;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGeneratorFileData, gtkdoc_generator_file_data_unref)
 gpointer gtkdoc_header_ref (gpointer instance);
 void gtkdoc_header_unref (gpointer instance);
 GParamSpec* gtkdoc_param_spec_header (const gchar* name,
@@ -343,6 +342,7 @@ void gtkdoc_value_take_header (GValue* value,
                                gpointer v_object);
 gpointer gtkdoc_value_get_header (const GValue* value);
 GType gtkdoc_header_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocHeader, gtkdoc_header_unref)
 gpointer gtkdoc_dbus_member_ref (gpointer instance);
 void gtkdoc_dbus_member_unref (gpointer instance);
 GParamSpec* gtkdoc_dbus_param_spec_member (const gchar* name,
@@ -356,9 +356,11 @@ void gtkdoc_dbus_value_take_member (GValue* value,
                                     gpointer v_object);
 gpointer gtkdoc_dbus_value_get_member (const GValue* value);
 GType gtkdoc_dbus_member_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusMember, gtkdoc_dbus_member_unref)
 static gchar* gtkdoc_generator_combine_inline_docs (GtkdocGenerator* self,
                                              const gchar* str1,
                                              const gchar* str2);
+static ValadocApiNode* gtkdoc_generator_get_current_method_or_delegate (GtkdocGenerator* self);
 gboolean gtkdoc_generator_execute (GtkdocGenerator* self,
                                    ValadocSettings* settings,
                                    ValadocApiTree* tree,
@@ -376,6 +378,7 @@ void gtkdoc_value_take_text_writer (GValue* value,
                                     gpointer v_object);
 gpointer gtkdoc_value_get_text_writer (const GValue* value);
 GType gtkdoc_text_writer_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocTextWriter, gtkdoc_text_writer_unref)
 GtkdocTextWriter* gtkdoc_text_writer_new (const gchar* filename,
                                           const gchar* mode);
 GtkdocTextWriter* gtkdoc_text_writer_construct (GType object_type,
@@ -396,6 +399,7 @@ void gtkdoc_value_take_gcomment (GValue* value,
                                  gpointer v_object);
 gpointer gtkdoc_value_get_gcomment (const GValue* value);
 GType gtkdoc_gcomment_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocGComment, gtkdoc_gcomment_unref)
 void gtkdoc_text_writer_write_line (GtkdocTextWriter* self,
                                     const gchar* line);
 gchar* gtkdoc_gcomment_to_string (GtkdocGComment* self);
@@ -409,7 +413,7 @@ static ValaList* gtkdoc_generator_merge_headers (GtkdocGenerator* self,
                                           ValaList* doc_headers,
                                           ValaList* lang_headers);
 static gchar** _vala_array_dup4 (gchar** self,
-                          int length);
+                          gint length);
 static void gtkdoc_generator_set_section_comment (GtkdocGenerator* self,
                                            const gchar* filename,
                                            const gchar* section_name,
@@ -419,10 +423,10 @@ static GtkdocGComment* gtkdoc_generator_create_gcomment (GtkdocGenerator* self,
                                                   const gchar* symbol,
                                                   ValadocContentComment* comment,
                                                   gchar** returns_annotations,
-                                                  int returns_annotations_length1,
+                                                  gint returns_annotations_length1,
                                                   gboolean is_dbus);
 GType gtkdoc_comment_converter_get_type (void) G_GNUC_CONST;
-static ValadocApiNode* gtkdoc_generator_get_current_method_or_delegate (GtkdocGenerator* self);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocCommentConverter, g_object_unref)
 GtkdocCommentConverter* gtkdoc_comment_converter_new (ValadocErrorReporter* reporter,
                                                       ValadocApiNode* node_reference);
 GtkdocCommentConverter* gtkdoc_comment_converter_construct (GType object_type,
@@ -434,9 +438,9 @@ void gtkdoc_comment_converter_convert (GtkdocCommentConverter* self,
 GtkdocGComment* gtkdoc_gcomment_new (void);
 GtkdocGComment* gtkdoc_gcomment_construct (GType object_type);
 static gchar** _vala_array_dup5 (gchar** self,
-                          int length);
+                          gint length);
 static gchar** _vala_array_dup6 (gchar** self,
-                          int length);
+                          gint length);
 static GtkdocGComment* gtkdoc_generator_add_comment (GtkdocGenerator* self,
                                               const gchar* filename,
                                               const gchar* symbol,
@@ -447,14 +451,14 @@ static GtkdocGComment* gtkdoc_generator_add_symbol (GtkdocGenerator* self,
                                              ValadocContentComment* comment,
                                              const gchar* symbol,
                                              gchar** returns_annotations,
-                                             int returns_annotations_length1);
+                                             gint returns_annotations_length1);
 static void gtkdoc_generator_file_data_register_section_line (GtkdocGeneratorFileData* self,
                                                        const gchar* line);
 static GtkdocHeader* gtkdoc_generator_add_custom_header (GtkdocGenerator* self,
                                                   const gchar* name,
                                                   const gchar* comment,
                                                   gchar** annotations,
-                                                  int annotations_length1,
+                                                  gint annotations_length1,
                                                   gdouble pos,
                                                   gboolean block);
 GtkdocHeader* gtkdoc_header_new (const gchar* name,
@@ -467,17 +471,17 @@ GtkdocHeader* gtkdoc_header_construct (GType object_type,
                                        gdouble pos,
                                        gboolean block);
 static gchar** _vala_array_dup7 (gchar** self,
-                          int length);
+                          gint length);
 static GtkdocHeader* gtkdoc_generator_remove_custom_header (GtkdocGenerator* self,
                                                      const gchar* name);
 static GtkdocHeader* gtkdoc_generator_add_header (GtkdocGenerator* self,
                                            const gchar* name,
                                            ValadocContentComment* comment,
                                            gchar** annotations,
-                                           int annotations_length1,
+                                           gint annotations_length1,
                                            gdouble pos);
 static gchar** _vala_array_dup8 (gchar** self,
-                          int length);
+                          gint length);
 static void gtkdoc_generator_real_visit_tree (ValadocApiVisitor* base,
                                        ValadocApiTree* tree);
 static void gtkdoc_generator_real_visit_package (ValadocApiVisitor* base,
@@ -519,14 +523,14 @@ static void gtkdoc_generator_file_data_register_private_section_line (GtkdocGene
 gchar* gtkdoc_to_lower_case (const gchar* camel);
 static gchar** gtkdoc_generator_create_see_function_array (GtkdocGenerator* self,
                                                     gchar** functions,
-                                                    int functions_length1,
-                                                    int* result_length1);
+                                                    gint functions_length1,
+                                                    gint* result_length1);
 static void _vala_array_add19 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static gchar** _vala_array_dup9 (gchar** self,
-                          int length);
+                          gint length);
 static void gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
                                          ValadocApiStruct* st);
 static void gtkdoc_generator_visit_thrown_error_domain (GtkdocGenerator* self,
@@ -569,26 +573,27 @@ void gtkdoc_dbus_value_take_parameter (GValue* value,
                                        gpointer v_object);
 gpointer gtkdoc_dbus_value_get_parameter (const GValue* value);
 GType gtkdoc_dbus_parameter_get_type (void) G_GNUC_CONST;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkdocDBusParameter, gtkdoc_dbus_parameter_unref)
 void gtkdoc_dbus_interface_add_signal (GtkdocDBusInterface* self,
                                        GtkdocDBusMember* member);
 static void gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
                                          ValadocApiMethod* m);
 static void _vala_array_add20 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add21 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static gchar** _vala_array_dup10 (gchar** self,
-                           int length);
+                           gint length);
 static void _vala_array_add22 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static gchar** _vala_array_dup11 (gchar** self,
-                           int length);
+                           gint length);
 GType gtkdoc_dbus_parameter_direction_get_type (void) G_GNUC_CONST;
 GtkdocDBusParameter* gtkdoc_dbus_parameter_new (const gchar* name,
                                                 const gchar* signature,
@@ -602,42 +607,44 @@ void gtkdoc_dbus_member_add_parameter (GtkdocDBusMember* self,
 void gtkdoc_dbus_interface_add_method (GtkdocDBusInterface* self,
                                        GtkdocDBusMember* member);
 static gchar** _vala_array_dup12 (gchar** self,
-                           int length);
+                           gint length);
 static void _vala_array_add23 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static gchar** _vala_array_dup13 (gchar** self,
-                           int length);
+                           gint length);
 static void gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
-                                                   ValadocApiFormalParameter* param);
+                                                   ValadocApiParameter* param);
 static void _vala_array_add24 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add25 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add26 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 static void _vala_array_add27 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 gdouble gtkdoc_get_parameter_pos (ValadocApiNode* node,
                                   const gchar* name);
 static void _vala_array_add28 (gchar** * array,
-                        int* length,
-                        int* size,
+                        gint* length,
+                        gint* size,
                         gchar* value);
 gchar* gtkdoc_get_gtkdoc_link (ValadocApiNode* symbol);
 GtkdocGenerator* gtkdoc_generator_new (void);
 GtkdocGenerator* gtkdoc_generator_construct (GType object_type);
 static void gtkdoc_generator_file_data_finalize (GtkdocGeneratorFileData * obj);
+static GType gtkdoc_generator_file_data_get_type_once (void);
 static void gtkdoc_generator_finalize (GObject * obj);
+static GType gtkdoc_generator_get_type_once (void);
 static void _vala_gtkdoc_generator_get_property (GObject * object,
                                           guint property_id,
                                           GValue * value,
@@ -649,41 +656,37 @@ static void _vala_array_free (gpointer array,
                        gint array_length,
                        GDestroyNotify destroy_func);
 
-
 static inline gpointer
 gtkdoc_generator_get_instance_private (GtkdocGenerator* self)
 {
 	return G_STRUCT_MEMBER_P (self, GtkdocGenerator_private_offset);
 }
 
-
 static gchar
 string_get (const gchar* self,
             glong index)
 {
-	gchar result = '\0';
 	gchar _tmp0_;
+	gchar result = '\0';
 	g_return_val_if_fail (self != NULL, '\0');
 	_tmp0_ = ((gchar*) self)[index];
 	result = _tmp0_;
 	return result;
 }
 
-
 static gchar*
 gtkdoc_generator_combine_inline_docs (GtkdocGenerator* self,
                                       const gchar* str1,
                                       const gchar* str2)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	gboolean _tmp3_ = FALSE;
 	gboolean _tmp4_ = FALSE;
 	GString* _tmp5_;
-	gssize _tmp6_;
-	GString* _tmp14_;
-	gchar* _tmp15_;
+	GString* _tmp12_;
+	gchar* _tmp13_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
@@ -695,17 +698,14 @@ gtkdoc_generator_combine_inline_docs (GtkdocGenerator* self,
 		g_string_append (_tmp1_, _tmp2_);
 	}
 	_tmp5_ = builder;
-	_tmp6_ = _tmp5_->len;
-	if (_tmp6_ > ((gssize) 0)) {
-		GString* _tmp7_;
-		const gchar* _tmp8_;
-		GString* _tmp9_;
-		gssize _tmp10_;
-		_tmp7_ = builder;
-		_tmp8_ = _tmp7_->str;
-		_tmp9_ = builder;
-		_tmp10_ = _tmp9_->len;
-		_tmp4_ = string_get (_tmp8_, (glong) (_tmp10_ - 1)) != '.';
+	if (_tmp5_->len > ((gssize) 0)) {
+		GString* _tmp6_;
+		const gchar* _tmp7_;
+		GString* _tmp8_;
+		_tmp6_ = builder;
+		_tmp7_ = _tmp6_->str;
+		_tmp8_ = builder;
+		_tmp4_ = string_get (_tmp7_, (glong) (_tmp8_->len - 1)) != '.';
 	} else {
 		_tmp4_ = FALSE;
 	}
@@ -715,26 +715,51 @@ gtkdoc_generator_combine_inline_docs (GtkdocGenerator* self,
 		_tmp3_ = FALSE;
 	}
 	if (_tmp3_) {
-		GString* _tmp11_;
-		_tmp11_ = builder;
-		g_string_append (_tmp11_, ". ");
+		GString* _tmp9_;
+		_tmp9_ = builder;
+		g_string_append (_tmp9_, ". ");
 	}
 	if (str2 != NULL) {
-		GString* _tmp12_;
-		GString* _tmp13_;
-		_tmp12_ = builder;
-		g_string_append_c (_tmp12_, ' ');
-		_tmp13_ = builder;
-		g_string_append (_tmp13_, str2);
+		GString* _tmp10_;
+		GString* _tmp11_;
+		_tmp10_ = builder;
+		g_string_append_c (_tmp10_, ' ');
+		_tmp11_ = builder;
+		g_string_append (_tmp11_, str2);
 	}
-	_tmp14_ = builder;
-	_tmp15_ = _tmp14_->str;
-	_tmp14_->str = NULL;
-	result = _tmp15_;
+	_tmp12_ = builder;
+	_tmp13_ = _tmp12_->str;
+	_tmp12_->str = NULL;
+	result = _tmp13_;
 	_g_string_free0 (builder);
 	return result;
 }
 
+static ValadocApiNode*
+gtkdoc_generator_get_current_method_or_delegate (GtkdocGenerator* self)
+{
+	ValadocApiNode* result;
+	ValadocApiMethod* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->current_method;
+	if (_tmp0_ != NULL) {
+		ValadocApiMethod* _tmp1_;
+		_tmp1_ = self->priv->current_method;
+		result = (ValadocApiNode*) _tmp1_;
+		return result;
+	} else {
+		ValadocApiDelegate* _tmp2_;
+		_tmp2_ = self->priv->current_delegate;
+		if (_tmp2_ != NULL) {
+			ValadocApiDelegate* _tmp3_;
+			_tmp3_ = self->priv->current_delegate;
+			result = (ValadocApiNode*) _tmp3_;
+			return result;
+		}
+	}
+	result = NULL;
+	return result;
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -742,13 +767,11 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static gpointer
 _valadoc_api_tree_ref0 (gpointer self)
 {
 	return self ? valadoc_api_tree_ref (self) : NULL;
 }
-
 
 static gpointer
 _vala_iterable_ref0 (gpointer self)
@@ -756,14 +779,12 @@ _vala_iterable_ref0 (gpointer self)
 	return self ? vala_iterable_ref (self) : NULL;
 }
 
-
 gboolean
 gtkdoc_generator_execute (GtkdocGenerator* self,
                           ValadocSettings* settings,
                           ValadocApiTree* tree,
                           ValadocErrorReporter* reporter)
 {
-	gboolean result = FALSE;
 	ValadocSettings* _tmp0_;
 	ValadocErrorReporter* _tmp1_;
 	ValadocApiTree* _tmp2_;
@@ -782,7 +803,8 @@ gtkdoc_generator_execute (GtkdocGenerator* self,
 	const gchar* _tmp12_;
 	GtkdocTextWriter* _tmp13_;
 	GtkdocTextWriter* _tmp14_;
-	GtkdocTextWriter* _tmp128_;
+	GtkdocTextWriter* _tmp120_;
+	gboolean result = FALSE;
 	g_return_val_if_fail (self != NULL, FALSE);
 	g_return_val_if_fail (settings != NULL, FALSE);
 	g_return_val_if_fail (tree != NULL, FALSE);
@@ -861,23 +883,23 @@ gtkdoc_generator_execute (GtkdocGenerator* self,
 			GtkdocTextWriter* _tmp36_;
 			GtkdocGeneratorFileData* _tmp39_;
 			GtkdocGComment* _tmp40_;
+			GtkdocTextWriter* _tmp60_;
+			GtkdocTextWriter* _tmp61_;
 			GtkdocTextWriter* _tmp62_;
-			GtkdocTextWriter* _tmp63_;
-			GtkdocTextWriter* _tmp64_;
-			const gchar* _tmp65_;
-			gchar* _tmp66_;
-			gchar* _tmp67_;
-			GtkdocGeneratorFileData* _tmp68_;
-			const gchar* _tmp69_;
-			GtkdocGeneratorFileData* _tmp89_;
-			ValaList* _tmp90_;
-			gint _tmp91_;
-			gint _tmp92_;
-			GtkdocGeneratorFileData* _tmp108_;
-			ValaList* _tmp109_;
-			gint _tmp110_;
-			gint _tmp111_;
-			GtkdocTextWriter* _tmp127_;
+			const gchar* _tmp63_;
+			gchar* _tmp64_;
+			gchar* _tmp65_;
+			GtkdocGeneratorFileData* _tmp66_;
+			const gchar* _tmp67_;
+			GtkdocGeneratorFileData* _tmp85_;
+			ValaList* _tmp86_;
+			gint _tmp87_;
+			gint _tmp88_;
+			GtkdocGeneratorFileData* _tmp102_;
+			ValaList* _tmp103_;
+			gint _tmp104_;
+			gint _tmp105_;
+			GtkdocTextWriter* _tmp119_;
 			_tmp22_ = _file_data_it;
 			if (!vala_iterator_next (_tmp22_)) {
 				break;
@@ -955,231 +977,215 @@ gtkdoc_generator_execute (GtkdocGenerator* self,
 				while (TRUE) {
 					gint _tmp52_;
 					gint _tmp53_;
-					gint _tmp54_;
 					GtkdocGComment* comment = NULL;
-					ValaList* _tmp55_;
-					gint _tmp56_;
-					gpointer _tmp57_;
-					GtkdocTextWriter* _tmp58_;
-					GtkdocGComment* _tmp59_;
-					gchar* _tmp60_;
-					gchar* _tmp61_;
+					ValaList* _tmp54_;
+					gpointer _tmp55_;
+					GtkdocTextWriter* _tmp56_;
+					GtkdocGComment* _tmp57_;
+					gchar* _tmp58_;
+					gchar* _tmp59_;
+					_comment_index = _comment_index + 1;
 					_tmp52_ = _comment_index;
-					_comment_index = _tmp52_ + 1;
-					_tmp53_ = _comment_index;
-					_tmp54_ = _comment_size;
-					if (!(_tmp53_ < _tmp54_)) {
+					_tmp53_ = _comment_size;
+					if (!(_tmp52_ < _tmp53_)) {
 						break;
 					}
-					_tmp55_ = _comment_list;
-					_tmp56_ = _comment_index;
-					_tmp57_ = vala_list_get (_tmp55_, _tmp56_);
-					comment = (GtkdocGComment*) _tmp57_;
-					_tmp58_ = cwriter;
-					_tmp59_ = comment;
-					_tmp60_ = gtkdoc_gcomment_to_string (_tmp59_);
-					_tmp61_ = _tmp60_;
-					gtkdoc_text_writer_write_line (_tmp58_, _tmp61_);
-					_g_free0 (_tmp61_);
+					_tmp54_ = _comment_list;
+					_tmp55_ = vala_list_get (_tmp54_, _comment_index);
+					comment = (GtkdocGComment*) _tmp55_;
+					_tmp56_ = cwriter;
+					_tmp57_ = comment;
+					_tmp58_ = gtkdoc_gcomment_to_string (_tmp57_);
+					_tmp59_ = _tmp58_;
+					gtkdoc_text_writer_write_line (_tmp56_, _tmp59_);
+					_g_free0 (_tmp59_);
 					_gtkdoc_gcomment_unref0 (comment);
 				}
 				_vala_iterable_unref0 (_comment_list);
 			}
-			_tmp62_ = cwriter;
-			gtkdoc_text_writer_close (_tmp62_);
-			_tmp63_ = sections_writer;
-			gtkdoc_text_writer_write_line (_tmp63_, "<SECTION>");
-			_tmp64_ = sections_writer;
-			_tmp65_ = basename;
-			_tmp66_ = g_strdup_printf ("<FILE>%s</FILE>", _tmp65_);
-			_tmp67_ = _tmp66_;
-			gtkdoc_text_writer_write_line (_tmp64_, _tmp67_);
-			_g_free0 (_tmp67_);
-			_tmp68_ = file_data;
-			_tmp69_ = _tmp68_->title;
-			if (_tmp69_ != NULL) {
-				GtkdocTextWriter* _tmp70_;
-				GtkdocGeneratorFileData* _tmp71_;
-				const gchar* _tmp72_;
-				gchar* _tmp73_;
-				gchar* _tmp74_;
-				_tmp70_ = sections_writer;
-				_tmp71_ = file_data;
-				_tmp72_ = _tmp71_->title;
-				_tmp73_ = g_strdup_printf ("<TITLE>%s</TITLE>", _tmp72_);
-				_tmp74_ = _tmp73_;
-				gtkdoc_text_writer_write_line (_tmp70_, _tmp74_);
-				_g_free0 (_tmp74_);
+			_tmp60_ = cwriter;
+			gtkdoc_text_writer_close (_tmp60_);
+			_tmp61_ = sections_writer;
+			gtkdoc_text_writer_write_line (_tmp61_, "<SECTION>");
+			_tmp62_ = sections_writer;
+			_tmp63_ = basename;
+			_tmp64_ = g_strdup_printf ("<FILE>%s</FILE>", _tmp63_);
+			_tmp65_ = _tmp64_;
+			gtkdoc_text_writer_write_line (_tmp62_, _tmp65_);
+			_g_free0 (_tmp65_);
+			_tmp66_ = file_data;
+			_tmp67_ = _tmp66_->title;
+			if (_tmp67_ != NULL) {
+				GtkdocTextWriter* _tmp68_;
+				GtkdocGeneratorFileData* _tmp69_;
+				const gchar* _tmp70_;
+				gchar* _tmp71_;
+				gchar* _tmp72_;
+				_tmp68_ = sections_writer;
+				_tmp69_ = file_data;
+				_tmp70_ = _tmp69_->title;
+				_tmp71_ = g_strdup_printf ("<TITLE>%s</TITLE>", _tmp70_);
+				_tmp72_ = _tmp71_;
+				gtkdoc_text_writer_write_line (_tmp68_, _tmp72_);
+				_g_free0 (_tmp72_);
 			}
 			{
 				ValaList* _section_line_list = NULL;
-				GtkdocGeneratorFileData* _tmp75_;
-				ValaList* _tmp76_;
-				ValaList* _tmp77_;
+				GtkdocGeneratorFileData* _tmp73_;
+				ValaList* _tmp74_;
+				ValaList* _tmp75_;
 				gint _section_line_size = 0;
-				ValaList* _tmp78_;
-				gint _tmp79_;
-				gint _tmp80_;
+				ValaList* _tmp76_;
+				gint _tmp77_;
+				gint _tmp78_;
 				gint _section_line_index = 0;
-				_tmp75_ = file_data;
-				_tmp76_ = _tmp75_->section_lines;
-				_tmp77_ = _vala_iterable_ref0 (_tmp76_);
-				_section_line_list = _tmp77_;
-				_tmp78_ = _section_line_list;
-				_tmp79_ = vala_collection_get_size ((ValaCollection*) _tmp78_);
-				_tmp80_ = _tmp79_;
-				_section_line_size = _tmp80_;
+				_tmp73_ = file_data;
+				_tmp74_ = _tmp73_->section_lines;
+				_tmp75_ = _vala_iterable_ref0 (_tmp74_);
+				_section_line_list = _tmp75_;
+				_tmp76_ = _section_line_list;
+				_tmp77_ = vala_collection_get_size ((ValaCollection*) _tmp76_);
+				_tmp78_ = _tmp77_;
+				_section_line_size = _tmp78_;
 				_section_line_index = -1;
 				while (TRUE) {
-					gint _tmp81_;
-					gint _tmp82_;
-					gint _tmp83_;
+					gint _tmp79_;
+					gint _tmp80_;
 					gchar* section_line = NULL;
-					ValaList* _tmp84_;
-					gint _tmp85_;
-					gpointer _tmp86_;
-					GtkdocTextWriter* _tmp87_;
-					const gchar* _tmp88_;
-					_tmp81_ = _section_line_index;
-					_section_line_index = _tmp81_ + 1;
-					_tmp82_ = _section_line_index;
-					_tmp83_ = _section_line_size;
-					if (!(_tmp82_ < _tmp83_)) {
+					ValaList* _tmp81_;
+					gpointer _tmp82_;
+					GtkdocTextWriter* _tmp83_;
+					const gchar* _tmp84_;
+					_section_line_index = _section_line_index + 1;
+					_tmp79_ = _section_line_index;
+					_tmp80_ = _section_line_size;
+					if (!(_tmp79_ < _tmp80_)) {
 						break;
 					}
-					_tmp84_ = _section_line_list;
-					_tmp85_ = _section_line_index;
-					_tmp86_ = vala_list_get (_tmp84_, _tmp85_);
-					section_line = (gchar*) _tmp86_;
-					_tmp87_ = sections_writer;
-					_tmp88_ = section_line;
-					gtkdoc_text_writer_write_line (_tmp87_, _tmp88_);
+					_tmp81_ = _section_line_list;
+					_tmp82_ = vala_list_get (_tmp81_, _section_line_index);
+					section_line = (gchar*) _tmp82_;
+					_tmp83_ = sections_writer;
+					_tmp84_ = section_line;
+					gtkdoc_text_writer_write_line (_tmp83_, _tmp84_);
 					_g_free0 (section_line);
 				}
 				_vala_iterable_unref0 (_section_line_list);
 			}
-			_tmp89_ = file_data;
-			_tmp90_ = _tmp89_->standard_section_lines;
-			_tmp91_ = vala_collection_get_size ((ValaCollection*) _tmp90_);
-			_tmp92_ = _tmp91_;
-			if (_tmp92_ > 0) {
-				GtkdocTextWriter* _tmp93_;
-				_tmp93_ = sections_writer;
-				gtkdoc_text_writer_write_line (_tmp93_, "<SUBSECTION Standard>");
+			_tmp85_ = file_data;
+			_tmp86_ = _tmp85_->standard_section_lines;
+			_tmp87_ = vala_collection_get_size ((ValaCollection*) _tmp86_);
+			_tmp88_ = _tmp87_;
+			if (_tmp88_ > 0) {
+				GtkdocTextWriter* _tmp89_;
+				_tmp89_ = sections_writer;
+				gtkdoc_text_writer_write_line (_tmp89_, "<SUBSECTION Standard>");
 				{
 					ValaList* _section_line_list = NULL;
-					GtkdocGeneratorFileData* _tmp94_;
-					ValaList* _tmp95_;
-					ValaList* _tmp96_;
+					GtkdocGeneratorFileData* _tmp90_;
+					ValaList* _tmp91_;
+					ValaList* _tmp92_;
 					gint _section_line_size = 0;
-					ValaList* _tmp97_;
-					gint _tmp98_;
-					gint _tmp99_;
+					ValaList* _tmp93_;
+					gint _tmp94_;
+					gint _tmp95_;
 					gint _section_line_index = 0;
-					_tmp94_ = file_data;
-					_tmp95_ = _tmp94_->standard_section_lines;
-					_tmp96_ = _vala_iterable_ref0 (_tmp95_);
-					_section_line_list = _tmp96_;
-					_tmp97_ = _section_line_list;
-					_tmp98_ = vala_collection_get_size ((ValaCollection*) _tmp97_);
-					_tmp99_ = _tmp98_;
-					_section_line_size = _tmp99_;
+					_tmp90_ = file_data;
+					_tmp91_ = _tmp90_->standard_section_lines;
+					_tmp92_ = _vala_iterable_ref0 (_tmp91_);
+					_section_line_list = _tmp92_;
+					_tmp93_ = _section_line_list;
+					_tmp94_ = vala_collection_get_size ((ValaCollection*) _tmp93_);
+					_tmp95_ = _tmp94_;
+					_section_line_size = _tmp95_;
 					_section_line_index = -1;
 					while (TRUE) {
-						gint _tmp100_;
-						gint _tmp101_;
-						gint _tmp102_;
+						gint _tmp96_;
+						gint _tmp97_;
 						gchar* section_line = NULL;
-						ValaList* _tmp103_;
-						gint _tmp104_;
-						gpointer _tmp105_;
-						GtkdocTextWriter* _tmp106_;
-						const gchar* _tmp107_;
-						_tmp100_ = _section_line_index;
-						_section_line_index = _tmp100_ + 1;
-						_tmp101_ = _section_line_index;
-						_tmp102_ = _section_line_size;
-						if (!(_tmp101_ < _tmp102_)) {
+						ValaList* _tmp98_;
+						gpointer _tmp99_;
+						GtkdocTextWriter* _tmp100_;
+						const gchar* _tmp101_;
+						_section_line_index = _section_line_index + 1;
+						_tmp96_ = _section_line_index;
+						_tmp97_ = _section_line_size;
+						if (!(_tmp96_ < _tmp97_)) {
 							break;
 						}
-						_tmp103_ = _section_line_list;
-						_tmp104_ = _section_line_index;
-						_tmp105_ = vala_list_get (_tmp103_, _tmp104_);
-						section_line = (gchar*) _tmp105_;
-						_tmp106_ = sections_writer;
-						_tmp107_ = section_line;
-						gtkdoc_text_writer_write_line (_tmp106_, _tmp107_);
+						_tmp98_ = _section_line_list;
+						_tmp99_ = vala_list_get (_tmp98_, _section_line_index);
+						section_line = (gchar*) _tmp99_;
+						_tmp100_ = sections_writer;
+						_tmp101_ = section_line;
+						gtkdoc_text_writer_write_line (_tmp100_, _tmp101_);
 						_g_free0 (section_line);
 					}
 					_vala_iterable_unref0 (_section_line_list);
 				}
 			}
-			_tmp108_ = file_data;
-			_tmp109_ = _tmp108_->private_section_lines;
-			_tmp110_ = vala_collection_get_size ((ValaCollection*) _tmp109_);
-			_tmp111_ = _tmp110_;
-			if (_tmp111_ > 0) {
-				GtkdocTextWriter* _tmp112_;
-				_tmp112_ = sections_writer;
-				gtkdoc_text_writer_write_line (_tmp112_, "<SUBSECTION Private>");
+			_tmp102_ = file_data;
+			_tmp103_ = _tmp102_->private_section_lines;
+			_tmp104_ = vala_collection_get_size ((ValaCollection*) _tmp103_);
+			_tmp105_ = _tmp104_;
+			if (_tmp105_ > 0) {
+				GtkdocTextWriter* _tmp106_;
+				_tmp106_ = sections_writer;
+				gtkdoc_text_writer_write_line (_tmp106_, "<SUBSECTION Private>");
 				{
 					ValaList* _section_line_list = NULL;
-					GtkdocGeneratorFileData* _tmp113_;
-					ValaList* _tmp114_;
-					ValaList* _tmp115_;
+					GtkdocGeneratorFileData* _tmp107_;
+					ValaList* _tmp108_;
+					ValaList* _tmp109_;
 					gint _section_line_size = 0;
-					ValaList* _tmp116_;
-					gint _tmp117_;
-					gint _tmp118_;
+					ValaList* _tmp110_;
+					gint _tmp111_;
+					gint _tmp112_;
 					gint _section_line_index = 0;
-					_tmp113_ = file_data;
-					_tmp114_ = _tmp113_->private_section_lines;
-					_tmp115_ = _vala_iterable_ref0 (_tmp114_);
-					_section_line_list = _tmp115_;
-					_tmp116_ = _section_line_list;
-					_tmp117_ = vala_collection_get_size ((ValaCollection*) _tmp116_);
-					_tmp118_ = _tmp117_;
-					_section_line_size = _tmp118_;
+					_tmp107_ = file_data;
+					_tmp108_ = _tmp107_->private_section_lines;
+					_tmp109_ = _vala_iterable_ref0 (_tmp108_);
+					_section_line_list = _tmp109_;
+					_tmp110_ = _section_line_list;
+					_tmp111_ = vala_collection_get_size ((ValaCollection*) _tmp110_);
+					_tmp112_ = _tmp111_;
+					_section_line_size = _tmp112_;
 					_section_line_index = -1;
 					while (TRUE) {
-						gint _tmp119_;
-						gint _tmp120_;
-						gint _tmp121_;
+						gint _tmp113_;
+						gint _tmp114_;
 						gchar* section_line = NULL;
-						ValaList* _tmp122_;
-						gint _tmp123_;
-						gpointer _tmp124_;
-						GtkdocTextWriter* _tmp125_;
-						const gchar* _tmp126_;
-						_tmp119_ = _section_line_index;
-						_section_line_index = _tmp119_ + 1;
-						_tmp120_ = _section_line_index;
-						_tmp121_ = _section_line_size;
-						if (!(_tmp120_ < _tmp121_)) {
+						ValaList* _tmp115_;
+						gpointer _tmp116_;
+						GtkdocTextWriter* _tmp117_;
+						const gchar* _tmp118_;
+						_section_line_index = _section_line_index + 1;
+						_tmp113_ = _section_line_index;
+						_tmp114_ = _section_line_size;
+						if (!(_tmp113_ < _tmp114_)) {
 							break;
 						}
-						_tmp122_ = _section_line_list;
-						_tmp123_ = _section_line_index;
-						_tmp124_ = vala_list_get (_tmp122_, _tmp123_);
-						section_line = (gchar*) _tmp124_;
-						_tmp125_ = sections_writer;
-						_tmp126_ = section_line;
-						gtkdoc_text_writer_write_line (_tmp125_, _tmp126_);
+						_tmp115_ = _section_line_list;
+						_tmp116_ = vala_list_get (_tmp115_, _section_line_index);
+						section_line = (gchar*) _tmp116_;
+						_tmp117_ = sections_writer;
+						_tmp118_ = section_line;
+						gtkdoc_text_writer_write_line (_tmp117_, _tmp118_);
 						_g_free0 (section_line);
 					}
 					_vala_iterable_unref0 (_section_line_list);
 				}
 			}
-			_tmp127_ = sections_writer;
-			gtkdoc_text_writer_write_line (_tmp127_, "</SECTION>");
+			_tmp119_ = sections_writer;
+			gtkdoc_text_writer_write_line (_tmp119_, "</SECTION>");
 			_gtkdoc_text_writer_unref0 (cwriter);
 			_g_free0 (basename);
 			_gtkdoc_generator_file_data_unref0 (file_data);
 		}
 		_vala_iterator_unref0 (_file_data_it);
 	}
-	_tmp128_ = sections_writer;
-	gtkdoc_text_writer_close (_tmp128_);
+	_tmp120_ = sections_writer;
+	gtkdoc_text_writer_close (_tmp120_);
 	result = TRUE;
 	_gtkdoc_text_writer_unref0 (sections_writer);
 	_g_free0 (sections);
@@ -1187,13 +1193,12 @@ gtkdoc_generator_execute (GtkdocGenerator* self,
 	return result;
 }
 
-
 ValaSet*
 gtkdoc_generator_get_filenames (GtkdocGenerator* self)
 {
-	ValaSet* result = NULL;
 	ValaMap* _tmp0_;
 	ValaSet* _tmp1_;
+	ValaSet* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = self->priv->files_data;
 	_tmp1_ = vala_map_get_keys (_tmp0_);
@@ -1201,16 +1206,15 @@ gtkdoc_generator_get_filenames (GtkdocGenerator* self)
 	return result;
 }
 
-
 static GtkdocGeneratorFileData*
 gtkdoc_generator_get_file_data (GtkdocGenerator* self,
                                 const gchar* filename)
 {
-	GtkdocGeneratorFileData* result = NULL;
 	GtkdocGeneratorFileData* file_data = NULL;
 	ValaMap* _tmp0_;
 	gpointer _tmp1_;
 	GtkdocGeneratorFileData* _tmp2_;
+	GtkdocGeneratorFileData* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (filename != NULL, NULL);
 	_tmp0_ = self->priv->files_data;
@@ -1278,39 +1282,39 @@ gtkdoc_generator_get_file_data (GtkdocGenerator* self,
 	return result;
 }
 
-
 static gpointer
 _gtkdoc_header_ref0 (gpointer self)
 {
 	return self ? gtkdoc_header_ref (self) : NULL;
 }
 
-
 static gchar**
 _vala_array_dup4 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static ValaList*
 gtkdoc_generator_merge_headers (GtkdocGenerator* self,
                                 ValaList* doc_headers,
                                 ValaList* lang_headers)
 {
-	ValaList* result = NULL;
 	ValaArrayList* headers = NULL;
 	GEqualFunc _tmp1_;
 	ValaArrayList* _tmp2_;
+	ValaList* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (doc_headers != NULL, NULL);
 	if (lang_headers == NULL) {
@@ -1340,144 +1344,134 @@ gtkdoc_generator_merge_headers (GtkdocGenerator* self,
 		while (TRUE) {
 			gint _tmp7_;
 			gint _tmp8_;
-			gint _tmp9_;
 			GtkdocHeader* doc_header = NULL;
-			ValaList* _tmp10_;
-			gint _tmp11_;
-			gpointer _tmp12_;
+			ValaList* _tmp9_;
+			gpointer _tmp10_;
 			GtkdocHeader* header = NULL;
-			GtkdocHeader* _tmp13_;
-			GtkdocHeader* _tmp14_;
-			ValaArrayList* _tmp51_;
-			GtkdocHeader* _tmp52_;
+			GtkdocHeader* _tmp11_;
+			GtkdocHeader* _tmp12_;
+			ValaArrayList* _tmp46_;
+			GtkdocHeader* _tmp47_;
+			_doc_header_index = _doc_header_index + 1;
 			_tmp7_ = _doc_header_index;
-			_doc_header_index = _tmp7_ + 1;
-			_tmp8_ = _doc_header_index;
-			_tmp9_ = _doc_header_size;
-			if (!(_tmp8_ < _tmp9_)) {
+			_tmp8_ = _doc_header_size;
+			if (!(_tmp7_ < _tmp8_)) {
 				break;
 			}
-			_tmp10_ = _doc_header_list;
-			_tmp11_ = _doc_header_index;
-			_tmp12_ = vala_list_get (_tmp10_, _tmp11_);
-			doc_header = (GtkdocHeader*) _tmp12_;
-			_tmp13_ = doc_header;
-			_tmp14_ = _gtkdoc_header_ref0 (_tmp13_);
-			header = _tmp14_;
+			_tmp9_ = _doc_header_list;
+			_tmp10_ = vala_list_get (_tmp9_, _doc_header_index);
+			doc_header = (GtkdocHeader*) _tmp10_;
+			_tmp11_ = doc_header;
+			_tmp12_ = _gtkdoc_header_ref0 (_tmp11_);
+			header = _tmp12_;
 			{
 				ValaList* _lang_header_list = NULL;
-				ValaList* _tmp15_;
+				ValaList* _tmp13_;
 				gint _lang_header_size = 0;
-				ValaList* _tmp16_;
-				gint _tmp17_;
-				gint _tmp18_;
+				ValaList* _tmp14_;
+				gint _tmp15_;
+				gint _tmp16_;
 				gint _lang_header_index = 0;
-				_tmp15_ = _vala_iterable_ref0 (lang_headers);
-				_lang_header_list = _tmp15_;
-				_tmp16_ = _lang_header_list;
-				_tmp17_ = vala_collection_get_size ((ValaCollection*) _tmp16_);
-				_tmp18_ = _tmp17_;
-				_lang_header_size = _tmp18_;
+				_tmp13_ = _vala_iterable_ref0 (lang_headers);
+				_lang_header_list = _tmp13_;
+				_tmp14_ = _lang_header_list;
+				_tmp15_ = vala_collection_get_size ((ValaCollection*) _tmp14_);
+				_tmp16_ = _tmp15_;
+				_lang_header_size = _tmp16_;
 				_lang_header_index = -1;
 				while (TRUE) {
-					gint _tmp19_;
-					gint _tmp20_;
-					gint _tmp21_;
+					gint _tmp17_;
+					gint _tmp18_;
 					GtkdocHeader* lang_header = NULL;
-					ValaList* _tmp22_;
-					gint _tmp23_;
-					gpointer _tmp24_;
-					GtkdocHeader* _tmp25_;
-					const gchar* _tmp26_;
-					GtkdocHeader* _tmp27_;
-					const gchar* _tmp28_;
-					_tmp19_ = _lang_header_index;
-					_lang_header_index = _tmp19_ + 1;
-					_tmp20_ = _lang_header_index;
-					_tmp21_ = _lang_header_size;
-					if (!(_tmp20_ < _tmp21_)) {
+					ValaList* _tmp19_;
+					gpointer _tmp20_;
+					GtkdocHeader* _tmp21_;
+					const gchar* _tmp22_;
+					GtkdocHeader* _tmp23_;
+					const gchar* _tmp24_;
+					_lang_header_index = _lang_header_index + 1;
+					_tmp17_ = _lang_header_index;
+					_tmp18_ = _lang_header_size;
+					if (!(_tmp17_ < _tmp18_)) {
 						break;
 					}
-					_tmp22_ = _lang_header_list;
-					_tmp23_ = _lang_header_index;
-					_tmp24_ = vala_list_get (_tmp22_, _tmp23_);
-					lang_header = (GtkdocHeader*) _tmp24_;
-					_tmp25_ = doc_header;
-					_tmp26_ = _tmp25_->name;
-					_tmp27_ = lang_header;
-					_tmp28_ = _tmp27_->name;
-					if (g_strcmp0 (_tmp26_, _tmp28_) == 0) {
+					_tmp19_ = _lang_header_list;
+					_tmp20_ = vala_list_get (_tmp19_, _lang_header_index);
+					lang_header = (GtkdocHeader*) _tmp20_;
+					_tmp21_ = doc_header;
+					_tmp22_ = _tmp21_->name;
+					_tmp23_ = lang_header;
+					_tmp24_ = _tmp23_->name;
+					if (g_strcmp0 (_tmp22_, _tmp24_) == 0) {
+						GtkdocHeader* _tmp25_;
+						GtkdocHeader* _tmp26_;
+						gchar** _tmp27_;
+						gint _tmp27__length1;
+						gchar** _tmp28_;
+						gint _tmp28__length1;
 						GtkdocHeader* _tmp29_;
-						GtkdocHeader* _tmp30_;
-						gchar** _tmp31_;
-						gint _tmp31__length1;
-						gchar** _tmp32_;
-						gint _tmp32__length1;
-						GtkdocHeader* _tmp33_;
-						const gchar* _tmp34_;
-						GtkdocHeader* _tmp35_;
-						gboolean _tmp36_;
-						_tmp29_ = header;
-						_tmp30_ = lang_header;
-						_tmp31_ = _tmp30_->annotations;
-						_tmp31__length1 = _tmp30_->annotations_length1;
-						_tmp32_ = (_tmp31_ != NULL) ? _vala_array_dup4 (_tmp31_, _tmp31__length1) : ((gpointer) _tmp31_);
-						_tmp32__length1 = _tmp31__length1;
-						_tmp29_->annotations = (_vala_array_free (_tmp29_->annotations, _tmp29_->annotations_length1, (GDestroyNotify) g_free), NULL);
-						_tmp29_->annotations = _tmp32_;
-						_tmp29_->annotations_length1 = _tmp32__length1;
-						_tmp33_ = lang_header;
-						_tmp34_ = _tmp33_->value;
-						if (_tmp34_ == NULL) {
+						const gchar* _tmp30_;
+						GtkdocHeader* _tmp31_;
+						_tmp25_ = header;
+						_tmp26_ = lang_header;
+						_tmp27_ = _tmp26_->annotations;
+						_tmp27__length1 = _tmp26_->annotations_length1;
+						_tmp28_ = (_tmp27_ != NULL) ? _vala_array_dup4 (_tmp27_, _tmp27__length1) : ((gpointer) _tmp27_);
+						_tmp28__length1 = _tmp27__length1;
+						_tmp25_->annotations = (_vala_array_free (_tmp25_->annotations, _tmp25_->annotations_length1, (GDestroyNotify) g_free), NULL);
+						_tmp25_->annotations = _tmp28_;
+						_tmp25_->annotations_length1 = _tmp28__length1;
+						_tmp29_ = lang_header;
+						_tmp30_ = _tmp29_->value;
+						if (_tmp30_ == NULL) {
 							_gtkdoc_header_unref0 (lang_header);
 							continue;
 						}
-						_tmp35_ = lang_header;
-						_tmp36_ = _tmp35_->block;
-						if (_tmp36_) {
-							GtkdocHeader* _tmp37_;
-							GtkdocHeader* _tmp38_;
-							const gchar* _tmp39_;
-							GtkdocHeader* _tmp40_;
-							const gchar* _tmp41_;
-							gchar* _tmp42_;
-							gchar* _tmp43_;
-							gchar* _tmp44_;
-							_tmp37_ = header;
-							_tmp38_ = header;
-							_tmp39_ = _tmp38_->value;
-							_tmp40_ = lang_header;
-							_tmp41_ = _tmp40_->value;
-							_tmp42_ = g_strdup_printf ("<para>%s</para>", _tmp41_);
-							_tmp43_ = _tmp42_;
-							_tmp44_ = g_strconcat (_tmp39_, _tmp43_, NULL);
-							_g_free0 (_tmp38_->value);
-							_tmp38_->value = _tmp44_;
-							_g_free0 (_tmp43_);
+						_tmp31_ = lang_header;
+						if (_tmp31_->block) {
+							GtkdocHeader* _tmp32_;
+							GtkdocHeader* _tmp33_;
+							const gchar* _tmp34_;
+							GtkdocHeader* _tmp35_;
+							const gchar* _tmp36_;
+							gchar* _tmp37_;
+							gchar* _tmp38_;
+							gchar* _tmp39_;
+							_tmp32_ = header;
+							_tmp33_ = header;
+							_tmp34_ = _tmp33_->value;
+							_tmp35_ = lang_header;
+							_tmp36_ = _tmp35_->value;
+							_tmp37_ = g_strdup_printf ("<para>%s</para>", _tmp36_);
+							_tmp38_ = _tmp37_;
+							_tmp39_ = g_strconcat (_tmp34_, _tmp38_, NULL);
+							_g_free0 (_tmp33_->value);
+							_tmp33_->value = _tmp39_;
+							_g_free0 (_tmp38_);
 						} else {
-							GtkdocHeader* _tmp45_;
-							GtkdocHeader* _tmp46_;
-							const gchar* _tmp47_;
-							GtkdocHeader* _tmp48_;
-							const gchar* _tmp49_;
-							gchar* _tmp50_;
-							_tmp45_ = header;
-							_tmp46_ = lang_header;
-							_tmp47_ = _tmp46_->value;
-							_tmp48_ = header;
-							_tmp49_ = _tmp48_->value;
-							_tmp50_ = gtkdoc_generator_combine_inline_docs (self, _tmp47_, _tmp49_);
-							_g_free0 (_tmp45_->value);
-							_tmp45_->value = _tmp50_;
+							GtkdocHeader* _tmp40_;
+							GtkdocHeader* _tmp41_;
+							const gchar* _tmp42_;
+							GtkdocHeader* _tmp43_;
+							const gchar* _tmp44_;
+							gchar* _tmp45_;
+							_tmp40_ = header;
+							_tmp41_ = lang_header;
+							_tmp42_ = _tmp41_->value;
+							_tmp43_ = header;
+							_tmp44_ = _tmp43_->value;
+							_tmp45_ = gtkdoc_generator_combine_inline_docs (self, _tmp42_, _tmp44_);
+							_g_free0 (_tmp40_->value);
+							_tmp40_->value = _tmp45_;
 						}
 					}
 					_gtkdoc_header_unref0 (lang_header);
 				}
 				_vala_iterable_unref0 (_lang_header_list);
 			}
-			_tmp51_ = headers;
-			_tmp52_ = header;
-			vala_collection_add ((ValaCollection*) _tmp51_, _tmp52_);
+			_tmp46_ = headers;
+			_tmp47_ = header;
+			vala_collection_add ((ValaCollection*) _tmp46_, _tmp47_);
 			_gtkdoc_header_unref0 (header);
 			_gtkdoc_header_unref0 (doc_header);
 		}
@@ -1485,87 +1479,78 @@ gtkdoc_generator_merge_headers (GtkdocGenerator* self,
 	}
 	{
 		ValaList* _lang_header_list = NULL;
-		ValaList* _tmp53_;
+		ValaList* _tmp48_;
 		gint _lang_header_size = 0;
-		ValaList* _tmp54_;
-		gint _tmp55_;
-		gint _tmp56_;
+		ValaList* _tmp49_;
+		gint _tmp50_;
+		gint _tmp51_;
 		gint _lang_header_index = 0;
-		_tmp53_ = _vala_iterable_ref0 (lang_headers);
-		_lang_header_list = _tmp53_;
-		_tmp54_ = _lang_header_list;
-		_tmp55_ = vala_collection_get_size ((ValaCollection*) _tmp54_);
-		_tmp56_ = _tmp55_;
-		_lang_header_size = _tmp56_;
+		_tmp48_ = _vala_iterable_ref0 (lang_headers);
+		_lang_header_list = _tmp48_;
+		_tmp49_ = _lang_header_list;
+		_tmp50_ = vala_collection_get_size ((ValaCollection*) _tmp49_);
+		_tmp51_ = _tmp50_;
+		_lang_header_size = _tmp51_;
 		_lang_header_index = -1;
 		while (TRUE) {
-			gint _tmp57_;
-			gint _tmp58_;
-			gint _tmp59_;
+			gint _tmp52_;
+			gint _tmp53_;
 			GtkdocHeader* lang_header = NULL;
-			ValaList* _tmp60_;
-			gint _tmp61_;
-			gpointer _tmp62_;
+			ValaList* _tmp54_;
+			gpointer _tmp55_;
 			gboolean found = FALSE;
-			gboolean _tmp78_ = FALSE;
-			gboolean _tmp79_;
-			_tmp57_ = _lang_header_index;
-			_lang_header_index = _tmp57_ + 1;
-			_tmp58_ = _lang_header_index;
-			_tmp59_ = _lang_header_size;
-			if (!(_tmp58_ < _tmp59_)) {
+			gboolean _tmp69_ = FALSE;
+			_lang_header_index = _lang_header_index + 1;
+			_tmp52_ = _lang_header_index;
+			_tmp53_ = _lang_header_size;
+			if (!(_tmp52_ < _tmp53_)) {
 				break;
 			}
-			_tmp60_ = _lang_header_list;
-			_tmp61_ = _lang_header_index;
-			_tmp62_ = vala_list_get (_tmp60_, _tmp61_);
-			lang_header = (GtkdocHeader*) _tmp62_;
+			_tmp54_ = _lang_header_list;
+			_tmp55_ = vala_list_get (_tmp54_, _lang_header_index);
+			lang_header = (GtkdocHeader*) _tmp55_;
 			found = FALSE;
 			{
 				ValaArrayList* _header_list = NULL;
-				ValaArrayList* _tmp63_;
-				ValaArrayList* _tmp64_;
+				ValaArrayList* _tmp56_;
+				ValaArrayList* _tmp57_;
 				gint _header_size = 0;
-				ValaArrayList* _tmp65_;
-				gint _tmp66_;
-				gint _tmp67_;
+				ValaArrayList* _tmp58_;
+				gint _tmp59_;
+				gint _tmp60_;
 				gint _header_index = 0;
-				_tmp63_ = headers;
-				_tmp64_ = _vala_iterable_ref0 (_tmp63_);
-				_header_list = _tmp64_;
-				_tmp65_ = _header_list;
-				_tmp66_ = vala_collection_get_size ((ValaCollection*) _tmp65_);
-				_tmp67_ = _tmp66_;
-				_header_size = _tmp67_;
+				_tmp56_ = headers;
+				_tmp57_ = _vala_iterable_ref0 (_tmp56_);
+				_header_list = _tmp57_;
+				_tmp58_ = _header_list;
+				_tmp59_ = vala_collection_get_size ((ValaCollection*) _tmp58_);
+				_tmp60_ = _tmp59_;
+				_header_size = _tmp60_;
 				_header_index = -1;
 				while (TRUE) {
-					gint _tmp68_;
-					gint _tmp69_;
-					gint _tmp70_;
+					gint _tmp61_;
+					gint _tmp62_;
 					GtkdocHeader* header = NULL;
-					ValaArrayList* _tmp71_;
-					gint _tmp72_;
-					gpointer _tmp73_;
-					GtkdocHeader* _tmp74_;
-					const gchar* _tmp75_;
-					GtkdocHeader* _tmp76_;
-					const gchar* _tmp77_;
-					_tmp68_ = _header_index;
-					_header_index = _tmp68_ + 1;
-					_tmp69_ = _header_index;
-					_tmp70_ = _header_size;
-					if (!(_tmp69_ < _tmp70_)) {
+					ValaArrayList* _tmp63_;
+					gpointer _tmp64_;
+					GtkdocHeader* _tmp65_;
+					const gchar* _tmp66_;
+					GtkdocHeader* _tmp67_;
+					const gchar* _tmp68_;
+					_header_index = _header_index + 1;
+					_tmp61_ = _header_index;
+					_tmp62_ = _header_size;
+					if (!(_tmp61_ < _tmp62_)) {
 						break;
 					}
-					_tmp71_ = _header_list;
-					_tmp72_ = _header_index;
-					_tmp73_ = vala_list_get ((ValaList*) _tmp71_, _tmp72_);
-					header = (GtkdocHeader*) _tmp73_;
-					_tmp74_ = header;
-					_tmp75_ = _tmp74_->name;
-					_tmp76_ = lang_header;
-					_tmp77_ = _tmp76_->name;
-					if (g_strcmp0 (_tmp75_, _tmp77_) == 0) {
+					_tmp63_ = _header_list;
+					_tmp64_ = vala_list_get ((ValaList*) _tmp63_, _header_index);
+					header = (GtkdocHeader*) _tmp64_;
+					_tmp65_ = header;
+					_tmp66_ = _tmp65_->name;
+					_tmp67_ = lang_header;
+					_tmp68_ = _tmp67_->name;
+					if (g_strcmp0 (_tmp66_, _tmp68_) == 0) {
 						found = TRUE;
 						_gtkdoc_header_unref0 (header);
 						break;
@@ -1574,22 +1559,21 @@ gtkdoc_generator_merge_headers (GtkdocGenerator* self,
 				}
 				_vala_iterable_unref0 (_header_list);
 			}
-			_tmp79_ = found;
-			if (!_tmp79_) {
-				GtkdocHeader* _tmp80_;
-				const gchar* _tmp81_;
-				_tmp80_ = lang_header;
-				_tmp81_ = _tmp80_->value;
-				_tmp78_ = _tmp81_ != NULL;
+			if (!found) {
+				GtkdocHeader* _tmp70_;
+				const gchar* _tmp71_;
+				_tmp70_ = lang_header;
+				_tmp71_ = _tmp70_->value;
+				_tmp69_ = _tmp71_ != NULL;
 			} else {
-				_tmp78_ = FALSE;
+				_tmp69_ = FALSE;
 			}
-			if (_tmp78_) {
-				ValaArrayList* _tmp82_;
-				GtkdocHeader* _tmp83_;
-				_tmp82_ = headers;
-				_tmp83_ = lang_header;
-				vala_collection_add ((ValaCollection*) _tmp82_, _tmp83_);
+			if (_tmp69_) {
+				ValaArrayList* _tmp72_;
+				GtkdocHeader* _tmp73_;
+				_tmp72_ = headers;
+				_tmp73_ = lang_header;
+				vala_collection_add ((ValaCollection*) _tmp72_, _tmp73_);
 			}
 			_gtkdoc_header_unref0 (lang_header);
 		}
@@ -1599,13 +1583,11 @@ gtkdoc_generator_merge_headers (GtkdocGenerator* self,
 	return result;
 }
 
-
 static gpointer
 _gtkdoc_gcomment_ref0 (gpointer self)
 {
 	return self ? gtkdoc_gcomment_ref (self) : NULL;
 }
-
 
 static void
 gtkdoc_generator_set_section_comment (GtkdocGenerator* self,
@@ -1661,7 +1643,7 @@ gtkdoc_generator_set_section_comment (GtkdocGenerator* self,
 	}
 	_tmp7_ = gtkdoc_get_section (filename);
 	_tmp8_ = _tmp7_;
-	_tmp9_ = gtkdoc_generator_create_gcomment (self, _tmp8_, comment, NULL, 0, FALSE);
+	_tmp9_ = gtkdoc_generator_create_gcomment (self, _tmp8_, comment, NULL, (gint) 0, FALSE);
 	_tmp10_ = _tmp9_;
 	_g_free0 (_tmp8_);
 	gcomment = _tmp10_;
@@ -1695,48 +1677,50 @@ gtkdoc_generator_set_section_comment (GtkdocGenerator* self,
 	_gtkdoc_generator_file_data_unref0 (file_data);
 }
 
-
 static gchar**
 _vala_array_dup5 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup6 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static GtkdocGComment*
 gtkdoc_generator_create_gcomment (GtkdocGenerator* self,
                                   const gchar* symbol,
                                   ValadocContentComment* comment,
                                   gchar** returns_annotations,
-                                  int returns_annotations_length1,
+                                  gint returns_annotations_length1,
                                   gboolean is_dbus)
 {
-	GtkdocGComment* result = NULL;
 	GtkdocCommentConverter* converter = NULL;
 	ValadocErrorReporter* _tmp0_;
 	ValadocApiNode* _tmp1_;
@@ -1770,6 +1754,7 @@ gtkdoc_generator_create_gcomment (GtkdocGenerator* self,
 	ValaList* _tmp26_;
 	GtkdocCommentConverter* _tmp27_;
 	ValaList* _tmp28_;
+	GtkdocGComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = self->priv->reporter;
@@ -1832,25 +1817,24 @@ gtkdoc_generator_create_gcomment (GtkdocGenerator* self,
 	return result;
 }
 
-
 static GtkdocGComment*
 gtkdoc_generator_add_comment (GtkdocGenerator* self,
                               const gchar* filename,
                               const gchar* symbol,
                               ValadocContentComment* comment)
 {
-	GtkdocGComment* result = NULL;
 	GtkdocGeneratorFileData* file_data = NULL;
 	GtkdocGeneratorFileData* _tmp0_;
 	GtkdocGComment* gcomment = NULL;
 	GtkdocGComment* _tmp1_;
 	ValaList* _tmp2_;
+	GtkdocGComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (filename != NULL, NULL);
 	g_return_val_if_fail (symbol != NULL, NULL);
 	_tmp0_ = gtkdoc_generator_get_file_data (self, filename);
 	file_data = _tmp0_;
-	_tmp1_ = gtkdoc_generator_create_gcomment (self, symbol, comment, NULL, 0, FALSE);
+	_tmp1_ = gtkdoc_generator_create_gcomment (self, symbol, comment, NULL, (gint) 0, FALSE);
 	gcomment = _tmp1_;
 	_tmp2_ = file_data->comments;
 	vala_collection_add ((ValaCollection*) _tmp2_, gcomment);
@@ -1859,7 +1843,6 @@ gtkdoc_generator_add_comment (GtkdocGenerator* self,
 	return result;
 }
 
-
 static GtkdocGComment*
 gtkdoc_generator_add_symbol (GtkdocGenerator* self,
                              const gchar* filename,
@@ -1867,9 +1850,8 @@ gtkdoc_generator_add_symbol (GtkdocGenerator* self,
                              ValadocContentComment* comment,
                              const gchar* symbol,
                              gchar** returns_annotations,
-                             int returns_annotations_length1)
+                             gint returns_annotations_length1)
 {
-	GtkdocGComment* result = NULL;
 	GtkdocGeneratorFileData* file_data = NULL;
 	GtkdocGeneratorFileData* _tmp0_;
 	GtkdocGeneratorFileData* _tmp1_;
@@ -1878,6 +1860,7 @@ gtkdoc_generator_add_symbol (GtkdocGenerator* self,
 	GtkdocGComment* _tmp3_;
 	GtkdocGeneratorFileData* _tmp4_;
 	ValaList* _tmp5_;
+	GtkdocGComment* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (filename != NULL, NULL);
 	g_return_val_if_fail (cname != NULL, NULL);
@@ -1889,7 +1872,7 @@ gtkdoc_generator_add_symbol (GtkdocGenerator* self,
 	if (_tmp2_ == NULL) {
 		_tmp2_ = cname;
 	}
-	_tmp3_ = gtkdoc_generator_create_gcomment (self, _tmp2_, comment, returns_annotations, returns_annotations_length1, FALSE);
+	_tmp3_ = gtkdoc_generator_create_gcomment (self, _tmp2_, comment, returns_annotations, (gint) returns_annotations_length1, FALSE);
 	gcomment = _tmp3_;
 	_tmp4_ = file_data;
 	_tmp5_ = _tmp4_->comments;
@@ -1899,33 +1882,33 @@ gtkdoc_generator_add_symbol (GtkdocGenerator* self,
 	return result;
 }
 
-
 static gchar**
 _vala_array_dup7 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static GtkdocHeader*
 gtkdoc_generator_add_custom_header (GtkdocGenerator* self,
                                     const gchar* name,
                                     const gchar* comment,
                                     gchar** annotations,
-                                    int annotations_length1,
+                                    gint annotations_length1,
                                     gdouble pos,
                                     gboolean block)
 {
-	GtkdocHeader* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	GtkdocHeader* header = NULL;
 	GtkdocHeader* _tmp1_;
@@ -1934,6 +1917,7 @@ gtkdoc_generator_add_custom_header (GtkdocGenerator* self,
 	gint _tmp3__length1;
 	ValaList* _tmp4_;
 	GtkdocHeader* _tmp5_;
+	GtkdocHeader* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	if (comment == NULL) {
@@ -1960,15 +1944,14 @@ gtkdoc_generator_add_custom_header (GtkdocGenerator* self,
 	return result;
 }
 
-
 static GtkdocHeader*
 gtkdoc_generator_remove_custom_header (GtkdocGenerator* self,
                                        const gchar* name)
 {
-	GtkdocHeader* result = NULL;
 	ValaIterator* it = NULL;
 	ValaList* _tmp0_;
 	ValaIterator* _tmp1_;
+	GtkdocHeader* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	_tmp0_ = self->priv->current_headers;
@@ -2005,32 +1988,32 @@ gtkdoc_generator_remove_custom_header (GtkdocGenerator* self,
 	return result;
 }
 
-
 static gchar**
 _vala_array_dup8 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static GtkdocHeader*
 gtkdoc_generator_add_header (GtkdocGenerator* self,
                              const gchar* name,
                              ValadocContentComment* comment,
                              gchar** annotations,
-                             int annotations_length1,
+                             gint annotations_length1,
                              gdouble pos)
 {
-	GtkdocHeader* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	GtkdocCommentConverter* converter = NULL;
 	ValadocErrorReporter* _tmp1_;
@@ -2045,6 +2028,7 @@ gtkdoc_generator_add_header (GtkdocGenerator* self,
 	gint _tmp23__length1;
 	ValaList* _tmp24_;
 	GtkdocHeader* _tmp25_;
+	GtkdocHeader* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (name != NULL, NULL);
 	if (comment == NULL) {
@@ -2120,7 +2104,6 @@ gtkdoc_generator_add_header (GtkdocGenerator* self,
 	return result;
 }
 
-
 static void
 gtkdoc_generator_real_visit_tree (ValadocApiVisitor* base,
                                   ValadocApiTree* tree)
@@ -2130,7 +2113,6 @@ gtkdoc_generator_real_visit_tree (ValadocApiVisitor* base,
 	g_return_if_fail (tree != NULL);
 	valadoc_api_tree_accept_children (tree, (ValadocApiVisitor*) self);
 }
-
 
 static void
 gtkdoc_generator_real_visit_package (ValadocApiVisitor* base,
@@ -2148,7 +2130,6 @@ gtkdoc_generator_real_visit_package (ValadocApiVisitor* base,
 	}
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) package, (ValadocApiVisitor*) self, TRUE);
 }
-
 
 static void
 gtkdoc_generator_real_visit_namespace (ValadocApiVisitor* base,
@@ -2204,13 +2185,11 @@ gtkdoc_generator_real_visit_namespace (ValadocApiVisitor* base,
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) ns, (ValadocApiVisitor*) self, TRUE);
 }
 
-
 static gpointer
 _gtkdoc_dbus_interface_ref0 (gpointer self)
 {
 	return self ? gtkdoc_dbus_interface_ref (self) : NULL;
 }
-
 
 static void
 gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
@@ -2259,48 +2238,48 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 	ValaList* _tmp43_;
 	ValaList* _tmp44_;
 	ValaList* abstract_properties = NULL;
-	ValadocApiNodeType* _tmp63_;
-	ValadocApiNodeType* _tmp64_;
-	gint _tmp64__length1;
-	ValaList* _tmp65_;
-	ValaList* _tmp66_;
-	GtkdocHeader* _tmp85_;
-	GtkdocHeader* _tmp86_;
-	ValadocApiAttribute* _tmp87_;
-	ValadocApiAttribute* _tmp88_;
-	gboolean _tmp89_;
-	gchar* _tmp136_;
-	gchar* _tmp137_;
+	ValadocApiNodeType* _tmp61_;
+	ValadocApiNodeType* _tmp62_;
+	gint _tmp62__length1;
+	ValaList* _tmp63_;
+	ValaList* _tmp64_;
+	GtkdocHeader* _tmp81_;
+	GtkdocHeader* _tmp82_;
+	ValadocApiAttribute* _tmp83_;
+	ValadocApiAttribute* _tmp84_;
+	gboolean _tmp85_;
+	gchar* _tmp130_;
+	gchar* _tmp131_;
+	gchar* _tmp132_;
+	gchar* _tmp133_;
+	gchar* _tmp134_;
+	gchar* _tmp135_;
+	GtkdocGComment* _tmp136_;
+	GtkdocGComment* _tmp137_;
 	gchar* _tmp138_;
 	gchar* _tmp139_;
 	gchar* _tmp140_;
+	GtkdocGeneratorFileData* file_data = NULL;
 	gchar* _tmp141_;
-	GtkdocGComment* _tmp142_;
-	GtkdocGComment* _tmp143_;
-	gchar* _tmp144_;
+	gchar* _tmp142_;
+	GtkdocGeneratorFileData* _tmp143_;
+	GtkdocGeneratorFileData* _tmp144_;
 	gchar* _tmp145_;
 	gchar* _tmp146_;
-	GtkdocGeneratorFileData* file_data = NULL;
 	gchar* _tmp147_;
 	gchar* _tmp148_;
-	GtkdocGeneratorFileData* _tmp149_;
-	GtkdocGeneratorFileData* _tmp150_;
+	gchar* _tmp149_;
+	gchar* _tmp150_;
 	gchar* _tmp151_;
 	gchar* _tmp152_;
 	gchar* _tmp153_;
 	gchar* _tmp154_;
-	gchar* _tmp155_;
+	const gchar* _tmp155_;
 	gchar* _tmp156_;
-	gchar* _tmp157_;
-	gchar* _tmp158_;
-	gchar* _tmp159_;
-	gchar* _tmp160_;
-	const gchar* _tmp161_;
-	gchar* _tmp162_;
-	ValaList* _tmp163_;
-	ValaList* _tmp164_;
-	GtkdocDBusInterface* _tmp165_;
-	GtkdocDBusInterface* _tmp166_;
+	ValaList* _tmp157_;
+	ValaList* _tmp158_;
+	GtkdocDBusInterface* _tmp159_;
+	GtkdocDBusInterface* _tmp160_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (iface != NULL);
 	_tmp0_ = self->priv->current_cname;
@@ -2347,7 +2326,7 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 	_tmp20_ = _tmp19_;
 	_tmp21_ = valadoc_api_node_get_documentation ((ValadocApiNode*) iface);
 	_tmp22_ = _tmp21_;
-	_tmp23_ = gtkdoc_generator_add_symbol (self, _tmp18_, _tmp20_, _tmp22_, NULL, NULL, 0);
+	_tmp23_ = gtkdoc_generator_add_symbol (self, _tmp18_, _tmp20_, _tmp22_, NULL, NULL, (gint) 0);
 	_tmp24_ = _tmp23_;
 	_g_free0 (_tmp20_);
 	_g_free0 (_tmp18_);
@@ -2387,7 +2366,7 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 	_tmp41_[0] = VALADOC_API_NODE_TYPE_METHOD;
 	_tmp42_ = _tmp41_;
 	_tmp42__length1 = 1;
-	_tmp43_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) iface, _tmp42_, 1, FALSE);
+	_tmp43_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) iface, _tmp42_, (gint) 1, FALSE);
 	_tmp44_ = _tmp43_;
 	_tmp42_ = (g_free (_tmp42_), NULL);
 	abstract_methods = _tmp44_;
@@ -2411,247 +2390,235 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 		while (TRUE) {
 			gint _tmp50_;
 			gint _tmp51_;
-			gint _tmp52_;
 			ValadocApiNode* m = NULL;
-			ValaList* _tmp53_;
-			gint _tmp54_;
-			gpointer _tmp55_;
-			gboolean _tmp56_ = FALSE;
-			ValadocApiNode* _tmp57_;
-			ValadocSettings* _tmp58_;
+			ValaList* _tmp52_;
+			gpointer _tmp53_;
+			gboolean _tmp54_ = FALSE;
+			ValadocApiNode* _tmp55_;
+			ValadocSettings* _tmp56_;
+			_m_index = _m_index + 1;
 			_tmp50_ = _m_index;
-			_m_index = _tmp50_ + 1;
-			_tmp51_ = _m_index;
-			_tmp52_ = _m_size;
-			if (!(_tmp51_ < _tmp52_)) {
+			_tmp51_ = _m_size;
+			if (!(_tmp50_ < _tmp51_)) {
 				break;
 			}
-			_tmp53_ = _m_list;
-			_tmp54_ = _m_index;
-			_tmp55_ = vala_list_get (_tmp53_, _tmp54_);
-			m = (ValadocApiNode*) _tmp55_;
-			_tmp57_ = m;
-			_tmp58_ = self->priv->settings;
-			if (valadoc_api_node_is_browsable (_tmp57_, _tmp58_)) {
-				_tmp56_ = TRUE;
+			_tmp52_ = _m_list;
+			_tmp53_ = vala_list_get (_tmp52_, _m_index);
+			m = (ValadocApiNode*) _tmp53_;
+			_tmp55_ = m;
+			_tmp56_ = self->priv->settings;
+			if (valadoc_api_node_is_browsable (_tmp55_, _tmp56_)) {
+				_tmp54_ = TRUE;
 			} else {
-				ValadocApiNode* _tmp59_;
-				gboolean _tmp60_;
-				gboolean _tmp61_;
-				_tmp59_ = m;
-				_tmp60_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp59_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
-				_tmp61_ = _tmp60_;
-				_tmp56_ = _tmp61_;
+				ValadocApiNode* _tmp57_;
+				gboolean _tmp58_;
+				gboolean _tmp59_;
+				_tmp57_ = m;
+				_tmp58_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp57_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+				_tmp59_ = _tmp58_;
+				_tmp54_ = _tmp59_;
 			}
-			if (_tmp56_) {
-				ValadocApiNode* _tmp62_;
-				_tmp62_ = m;
-				gtkdoc_generator_visit_abstract_method (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp62_, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
+			if (_tmp54_) {
+				ValadocApiNode* _tmp60_;
+				_tmp60_ = m;
+				gtkdoc_generator_visit_abstract_method (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp60_, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
 			}
 			_g_object_unref0 (m);
 		}
 		_vala_iterable_unref0 (_m_list);
 	}
-	_tmp63_ = g_new0 (ValadocApiNodeType, 1);
-	_tmp63_[0] = VALADOC_API_NODE_TYPE_PROPERTY;
+	_tmp61_ = g_new0 (ValadocApiNodeType, 1);
+	_tmp61_[0] = VALADOC_API_NODE_TYPE_PROPERTY;
+	_tmp62_ = _tmp61_;
+	_tmp62__length1 = 1;
+	_tmp63_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) iface, _tmp62_, (gint) 1, FALSE);
 	_tmp64_ = _tmp63_;
-	_tmp64__length1 = 1;
-	_tmp65_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) iface, _tmp64_, 1, FALSE);
-	_tmp66_ = _tmp65_;
-	_tmp64_ = (g_free (_tmp64_), NULL);
-	abstract_properties = _tmp66_;
+	_tmp62_ = (g_free (_tmp62_), NULL);
+	abstract_properties = _tmp64_;
 	{
 		ValaList* _prop_list = NULL;
-		ValaList* _tmp67_;
-		ValaList* _tmp68_;
+		ValaList* _tmp65_;
+		ValaList* _tmp66_;
 		gint _prop_size = 0;
-		ValaList* _tmp69_;
-		gint _tmp70_;
-		gint _tmp71_;
+		ValaList* _tmp67_;
+		gint _tmp68_;
+		gint _tmp69_;
 		gint _prop_index = 0;
-		_tmp67_ = abstract_properties;
-		_tmp68_ = _vala_iterable_ref0 (_tmp67_);
-		_prop_list = _tmp68_;
-		_tmp69_ = _prop_list;
-		_tmp70_ = vala_collection_get_size ((ValaCollection*) _tmp69_);
-		_tmp71_ = _tmp70_;
-		_prop_size = _tmp71_;
+		_tmp65_ = abstract_properties;
+		_tmp66_ = _vala_iterable_ref0 (_tmp65_);
+		_prop_list = _tmp66_;
+		_tmp67_ = _prop_list;
+		_tmp68_ = vala_collection_get_size ((ValaCollection*) _tmp67_);
+		_tmp69_ = _tmp68_;
+		_prop_size = _tmp69_;
 		_prop_index = -1;
 		while (TRUE) {
-			gint _tmp72_;
-			gint _tmp73_;
-			gint _tmp74_;
+			gint _tmp70_;
+			gint _tmp71_;
 			ValadocApiNode* prop = NULL;
-			ValaList* _tmp75_;
-			gint _tmp76_;
-			gpointer _tmp77_;
-			gboolean _tmp78_ = FALSE;
-			ValadocApiNode* _tmp79_;
-			ValadocSettings* _tmp80_;
-			_tmp72_ = _prop_index;
-			_prop_index = _tmp72_ + 1;
-			_tmp73_ = _prop_index;
-			_tmp74_ = _prop_size;
-			if (!(_tmp73_ < _tmp74_)) {
+			ValaList* _tmp72_;
+			gpointer _tmp73_;
+			gboolean _tmp74_ = FALSE;
+			ValadocApiNode* _tmp75_;
+			ValadocSettings* _tmp76_;
+			_prop_index = _prop_index + 1;
+			_tmp70_ = _prop_index;
+			_tmp71_ = _prop_size;
+			if (!(_tmp70_ < _tmp71_)) {
 				break;
 			}
-			_tmp75_ = _prop_list;
-			_tmp76_ = _prop_index;
-			_tmp77_ = vala_list_get (_tmp75_, _tmp76_);
-			prop = (ValadocApiNode*) _tmp77_;
-			_tmp79_ = prop;
-			_tmp80_ = self->priv->settings;
-			if (valadoc_api_node_is_browsable (_tmp79_, _tmp80_)) {
-				_tmp78_ = TRUE;
+			_tmp72_ = _prop_list;
+			_tmp73_ = vala_list_get (_tmp72_, _prop_index);
+			prop = (ValadocApiNode*) _tmp73_;
+			_tmp75_ = prop;
+			_tmp76_ = self->priv->settings;
+			if (valadoc_api_node_is_browsable (_tmp75_, _tmp76_)) {
+				_tmp74_ = TRUE;
 			} else {
-				ValadocApiNode* _tmp81_;
-				gboolean _tmp82_;
-				gboolean _tmp83_;
-				_tmp81_ = prop;
-				_tmp82_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp81_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
-				_tmp83_ = _tmp82_;
-				_tmp78_ = _tmp83_;
+				ValadocApiNode* _tmp77_;
+				gboolean _tmp78_;
+				gboolean _tmp79_;
+				_tmp77_ = prop;
+				_tmp78_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp77_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+				_tmp79_ = _tmp78_;
+				_tmp74_ = _tmp79_;
 			}
-			if (_tmp78_) {
-				ValadocApiNode* _tmp84_;
-				_tmp84_ = prop;
-				gtkdoc_generator_visit_abstract_property (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp84_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
+			if (_tmp74_) {
+				ValadocApiNode* _tmp80_;
+				_tmp80_ = prop;
+				gtkdoc_generator_visit_abstract_property (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp80_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
 			}
 			_g_object_unref0 (prop);
 		}
 		_vala_iterable_unref0 (_prop_list);
 	}
-	_tmp85_ = gtkdoc_generator_add_custom_header (self, "parent_iface", "the parent interface structure", NULL, 0, DBL_MAX, TRUE);
-	_tmp86_ = _tmp85_;
-	_gtkdoc_header_unref0 (_tmp86_);
-	_tmp87_ = valadoc_api_symbol_get_attribute ((ValadocApiSymbol*) iface, "GenericAccessors");
-	_tmp88_ = _tmp87_;
-	_tmp89_ = _tmp88_ != NULL;
-	_g_object_unref0 (_tmp88_);
-	if (_tmp89_) {
+	_tmp81_ = gtkdoc_generator_add_custom_header (self, "parent_iface", "the parent interface structure", NULL, (gint) 0, DBL_MAX, TRUE);
+	_tmp82_ = _tmp81_;
+	_gtkdoc_header_unref0 (_tmp82_);
+	_tmp83_ = valadoc_api_symbol_get_attribute ((ValadocApiSymbol*) iface, "GenericAccessors");
+	_tmp84_ = _tmp83_;
+	_tmp85_ = _tmp84_ != NULL;
+	_g_object_unref0 (_tmp84_);
+	if (_tmp85_) {
 		ValaList* type_parameters = NULL;
-		ValaList* _tmp90_;
-		_tmp90_ = valadoc_api_node_get_children_by_type ((ValadocApiNode*) iface, VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
-		type_parameters = _tmp90_;
+		ValaList* _tmp86_;
+		_tmp86_ = valadoc_api_node_get_children_by_type ((ValadocApiNode*) iface, VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
+		type_parameters = _tmp86_;
 		{
 			ValaList* __type_list = NULL;
-			ValaList* _tmp91_;
-			ValaList* _tmp92_;
+			ValaList* _tmp87_;
+			ValaList* _tmp88_;
 			gint __type_size = 0;
-			ValaList* _tmp93_;
-			gint _tmp94_;
-			gint _tmp95_;
+			ValaList* _tmp89_;
+			gint _tmp90_;
+			gint _tmp91_;
 			gint __type_index = 0;
-			_tmp91_ = type_parameters;
-			_tmp92_ = _vala_iterable_ref0 (_tmp91_);
-			__type_list = _tmp92_;
-			_tmp93_ = __type_list;
-			_tmp94_ = vala_collection_get_size ((ValaCollection*) _tmp93_);
-			_tmp95_ = _tmp94_;
-			__type_size = _tmp95_;
+			_tmp87_ = type_parameters;
+			_tmp88_ = _vala_iterable_ref0 (_tmp87_);
+			__type_list = _tmp88_;
+			_tmp89_ = __type_list;
+			_tmp90_ = vala_collection_get_size ((ValaCollection*) _tmp89_);
+			_tmp91_ = _tmp90_;
+			__type_size = _tmp91_;
 			__type_index = -1;
 			while (TRUE) {
-				gint _tmp96_;
-				gint _tmp97_;
-				gint _tmp98_;
+				gint _tmp92_;
+				gint _tmp93_;
 				ValadocApiNode* _type = NULL;
-				ValaList* _tmp99_;
-				gint _tmp100_;
-				gpointer _tmp101_;
+				ValaList* _tmp94_;
+				gpointer _tmp95_;
 				ValadocApiTypeParameter* type = NULL;
-				ValadocApiNode* _tmp102_;
-				ValadocApiTypeParameter* _tmp103_;
+				ValadocApiNode* _tmp96_;
+				ValadocApiTypeParameter* _tmp97_;
 				gchar* type_name_down = NULL;
-				ValadocApiTypeParameter* _tmp104_;
+				ValadocApiTypeParameter* _tmp98_;
+				const gchar* _tmp99_;
+				const gchar* _tmp100_;
+				gchar* _tmp101_;
+				const gchar* _tmp102_;
+				gchar* _tmp103_;
+				gchar* _tmp104_;
 				const gchar* _tmp105_;
-				const gchar* _tmp106_;
+				gchar* _tmp106_;
 				gchar* _tmp107_;
-				const gchar* _tmp108_;
-				gchar* _tmp109_;
-				gchar* _tmp110_;
-				const gchar* _tmp111_;
+				GtkdocHeader* _tmp108_;
+				GtkdocHeader* _tmp109_;
+				const gchar* _tmp110_;
+				gchar* _tmp111_;
 				gchar* _tmp112_;
 				gchar* _tmp113_;
-				GtkdocHeader* _tmp114_;
-				GtkdocHeader* _tmp115_;
-				const gchar* _tmp116_;
+				gchar* _tmp114_;
+				const gchar* _tmp115_;
+				gchar* _tmp116_;
 				gchar* _tmp117_;
-				gchar* _tmp118_;
-				gchar* _tmp119_;
-				gchar* _tmp120_;
-				const gchar* _tmp121_;
+				GtkdocHeader* _tmp118_;
+				GtkdocHeader* _tmp119_;
+				const gchar* _tmp120_;
+				gchar* _tmp121_;
 				gchar* _tmp122_;
 				gchar* _tmp123_;
-				GtkdocHeader* _tmp124_;
-				GtkdocHeader* _tmp125_;
-				const gchar* _tmp126_;
+				gchar* _tmp124_;
+				const gchar* _tmp125_;
+				gchar* _tmp126_;
 				gchar* _tmp127_;
-				gchar* _tmp128_;
-				gchar* _tmp129_;
-				gchar* _tmp130_;
-				const gchar* _tmp131_;
-				gchar* _tmp132_;
-				gchar* _tmp133_;
-				GtkdocHeader* _tmp134_;
-				GtkdocHeader* _tmp135_;
-				_tmp96_ = __type_index;
-				__type_index = _tmp96_ + 1;
-				_tmp97_ = __type_index;
-				_tmp98_ = __type_size;
-				if (!(_tmp97_ < _tmp98_)) {
+				GtkdocHeader* _tmp128_;
+				GtkdocHeader* _tmp129_;
+				__type_index = __type_index + 1;
+				_tmp92_ = __type_index;
+				_tmp93_ = __type_size;
+				if (!(_tmp92_ < _tmp93_)) {
 					break;
 				}
-				_tmp99_ = __type_list;
-				_tmp100_ = __type_index;
-				_tmp101_ = vala_list_get (_tmp99_, _tmp100_);
-				_type = (ValadocApiNode*) _tmp101_;
-				_tmp102_ = _type;
-				_tmp103_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp102_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp102_) : NULL);
-				type = _tmp103_;
-				_tmp104_ = type;
-				_tmp105_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp104_);
-				_tmp106_ = _tmp105_;
-				_tmp107_ = g_utf8_strdown (_tmp106_, (gssize) -1);
-				type_name_down = _tmp107_;
-				_tmp108_ = type_name_down;
-				_tmp109_ = g_strdup_printf ("get_%s_type", _tmp108_);
-				_tmp110_ = _tmp109_;
-				_tmp111_ = type_name_down;
-				_tmp112_ = g_strdup_printf ("The #GType for %s", _tmp111_);
-				_tmp113_ = _tmp112_;
-				_tmp114_ = gtkdoc_generator_add_custom_header (self, _tmp110_, _tmp113_, NULL, 0, DBL_MAX, TRUE);
-				_tmp115_ = _tmp114_;
-				_gtkdoc_header_unref0 (_tmp115_);
-				_g_free0 (_tmp113_);
-				_g_free0 (_tmp110_);
-				_tmp116_ = type_name_down;
-				_tmp117_ = g_strdup_printf ("get_%s_dup_func", _tmp116_);
-				_tmp118_ = _tmp117_;
-				_tmp119_ = valadoc_api_interface_get_cname (iface);
-				_tmp120_ = _tmp119_;
-				_tmp121_ = type_name_down;
-				_tmp122_ = g_strdup_printf ("A dup function for #%sIface.get_%s_type()", _tmp120_, _tmp121_);
-				_tmp123_ = _tmp122_;
-				_tmp124_ = gtkdoc_generator_add_custom_header (self, _tmp118_, _tmp123_, NULL, 0, DBL_MAX, TRUE);
-				_tmp125_ = _tmp124_;
-				_gtkdoc_header_unref0 (_tmp125_);
-				_g_free0 (_tmp123_);
-				_g_free0 (_tmp120_);
-				_g_free0 (_tmp118_);
-				_tmp126_ = type_name_down;
-				_tmp127_ = g_strdup_printf ("get_%s_destroy_func", _tmp126_);
-				_tmp128_ = _tmp127_;
-				_tmp129_ = valadoc_api_interface_get_cname (iface);
-				_tmp130_ = _tmp129_;
-				_tmp131_ = type_name_down;
-				_tmp132_ = g_strdup_printf ("A destroy function for #%sIface.get_%s_type()", _tmp130_, _tmp131_);
-				_tmp133_ = _tmp132_;
-				_tmp134_ = gtkdoc_generator_add_custom_header (self, _tmp128_, _tmp133_, NULL, 0, DBL_MAX, TRUE);
-				_tmp135_ = _tmp134_;
-				_gtkdoc_header_unref0 (_tmp135_);
-				_g_free0 (_tmp133_);
-				_g_free0 (_tmp130_);
-				_g_free0 (_tmp128_);
+				_tmp94_ = __type_list;
+				_tmp95_ = vala_list_get (_tmp94_, __type_index);
+				_type = (ValadocApiNode*) _tmp95_;
+				_tmp96_ = _type;
+				_tmp97_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp96_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp96_) : NULL);
+				type = _tmp97_;
+				_tmp98_ = type;
+				_tmp99_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp98_);
+				_tmp100_ = _tmp99_;
+				_tmp101_ = g_ascii_strdown (_tmp100_, (gssize) -1);
+				type_name_down = _tmp101_;
+				_tmp102_ = type_name_down;
+				_tmp103_ = g_strdup_printf ("get_%s_type", _tmp102_);
+				_tmp104_ = _tmp103_;
+				_tmp105_ = type_name_down;
+				_tmp106_ = g_strdup_printf ("The #GType for %s", _tmp105_);
+				_tmp107_ = _tmp106_;
+				_tmp108_ = gtkdoc_generator_add_custom_header (self, _tmp104_, _tmp107_, NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp109_ = _tmp108_;
+				_gtkdoc_header_unref0 (_tmp109_);
+				_g_free0 (_tmp107_);
+				_g_free0 (_tmp104_);
+				_tmp110_ = type_name_down;
+				_tmp111_ = g_strdup_printf ("get_%s_dup_func", _tmp110_);
+				_tmp112_ = _tmp111_;
+				_tmp113_ = valadoc_api_interface_get_cname (iface);
+				_tmp114_ = _tmp113_;
+				_tmp115_ = type_name_down;
+				_tmp116_ = g_strdup_printf ("A dup function for #%sIface.get_%s_type()", _tmp114_, _tmp115_);
+				_tmp117_ = _tmp116_;
+				_tmp118_ = gtkdoc_generator_add_custom_header (self, _tmp112_, _tmp117_, NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp119_ = _tmp118_;
+				_gtkdoc_header_unref0 (_tmp119_);
+				_g_free0 (_tmp117_);
+				_g_free0 (_tmp114_);
+				_g_free0 (_tmp112_);
+				_tmp120_ = type_name_down;
+				_tmp121_ = g_strdup_printf ("get_%s_destroy_func", _tmp120_);
+				_tmp122_ = _tmp121_;
+				_tmp123_ = valadoc_api_interface_get_cname (iface);
+				_tmp124_ = _tmp123_;
+				_tmp125_ = type_name_down;
+				_tmp126_ = g_strdup_printf ("A destroy function for #%sIface.get_%s_type()", _tmp124_, _tmp125_);
+				_tmp127_ = _tmp126_;
+				_tmp128_ = gtkdoc_generator_add_custom_header (self, _tmp122_, _tmp127_, NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp129_ = _tmp128_;
+				_gtkdoc_header_unref0 (_tmp129_);
+				_g_free0 (_tmp127_);
+				_g_free0 (_tmp124_);
+				_g_free0 (_tmp122_);
 				_g_free0 (type_name_down);
 				_g_object_unref0 (type);
 				_g_object_unref0 (_type);
@@ -2660,63 +2627,63 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 		}
 		_vala_iterable_unref0 (type_parameters);
 	}
-	_tmp136_ = valadoc_documentation_get_filename ((ValadocDocumentation*) iface);
-	_tmp137_ = _tmp136_;
-	_tmp138_ = valadoc_api_interface_get_cname (iface);
-	_tmp139_ = _tmp138_;
-	_tmp140_ = g_strconcat (_tmp139_, "Iface", NULL);
-	_tmp141_ = _tmp140_;
-	_tmp142_ = gtkdoc_generator_add_symbol (self, _tmp137_, _tmp141_, NULL, NULL, NULL, 0);
+	_tmp130_ = valadoc_documentation_get_filename ((ValadocDocumentation*) iface);
+	_tmp131_ = _tmp130_;
+	_tmp132_ = valadoc_api_interface_get_cname (iface);
+	_tmp133_ = _tmp132_;
+	_tmp134_ = g_strconcat (_tmp133_, "Iface", NULL);
+	_tmp135_ = _tmp134_;
+	_tmp136_ = gtkdoc_generator_add_symbol (self, _tmp131_, _tmp135_, NULL, NULL, NULL, (gint) 0);
 	_gtkdoc_gcomment_unref0 (gcomment);
-	gcomment = _tmp142_;
-	_g_free0 (_tmp141_);
+	gcomment = _tmp136_;
+	_g_free0 (_tmp135_);
+	_g_free0 (_tmp133_);
+	_g_free0 (_tmp131_);
+	_tmp137_ = gcomment;
+	_tmp138_ = gtkdoc_get_docbook_link ((ValadocApiItem*) iface, FALSE, FALSE);
+	_tmp139_ = _tmp138_;
+	_tmp140_ = g_strdup_printf ("Interface for creating %s implementations.", _tmp139_);
+	_g_free0 (_tmp137_->brief_comment);
+	_tmp137_->brief_comment = _tmp140_;
 	_g_free0 (_tmp139_);
-	_g_free0 (_tmp137_);
-	_tmp143_ = gcomment;
-	_tmp144_ = gtkdoc_get_docbook_link ((ValadocApiItem*) iface, FALSE, FALSE);
-	_tmp145_ = _tmp144_;
-	_tmp146_ = g_strdup_printf ("Interface for creating %s implementations.", _tmp145_);
-	_g_free0 (_tmp143_->brief_comment);
-	_tmp143_->brief_comment = _tmp146_;
-	_g_free0 (_tmp145_);
-	_tmp147_ = valadoc_documentation_get_filename ((ValadocDocumentation*) iface);
+	_tmp141_ = valadoc_documentation_get_filename ((ValadocDocumentation*) iface);
+	_tmp142_ = _tmp141_;
+	_tmp143_ = gtkdoc_generator_get_file_data (self, _tmp142_);
+	_tmp144_ = _tmp143_;
+	_g_free0 (_tmp142_);
+	file_data = _tmp144_;
+	_tmp145_ = valadoc_api_typesymbol_get_type_cast_macro_name ((ValadocApiTypeSymbol*) iface);
+	_tmp146_ = _tmp145_;
+	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp146_);
+	_g_free0 (_tmp146_);
+	_tmp147_ = valadoc_api_interface_get_interface_macro_name (iface);
 	_tmp148_ = _tmp147_;
-	_tmp149_ = gtkdoc_generator_get_file_data (self, _tmp148_);
-	_tmp150_ = _tmp149_;
+	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp148_);
 	_g_free0 (_tmp148_);
-	file_data = _tmp150_;
-	_tmp151_ = valadoc_api_typesymbol_get_type_cast_macro_name ((ValadocApiTypeSymbol*) iface);
+	_tmp149_ = valadoc_api_typesymbol_get_is_type_macro_name ((ValadocApiTypeSymbol*) iface);
+	_tmp150_ = _tmp149_;
+	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp150_);
+	_g_free0 (_tmp150_);
+	_tmp151_ = valadoc_api_typesymbol_get_type_macro_name ((ValadocApiTypeSymbol*) iface);
 	_tmp152_ = _tmp151_;
 	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp152_);
 	_g_free0 (_tmp152_);
-	_tmp153_ = valadoc_api_interface_get_interface_macro_name (iface);
+	_tmp153_ = valadoc_api_typesymbol_get_type_function_name ((ValadocApiTypeSymbol*) iface);
 	_tmp154_ = _tmp153_;
 	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp154_);
 	_g_free0 (_tmp154_);
-	_tmp155_ = valadoc_api_typesymbol_get_is_type_macro_name ((ValadocApiTypeSymbol*) iface);
-	_tmp156_ = _tmp155_;
-	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp156_);
-	_g_free0 (_tmp156_);
-	_tmp157_ = valadoc_api_typesymbol_get_type_macro_name ((ValadocApiTypeSymbol*) iface);
-	_tmp158_ = _tmp157_;
-	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp158_);
-	_g_free0 (_tmp158_);
-	_tmp159_ = valadoc_api_typesymbol_get_type_function_name ((ValadocApiTypeSymbol*) iface);
-	_tmp160_ = _tmp159_;
-	gtkdoc_generator_file_data_register_standard_section_line (file_data, _tmp160_);
-	_g_free0 (_tmp160_);
-	_tmp161_ = old_cname;
-	_tmp162_ = g_strdup (_tmp161_);
+	_tmp155_ = old_cname;
+	_tmp156_ = g_strdup (_tmp155_);
 	_g_free0 (self->priv->current_cname);
-	self->priv->current_cname = _tmp162_;
-	_tmp163_ = old_headers;
-	_tmp164_ = _vala_iterable_ref0 (_tmp163_);
+	self->priv->current_cname = _tmp156_;
+	_tmp157_ = old_headers;
+	_tmp158_ = _vala_iterable_ref0 (_tmp157_);
 	_vala_iterable_unref0 (self->priv->current_headers);
-	self->priv->current_headers = _tmp164_;
-	_tmp165_ = old_dbus_interface;
-	_tmp166_ = _gtkdoc_dbus_interface_ref0 (_tmp165_);
+	self->priv->current_headers = _tmp158_;
+	_tmp159_ = old_dbus_interface;
+	_tmp160_ = _gtkdoc_dbus_interface_ref0 (_tmp159_);
 	_gtkdoc_dbus_interface_unref0 (self->priv->current_dbus_interface);
-	self->priv->current_dbus_interface = _tmp166_;
+	self->priv->current_dbus_interface = _tmp160_;
 	_gtkdoc_generator_file_data_unref0 (file_data);
 	_vala_iterable_unref0 (abstract_properties);
 	_vala_iterable_unref0 (abstract_methods);
@@ -2725,7 +2692,6 @@ gtkdoc_generator_real_visit_interface (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 	_g_free0 (old_cname);
 }
-
 
 static void
 gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
@@ -2791,72 +2757,72 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 	ValaList* _tmp188_;
 	ValaList* _tmp189_;
 	ValaList* abstract_properties = NULL;
-	ValadocApiNodeType* _tmp208_;
-	ValadocApiNodeType* _tmp209_;
-	gint _tmp209__length1;
-	ValaList* _tmp210_;
-	ValaList* _tmp211_;
-	GtkdocHeader* _tmp230_;
-	GtkdocHeader* _tmp231_;
+	ValadocApiNodeType* _tmp206_;
+	ValadocApiNodeType* _tmp207_;
+	gint _tmp207__length1;
+	ValaList* _tmp208_;
+	ValaList* _tmp209_;
+	GtkdocHeader* _tmp226_;
+	GtkdocHeader* _tmp227_;
+	gchar* _tmp228_;
+	gchar* _tmp229_;
+	gchar* _tmp230_;
+	gchar* _tmp231_;
 	gchar* _tmp232_;
 	gchar* _tmp233_;
-	gchar* _tmp234_;
-	gchar* _tmp235_;
+	GtkdocGComment* _tmp234_;
+	GtkdocGComment* _tmp235_;
 	gchar* _tmp236_;
 	gchar* _tmp237_;
-	GtkdocGComment* _tmp238_;
-	GtkdocGComment* _tmp239_;
-	gchar* _tmp240_;
-	gchar* _tmp241_;
-	gchar* _tmp242_;
+	gchar* _tmp238_;
 	GtkdocGeneratorFileData* file_data = NULL;
-	gchar* _tmp243_;
+	gchar* _tmp239_;
+	gchar* _tmp240_;
+	GtkdocGeneratorFileData* _tmp241_;
+	GtkdocGeneratorFileData* _tmp242_;
+	GtkdocGeneratorFileData* _tmp243_;
 	gchar* _tmp244_;
-	GtkdocGeneratorFileData* _tmp245_;
+	gchar* _tmp245_;
 	GtkdocGeneratorFileData* _tmp246_;
-	GtkdocGeneratorFileData* _tmp247_;
+	gchar* _tmp247_;
 	gchar* _tmp248_;
-	gchar* _tmp249_;
-	GtkdocGeneratorFileData* _tmp250_;
+	GtkdocGeneratorFileData* _tmp249_;
+	gchar* _tmp250_;
 	gchar* _tmp251_;
-	gchar* _tmp252_;
-	GtkdocGeneratorFileData* _tmp253_;
+	GtkdocGeneratorFileData* _tmp252_;
+	gchar* _tmp253_;
 	gchar* _tmp254_;
-	gchar* _tmp255_;
-	GtkdocGeneratorFileData* _tmp256_;
+	GtkdocGeneratorFileData* _tmp255_;
+	gchar* _tmp256_;
 	gchar* _tmp257_;
-	gchar* _tmp258_;
-	GtkdocGeneratorFileData* _tmp259_;
+	GtkdocGeneratorFileData* _tmp258_;
+	gchar* _tmp259_;
 	gchar* _tmp260_;
-	gchar* _tmp261_;
-	GtkdocGeneratorFileData* _tmp262_;
+	GtkdocGeneratorFileData* _tmp261_;
+	gchar* _tmp262_;
 	gchar* _tmp263_;
-	gchar* _tmp264_;
-	GtkdocGeneratorFileData* _tmp265_;
-	gchar* _tmp266_;
-	gchar* _tmp267_;
-	gchar* _tmp268_ = NULL;
-	ValadocApiNamespace* _tmp269_;
-	ValadocApiNamespace* _tmp270_;
-	const gchar* _tmp271_;
-	const gchar* _tmp272_;
-	GtkdocGeneratorFileData* _tmp281_;
-	const gchar* _tmp282_;
-	const gchar* _tmp283_;
+	gchar* _tmp264_ = NULL;
+	ValadocApiNamespace* _tmp265_;
+	ValadocApiNamespace* _tmp266_;
+	const gchar* _tmp267_;
+	const gchar* _tmp268_;
+	GtkdocGeneratorFileData* _tmp277_;
+	const gchar* _tmp278_;
+	const gchar* _tmp279_;
+	gchar* _tmp280_;
+	gchar* _tmp281_;
+	gchar* _tmp282_;
+	gchar* _tmp283_;
 	gchar* _tmp284_;
 	gchar* _tmp285_;
-	gchar* _tmp286_;
+	const gchar* _tmp286_;
 	gchar* _tmp287_;
-	gchar* _tmp288_;
-	gchar* _tmp289_;
-	const gchar* _tmp290_;
-	gchar* _tmp291_;
-	ValaList* _tmp292_;
-	ValaList* _tmp293_;
-	ValadocApiClass* _tmp294_;
-	ValadocApiClass* _tmp295_;
-	GtkdocDBusInterface* _tmp296_;
-	GtkdocDBusInterface* _tmp297_;
+	ValaList* _tmp288_;
+	ValaList* _tmp289_;
+	ValadocApiClass* _tmp290_;
+	ValadocApiClass* _tmp291_;
+	GtkdocDBusInterface* _tmp292_;
+	GtkdocDBusInterface* _tmp293_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (cl != NULL);
 	_tmp0_ = self->priv->current_cname;
@@ -2906,7 +2872,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 	_tmp21_ = _tmp20_;
 	_tmp22_ = valadoc_api_class_get_type_id (cl);
 	_tmp23_ = _tmp22_;
-	_tmp24_ = gtkdoc_generator_add_symbol (self, _tmp21_, _tmp23_, NULL, NULL, NULL, 0);
+	_tmp24_ = gtkdoc_generator_add_symbol (self, _tmp21_, _tmp23_, NULL, NULL, NULL, (gint) 0);
 	_tmp25_ = _tmp24_;
 	_g_free0 (_tmp23_);
 	_g_free0 (_tmp21_);
@@ -2925,7 +2891,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 	_tmp33_ = _tmp32_;
 	_tmp34_ = valadoc_api_node_get_documentation ((ValadocApiNode*) cl);
 	_tmp35_ = _tmp34_;
-	_tmp36_ = gtkdoc_generator_add_symbol (self, _tmp31_, _tmp33_, _tmp35_, NULL, NULL, 0);
+	_tmp36_ = gtkdoc_generator_add_symbol (self, _tmp31_, _tmp33_, _tmp35_, NULL, NULL, (gint) 0);
 	_tmp37_ = _tmp36_;
 	_gtkdoc_gcomment_unref0 (_tmp37_);
 	_g_free0 (_tmp33_);
@@ -3107,7 +3073,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp61_ = _tmp60_;
 		_tmp62_ = g_strdup_printf ("a %s.", _tmp61_);
 		_tmp63_ = _tmp62_;
-		_tmp64_ = gtkdoc_generator_add_custom_header (self, "instance", _tmp63_, NULL, 0, DBL_MAX, TRUE);
+		_tmp64_ = gtkdoc_generator_add_custom_header (self, "instance", _tmp63_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp65_ = _tmp64_;
 		_gtkdoc_header_unref0 (_tmp65_);
 		_g_free0 (_tmp63_);
@@ -3115,7 +3081,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp66_ = filename;
 		_tmp67_ = valadoc_api_class_get_ref_function_cname (cl);
 		_tmp68_ = _tmp67_;
-		_tmp69_ = gtkdoc_generator_add_symbol (self, _tmp66_, _tmp68_, NULL, NULL, NULL, 0);
+		_tmp69_ = gtkdoc_generator_add_symbol (self, _tmp66_, _tmp68_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp69_;
 		_g_free0 (_tmp68_);
@@ -3133,7 +3099,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp76_ = _tmp75_;
 		_tmp77_ = g_strdup_printf ("a %s.", _tmp76_);
 		_tmp78_ = _tmp77_;
-		_tmp79_ = gtkdoc_generator_add_custom_header (self, "instance", _tmp78_, NULL, 0, DBL_MAX, TRUE);
+		_tmp79_ = gtkdoc_generator_add_custom_header (self, "instance", _tmp78_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp80_ = _tmp79_;
 		_gtkdoc_header_unref0 (_tmp80_);
 		_g_free0 (_tmp78_);
@@ -3141,7 +3107,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp81_ = filename;
 		_tmp82_ = valadoc_api_class_get_unref_function_cname (cl);
 		_tmp83_ = _tmp82_;
-		_tmp84_ = gtkdoc_generator_add_symbol (self, _tmp81_, _tmp83_, NULL, NULL, NULL, 0);
+		_tmp84_ = gtkdoc_generator_add_symbol (self, _tmp81_, _tmp83_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp84_;
 		_g_free0 (_tmp83_);
@@ -3152,31 +3118,31 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp85_->brief_comment = _tmp86_;
 		_tmp87_ = self->priv->current_headers;
 		vala_collection_clear ((ValaCollection*) _tmp87_);
-		_tmp88_ = gtkdoc_generator_add_custom_header (self, "name", "canonical name of the property specified", NULL, 0, DBL_MAX, TRUE);
+		_tmp88_ = gtkdoc_generator_add_custom_header (self, "name", "canonical name of the property specified", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp89_ = _tmp88_;
 		_gtkdoc_header_unref0 (_tmp89_);
-		_tmp90_ = gtkdoc_generator_add_custom_header (self, "nick", "nick name for the property specified", NULL, 0, DBL_MAX, TRUE);
+		_tmp90_ = gtkdoc_generator_add_custom_header (self, "nick", "nick name for the property specified", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp91_ = _tmp90_;
 		_gtkdoc_header_unref0 (_tmp91_);
-		_tmp92_ = gtkdoc_generator_add_custom_header (self, "blurb", "description of the property specified", NULL, 0, DBL_MAX, TRUE);
+		_tmp92_ = gtkdoc_generator_add_custom_header (self, "blurb", "description of the property specified", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp93_ = _tmp92_;
 		_gtkdoc_header_unref0 (_tmp93_);
 		_tmp94_ = gtkdoc_get_docbook_type_link (cl);
 		_tmp95_ = _tmp94_;
 		_tmp96_ = g_strdup_printf ("%s derived type of this property", _tmp95_);
 		_tmp97_ = _tmp96_;
-		_tmp98_ = gtkdoc_generator_add_custom_header (self, "object_type", _tmp97_, NULL, 0, DBL_MAX, TRUE);
+		_tmp98_ = gtkdoc_generator_add_custom_header (self, "object_type", _tmp97_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp99_ = _tmp98_;
 		_gtkdoc_header_unref0 (_tmp99_);
 		_g_free0 (_tmp97_);
 		_g_free0 (_tmp95_);
-		_tmp100_ = gtkdoc_generator_add_custom_header (self, "flags", "flags for the property specified", NULL, 0, DBL_MAX, TRUE);
+		_tmp100_ = gtkdoc_generator_add_custom_header (self, "flags", "flags for the property specified", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp101_ = _tmp100_;
 		_gtkdoc_header_unref0 (_tmp101_);
 		_tmp102_ = filename;
 		_tmp103_ = valadoc_api_class_get_param_spec_function_cname (cl);
 		_tmp104_ = _tmp103_;
-		_tmp105_ = gtkdoc_generator_add_symbol (self, _tmp102_, _tmp104_, NULL, NULL, NULL, 0);
+		_tmp105_ = gtkdoc_generator_add_symbol (self, _tmp102_, _tmp104_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp105_;
 		_g_free0 (_tmp104_);
@@ -3200,18 +3166,18 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp115_ = g_strdup_printf ("a valid <link linkend=\"GValue\"><type>GValue</type></link> of %s deri" \
 "ved type", _tmp114_);
 		_tmp116_ = _tmp115_;
-		_tmp117_ = gtkdoc_generator_add_custom_header (self, "value", _tmp116_, NULL, 0, DBL_MAX, TRUE);
+		_tmp117_ = gtkdoc_generator_add_custom_header (self, "value", _tmp116_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp118_ = _tmp117_;
 		_gtkdoc_header_unref0 (_tmp118_);
 		_g_free0 (_tmp116_);
 		_g_free0 (_tmp114_);
-		_tmp119_ = gtkdoc_generator_add_custom_header (self, "v_object", "object value to be set", NULL, 0, DBL_MAX, TRUE);
+		_tmp119_ = gtkdoc_generator_add_custom_header (self, "v_object", "object value to be set", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp120_ = _tmp119_;
 		_gtkdoc_header_unref0 (_tmp120_);
 		_tmp121_ = filename;
 		_tmp122_ = valadoc_api_class_get_set_value_function_cname (cl);
 		_tmp123_ = _tmp122_;
-		_tmp124_ = gtkdoc_generator_add_symbol (self, _tmp121_, _tmp123_, NULL, NULL, NULL, 0);
+		_tmp124_ = gtkdoc_generator_add_symbol (self, _tmp121_, _tmp123_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp124_;
 		_g_free0 (_tmp123_);
@@ -3263,7 +3229,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp146_ = g_strdup_printf ("a valid <link linkend=\"GValue\"><type>GValue</type></link> of %s deri" \
 "ved type", _tmp145_);
 		_tmp147_ = _tmp146_;
-		_tmp148_ = gtkdoc_generator_add_custom_header (self, "value", _tmp147_, NULL, 0, DBL_MAX, TRUE);
+		_tmp148_ = gtkdoc_generator_add_custom_header (self, "value", _tmp147_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp149_ = _tmp148_;
 		_gtkdoc_header_unref0 (_tmp149_);
 		_g_free0 (_tmp147_);
@@ -3271,7 +3237,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp150_ = filename;
 		_tmp151_ = valadoc_api_class_get_get_value_function_cname (cl);
 		_tmp152_ = _tmp151_;
-		_tmp153_ = gtkdoc_generator_add_symbol (self, _tmp150_, _tmp152_, NULL, NULL, NULL, 0);
+		_tmp153_ = gtkdoc_generator_add_symbol (self, _tmp150_, _tmp152_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp153_;
 		_g_free0 (_tmp152_);
@@ -3294,18 +3260,18 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		_tmp163_ = g_strdup_printf ("a valid <link linkend=\"GValue\"><type>GValue</type></link> of %s deri" \
 "ved type", _tmp162_);
 		_tmp164_ = _tmp163_;
-		_tmp165_ = gtkdoc_generator_add_custom_header (self, "value", _tmp164_, NULL, 0, DBL_MAX, TRUE);
+		_tmp165_ = gtkdoc_generator_add_custom_header (self, "value", _tmp164_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp166_ = _tmp165_;
 		_gtkdoc_header_unref0 (_tmp166_);
 		_g_free0 (_tmp164_);
 		_g_free0 (_tmp162_);
-		_tmp167_ = gtkdoc_generator_add_custom_header (self, "v_object", "object value to be set", NULL, 0, DBL_MAX, TRUE);
+		_tmp167_ = gtkdoc_generator_add_custom_header (self, "v_object", "object value to be set", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp168_ = _tmp167_;
 		_gtkdoc_header_unref0 (_tmp168_);
 		_tmp169_ = filename;
 		_tmp170_ = valadoc_api_class_get_take_value_function_cname (cl);
 		_tmp171_ = _tmp170_;
-		_tmp172_ = gtkdoc_generator_add_symbol (self, _tmp169_, _tmp171_, NULL, NULL, NULL, 0);
+		_tmp172_ = gtkdoc_generator_add_symbol (self, _tmp169_, _tmp171_, NULL, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
 		gcomment = _tmp172_;
 		_g_free0 (_tmp171_);
@@ -3341,7 +3307,7 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 	_tmp186_[0] = VALADOC_API_NODE_TYPE_METHOD;
 	_tmp187_ = _tmp186_;
 	_tmp187__length1 = 1;
-	_tmp188_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) cl, _tmp187_, 1, FALSE);
+	_tmp188_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) cl, _tmp187_, (gint) 1, FALSE);
 	_tmp189_ = _tmp188_;
 	_tmp187_ = (g_free (_tmp187_), NULL);
 	abstract_methods = _tmp189_;
@@ -3365,238 +3331,230 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 		while (TRUE) {
 			gint _tmp195_;
 			gint _tmp196_;
-			gint _tmp197_;
 			ValadocApiNode* m = NULL;
-			ValaList* _tmp198_;
-			gint _tmp199_;
-			gpointer _tmp200_;
-			gboolean _tmp201_ = FALSE;
-			ValadocApiNode* _tmp202_;
-			ValadocSettings* _tmp203_;
+			ValaList* _tmp197_;
+			gpointer _tmp198_;
+			gboolean _tmp199_ = FALSE;
+			ValadocApiNode* _tmp200_;
+			ValadocSettings* _tmp201_;
+			_m_index = _m_index + 1;
 			_tmp195_ = _m_index;
-			_m_index = _tmp195_ + 1;
-			_tmp196_ = _m_index;
-			_tmp197_ = _m_size;
-			if (!(_tmp196_ < _tmp197_)) {
+			_tmp196_ = _m_size;
+			if (!(_tmp195_ < _tmp196_)) {
 				break;
 			}
-			_tmp198_ = _m_list;
-			_tmp199_ = _m_index;
-			_tmp200_ = vala_list_get (_tmp198_, _tmp199_);
-			m = (ValadocApiNode*) _tmp200_;
-			_tmp202_ = m;
-			_tmp203_ = self->priv->settings;
-			if (valadoc_api_node_is_browsable (_tmp202_, _tmp203_)) {
-				_tmp201_ = TRUE;
+			_tmp197_ = _m_list;
+			_tmp198_ = vala_list_get (_tmp197_, _m_index);
+			m = (ValadocApiNode*) _tmp198_;
+			_tmp200_ = m;
+			_tmp201_ = self->priv->settings;
+			if (valadoc_api_node_is_browsable (_tmp200_, _tmp201_)) {
+				_tmp199_ = TRUE;
 			} else {
-				ValadocApiNode* _tmp204_;
-				gboolean _tmp205_;
-				gboolean _tmp206_;
-				_tmp204_ = m;
-				_tmp205_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp204_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
-				_tmp206_ = _tmp205_;
-				_tmp201_ = _tmp206_;
+				ValadocApiNode* _tmp202_;
+				gboolean _tmp203_;
+				gboolean _tmp204_;
+				_tmp202_ = m;
+				_tmp203_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp202_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+				_tmp204_ = _tmp203_;
+				_tmp199_ = _tmp204_;
 			}
-			if (_tmp201_) {
-				ValadocApiNode* _tmp207_;
-				_tmp207_ = m;
-				gtkdoc_generator_visit_abstract_method (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp207_, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
+			if (_tmp199_) {
+				ValadocApiNode* _tmp205_;
+				_tmp205_ = m;
+				gtkdoc_generator_visit_abstract_method (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp205_, VALADOC_API_TYPE_METHOD, ValadocApiMethod));
 			}
 			_g_object_unref0 (m);
 		}
 		_vala_iterable_unref0 (_m_list);
 	}
-	_tmp208_ = g_new0 (ValadocApiNodeType, 1);
-	_tmp208_[0] = VALADOC_API_NODE_TYPE_PROPERTY;
+	_tmp206_ = g_new0 (ValadocApiNodeType, 1);
+	_tmp206_[0] = VALADOC_API_NODE_TYPE_PROPERTY;
+	_tmp207_ = _tmp206_;
+	_tmp207__length1 = 1;
+	_tmp208_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) cl, _tmp207_, (gint) 1, FALSE);
 	_tmp209_ = _tmp208_;
-	_tmp209__length1 = 1;
-	_tmp210_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) cl, _tmp209_, 1, FALSE);
-	_tmp211_ = _tmp210_;
-	_tmp209_ = (g_free (_tmp209_), NULL);
-	abstract_properties = _tmp211_;
+	_tmp207_ = (g_free (_tmp207_), NULL);
+	abstract_properties = _tmp209_;
 	{
 		ValaList* _prop_list = NULL;
-		ValaList* _tmp212_;
-		ValaList* _tmp213_;
+		ValaList* _tmp210_;
+		ValaList* _tmp211_;
 		gint _prop_size = 0;
-		ValaList* _tmp214_;
-		gint _tmp215_;
-		gint _tmp216_;
+		ValaList* _tmp212_;
+		gint _tmp213_;
+		gint _tmp214_;
 		gint _prop_index = 0;
-		_tmp212_ = abstract_properties;
-		_tmp213_ = _vala_iterable_ref0 (_tmp212_);
-		_prop_list = _tmp213_;
-		_tmp214_ = _prop_list;
-		_tmp215_ = vala_collection_get_size ((ValaCollection*) _tmp214_);
-		_tmp216_ = _tmp215_;
-		_prop_size = _tmp216_;
+		_tmp210_ = abstract_properties;
+		_tmp211_ = _vala_iterable_ref0 (_tmp210_);
+		_prop_list = _tmp211_;
+		_tmp212_ = _prop_list;
+		_tmp213_ = vala_collection_get_size ((ValaCollection*) _tmp212_);
+		_tmp214_ = _tmp213_;
+		_prop_size = _tmp214_;
 		_prop_index = -1;
 		while (TRUE) {
-			gint _tmp217_;
-			gint _tmp218_;
-			gint _tmp219_;
+			gint _tmp215_;
+			gint _tmp216_;
 			ValadocApiNode* prop = NULL;
-			ValaList* _tmp220_;
-			gint _tmp221_;
-			gpointer _tmp222_;
-			gboolean _tmp223_ = FALSE;
-			ValadocApiNode* _tmp224_;
-			ValadocSettings* _tmp225_;
-			_tmp217_ = _prop_index;
-			_prop_index = _tmp217_ + 1;
-			_tmp218_ = _prop_index;
-			_tmp219_ = _prop_size;
-			if (!(_tmp218_ < _tmp219_)) {
+			ValaList* _tmp217_;
+			gpointer _tmp218_;
+			gboolean _tmp219_ = FALSE;
+			ValadocApiNode* _tmp220_;
+			ValadocSettings* _tmp221_;
+			_prop_index = _prop_index + 1;
+			_tmp215_ = _prop_index;
+			_tmp216_ = _prop_size;
+			if (!(_tmp215_ < _tmp216_)) {
 				break;
 			}
-			_tmp220_ = _prop_list;
-			_tmp221_ = _prop_index;
-			_tmp222_ = vala_list_get (_tmp220_, _tmp221_);
-			prop = (ValadocApiNode*) _tmp222_;
-			_tmp224_ = prop;
-			_tmp225_ = self->priv->settings;
-			if (valadoc_api_node_is_browsable (_tmp224_, _tmp225_)) {
-				_tmp223_ = TRUE;
+			_tmp217_ = _prop_list;
+			_tmp218_ = vala_list_get (_tmp217_, _prop_index);
+			prop = (ValadocApiNode*) _tmp218_;
+			_tmp220_ = prop;
+			_tmp221_ = self->priv->settings;
+			if (valadoc_api_node_is_browsable (_tmp220_, _tmp221_)) {
+				_tmp219_ = TRUE;
 			} else {
-				ValadocApiNode* _tmp226_;
-				gboolean _tmp227_;
-				gboolean _tmp228_;
-				_tmp226_ = prop;
-				_tmp227_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp226_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
-				_tmp228_ = _tmp227_;
-				_tmp223_ = _tmp228_;
+				ValadocApiNode* _tmp222_;
+				gboolean _tmp223_;
+				gboolean _tmp224_;
+				_tmp222_ = prop;
+				_tmp223_ = valadoc_api_symbol_get_is_protected (G_TYPE_CHECK_INSTANCE_CAST (_tmp222_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol));
+				_tmp224_ = _tmp223_;
+				_tmp219_ = _tmp224_;
 			}
-			if (_tmp223_) {
-				ValadocApiNode* _tmp229_;
-				_tmp229_ = prop;
-				gtkdoc_generator_visit_abstract_property (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp229_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
+			if (_tmp219_) {
+				ValadocApiNode* _tmp225_;
+				_tmp225_ = prop;
+				gtkdoc_generator_visit_abstract_property (self, G_TYPE_CHECK_INSTANCE_CAST (_tmp225_, VALADOC_API_TYPE_PROPERTY, ValadocApiProperty));
 			}
 			_g_object_unref0 (prop);
 		}
 		_vala_iterable_unref0 (_prop_list);
 	}
-	_tmp230_ = gtkdoc_generator_add_custom_header (self, "parent_class", "the parent class structure", NULL, 0, DBL_MAX, TRUE);
+	_tmp226_ = gtkdoc_generator_add_custom_header (self, "parent_class", "the parent class structure", NULL, (gint) 0, DBL_MAX, TRUE);
+	_tmp227_ = _tmp226_;
+	_gtkdoc_header_unref0 (_tmp227_);
+	_tmp228_ = valadoc_documentation_get_filename ((ValadocDocumentation*) cl);
+	_tmp229_ = _tmp228_;
+	_tmp230_ = valadoc_api_class_get_cname (cl);
 	_tmp231_ = _tmp230_;
-	_gtkdoc_header_unref0 (_tmp231_);
-	_tmp232_ = valadoc_documentation_get_filename ((ValadocDocumentation*) cl);
+	_tmp232_ = g_strconcat (_tmp231_, "Class", NULL);
 	_tmp233_ = _tmp232_;
-	_tmp234_ = valadoc_api_class_get_cname (cl);
-	_tmp235_ = _tmp234_;
-	_tmp236_ = g_strconcat (_tmp235_, "Class", NULL);
-	_tmp237_ = _tmp236_;
-	_tmp238_ = gtkdoc_generator_add_symbol (self, _tmp233_, _tmp237_, NULL, NULL, NULL, 0);
+	_tmp234_ = gtkdoc_generator_add_symbol (self, _tmp229_, _tmp233_, NULL, NULL, NULL, (gint) 0);
 	_gtkdoc_gcomment_unref0 (gcomment);
-	gcomment = _tmp238_;
-	_g_free0 (_tmp237_);
-	_g_free0 (_tmp235_);
+	gcomment = _tmp234_;
 	_g_free0 (_tmp233_);
-	_tmp239_ = gcomment;
-	_tmp240_ = gtkdoc_get_docbook_type_link (cl);
-	_tmp241_ = _tmp240_;
-	_tmp242_ = g_strdup_printf ("The class structure for %s. All the fields in this structure are priva" \
-"te and should never be accessed directly.", _tmp241_);
-	_g_free0 (_tmp239_->brief_comment);
-	_tmp239_->brief_comment = _tmp242_;
-	_g_free0 (_tmp241_);
-	_tmp243_ = valadoc_documentation_get_filename ((ValadocDocumentation*) cl);
-	_tmp244_ = _tmp243_;
-	_tmp245_ = gtkdoc_generator_get_file_data (self, _tmp244_);
-	_tmp246_ = _tmp245_;
-	_g_free0 (_tmp244_);
-	file_data = _tmp246_;
-	_tmp247_ = file_data;
-	_tmp248_ = valadoc_api_typesymbol_get_is_type_macro_name ((ValadocApiTypeSymbol*) cl);
-	_tmp249_ = _tmp248_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp247_, _tmp249_);
-	_g_free0 (_tmp249_);
-	_tmp250_ = file_data;
-	_tmp251_ = valadoc_api_class_get_is_class_type_macro_name (cl);
-	_tmp252_ = _tmp251_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp250_, _tmp252_);
-	_g_free0 (_tmp252_);
-	_tmp253_ = file_data;
-	_tmp254_ = valadoc_api_typesymbol_get_type_cast_macro_name ((ValadocApiTypeSymbol*) cl);
-	_tmp255_ = _tmp254_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp253_, _tmp255_);
-	_g_free0 (_tmp255_);
-	_tmp256_ = file_data;
-	_tmp257_ = valadoc_api_class_get_class_type_macro_name (cl);
-	_tmp258_ = _tmp257_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp256_, _tmp258_);
-	_g_free0 (_tmp258_);
-	_tmp259_ = file_data;
-	_tmp260_ = valadoc_api_class_get_class_macro_name (cl);
-	_tmp261_ = _tmp260_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp259_, _tmp261_);
-	_g_free0 (_tmp261_);
-	_tmp262_ = file_data;
-	_tmp263_ = valadoc_api_typesymbol_get_type_function_name ((ValadocApiTypeSymbol*) cl);
-	_tmp264_ = _tmp263_;
-	gtkdoc_generator_file_data_register_standard_section_line (_tmp262_, _tmp264_);
-	_g_free0 (_tmp264_);
-	_tmp265_ = file_data;
-	_tmp266_ = valadoc_api_class_get_private_cname (cl);
-	_tmp267_ = _tmp266_;
-	gtkdoc_generator_file_data_register_private_section_line (_tmp265_, _tmp267_);
-	_g_free0 (_tmp267_);
-	_tmp269_ = valadoc_api_node_get_nspace ((ValadocApiNode*) cl);
-	_tmp270_ = _tmp269_;
-	_tmp271_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp270_);
-	_tmp272_ = _tmp271_;
-	if (_tmp272_ != NULL) {
-		ValadocApiNamespace* _tmp273_;
-		ValadocApiNamespace* _tmp274_;
-		const gchar* _tmp275_;
-		const gchar* _tmp276_;
-		gchar* _tmp277_;
-		gchar* _tmp278_;
-		gchar* _tmp279_;
-		_tmp273_ = valadoc_api_node_get_nspace ((ValadocApiNode*) cl);
+	_g_free0 (_tmp231_);
+	_g_free0 (_tmp229_);
+	_tmp235_ = gcomment;
+	_tmp236_ = gtkdoc_get_docbook_type_link (cl);
+	_tmp237_ = _tmp236_;
+	_tmp238_ = g_strdup_printf ("The class structure for %s. All the fields in this structure are priva" \
+"te and should never be accessed directly.", _tmp237_);
+	_g_free0 (_tmp235_->brief_comment);
+	_tmp235_->brief_comment = _tmp238_;
+	_g_free0 (_tmp237_);
+	_tmp239_ = valadoc_documentation_get_filename ((ValadocDocumentation*) cl);
+	_tmp240_ = _tmp239_;
+	_tmp241_ = gtkdoc_generator_get_file_data (self, _tmp240_);
+	_tmp242_ = _tmp241_;
+	_g_free0 (_tmp240_);
+	file_data = _tmp242_;
+	_tmp243_ = file_data;
+	_tmp244_ = valadoc_api_typesymbol_get_is_type_macro_name ((ValadocApiTypeSymbol*) cl);
+	_tmp245_ = _tmp244_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp243_, _tmp245_);
+	_g_free0 (_tmp245_);
+	_tmp246_ = file_data;
+	_tmp247_ = valadoc_api_class_get_is_class_type_macro_name (cl);
+	_tmp248_ = _tmp247_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp246_, _tmp248_);
+	_g_free0 (_tmp248_);
+	_tmp249_ = file_data;
+	_tmp250_ = valadoc_api_typesymbol_get_type_cast_macro_name ((ValadocApiTypeSymbol*) cl);
+	_tmp251_ = _tmp250_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp249_, _tmp251_);
+	_g_free0 (_tmp251_);
+	_tmp252_ = file_data;
+	_tmp253_ = valadoc_api_class_get_class_type_macro_name (cl);
+	_tmp254_ = _tmp253_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp252_, _tmp254_);
+	_g_free0 (_tmp254_);
+	_tmp255_ = file_data;
+	_tmp256_ = valadoc_api_class_get_class_macro_name (cl);
+	_tmp257_ = _tmp256_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp255_, _tmp257_);
+	_g_free0 (_tmp257_);
+	_tmp258_ = file_data;
+	_tmp259_ = valadoc_api_typesymbol_get_type_function_name ((ValadocApiTypeSymbol*) cl);
+	_tmp260_ = _tmp259_;
+	gtkdoc_generator_file_data_register_standard_section_line (_tmp258_, _tmp260_);
+	_g_free0 (_tmp260_);
+	_tmp261_ = file_data;
+	_tmp262_ = valadoc_api_class_get_private_cname (cl);
+	_tmp263_ = _tmp262_;
+	gtkdoc_generator_file_data_register_private_section_line (_tmp261_, _tmp263_);
+	_g_free0 (_tmp263_);
+	_tmp265_ = valadoc_api_node_get_nspace ((ValadocApiNode*) cl);
+	_tmp266_ = _tmp265_;
+	_tmp267_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp266_);
+	_tmp268_ = _tmp267_;
+	if (_tmp268_ != NULL) {
+		ValadocApiNamespace* _tmp269_;
+		ValadocApiNamespace* _tmp270_;
+		const gchar* _tmp271_;
+		const gchar* _tmp272_;
+		gchar* _tmp273_;
+		gchar* _tmp274_;
+		gchar* _tmp275_;
+		_tmp269_ = valadoc_api_node_get_nspace ((ValadocApiNode*) cl);
+		_tmp270_ = _tmp269_;
+		_tmp271_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp270_);
+		_tmp272_ = _tmp271_;
+		_tmp273_ = g_ascii_strdown (_tmp272_, (gssize) -1);
 		_tmp274_ = _tmp273_;
-		_tmp275_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp274_);
-		_tmp276_ = _tmp275_;
-		_tmp277_ = g_utf8_strdown (_tmp276_, (gssize) -1);
-		_tmp278_ = _tmp277_;
-		_tmp279_ = g_strconcat (_tmp278_, "_", NULL);
-		_g_free0 (_tmp268_);
-		_tmp268_ = _tmp279_;
-		_g_free0 (_tmp278_);
+		_tmp275_ = g_strconcat (_tmp274_, "_", NULL);
+		_g_free0 (_tmp264_);
+		_tmp264_ = _tmp275_;
+		_g_free0 (_tmp274_);
 	} else {
-		gchar* _tmp280_;
-		_tmp280_ = g_strdup ("");
-		_g_free0 (_tmp268_);
-		_tmp268_ = _tmp280_;
+		gchar* _tmp276_;
+		_tmp276_ = g_strdup ("");
+		_g_free0 (_tmp264_);
+		_tmp264_ = _tmp276_;
 	}
-	_tmp281_ = file_data;
-	_tmp282_ = valadoc_api_node_get_name ((ValadocApiNode*) cl);
+	_tmp277_ = file_data;
+	_tmp278_ = valadoc_api_node_get_name ((ValadocApiNode*) cl);
+	_tmp279_ = _tmp278_;
+	_tmp280_ = gtkdoc_to_lower_case (_tmp279_);
+	_tmp281_ = _tmp280_;
+	_tmp282_ = g_strconcat (_tmp264_, _tmp281_, NULL);
 	_tmp283_ = _tmp282_;
-	_tmp284_ = gtkdoc_to_lower_case (_tmp283_);
+	_tmp284_ = g_strconcat (_tmp283_, "_construct", NULL);
 	_tmp285_ = _tmp284_;
-	_tmp286_ = g_strconcat (_tmp268_, _tmp285_, NULL);
-	_tmp287_ = _tmp286_;
-	_tmp288_ = g_strconcat (_tmp287_, "_construct", NULL);
-	_tmp289_ = _tmp288_;
-	gtkdoc_generator_file_data_register_private_section_line (_tmp281_, _tmp289_);
-	_g_free0 (_tmp289_);
-	_g_free0 (_tmp287_);
+	gtkdoc_generator_file_data_register_private_section_line (_tmp277_, _tmp285_);
 	_g_free0 (_tmp285_);
-	_tmp290_ = old_cname;
-	_tmp291_ = g_strdup (_tmp290_);
+	_g_free0 (_tmp283_);
+	_g_free0 (_tmp281_);
+	_tmp286_ = old_cname;
+	_tmp287_ = g_strdup (_tmp286_);
 	_g_free0 (self->priv->current_cname);
-	self->priv->current_cname = _tmp291_;
-	_tmp292_ = old_headers;
-	_tmp293_ = _vala_iterable_ref0 (_tmp292_);
+	self->priv->current_cname = _tmp287_;
+	_tmp288_ = old_headers;
+	_tmp289_ = _vala_iterable_ref0 (_tmp288_);
 	_vala_iterable_unref0 (self->priv->current_headers);
-	self->priv->current_headers = _tmp293_;
-	_tmp294_ = old_class;
-	_tmp295_ = _g_object_ref0 (_tmp294_);
+	self->priv->current_headers = _tmp289_;
+	_tmp290_ = old_class;
+	_tmp291_ = _g_object_ref0 (_tmp290_);
 	_g_object_unref0 (self->priv->current_class);
-	self->priv->current_class = _tmp295_;
-	_tmp296_ = old_dbus_interface;
-	_tmp297_ = _gtkdoc_dbus_interface_ref0 (_tmp296_);
+	self->priv->current_class = _tmp291_;
+	_tmp292_ = old_dbus_interface;
+	_tmp293_ = _gtkdoc_dbus_interface_ref0 (_tmp292_);
 	_gtkdoc_dbus_interface_unref0 (self->priv->current_dbus_interface);
-	self->priv->current_dbus_interface = _tmp297_;
-	_g_free0 (_tmp268_);
+	self->priv->current_dbus_interface = _tmp293_;
+	_g_free0 (_tmp264_);
 	_gtkdoc_generator_file_data_unref0 (file_data);
 	_vala_iterable_unref0 (abstract_properties);
 	_vala_iterable_unref0 (abstract_methods);
@@ -3607,11 +3565,10 @@ gtkdoc_generator_real_visit_class (ValadocApiVisitor* base,
 	_g_free0 (old_cname);
 }
 
-
 static void
 _vala_array_add19 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -3622,43 +3579,44 @@ _vala_array_add19 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gchar**
 _vala_array_dup9 (gchar** self,
-                  int length)
+                  gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 gtkdoc_generator_create_see_function_array (GtkdocGenerator* self,
                                             gchar** functions,
-                                            int functions_length1,
-                                            int* result_length1)
+                                            gint functions_length1,
+                                            gint* result_length1)
 {
-	gchar** result = NULL;
 	gchar** arr = NULL;
 	gchar** _tmp0_;
 	gint arr_length1;
 	gint _arr_size_;
-	gchar** _tmp6_ = NULL;
-	gint _tmp6__length1 = 0;
-	gint __tmp6__size_ = 0;
-	gchar** _tmp7_;
-	gint _tmp7__length1;
+	gchar** _tmp5_ = NULL;
+	gint _tmp5__length1 = 0;
+	gint __tmp5__size_ = 0;
+	gchar** _tmp6_;
+	gint _tmp6__length1;
+	gchar** _tmp8_;
+	gint _tmp8__length1;
 	gchar** _tmp9_;
 	gint _tmp9__length1;
-	gchar** _tmp10_;
-	gint _tmp10__length1;
+	gchar** result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_new0 (gchar*, 0 + 1);
 	arr = _tmp0_;
@@ -3671,7 +3629,7 @@ gtkdoc_generator_create_see_function_array (GtkdocGenerator* self,
 		gint func_it = 0;
 		func_collection = functions;
 		func_collection_length1 = functions_length1;
-		for (func_it = 0; func_it < functions_length1; func_it = func_it + 1) {
+		for (func_it = 0; func_it < func_collection_length1; func_it = func_it + 1) {
 			gchar* _tmp1_;
 			gchar* func = NULL;
 			_tmp1_ = g_strdup (func_collection[func_it]);
@@ -3680,47 +3638,42 @@ gtkdoc_generator_create_see_function_array (GtkdocGenerator* self,
 				const gchar* _tmp2_;
 				_tmp2_ = func;
 				if (_tmp2_ != NULL) {
-					gchar** _tmp3_;
-					gint _tmp3__length1;
-					const gchar* _tmp4_;
-					gchar* _tmp5_;
-					_tmp3_ = arr;
-					_tmp3__length1 = arr_length1;
-					_tmp4_ = func;
-					_tmp5_ = g_strconcat (_tmp4_, "()", NULL);
-					_vala_array_add19 (&arr, &arr_length1, &_arr_size_, _tmp5_);
+					const gchar* _tmp3_;
+					gchar* _tmp4_;
+					_tmp3_ = func;
+					_tmp4_ = g_strconcat (_tmp3_, "()", NULL);
+					_vala_array_add19 (&arr, &arr_length1, &_arr_size_, _tmp4_);
 				}
 				_g_free0 (func);
 			}
 		}
 	}
-	_tmp7_ = arr;
-	_tmp7__length1 = arr_length1;
-	if (_tmp7__length1 > 0) {
-		gchar** _tmp8_;
-		gint _tmp8__length1;
-		_tmp8_ = arr;
-		_tmp8__length1 = arr_length1;
-		_tmp6_ = _tmp8_;
-		_tmp6__length1 = _tmp8__length1;
-		__tmp6__size_ = _tmp6__length1;
+	_tmp6_ = arr;
+	_tmp6__length1 = arr_length1;
+	if (_tmp6__length1 > 0) {
+		gchar** _tmp7_;
+		gint _tmp7__length1;
+		_tmp7_ = arr;
+		_tmp7__length1 = arr_length1;
+		_tmp5_ = _tmp7_;
+		_tmp5__length1 = _tmp7__length1;
+		__tmp5__size_ = _tmp5__length1;
 	} else {
-		_tmp6_ = NULL;
-		_tmp6__length1 = 0;
-		__tmp6__size_ = _tmp6__length1;
+		_tmp5_ = NULL;
+		_tmp5__length1 = 0;
+		__tmp5__size_ = _tmp5__length1;
 	}
-	_tmp9_ = (_tmp6_ != NULL) ? _vala_array_dup9 (_tmp6_, _tmp6__length1) : ((gpointer) _tmp6_);
-	_tmp9__length1 = _tmp6__length1;
-	_tmp10_ = _tmp9_;
-	_tmp10__length1 = _tmp9__length1;
+	_tmp8_ = (_tmp5_ != NULL) ? _vala_array_dup9 (_tmp5_, _tmp5__length1) : ((gpointer) _tmp5_);
+	_tmp8__length1 = _tmp5__length1;
+	_tmp9_ = _tmp8_;
+	_tmp9__length1 = _tmp8__length1;
 	if (result_length1) {
-		*result_length1 = _tmp10__length1;
+		*result_length1 = _tmp9__length1;
 	}
-	result = _tmp10_;
+	result = _tmp9_;
 	arr = (_vala_array_free (arr, arr_length1, (GDestroyNotify) g_free), NULL);
 	return result;
 }
-
 
 static void
 gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
@@ -3795,7 +3748,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 	_tmp10_ = _tmp9_;
 	_tmp11_ = valadoc_api_node_get_documentation ((ValadocApiNode*) st);
 	_tmp12_ = _tmp11_;
-	_tmp13_ = gtkdoc_generator_add_symbol (self, _tmp8_, _tmp10_, _tmp12_, NULL, NULL, 0);
+	_tmp13_ = gtkdoc_generator_add_symbol (self, _tmp8_, _tmp10_, _tmp12_, NULL, NULL, (gint) 0);
 	_tmp14_ = _tmp13_;
 	_g_free0 (_tmp10_);
 	_g_free0 (_tmp8_);
@@ -3864,7 +3817,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp35_ = valadoc_documentation_get_filename ((ValadocDocumentation*) st);
 		_tmp36_ = _tmp35_;
 		_tmp37_ = dup_function_cname;
-		_tmp38_ = gtkdoc_generator_add_symbol (self, _tmp36_, _tmp37_, NULL, NULL, NULL, 0);
+		_tmp38_ = gtkdoc_generator_add_symbol (self, _tmp36_, _tmp37_, NULL, NULL, NULL, (gint) 0);
 		_tmp39_ = _tmp38_;
 		_g_free0 (_tmp36_);
 		dup_gcomment = _tmp39_;
@@ -3909,7 +3862,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp59_[2] = _tmp58_;
 		_tmp60_ = _tmp59_;
 		_tmp60__length1 = 3;
-		_tmp62_ = gtkdoc_generator_create_see_function_array (self, _tmp60_, 3, &_tmp61_);
+		_tmp62_ = gtkdoc_generator_create_see_function_array (self, _tmp60_, (gint) 3, &_tmp61_);
 		_tmp52_->see_also = (_vala_array_free (_tmp52_->see_also, _tmp52_->see_also_length1, (GDestroyNotify) g_free), NULL);
 		_tmp52_->see_also = _tmp62_;
 		_tmp52_->see_also_length1 = _tmp61_;
@@ -3945,7 +3898,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp64_ = valadoc_documentation_get_filename ((ValadocDocumentation*) st);
 		_tmp65_ = _tmp64_;
 		_tmp66_ = free_function_cname;
-		_tmp67_ = gtkdoc_generator_add_symbol (self, _tmp65_, _tmp66_, NULL, NULL, NULL, 0);
+		_tmp67_ = gtkdoc_generator_add_symbol (self, _tmp65_, _tmp66_, NULL, NULL, NULL, (gint) 0);
 		_tmp68_ = _tmp67_;
 		_g_free0 (_tmp65_);
 		free_gcomment = _tmp68_;
@@ -3972,7 +3925,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp82_[2] = _tmp81_;
 		_tmp83_ = _tmp82_;
 		_tmp83__length1 = 3;
-		_tmp85_ = gtkdoc_generator_create_see_function_array (self, _tmp83_, 3, &_tmp84_);
+		_tmp85_ = gtkdoc_generator_create_see_function_array (self, _tmp83_, (gint) 3, &_tmp84_);
 		_tmp75_->see_also = (_vala_array_free (_tmp75_->see_also, _tmp75_->see_also_length1, (GDestroyNotify) g_free), NULL);
 		_tmp75_->see_also = _tmp85_;
 		_tmp75_->see_also_length1 = _tmp84_;
@@ -4009,7 +3962,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp87_ = valadoc_documentation_get_filename ((ValadocDocumentation*) st);
 		_tmp88_ = _tmp87_;
 		_tmp89_ = copy_function_cname;
-		_tmp90_ = gtkdoc_generator_add_symbol (self, _tmp88_, _tmp89_, NULL, NULL, NULL, 0);
+		_tmp90_ = gtkdoc_generator_add_symbol (self, _tmp88_, _tmp89_, NULL, NULL, NULL, (gint) 0);
 		_tmp91_ = _tmp90_;
 		_g_free0 (_tmp88_);
 		copy_gcomment = _tmp91_;
@@ -4067,7 +4020,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp117_[2] = _tmp116_;
 		_tmp118_ = _tmp117_;
 		_tmp118__length1 = 3;
-		_tmp120_ = gtkdoc_generator_create_see_function_array (self, _tmp118_, 3, &_tmp119_);
+		_tmp120_ = gtkdoc_generator_create_see_function_array (self, _tmp118_, (gint) 3, &_tmp119_);
 		_tmp110_->see_also = (_vala_array_free (_tmp110_->see_also, _tmp110_->see_also_length1, (GDestroyNotify) g_free), NULL);
 		_tmp110_->see_also = _tmp120_;
 		_tmp110_->see_also_length1 = _tmp119_;
@@ -4103,7 +4056,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp122_ = valadoc_documentation_get_filename ((ValadocDocumentation*) st);
 		_tmp123_ = _tmp122_;
 		_tmp124_ = destroy_function_cname;
-		_tmp125_ = gtkdoc_generator_add_symbol (self, _tmp123_, _tmp124_, NULL, NULL, NULL, 0);
+		_tmp125_ = gtkdoc_generator_add_symbol (self, _tmp123_, _tmp124_, NULL, NULL, NULL, (gint) 0);
 		_tmp126_ = _tmp125_;
 		_g_free0 (_tmp123_);
 		destroy_gcomment = _tmp126_;
@@ -4130,7 +4083,7 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 		_tmp140_[2] = _tmp139_;
 		_tmp141_ = _tmp140_;
 		_tmp141__length1 = 3;
-		_tmp143_ = gtkdoc_generator_create_see_function_array (self, _tmp141_, 3, &_tmp142_);
+		_tmp143_ = gtkdoc_generator_create_see_function_array (self, _tmp141_, (gint) 3, &_tmp142_);
 		_tmp133_->see_also = (_vala_array_free (_tmp133_->see_also, _tmp133_->see_also_length1, (GDestroyNotify) g_free), NULL);
 		_tmp133_->see_also = _tmp143_;
 		_tmp133_->see_also_length1 = _tmp142_;
@@ -4147,7 +4100,6 @@ gtkdoc_generator_real_visit_struct (ValadocApiVisitor* base,
 	_g_free0 (old_cname);
 }
 
-
 /**
  * Visit thrown error domains
  */
@@ -4157,8 +4109,8 @@ gtkdoc_generator_visit_thrown_error_domain (GtkdocGenerator* self,
 {
 	GtkdocHeader* param_header = NULL;
 	ValadocApiErrorDomain* edomain = NULL;
-	ValadocApiErrorDomain* _tmp15_;
-	ValadocApiErrorDomain* _tmp16_;
+	ValadocApiErrorDomain* _tmp13_;
+	ValadocApiErrorDomain* _tmp14_;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (_error_ != NULL);
 	param_header = NULL;
@@ -4182,33 +4134,29 @@ gtkdoc_generator_visit_thrown_error_domain (GtkdocGenerator* self,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			GtkdocHeader* header = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
-			GtkdocHeader* _tmp11_;
-			const gchar* _tmp12_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			GtkdocHeader* _tmp9_;
+			const gchar* _tmp10_;
+			_header_index = _header_index + 1;
 			_tmp5_ = _header_index;
-			_header_index = _tmp5_ + 1;
-			_tmp6_ = _header_index;
-			_tmp7_ = _header_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _header_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _header_list;
-			_tmp9_ = _header_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			header = (GtkdocHeader*) _tmp10_;
-			_tmp11_ = header;
-			_tmp12_ = _tmp11_->name;
-			if (g_strcmp0 (_tmp12_, "error") == 0) {
-				GtkdocHeader* _tmp13_;
-				GtkdocHeader* _tmp14_;
-				_tmp13_ = header;
-				_tmp14_ = _gtkdoc_header_ref0 (_tmp13_);
+			_tmp7_ = _header_list;
+			_tmp8_ = vala_list_get (_tmp7_, _header_index);
+			header = (GtkdocHeader*) _tmp8_;
+			_tmp9_ = header;
+			_tmp10_ = _tmp9_->name;
+			if (g_strcmp0 (_tmp10_, "error") == 0) {
+				GtkdocHeader* _tmp11_;
+				GtkdocHeader* _tmp12_;
+				_tmp11_ = header;
+				_tmp12_ = _gtkdoc_header_ref0 (_tmp11_);
 				_gtkdoc_header_unref0 (param_header);
-				param_header = _tmp14_;
+				param_header = _tmp12_;
 				_gtkdoc_header_unref0 (header);
 				break;
 			}
@@ -4216,95 +4164,94 @@ gtkdoc_generator_visit_thrown_error_domain (GtkdocGenerator* self,
 		}
 		_vala_iterable_unref0 (_header_list);
 	}
-	_tmp15_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_error_, VALADOC_API_TYPE_ERROR_DOMAIN) ? ((ValadocApiErrorDomain*) _error_) : NULL);
-	edomain = _tmp15_;
-	_tmp16_ = edomain;
-	if (_tmp16_ != NULL) {
-		GtkdocHeader* _tmp17_;
-		_tmp17_ = param_header;
-		if (_tmp17_ == NULL) {
-			ValadocApiErrorDomain* _tmp18_;
+	_tmp13_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_error_, VALADOC_API_TYPE_ERROR_DOMAIN) ? ((ValadocApiErrorDomain*) _error_) : NULL);
+	edomain = _tmp13_;
+	_tmp14_ = edomain;
+	if (_tmp14_ != NULL) {
+		GtkdocHeader* _tmp15_;
+		_tmp15_ = param_header;
+		if (_tmp15_ == NULL) {
+			ValadocApiErrorDomain* _tmp16_;
+			gchar* _tmp17_;
+			gchar* _tmp18_;
 			gchar* _tmp19_;
-			gchar* _tmp20_;
-			gchar* _tmp21_;
-			gchar** _tmp22_;
-			gchar** _tmp23_;
-			gint _tmp23__length1;
-			GtkdocHeader* _tmp24_;
-			GtkdocHeader* _tmp25_;
-			_tmp18_ = edomain;
-			_tmp19_ = valadoc_api_error_domain_get_cname (_tmp18_);
-			_tmp20_ = _tmp19_;
-			_tmp21_ = g_strdup_printf ("error-domains %s", _tmp20_);
-			_tmp22_ = g_new0 (gchar*, 1 + 1);
-			_tmp22_[0] = _tmp21_;
+			gchar** _tmp20_;
+			gchar** _tmp21_;
+			gint _tmp21__length1;
+			GtkdocHeader* _tmp22_;
+			GtkdocHeader* _tmp23_;
+			_tmp16_ = edomain;
+			_tmp17_ = valadoc_api_error_domain_get_cname (_tmp16_);
+			_tmp18_ = _tmp17_;
+			_tmp19_ = g_strdup_printf ("error-domains %s", _tmp18_);
+			_tmp20_ = g_new0 (gchar*, 1 + 1);
+			_tmp20_[0] = _tmp19_;
+			_tmp21_ = _tmp20_;
+			_tmp21__length1 = 1;
+			_tmp22_ = gtkdoc_generator_add_custom_header (self, "error", "location to store the error occurring, or %NULL to ignore", _tmp21_, (gint) 1, DBL_MAX - 1, TRUE);
 			_tmp23_ = _tmp22_;
-			_tmp23__length1 = 1;
-			_tmp24_ = gtkdoc_generator_add_custom_header (self, "error", "location to store the error occuring, or %NULL to ignore", _tmp23_, 1, DBL_MAX - 1, TRUE);
-			_tmp25_ = _tmp24_;
-			_gtkdoc_header_unref0 (_tmp25_);
-			_tmp23_ = (_vala_array_free (_tmp23_, _tmp23__length1, (GDestroyNotify) g_free), NULL);
-			_g_free0 (_tmp20_);
+			_gtkdoc_header_unref0 (_tmp23_);
+			_tmp21_ = (_vala_array_free (_tmp21_, _tmp21__length1, (GDestroyNotify) g_free), NULL);
+			_g_free0 (_tmp18_);
 		} else {
 			gchar* annotation = NULL;
-			GtkdocHeader* _tmp26_;
-			gchar** _tmp27_;
-			gint _tmp27__length1;
+			GtkdocHeader* _tmp24_;
+			gchar** _tmp25_;
+			gint _tmp25__length1;
+			const gchar* _tmp26_;
+			gchar* _tmp27_;
 			const gchar* _tmp28_;
-			gchar* _tmp29_;
-			const gchar* _tmp30_;
-			ValadocApiErrorDomain* _tmp31_;
+			ValadocApiErrorDomain* _tmp29_;
+			gchar* _tmp30_;
+			gchar* _tmp31_;
 			gchar* _tmp32_;
 			gchar* _tmp33_;
 			gchar* _tmp34_;
-			gchar* _tmp35_;
-			gchar* _tmp36_;
-			GtkdocHeader* _tmp37_;
-			gchar** _tmp38_;
-			gint _tmp38__length1;
-			const gchar* _tmp39_;
-			gchar* _tmp40_;
-			_tmp26_ = param_header;
-			_tmp27_ = _tmp26_->annotations;
-			_tmp27__length1 = _tmp26_->annotations_length1;
-			_tmp28_ = _tmp27_[0];
-			_tmp29_ = g_strdup (_tmp28_);
-			annotation = _tmp29_;
-			_tmp30_ = annotation;
-			_tmp31_ = edomain;
-			_tmp32_ = valadoc_api_error_domain_get_cname (_tmp31_);
+			GtkdocHeader* _tmp35_;
+			gchar** _tmp36_;
+			gint _tmp36__length1;
+			const gchar* _tmp37_;
+			gchar* _tmp38_;
+			_tmp24_ = param_header;
+			_tmp25_ = _tmp24_->annotations;
+			_tmp25__length1 = _tmp24_->annotations_length1;
+			_tmp26_ = _tmp25_[0];
+			_tmp27_ = g_strdup (_tmp26_);
+			annotation = _tmp27_;
+			_tmp28_ = annotation;
+			_tmp29_ = edomain;
+			_tmp30_ = valadoc_api_error_domain_get_cname (_tmp29_);
+			_tmp31_ = _tmp30_;
+			_tmp32_ = g_strdup_printf (" %s", _tmp31_);
 			_tmp33_ = _tmp32_;
-			_tmp34_ = g_strdup_printf (" %s", _tmp33_);
-			_tmp35_ = _tmp34_;
-			_tmp36_ = g_strconcat (_tmp30_, _tmp35_, NULL);
+			_tmp34_ = g_strconcat (_tmp28_, _tmp33_, NULL);
 			_g_free0 (annotation);
-			annotation = _tmp36_;
-			_g_free0 (_tmp35_);
+			annotation = _tmp34_;
 			_g_free0 (_tmp33_);
-			_tmp37_ = param_header;
-			_tmp38_ = _tmp37_->annotations;
-			_tmp38__length1 = _tmp37_->annotations_length1;
-			_tmp39_ = annotation;
-			_tmp40_ = g_strdup (_tmp39_);
-			_g_free0 (_tmp38_[0]);
-			_tmp38_[0] = _tmp40_;
+			_g_free0 (_tmp31_);
+			_tmp35_ = param_header;
+			_tmp36_ = _tmp35_->annotations;
+			_tmp36__length1 = _tmp35_->annotations_length1;
+			_tmp37_ = annotation;
+			_tmp38_ = g_strdup (_tmp37_);
+			_g_free0 (_tmp36_[0]);
+			_tmp36_[0] = _tmp38_;
 			_g_free0 (annotation);
 		}
 	} else {
-		GtkdocHeader* _tmp41_;
-		_tmp41_ = param_header;
-		if (_tmp41_ == NULL) {
-			GtkdocHeader* _tmp42_;
-			GtkdocHeader* _tmp43_;
-			_tmp42_ = gtkdoc_generator_add_custom_header (self, "error", "location to store the error occuring, or %NULL to ignore", NULL, 0, DBL_MAX - 1, TRUE);
-			_tmp43_ = _tmp42_;
-			_gtkdoc_header_unref0 (_tmp43_);
+		GtkdocHeader* _tmp39_;
+		_tmp39_ = param_header;
+		if (_tmp39_ == NULL) {
+			GtkdocHeader* _tmp40_;
+			GtkdocHeader* _tmp41_;
+			_tmp40_ = gtkdoc_generator_add_custom_header (self, "error", "location to store the error occurring, or %NULL to ignore", NULL, (gint) 0, DBL_MAX - 1, TRUE);
+			_tmp41_ = _tmp40_;
+			_gtkdoc_header_unref0 (_tmp41_);
 		}
 	}
 	_g_object_unref0 (edomain);
 	_gtkdoc_header_unref0 (param_header);
 }
-
 
 /**
  * Visit error domain definitions
@@ -4354,7 +4301,7 @@ gtkdoc_generator_real_visit_error_domain (ValadocApiVisitor* base,
 	_tmp7_ = _tmp6_;
 	_tmp8_ = valadoc_api_node_get_documentation ((ValadocApiNode*) edomain);
 	_tmp9_ = _tmp8_;
-	_tmp10_ = gtkdoc_generator_add_symbol (self, _tmp5_, _tmp7_, _tmp9_, NULL, NULL, 0);
+	_tmp10_ = gtkdoc_generator_add_symbol (self, _tmp5_, _tmp7_, _tmp9_, NULL, NULL, (gint) 0);
 	_tmp11_ = _tmp10_;
 	_g_free0 (_tmp7_);
 	_g_free0 (_tmp5_);
@@ -4382,7 +4329,6 @@ gtkdoc_generator_real_visit_error_domain (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 }
 
-
 static void
 gtkdoc_generator_real_visit_error_code (ValadocApiVisitor* base,
                                         ValadocApiErrorCode* ecode)
@@ -4400,13 +4346,12 @@ gtkdoc_generator_real_visit_error_code (ValadocApiVisitor* base,
 	_tmp1_ = _tmp0_;
 	_tmp2_ = valadoc_api_node_get_documentation ((ValadocApiNode*) ecode);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = gtkdoc_generator_add_header (self, _tmp1_, _tmp3_, NULL, 0, DBL_MAX);
+	_tmp4_ = gtkdoc_generator_add_header (self, _tmp1_, _tmp3_, NULL, (gint) 0, DBL_MAX);
 	_tmp5_ = _tmp4_;
 	_gtkdoc_header_unref0 (_tmp5_);
 	_g_free0 (_tmp1_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) ecode, (ValadocApiVisitor*) self, TRUE);
 }
-
 
 static void
 gtkdoc_generator_real_visit_enum (ValadocApiVisitor* base,
@@ -4453,7 +4398,7 @@ gtkdoc_generator_real_visit_enum (ValadocApiVisitor* base,
 	_tmp7_ = _tmp6_;
 	_tmp8_ = valadoc_api_node_get_documentation ((ValadocApiNode*) en);
 	_tmp9_ = _tmp8_;
-	_tmp10_ = gtkdoc_generator_add_symbol (self, _tmp5_, _tmp7_, _tmp9_, NULL, NULL, 0);
+	_tmp10_ = gtkdoc_generator_add_symbol (self, _tmp5_, _tmp7_, _tmp9_, NULL, NULL, (gint) 0);
 	_tmp11_ = _tmp10_;
 	_g_free0 (_tmp7_);
 	_g_free0 (_tmp5_);
@@ -4481,7 +4426,6 @@ gtkdoc_generator_real_visit_enum (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 }
 
-
 static void
 gtkdoc_generator_real_visit_enum_value (ValadocApiVisitor* base,
                                         ValadocApiEnumValue* eval)
@@ -4499,37 +4443,32 @@ gtkdoc_generator_real_visit_enum_value (ValadocApiVisitor* base,
 	_tmp1_ = _tmp0_;
 	_tmp2_ = valadoc_api_node_get_documentation ((ValadocApiNode*) eval);
 	_tmp3_ = _tmp2_;
-	_tmp4_ = gtkdoc_generator_add_header (self, _tmp1_, _tmp3_, NULL, 0, DBL_MAX);
+	_tmp4_ = gtkdoc_generator_add_header (self, _tmp1_, _tmp3_, NULL, (gint) 0, DBL_MAX);
 	_tmp5_ = _tmp4_;
 	_gtkdoc_header_unref0 (_tmp5_);
 	_g_free0 (_tmp1_);
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) eval, (ValadocApiVisitor*) self, TRUE);
 }
 
-
 static gchar*
 string_strip (const gchar* self)
 {
-	gchar* result = NULL;
 	gchar* _result_ = NULL;
 	gchar* _tmp0_;
-	const gchar* _tmp1_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_strdup (self);
 	_result_ = _tmp0_;
-	_tmp1_ = _result_;
-	g_strstrip (_tmp1_);
+	g_strstrip (_result_);
 	result = _result_;
 	return result;
 }
-
 
 static gchar*
 gtkdoc_generator_combine_comments (GtkdocGenerator* self,
                                    const gchar* brief,
                                    const gchar* _long_)
 {
-	gchar* result = NULL;
 	GString* builder = NULL;
 	GString* _tmp0_;
 	gchar* _tmp4_ = NULL;
@@ -4537,10 +4476,10 @@ gtkdoc_generator_combine_comments (GtkdocGenerator* self,
 	gchar* _tmp7_;
 	gboolean _tmp8_ = FALSE;
 	GString* _tmp9_;
-	gssize _tmp10_;
-	const gchar* _tmp13_;
-	GString* _tmp16_;
-	gchar* _tmp17_;
+	const gchar* _tmp12_;
+	GString* _tmp15_;
+	gchar* _tmp16_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = g_string_new ("");
 	builder = _tmp0_;
@@ -4568,37 +4507,35 @@ gtkdoc_generator_combine_comments (GtkdocGenerator* self,
 	_tmp7_ = g_strdup (_tmp4_);
 	_long = _tmp7_;
 	_tmp9_ = builder;
-	_tmp10_ = _tmp9_->len;
-	if (_tmp10_ > ((gssize) 0)) {
-		const gchar* _tmp11_;
-		_tmp11_ = _long;
-		_tmp8_ = g_strcmp0 (_tmp11_, "") != 0;
+	if (_tmp9_->len > ((gssize) 0)) {
+		const gchar* _tmp10_;
+		_tmp10_ = _long;
+		_tmp8_ = g_strcmp0 (_tmp10_, "") != 0;
 	} else {
 		_tmp8_ = FALSE;
 	}
 	if (_tmp8_) {
-		GString* _tmp12_;
-		_tmp12_ = builder;
-		g_string_append (_tmp12_, "\n\n");
+		GString* _tmp11_;
+		_tmp11_ = builder;
+		g_string_append (_tmp11_, "\n\n");
 	}
-	_tmp13_ = _long;
-	if (g_strcmp0 (_tmp13_, "") != 0) {
-		GString* _tmp14_;
-		const gchar* _tmp15_;
-		_tmp14_ = builder;
-		_tmp15_ = _long;
-		g_string_append (_tmp14_, _tmp15_);
+	_tmp12_ = _long;
+	if (g_strcmp0 (_tmp12_, "") != 0) {
+		GString* _tmp13_;
+		const gchar* _tmp14_;
+		_tmp13_ = builder;
+		_tmp14_ = _long;
+		g_string_append (_tmp13_, _tmp14_);
 	}
-	_tmp16_ = builder;
-	_tmp17_ = _tmp16_->str;
-	_tmp16_->str = NULL;
-	result = _tmp17_;
+	_tmp15_ = builder;
+	_tmp16_ = _tmp15_->str;
+	_tmp15_->str = NULL;
+	result = _tmp16_;
 	_g_free0 (_long);
 	_g_free0 (_tmp4_);
 	_g_string_free0 (builder);
 	return result;
 }
-
 
 static void
 gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
@@ -4634,11 +4571,11 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 	gboolean _tmp66_ = FALSE;
 	ValadocApiPropertyAccessor* _tmp67_;
 	ValadocApiPropertyAccessor* _tmp68_;
+	gboolean _tmp148_ = FALSE;
 	gboolean _tmp149_ = FALSE;
-	gboolean _tmp150_ = FALSE;
+	ValadocApiPropertyAccessor* _tmp150_;
 	ValadocApiPropertyAccessor* _tmp151_;
-	ValadocApiPropertyAccessor* _tmp152_;
-	const gchar* _tmp236_;
+	const gchar* _tmp234_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (prop != NULL);
 	_tmp2_ = valadoc_api_property_get_is_override (prop);
@@ -4733,7 +4670,7 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 			_tmp38_ = type_parameter;
 			_tmp39_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp38_);
 			_tmp40_ = _tmp39_;
-			_tmp41_ = g_utf8_strdown (_tmp40_, (gssize) -1);
+			_tmp41_ = g_ascii_strdown (_tmp40_, (gssize) -1);
 			_tmp42_ = _tmp41_;
 			_tmp43_ = g_strdup_printf ("#%s:%s-type", _tmp37_, _tmp42_);
 			_g_free0 (return_type_link);
@@ -4784,7 +4721,7 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 				_tmp58_ = type_parameter;
 				_tmp59_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp58_);
 				_tmp60_ = _tmp59_;
-				_tmp61_ = g_utf8_strdown (_tmp60_, (gssize) -1);
+				_tmp61_ = g_ascii_strdown (_tmp60_, (gssize) -1);
 				_tmp62_ = _tmp61_;
 				_tmp63_ = g_strdup_printf ("#_%sIface.get_%s_type()", _tmp57_, _tmp62_);
 				_g_free0 (return_type_link);
@@ -4862,17 +4799,17 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 		gboolean _tmp117_ = FALSE;
 		ValadocApiTypeReference* _tmp118_;
 		ValadocApiTypeReference* _tmp119_;
+		GtkdocGComment* _tmp144_;
 		GtkdocGComment* _tmp145_;
-		GtkdocGComment* _tmp146_;
+		ValaList* _tmp146_;
 		ValaList* _tmp147_;
-		ValaList* _tmp148_;
 		_tmp77_ = valadoc_documentation_get_filename ((ValadocDocumentation*) prop);
 		_tmp78_ = _tmp77_;
 		_tmp79_ = valadoc_api_property_get_getter (prop);
 		_tmp80_ = _tmp79_;
 		_tmp81_ = valadoc_api_property_accessor_get_cname (_tmp80_);
 		_tmp82_ = _tmp81_;
-		_tmp83_ = gtkdoc_generator_add_symbol (self, _tmp78_, _tmp82_, NULL, NULL, NULL, 0);
+		_tmp83_ = gtkdoc_generator_add_symbol (self, _tmp78_, _tmp82_, NULL, NULL, NULL, (gint) 0);
 		_tmp84_ = _tmp83_;
 		_g_free0 (_tmp82_);
 		_g_free0 (_tmp78_);
@@ -4972,11 +4909,10 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 						ValadocApiItem* _tmp136_;
 						GtkdocGComment* _tmp138_;
 						ValaList* _tmp139_;
-						guint _tmp140_;
+						gchar* _tmp140_;
 						gchar* _tmp141_;
-						gchar* _tmp142_;
+						GtkdocHeader* _tmp142_;
 						GtkdocHeader* _tmp143_;
-						GtkdocHeader* _tmp144_;
 						if (!_tmp129_) {
 							guint _tmp130_;
 							ValadocApiItem* _tmp131_;
@@ -5006,317 +4942,313 @@ gtkdoc_generator_real_visit_property (ValadocApiVisitor* base,
 						}
 						_tmp138_ = gcomment;
 						_tmp139_ = _tmp138_->headers;
-						_tmp140_ = dim;
-						_tmp141_ = g_strdup_printf ("result_length%u", _tmp140_);
-						_tmp142_ = _tmp141_;
-						_tmp143_ = gtkdoc_header_new (_tmp142_, "return location for the length of the property's value", DBL_MAX, TRUE);
-						_tmp144_ = _tmp143_;
-						vala_collection_add ((ValaCollection*) _tmp139_, _tmp144_);
-						_gtkdoc_header_unref0 (_tmp144_);
-						_g_free0 (_tmp142_);
+						_tmp140_ = g_strdup_printf ("result_length%u", dim);
+						_tmp141_ = _tmp140_;
+						_tmp142_ = gtkdoc_header_new (_tmp141_, "return location for the length of the property's value", DBL_MAX, TRUE);
+						_tmp143_ = _tmp142_;
+						vala_collection_add ((ValaCollection*) _tmp139_, _tmp143_);
+						_gtkdoc_header_unref0 (_tmp143_);
+						_g_free0 (_tmp141_);
 					}
 				}
 			}
 			_g_object_unref0 (array_type);
 		}
-		_tmp145_ = getter_gcomment;
-		_tmp146_ = gcomment;
-		_tmp147_ = _tmp146_->versioning;
-		_tmp148_ = _vala_iterable_ref0 (_tmp147_);
-		_vala_iterable_unref0 (_tmp145_->versioning);
-		_tmp145_->versioning = _tmp148_;
+		_tmp144_ = getter_gcomment;
+		_tmp145_ = gcomment;
+		_tmp146_ = _tmp145_->versioning;
+		_tmp147_ = _vala_iterable_ref0 (_tmp146_);
+		_vala_iterable_unref0 (_tmp144_->versioning);
+		_tmp144_->versioning = _tmp147_;
 		_gtkdoc_gcomment_unref0 (getter_gcomment);
 	}
-	_tmp151_ = valadoc_api_property_get_setter (prop);
-	_tmp152_ = _tmp151_;
-	if (_tmp152_ != NULL) {
+	_tmp150_ = valadoc_api_property_get_setter (prop);
+	_tmp151_ = _tmp150_;
+	if (_tmp151_ != NULL) {
+		ValadocApiPropertyAccessor* _tmp152_;
 		ValadocApiPropertyAccessor* _tmp153_;
-		ValadocApiPropertyAccessor* _tmp154_;
+		gboolean _tmp154_;
 		gboolean _tmp155_;
-		gboolean _tmp156_;
-		_tmp153_ = valadoc_api_property_get_setter (prop);
-		_tmp154_ = _tmp153_;
-		_tmp155_ = valadoc_api_symbol_get_is_private ((ValadocApiSymbol*) _tmp154_);
-		_tmp156_ = _tmp155_;
-		_tmp150_ = !_tmp156_;
-	} else {
-		_tmp150_ = FALSE;
-	}
-	if (_tmp150_) {
-		ValadocApiPropertyAccessor* _tmp157_;
-		ValadocApiPropertyAccessor* _tmp158_;
-		gboolean _tmp159_;
-		gboolean _tmp160_;
-		_tmp157_ = valadoc_api_property_get_setter (prop);
-		_tmp158_ = _tmp157_;
-		_tmp159_ = valadoc_api_property_accessor_get_is_set (_tmp158_);
-		_tmp160_ = _tmp159_;
-		_tmp149_ = _tmp160_;
+		_tmp152_ = valadoc_api_property_get_setter (prop);
+		_tmp153_ = _tmp152_;
+		_tmp154_ = valadoc_api_symbol_get_is_private ((ValadocApiSymbol*) _tmp153_);
+		_tmp155_ = _tmp154_;
+		_tmp149_ = !_tmp155_;
 	} else {
 		_tmp149_ = FALSE;
 	}
 	if (_tmp149_) {
+		ValadocApiPropertyAccessor* _tmp156_;
+		ValadocApiPropertyAccessor* _tmp157_;
+		gboolean _tmp158_;
+		gboolean _tmp159_;
+		_tmp156_ = valadoc_api_property_get_setter (prop);
+		_tmp157_ = _tmp156_;
+		_tmp158_ = valadoc_api_property_accessor_get_is_set (_tmp157_);
+		_tmp159_ = _tmp158_;
+		_tmp148_ = _tmp159_;
+	} else {
+		_tmp148_ = FALSE;
+	}
+	if (_tmp148_) {
 		GtkdocGComment* setter_gcomment = NULL;
+		gchar* _tmp160_;
 		gchar* _tmp161_;
-		gchar* _tmp162_;
+		ValadocApiPropertyAccessor* _tmp162_;
 		ValadocApiPropertyAccessor* _tmp163_;
-		ValadocApiPropertyAccessor* _tmp164_;
+		gchar* _tmp164_;
 		gchar* _tmp165_;
-		gchar* _tmp166_;
+		GtkdocGComment* _tmp166_;
 		GtkdocGComment* _tmp167_;
 		GtkdocGComment* _tmp168_;
-		GtkdocGComment* _tmp169_;
-		ValaList* _tmp170_;
+		ValaList* _tmp169_;
+		ValadocApiItem* _tmp170_;
 		ValadocApiItem* _tmp171_;
-		ValadocApiItem* _tmp172_;
+		gchar* _tmp172_;
 		gchar* _tmp173_;
 		gchar* _tmp174_;
 		gchar* _tmp175_;
-		gchar* _tmp176_;
+		GtkdocHeader* _tmp176_;
 		GtkdocHeader* _tmp177_;
-		GtkdocHeader* _tmp178_;
-		gchar* _tmp179_ = NULL;
-		const gchar* _tmp180_;
+		gchar* _tmp178_ = NULL;
+		const gchar* _tmp179_;
 		gchar* type_desc = NULL;
-		gchar* _tmp184_;
-		GtkdocGComment* _tmp185_;
-		ValaList* _tmp186_;
+		gchar* _tmp183_;
+		GtkdocGComment* _tmp184_;
+		ValaList* _tmp185_;
+		gchar* _tmp186_;
 		gchar* _tmp187_;
-		gchar* _tmp188_;
-		const gchar* _tmp189_;
+		const gchar* _tmp188_;
+		gchar* _tmp189_;
 		gchar* _tmp190_;
-		gchar* _tmp191_;
+		GtkdocHeader* _tmp191_;
 		GtkdocHeader* _tmp192_;
-		GtkdocHeader* _tmp193_;
-		GtkdocGComment* _tmp194_;
+		GtkdocGComment* _tmp193_;
+		gchar* _tmp194_;
 		gchar* _tmp195_;
 		gchar* _tmp196_;
-		gchar* _tmp197_;
+		GtkdocGComment* _tmp197_;
 		GtkdocGComment* _tmp198_;
-		GtkdocGComment* _tmp199_;
-		const gchar* _tmp200_;
-		GtkdocGComment* _tmp201_;
-		const gchar* _tmp202_;
-		gchar* _tmp203_;
-		gboolean _tmp204_ = FALSE;
+		const gchar* _tmp199_;
+		GtkdocGComment* _tmp200_;
+		const gchar* _tmp201_;
+		gchar* _tmp202_;
+		gboolean _tmp203_ = FALSE;
+		ValadocApiTypeReference* _tmp204_;
 		ValadocApiTypeReference* _tmp205_;
-		ValadocApiTypeReference* _tmp206_;
-		GtkdocGComment* _tmp232_;
-		GtkdocGComment* _tmp233_;
-		ValaList* _tmp234_;
-		ValaList* _tmp235_;
-		_tmp161_ = valadoc_documentation_get_filename ((ValadocDocumentation*) prop);
-		_tmp162_ = _tmp161_;
-		_tmp163_ = valadoc_api_property_get_setter (prop);
-		_tmp164_ = _tmp163_;
-		_tmp165_ = valadoc_api_property_accessor_get_cname (_tmp164_);
-		_tmp166_ = _tmp165_;
-		_tmp167_ = gtkdoc_generator_add_symbol (self, _tmp162_, _tmp166_, NULL, NULL, NULL, 0);
-		_tmp168_ = _tmp167_;
-		_g_free0 (_tmp166_);
-		_g_free0 (_tmp162_);
-		setter_gcomment = _tmp168_;
-		_tmp169_ = setter_gcomment;
-		_tmp170_ = _tmp169_->headers;
-		_tmp171_ = valadoc_api_item_get_parent ((ValadocApiItem*) prop);
-		_tmp172_ = _tmp171_;
-		_tmp173_ = gtkdoc_get_docbook_link (_tmp172_, FALSE, FALSE);
-		_tmp174_ = _tmp173_;
-		_tmp175_ = g_strdup_printf ("the %s instance to modify", _tmp174_);
-		_tmp176_ = _tmp175_;
-		_tmp177_ = gtkdoc_header_new ("self", _tmp176_, (gdouble) 1, TRUE);
-		_tmp178_ = _tmp177_;
-		vala_collection_add ((ValaCollection*) _tmp170_, _tmp178_);
-		_gtkdoc_header_unref0 (_tmp178_);
-		_g_free0 (_tmp176_);
-		_g_free0 (_tmp174_);
-		_tmp180_ = return_type_link;
-		if (_tmp180_ != NULL) {
-			const gchar* _tmp181_;
+		GtkdocGComment* _tmp230_;
+		GtkdocGComment* _tmp231_;
+		ValaList* _tmp232_;
+		ValaList* _tmp233_;
+		_tmp160_ = valadoc_documentation_get_filename ((ValadocDocumentation*) prop);
+		_tmp161_ = _tmp160_;
+		_tmp162_ = valadoc_api_property_get_setter (prop);
+		_tmp163_ = _tmp162_;
+		_tmp164_ = valadoc_api_property_accessor_get_cname (_tmp163_);
+		_tmp165_ = _tmp164_;
+		_tmp166_ = gtkdoc_generator_add_symbol (self, _tmp161_, _tmp165_, NULL, NULL, NULL, (gint) 0);
+		_tmp167_ = _tmp166_;
+		_g_free0 (_tmp165_);
+		_g_free0 (_tmp161_);
+		setter_gcomment = _tmp167_;
+		_tmp168_ = setter_gcomment;
+		_tmp169_ = _tmp168_->headers;
+		_tmp170_ = valadoc_api_item_get_parent ((ValadocApiItem*) prop);
+		_tmp171_ = _tmp170_;
+		_tmp172_ = gtkdoc_get_docbook_link (_tmp171_, FALSE, FALSE);
+		_tmp173_ = _tmp172_;
+		_tmp174_ = g_strdup_printf ("the %s instance to modify", _tmp173_);
+		_tmp175_ = _tmp174_;
+		_tmp176_ = gtkdoc_header_new ("self", _tmp175_, (gdouble) 1, TRUE);
+		_tmp177_ = _tmp176_;
+		vala_collection_add ((ValaCollection*) _tmp169_, _tmp177_);
+		_gtkdoc_header_unref0 (_tmp177_);
+		_g_free0 (_tmp175_);
+		_g_free0 (_tmp173_);
+		_tmp179_ = return_type_link;
+		if (_tmp179_ != NULL) {
+			const gchar* _tmp180_;
+			gchar* _tmp181_;
+			_tmp180_ = return_type_link;
+			_tmp181_ = g_strconcat (" of type ", _tmp180_, NULL);
+			_g_free0 (_tmp178_);
+			_tmp178_ = _tmp181_;
+		} else {
 			gchar* _tmp182_;
-			_tmp181_ = return_type_link;
-			_tmp182_ = g_strconcat (" of type ", _tmp181_, NULL);
-			_g_free0 (_tmp179_);
-			_tmp179_ = _tmp182_;
-		} else {
-			gchar* _tmp183_;
-			_tmp183_ = g_strdup ("");
-			_g_free0 (_tmp179_);
-			_tmp179_ = _tmp183_;
+			_tmp182_ = g_strdup ("");
+			_g_free0 (_tmp178_);
+			_tmp178_ = _tmp182_;
 		}
-		_tmp184_ = g_strdup (_tmp179_);
-		type_desc = _tmp184_;
-		_tmp185_ = setter_gcomment;
-		_tmp186_ = _tmp185_->headers;
-		_tmp187_ = gtkdoc_get_docbook_link ((ValadocApiItem*) prop, FALSE, FALSE);
-		_tmp188_ = _tmp187_;
-		_tmp189_ = type_desc;
-		_tmp190_ = g_strdup_printf ("the new value of the %s property%s", _tmp188_, _tmp189_);
-		_tmp191_ = _tmp190_;
-		_tmp192_ = gtkdoc_header_new ("value", _tmp191_, (gdouble) 2, TRUE);
-		_tmp193_ = _tmp192_;
-		vala_collection_add ((ValaCollection*) _tmp186_, _tmp193_);
-		_gtkdoc_header_unref0 (_tmp193_);
-		_g_free0 (_tmp191_);
-		_g_free0 (_tmp188_);
-		_tmp194_ = setter_gcomment;
-		_tmp195_ = gtkdoc_get_docbook_link ((ValadocApiItem*) prop, FALSE, FALSE);
-		_tmp196_ = _tmp195_;
-		_tmp197_ = g_strdup_printf ("Set the value of the %s property to @value.", _tmp196_);
-		_g_free0 (_tmp194_->brief_comment);
-		_tmp194_->brief_comment = _tmp197_;
-		_g_free0 (_tmp196_);
-		_tmp198_ = setter_gcomment;
-		_tmp199_ = gcomment;
-		_tmp200_ = _tmp199_->brief_comment;
-		_tmp201_ = gcomment;
-		_tmp202_ = _tmp201_->long_comment;
-		_tmp203_ = gtkdoc_generator_combine_comments (self, _tmp200_, _tmp202_);
-		_g_free0 (_tmp198_->long_comment);
-		_tmp198_->long_comment = _tmp203_;
-		_tmp205_ = valadoc_api_property_get_property_type (prop);
-		_tmp206_ = _tmp205_;
-		if (_tmp206_ != NULL) {
+		_tmp183_ = g_strdup (_tmp178_);
+		type_desc = _tmp183_;
+		_tmp184_ = setter_gcomment;
+		_tmp185_ = _tmp184_->headers;
+		_tmp186_ = gtkdoc_get_docbook_link ((ValadocApiItem*) prop, FALSE, FALSE);
+		_tmp187_ = _tmp186_;
+		_tmp188_ = type_desc;
+		_tmp189_ = g_strdup_printf ("the new value of the %s property%s", _tmp187_, _tmp188_);
+		_tmp190_ = _tmp189_;
+		_tmp191_ = gtkdoc_header_new ("value", _tmp190_, (gdouble) 2, TRUE);
+		_tmp192_ = _tmp191_;
+		vala_collection_add ((ValaCollection*) _tmp185_, _tmp192_);
+		_gtkdoc_header_unref0 (_tmp192_);
+		_g_free0 (_tmp190_);
+		_g_free0 (_tmp187_);
+		_tmp193_ = setter_gcomment;
+		_tmp194_ = gtkdoc_get_docbook_link ((ValadocApiItem*) prop, FALSE, FALSE);
+		_tmp195_ = _tmp194_;
+		_tmp196_ = g_strdup_printf ("Set the value of the %s property to @value.", _tmp195_);
+		_g_free0 (_tmp193_->brief_comment);
+		_tmp193_->brief_comment = _tmp196_;
+		_g_free0 (_tmp195_);
+		_tmp197_ = setter_gcomment;
+		_tmp198_ = gcomment;
+		_tmp199_ = _tmp198_->brief_comment;
+		_tmp200_ = gcomment;
+		_tmp201_ = _tmp200_->long_comment;
+		_tmp202_ = gtkdoc_generator_combine_comments (self, _tmp199_, _tmp201_);
+		_g_free0 (_tmp197_->long_comment);
+		_tmp197_->long_comment = _tmp202_;
+		_tmp204_ = valadoc_api_property_get_property_type (prop);
+		_tmp205_ = _tmp204_;
+		if (_tmp205_ != NULL) {
+			ValadocApiTypeReference* _tmp206_;
 			ValadocApiTypeReference* _tmp207_;
-			ValadocApiTypeReference* _tmp208_;
+			ValadocApiItem* _tmp208_;
 			ValadocApiItem* _tmp209_;
-			ValadocApiItem* _tmp210_;
-			_tmp207_ = valadoc_api_property_get_property_type (prop);
-			_tmp208_ = _tmp207_;
-			_tmp209_ = valadoc_api_typereference_get_data_type (_tmp208_);
-			_tmp210_ = _tmp209_;
-			_tmp204_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp210_, VALADOC_API_TYPE_ARRAY);
+			_tmp206_ = valadoc_api_property_get_property_type (prop);
+			_tmp207_ = _tmp206_;
+			_tmp208_ = valadoc_api_typereference_get_data_type (_tmp207_);
+			_tmp209_ = _tmp208_;
+			_tmp203_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp209_, VALADOC_API_TYPE_ARRAY);
 		} else {
-			_tmp204_ = FALSE;
+			_tmp203_ = FALSE;
 		}
-		if (_tmp204_) {
+		if (_tmp203_) {
 			ValadocApiItem* array_type = NULL;
+			ValadocApiTypeReference* _tmp210_;
 			ValadocApiTypeReference* _tmp211_;
-			ValadocApiTypeReference* _tmp212_;
+			ValadocApiItem* _tmp212_;
 			ValadocApiItem* _tmp213_;
 			ValadocApiItem* _tmp214_;
-			ValadocApiItem* _tmp215_;
-			_tmp211_ = valadoc_api_property_get_property_type (prop);
-			_tmp212_ = _tmp211_;
-			_tmp213_ = valadoc_api_typereference_get_data_type (_tmp212_);
-			_tmp214_ = _tmp213_;
-			_tmp215_ = _g_object_ref0 (_tmp214_);
-			array_type = _tmp215_;
+			_tmp210_ = valadoc_api_property_get_property_type (prop);
+			_tmp211_ = _tmp210_;
+			_tmp212_ = valadoc_api_typereference_get_data_type (_tmp211_);
+			_tmp213_ = _tmp212_;
+			_tmp214_ = _g_object_ref0 (_tmp213_);
+			array_type = _tmp214_;
 			{
 				guint dim = 0U;
 				dim = (guint) 1;
 				{
-					gboolean _tmp216_ = FALSE;
-					_tmp216_ = TRUE;
+					gboolean _tmp215_ = FALSE;
+					_tmp215_ = TRUE;
 					while (TRUE) {
-						gboolean _tmp222_ = FALSE;
-						ValadocApiItem* _tmp223_;
-						GtkdocGComment* _tmp225_;
-						ValaList* _tmp226_;
-						guint _tmp227_;
-						gchar* _tmp228_;
-						gchar* _tmp229_;
-						GtkdocHeader* _tmp230_;
-						GtkdocHeader* _tmp231_;
-						if (!_tmp216_) {
-							guint _tmp217_;
+						gboolean _tmp221_ = FALSE;
+						ValadocApiItem* _tmp222_;
+						GtkdocGComment* _tmp224_;
+						ValaList* _tmp225_;
+						gchar* _tmp226_;
+						gchar* _tmp227_;
+						GtkdocHeader* _tmp228_;
+						GtkdocHeader* _tmp229_;
+						if (!_tmp215_) {
+							guint _tmp216_;
+							ValadocApiItem* _tmp217_;
 							ValadocApiItem* _tmp218_;
 							ValadocApiItem* _tmp219_;
 							ValadocApiItem* _tmp220_;
-							ValadocApiItem* _tmp221_;
-							_tmp217_ = dim;
-							dim = _tmp217_ + 1;
-							_tmp218_ = array_type;
-							_tmp219_ = valadoc_api_array_get_data_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp218_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
-							_tmp220_ = _tmp219_;
-							_tmp221_ = _g_object_ref0 (_tmp220_);
+							_tmp216_ = dim;
+							dim = _tmp216_ + 1;
+							_tmp217_ = array_type;
+							_tmp218_ = valadoc_api_array_get_data_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp217_, VALADOC_API_TYPE_ARRAY, ValadocApiArray));
+							_tmp219_ = _tmp218_;
+							_tmp220_ = _g_object_ref0 (_tmp219_);
 							_g_object_unref0 (array_type);
-							array_type = _tmp221_;
+							array_type = _tmp220_;
 						}
-						_tmp216_ = FALSE;
-						_tmp223_ = array_type;
-						if (_tmp223_ != NULL) {
-							ValadocApiItem* _tmp224_;
-							_tmp224_ = array_type;
-							_tmp222_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp224_, VALADOC_API_TYPE_ARRAY);
+						_tmp215_ = FALSE;
+						_tmp222_ = array_type;
+						if (_tmp222_ != NULL) {
+							ValadocApiItem* _tmp223_;
+							_tmp223_ = array_type;
+							_tmp221_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp223_, VALADOC_API_TYPE_ARRAY);
 						} else {
-							_tmp222_ = FALSE;
+							_tmp221_ = FALSE;
 						}
-						if (!_tmp222_) {
+						if (!_tmp221_) {
 							break;
 						}
-						_tmp225_ = gcomment;
-						_tmp226_ = _tmp225_->headers;
-						_tmp227_ = dim;
-						_tmp228_ = g_strdup_printf ("value_length%u", _tmp227_);
+						_tmp224_ = gcomment;
+						_tmp225_ = _tmp224_->headers;
+						_tmp226_ = g_strdup_printf ("value_length%u", dim);
+						_tmp227_ = _tmp226_;
+						_tmp228_ = gtkdoc_header_new (_tmp227_, "length of the property's new value", DBL_MAX, TRUE);
 						_tmp229_ = _tmp228_;
-						_tmp230_ = gtkdoc_header_new (_tmp229_, "length of the property's new value", DBL_MAX, TRUE);
-						_tmp231_ = _tmp230_;
-						vala_collection_add ((ValaCollection*) _tmp226_, _tmp231_);
-						_gtkdoc_header_unref0 (_tmp231_);
-						_g_free0 (_tmp229_);
+						vala_collection_add ((ValaCollection*) _tmp225_, _tmp229_);
+						_gtkdoc_header_unref0 (_tmp229_);
+						_g_free0 (_tmp227_);
 					}
 				}
 			}
 			_g_object_unref0 (array_type);
 		}
-		_tmp232_ = setter_gcomment;
-		_tmp233_ = gcomment;
-		_tmp234_ = _tmp233_->versioning;
-		_tmp235_ = _vala_iterable_ref0 (_tmp234_);
-		_vala_iterable_unref0 (_tmp232_->versioning);
-		_tmp232_->versioning = _tmp235_;
+		_tmp230_ = setter_gcomment;
+		_tmp231_ = gcomment;
+		_tmp232_ = _tmp231_->versioning;
+		_tmp233_ = _vala_iterable_ref0 (_tmp232_);
+		_vala_iterable_unref0 (_tmp230_->versioning);
+		_tmp230_->versioning = _tmp233_;
 		_g_free0 (type_desc);
-		_g_free0 (_tmp179_);
+		_g_free0 (_tmp178_);
 		_gtkdoc_gcomment_unref0 (setter_gcomment);
 	}
-	_tmp236_ = return_type_link;
-	if (_tmp236_ != NULL) {
+	_tmp234_ = return_type_link;
+	if (_tmp234_ != NULL) {
 		gchar* return_type_desc = NULL;
-		ValadocApiItem* _tmp237_;
-		ValadocApiItem* _tmp238_;
-		gchar* _tmp239_;
-		gchar* _tmp240_;
-		ValadocApiTypeParameter* _tmp241_;
-		const gchar* _tmp242_;
-		const gchar* _tmp243_;
+		ValadocApiItem* _tmp235_;
+		ValadocApiItem* _tmp236_;
+		gchar* _tmp237_;
+		gchar* _tmp238_;
+		ValadocApiTypeParameter* _tmp239_;
+		const gchar* _tmp240_;
+		const gchar* _tmp241_;
+		gchar* _tmp242_;
+		gchar* _tmp243_;
 		gchar* _tmp244_;
 		gchar* _tmp245_;
-		gchar* _tmp246_;
-		gchar* _tmp247_;
+		GtkdocGComment* _tmp246_;
+		const gchar* _tmp247_;
 		GtkdocGComment* _tmp248_;
 		const gchar* _tmp249_;
-		GtkdocGComment* _tmp250_;
-		const gchar* _tmp251_;
-		gchar* _tmp252_;
-		_tmp237_ = valadoc_api_item_get_parent ((ValadocApiItem*) prop);
+		gchar* _tmp250_;
+		_tmp235_ = valadoc_api_item_get_parent ((ValadocApiItem*) prop);
+		_tmp236_ = _tmp235_;
+		_tmp237_ = gtkdoc_get_cname (_tmp236_);
 		_tmp238_ = _tmp237_;
-		_tmp239_ = gtkdoc_get_cname (_tmp238_);
-		_tmp240_ = _tmp239_;
-		_tmp241_ = type_parameter;
-		_tmp242_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp241_);
+		_tmp239_ = type_parameter;
+		_tmp240_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp239_);
+		_tmp241_ = _tmp240_;
+		_tmp242_ = g_ascii_strdown (_tmp241_, (gssize) -1);
 		_tmp243_ = _tmp242_;
-		_tmp244_ = g_utf8_strdown (_tmp243_, (gssize) -1);
+		_tmp244_ = g_strdup_printf ("<para>Holds a value from type #%s:%s-type.</para>", _tmp238_, _tmp243_);
 		_tmp245_ = _tmp244_;
-		_tmp246_ = g_strdup_printf ("<para>Holds a value from type #%s:%s-type.</para>", _tmp240_, _tmp245_);
-		_tmp247_ = _tmp246_;
-		_g_free0 (_tmp245_);
-		_g_free0 (_tmp240_);
-		return_type_desc = _tmp247_;
+		_g_free0 (_tmp243_);
+		_g_free0 (_tmp238_);
+		return_type_desc = _tmp245_;
+		_tmp246_ = gcomment;
+		_tmp247_ = return_type_desc;
 		_tmp248_ = gcomment;
-		_tmp249_ = return_type_desc;
-		_tmp250_ = gcomment;
-		_tmp251_ = _tmp250_->long_comment;
-		_tmp252_ = gtkdoc_generator_combine_inline_docs (self, _tmp249_, _tmp251_);
-		_g_free0 (_tmp248_->long_comment);
-		_tmp248_->long_comment = _tmp252_;
+		_tmp249_ = _tmp248_->long_comment;
+		_tmp250_ = gtkdoc_generator_combine_inline_docs (self, _tmp247_, _tmp249_);
+		_g_free0 (_tmp246_->long_comment);
+		_tmp246_->long_comment = _tmp250_;
 		_g_free0 (return_type_desc);
 	}
 	_g_free0 (return_type_link);
 	_g_object_unref0 (type_parameter);
 	_gtkdoc_gcomment_unref0 (gcomment);
 }
-
 
 static void
 gtkdoc_generator_real_visit_field (ValadocApiVisitor* base,
@@ -5351,7 +5283,7 @@ gtkdoc_generator_real_visit_field (ValadocApiVisitor* base,
 		_tmp6_ = _tmp5_;
 		_tmp7_ = valadoc_api_node_get_documentation ((ValadocApiNode*) f);
 		_tmp8_ = _tmp7_;
-		_tmp9_ = gtkdoc_generator_add_symbol (self, _tmp4_, _tmp6_, _tmp8_, NULL, NULL, 0);
+		_tmp9_ = gtkdoc_generator_add_symbol (self, _tmp4_, _tmp6_, _tmp8_, NULL, NULL, (gint) 0);
 		_tmp10_ = _tmp9_;
 		_g_free0 (_tmp6_);
 		_g_free0 (_tmp4_);
@@ -5371,14 +5303,13 @@ gtkdoc_generator_real_visit_field (ValadocApiVisitor* base,
 		_tmp13_ = _tmp12_;
 		_tmp14_ = valadoc_api_node_get_documentation ((ValadocApiNode*) f);
 		_tmp15_ = _tmp14_;
-		_tmp16_ = gtkdoc_generator_add_header (self, _tmp13_, _tmp15_, NULL, 0, DBL_MAX);
+		_tmp16_ = gtkdoc_generator_add_header (self, _tmp13_, _tmp15_, NULL, (gint) 0, DBL_MAX);
 		_tmp17_ = _tmp16_;
 		_gtkdoc_header_unref0 (_tmp17_);
 		_g_free0 (_tmp13_);
 		valadoc_api_node_accept_all_children ((ValadocApiNode*) f, (ValadocApiVisitor*) self, TRUE);
 	}
 }
-
 
 static void
 gtkdoc_generator_real_visit_constant (ValadocApiVisitor* base,
@@ -5402,7 +5333,7 @@ gtkdoc_generator_real_visit_constant (ValadocApiVisitor* base,
 	_tmp3_ = _tmp2_;
 	_tmp4_ = valadoc_api_node_get_documentation ((ValadocApiNode*) c);
 	_tmp5_ = _tmp4_;
-	_tmp6_ = gtkdoc_generator_add_symbol (self, _tmp1_, _tmp3_, _tmp5_, NULL, NULL, 0);
+	_tmp6_ = gtkdoc_generator_add_symbol (self, _tmp1_, _tmp3_, _tmp5_, NULL, NULL, (gint) 0);
 	_tmp7_ = _tmp6_;
 	_g_free0 (_tmp3_);
 	_g_free0 (_tmp1_);
@@ -5411,7 +5342,6 @@ gtkdoc_generator_real_visit_constant (ValadocApiVisitor* base,
 	gtkdoc_generator_process_attributes (self, (ValadocApiSymbol*) c, gcomment);
 	_gtkdoc_gcomment_unref0 (gcomment);
 }
-
 
 static void
 gtkdoc_generator_real_visit_delegate (ValadocApiVisitor* base,
@@ -5436,29 +5366,29 @@ gtkdoc_generator_real_visit_delegate (ValadocApiVisitor* base,
 	gint _tmp10__length1;
 	ValaList* _tmp11_;
 	ValaList* _tmp12_;
-	gboolean _tmp25_;
-	gboolean _tmp26_;
+	gboolean _tmp23_;
+	gboolean _tmp24_;
 	GtkdocGComment* gcomment = NULL;
+	gchar* _tmp30_;
+	gchar* _tmp31_;
 	gchar* _tmp32_;
 	gchar* _tmp33_;
-	gchar* _tmp34_;
-	gchar* _tmp35_;
-	ValadocContentComment* _tmp36_;
-	ValadocContentComment* _tmp37_;
-	GtkdocGComment* _tmp38_;
-	GtkdocGComment* _tmp39_;
+	ValadocContentComment* _tmp34_;
+	ValadocContentComment* _tmp35_;
+	GtkdocGComment* _tmp36_;
+	GtkdocGComment* _tmp37_;
 	ValadocApiTypeParameter* type_parameter = NULL;
-	ValadocApiTypeReference* _tmp40_;
-	ValadocApiTypeReference* _tmp41_;
-	ValadocApiItem* _tmp42_;
-	ValadocApiItem* _tmp43_;
-	ValadocApiTypeParameter* _tmp44_;
-	ValadocApiTypeParameter* _tmp45_;
-	GtkdocGComment* _tmp90_;
-	ValaList* _tmp91_;
-	ValaList* _tmp92_;
-	ValadocApiDelegate* _tmp93_;
-	ValadocApiDelegate* _tmp94_;
+	ValadocApiTypeReference* _tmp38_;
+	ValadocApiTypeReference* _tmp39_;
+	ValadocApiItem* _tmp40_;
+	ValadocApiItem* _tmp41_;
+	ValadocApiTypeParameter* _tmp42_;
+	ValadocApiTypeParameter* _tmp43_;
+	GtkdocGComment* _tmp88_;
+	ValaList* _tmp89_;
+	ValaList* _tmp90_;
+	ValadocApiDelegate* _tmp91_;
+	ValadocApiDelegate* _tmp92_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (d != NULL);
 	_tmp0_ = self->priv->current_headers;
@@ -5479,14 +5409,14 @@ gtkdoc_generator_real_visit_delegate (ValadocApiVisitor* base,
 	_tmp7_[1] = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
 	_tmp8_ = _tmp7_;
 	_tmp8__length1 = 2;
-	valadoc_api_node_accept_children ((ValadocApiNode*) d, _tmp8_, 2, (ValadocApiVisitor*) self, TRUE);
+	valadoc_api_node_accept_children ((ValadocApiNode*) d, _tmp8_, (gint) 2, (ValadocApiVisitor*) self, TRUE);
 	_tmp8_ = (g_free (_tmp8_), NULL);
 	_tmp9_ = g_new0 (ValadocApiNodeType, 2);
 	_tmp9_[0] = VALADOC_API_NODE_TYPE_ERROR_DOMAIN;
 	_tmp9_[1] = VALADOC_API_NODE_TYPE_CLASS;
 	_tmp10_ = _tmp9_;
 	_tmp10__length1 = 2;
-	_tmp11_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) d, _tmp10_, 2, TRUE);
+	_tmp11_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) d, _tmp10_, (gint) 2, TRUE);
 	_tmp12_ = _tmp11_;
 	_tmp10_ = (g_free (_tmp10_), NULL);
 	exceptions = _tmp12_;
@@ -5510,190 +5440,186 @@ gtkdoc_generator_real_visit_delegate (ValadocApiVisitor* base,
 		while (TRUE) {
 			gint _tmp18_;
 			gint _tmp19_;
-			gint _tmp20_;
 			ValadocApiNode* ex = NULL;
-			ValaList* _tmp21_;
-			gint _tmp22_;
-			gpointer _tmp23_;
-			ValadocApiNode* _tmp24_;
+			ValaList* _tmp20_;
+			gpointer _tmp21_;
+			ValadocApiNode* _tmp22_;
+			_ex_index = _ex_index + 1;
 			_tmp18_ = _ex_index;
-			_ex_index = _tmp18_ + 1;
-			_tmp19_ = _ex_index;
-			_tmp20_ = _ex_size;
-			if (!(_tmp19_ < _tmp20_)) {
+			_tmp19_ = _ex_size;
+			if (!(_tmp18_ < _tmp19_)) {
 				break;
 			}
-			_tmp21_ = _ex_list;
-			_tmp22_ = _ex_index;
-			_tmp23_ = vala_list_get (_tmp21_, _tmp22_);
-			ex = (ValadocApiNode*) _tmp23_;
-			_tmp24_ = ex;
-			gtkdoc_generator_visit_thrown_error_domain (self, _tmp24_);
+			_tmp20_ = _ex_list;
+			_tmp21_ = vala_list_get (_tmp20_, _ex_index);
+			ex = (ValadocApiNode*) _tmp21_;
+			_tmp22_ = ex;
+			gtkdoc_generator_visit_thrown_error_domain (self, _tmp22_);
 			_g_object_unref0 (ex);
 		}
 		_vala_iterable_unref0 (_ex_list);
 	}
-	_tmp25_ = valadoc_api_delegate_get_is_static (d);
-	_tmp26_ = _tmp25_;
-	if (!_tmp26_) {
-		gchar* _tmp27_;
-		gchar** _tmp28_;
-		gchar** _tmp29_;
-		gint _tmp29__length1;
-		GtkdocHeader* _tmp30_;
-		GtkdocHeader* _tmp31_;
-		_tmp27_ = g_strdup ("closure");
-		_tmp28_ = g_new0 (gchar*, 1 + 1);
-		_tmp28_[0] = _tmp27_;
+	_tmp23_ = valadoc_api_delegate_get_is_static (d);
+	_tmp24_ = _tmp23_;
+	if (!_tmp24_) {
+		gchar* _tmp25_;
+		gchar** _tmp26_;
+		gchar** _tmp27_;
+		gint _tmp27__length1;
+		GtkdocHeader* _tmp28_;
+		GtkdocHeader* _tmp29_;
+		_tmp25_ = g_strdup ("closure");
+		_tmp26_ = g_new0 (gchar*, 1 + 1);
+		_tmp26_[0] = _tmp25_;
+		_tmp27_ = _tmp26_;
+		_tmp27__length1 = 1;
+		_tmp28_ = gtkdoc_generator_add_custom_header (self, "user_data", "data to pass to the delegate function", _tmp27_, (gint) 1, DBL_MAX, TRUE);
 		_tmp29_ = _tmp28_;
-		_tmp29__length1 = 1;
-		_tmp30_ = gtkdoc_generator_add_custom_header (self, "user_data", "data to pass to the delegate function", _tmp29_, 1, DBL_MAX, TRUE);
-		_tmp31_ = _tmp30_;
-		_gtkdoc_header_unref0 (_tmp31_);
-		_tmp29_ = (_vala_array_free (_tmp29_, _tmp29__length1, (GDestroyNotify) g_free), NULL);
+		_gtkdoc_header_unref0 (_tmp29_);
+		_tmp27_ = (_vala_array_free (_tmp27_, _tmp27__length1, (GDestroyNotify) g_free), NULL);
 	}
-	_tmp32_ = valadoc_documentation_get_filename ((ValadocDocumentation*) d);
+	_tmp30_ = valadoc_documentation_get_filename ((ValadocDocumentation*) d);
+	_tmp31_ = _tmp30_;
+	_tmp32_ = valadoc_api_delegate_get_cname (d);
 	_tmp33_ = _tmp32_;
-	_tmp34_ = valadoc_api_delegate_get_cname (d);
+	_tmp34_ = valadoc_api_node_get_documentation ((ValadocApiNode*) d);
 	_tmp35_ = _tmp34_;
-	_tmp36_ = valadoc_api_node_get_documentation ((ValadocApiNode*) d);
+	_tmp36_ = gtkdoc_generator_add_symbol (self, _tmp31_, _tmp33_, _tmp35_, NULL, NULL, (gint) 0);
 	_tmp37_ = _tmp36_;
-	_tmp38_ = gtkdoc_generator_add_symbol (self, _tmp33_, _tmp35_, _tmp37_, NULL, NULL, 0);
-	_tmp39_ = _tmp38_;
-	_g_free0 (_tmp35_);
 	_g_free0 (_tmp33_);
-	gcomment = _tmp39_;
-	_tmp40_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) d);
+	_g_free0 (_tmp31_);
+	gcomment = _tmp37_;
+	_tmp38_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) d);
+	_tmp39_ = _tmp38_;
+	_tmp40_ = valadoc_api_typereference_get_data_type (_tmp39_);
 	_tmp41_ = _tmp40_;
-	_tmp42_ = valadoc_api_typereference_get_data_type (_tmp41_);
-	_tmp43_ = _tmp42_;
-	_tmp44_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp43_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp43_) : NULL);
-	type_parameter = _tmp44_;
-	_tmp45_ = type_parameter;
-	if (_tmp45_ != NULL) {
-		ValadocApiTypeParameter* _tmp46_;
-		ValadocApiItem* _tmp47_;
-		ValadocApiItem* _tmp48_;
-		_tmp46_ = type_parameter;
-		_tmp47_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp46_);
-		_tmp48_ = _tmp47_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp48_, VALADOC_API_TYPE_CLASS)) {
+	_tmp42_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp41_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp41_) : NULL);
+	type_parameter = _tmp42_;
+	_tmp43_ = type_parameter;
+	if (_tmp43_ != NULL) {
+		ValadocApiTypeParameter* _tmp44_;
+		ValadocApiItem* _tmp45_;
+		ValadocApiItem* _tmp46_;
+		_tmp44_ = type_parameter;
+		_tmp45_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp44_);
+		_tmp46_ = _tmp45_;
+		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp46_, VALADOC_API_TYPE_CLASS)) {
 			gchar* return_type_desc = NULL;
-			ValadocApiItem* _tmp49_;
-			ValadocApiItem* _tmp50_;
-			gchar* _tmp51_;
-			gchar* _tmp52_;
-			ValadocApiTypeParameter* _tmp53_;
-			const gchar* _tmp54_;
-			const gchar* _tmp55_;
+			ValadocApiItem* _tmp47_;
+			ValadocApiItem* _tmp48_;
+			gchar* _tmp49_;
+			gchar* _tmp50_;
+			ValadocApiTypeParameter* _tmp51_;
+			const gchar* _tmp52_;
+			const gchar* _tmp53_;
+			gchar* _tmp54_;
+			gchar* _tmp55_;
 			gchar* _tmp56_;
 			gchar* _tmp57_;
-			gchar* _tmp58_;
-			gchar* _tmp59_;
+			GtkdocGComment* _tmp58_;
+			const gchar* _tmp59_;
 			GtkdocGComment* _tmp60_;
 			const gchar* _tmp61_;
-			GtkdocGComment* _tmp62_;
-			const gchar* _tmp63_;
-			gchar* _tmp64_;
-			_tmp49_ = valadoc_api_item_get_parent ((ValadocApiItem*) d);
+			gchar* _tmp62_;
+			_tmp47_ = valadoc_api_item_get_parent ((ValadocApiItem*) d);
+			_tmp48_ = _tmp47_;
+			_tmp49_ = gtkdoc_get_cname (_tmp48_);
 			_tmp50_ = _tmp49_;
-			_tmp51_ = gtkdoc_get_cname (_tmp50_);
-			_tmp52_ = _tmp51_;
-			_tmp53_ = type_parameter;
-			_tmp54_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp53_);
+			_tmp51_ = type_parameter;
+			_tmp52_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp51_);
+			_tmp53_ = _tmp52_;
+			_tmp54_ = g_ascii_strdown (_tmp53_, (gssize) -1);
 			_tmp55_ = _tmp54_;
-			_tmp56_ = g_utf8_strdown (_tmp55_, (gssize) -1);
+			_tmp56_ = g_strdup_printf ("A value from type #%s:%s-type.", _tmp50_, _tmp55_);
 			_tmp57_ = _tmp56_;
-			_tmp58_ = g_strdup_printf ("A value from type #%s:%s-type.", _tmp52_, _tmp57_);
-			_tmp59_ = _tmp58_;
-			_g_free0 (_tmp57_);
-			_g_free0 (_tmp52_);
-			return_type_desc = _tmp59_;
+			_g_free0 (_tmp55_);
+			_g_free0 (_tmp50_);
+			return_type_desc = _tmp57_;
+			_tmp58_ = gcomment;
+			_tmp59_ = return_type_desc;
 			_tmp60_ = gcomment;
-			_tmp61_ = return_type_desc;
-			_tmp62_ = gcomment;
-			_tmp63_ = _tmp62_->returns;
-			_tmp64_ = gtkdoc_generator_combine_inline_docs (self, _tmp61_, _tmp63_);
-			_g_free0 (_tmp60_->returns);
-			_tmp60_->returns = _tmp64_;
+			_tmp61_ = _tmp60_->returns;
+			_tmp62_ = gtkdoc_generator_combine_inline_docs (self, _tmp59_, _tmp61_);
+			_g_free0 (_tmp58_->returns);
+			_tmp58_->returns = _tmp62_;
 			_g_free0 (return_type_desc);
 		} else {
-			gboolean _tmp65_ = FALSE;
-			ValadocApiTypeParameter* _tmp66_;
-			ValadocApiItem* _tmp67_;
-			ValadocApiItem* _tmp68_;
-			_tmp66_ = type_parameter;
-			_tmp67_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp66_);
-			_tmp68_ = _tmp67_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp68_, VALADOC_API_TYPE_INTERFACE)) {
-				ValadocApiTypeParameter* _tmp69_;
-				ValadocApiItem* _tmp70_;
-				ValadocApiItem* _tmp71_;
-				ValadocApiAttribute* _tmp72_;
-				ValadocApiAttribute* _tmp73_;
-				_tmp69_ = type_parameter;
-				_tmp70_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp69_);
+			gboolean _tmp63_ = FALSE;
+			ValadocApiTypeParameter* _tmp64_;
+			ValadocApiItem* _tmp65_;
+			ValadocApiItem* _tmp66_;
+			_tmp64_ = type_parameter;
+			_tmp65_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp64_);
+			_tmp66_ = _tmp65_;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp66_, VALADOC_API_TYPE_INTERFACE)) {
+				ValadocApiTypeParameter* _tmp67_;
+				ValadocApiItem* _tmp68_;
+				ValadocApiItem* _tmp69_;
+				ValadocApiAttribute* _tmp70_;
+				ValadocApiAttribute* _tmp71_;
+				_tmp67_ = type_parameter;
+				_tmp68_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp67_);
+				_tmp69_ = _tmp68_;
+				_tmp70_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp69_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
 				_tmp71_ = _tmp70_;
-				_tmp72_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp71_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
-				_tmp73_ = _tmp72_;
-				_tmp65_ = _tmp73_ != NULL;
-				_g_object_unref0 (_tmp73_);
+				_tmp63_ = _tmp71_ != NULL;
+				_g_object_unref0 (_tmp71_);
 			} else {
-				_tmp65_ = FALSE;
+				_tmp63_ = FALSE;
 			}
-			if (_tmp65_) {
+			if (_tmp63_) {
 				gchar* return_type_desc = NULL;
-				ValadocApiItem* _tmp74_;
-				ValadocApiItem* _tmp75_;
-				gchar* _tmp76_;
-				gchar* _tmp77_;
-				ValadocApiTypeParameter* _tmp78_;
-				const gchar* _tmp79_;
-				const gchar* _tmp80_;
+				ValadocApiItem* _tmp72_;
+				ValadocApiItem* _tmp73_;
+				gchar* _tmp74_;
+				gchar* _tmp75_;
+				ValadocApiTypeParameter* _tmp76_;
+				const gchar* _tmp77_;
+				const gchar* _tmp78_;
+				gchar* _tmp79_;
+				gchar* _tmp80_;
 				gchar* _tmp81_;
 				gchar* _tmp82_;
-				gchar* _tmp83_;
-				gchar* _tmp84_;
+				GtkdocGComment* _tmp83_;
+				const gchar* _tmp84_;
 				GtkdocGComment* _tmp85_;
 				const gchar* _tmp86_;
-				GtkdocGComment* _tmp87_;
-				const gchar* _tmp88_;
-				gchar* _tmp89_;
-				_tmp74_ = valadoc_api_item_get_parent ((ValadocApiItem*) d);
+				gchar* _tmp87_;
+				_tmp72_ = valadoc_api_item_get_parent ((ValadocApiItem*) d);
+				_tmp73_ = _tmp72_;
+				_tmp74_ = gtkdoc_get_cname (_tmp73_);
 				_tmp75_ = _tmp74_;
-				_tmp76_ = gtkdoc_get_cname (_tmp75_);
-				_tmp77_ = _tmp76_;
-				_tmp78_ = type_parameter;
-				_tmp79_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp78_);
+				_tmp76_ = type_parameter;
+				_tmp77_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp76_);
+				_tmp78_ = _tmp77_;
+				_tmp79_ = g_ascii_strdown (_tmp78_, (gssize) -1);
 				_tmp80_ = _tmp79_;
-				_tmp81_ = g_utf8_strdown (_tmp80_, (gssize) -1);
+				_tmp81_ = g_strdup_printf ("A value from type #_%sIface.get_%s_type().", _tmp75_, _tmp80_);
 				_tmp82_ = _tmp81_;
-				_tmp83_ = g_strdup_printf ("A value from type #_%sIface.get_%s_type().", _tmp77_, _tmp82_);
-				_tmp84_ = _tmp83_;
-				_g_free0 (_tmp82_);
-				_g_free0 (_tmp77_);
-				return_type_desc = _tmp84_;
+				_g_free0 (_tmp80_);
+				_g_free0 (_tmp75_);
+				return_type_desc = _tmp82_;
+				_tmp83_ = gcomment;
+				_tmp84_ = return_type_desc;
 				_tmp85_ = gcomment;
-				_tmp86_ = return_type_desc;
-				_tmp87_ = gcomment;
-				_tmp88_ = _tmp87_->returns;
-				_tmp89_ = gtkdoc_generator_combine_inline_docs (self, _tmp86_, _tmp88_);
-				_g_free0 (_tmp85_->returns);
-				_tmp85_->returns = _tmp89_;
+				_tmp86_ = _tmp85_->returns;
+				_tmp87_ = gtkdoc_generator_combine_inline_docs (self, _tmp84_, _tmp86_);
+				_g_free0 (_tmp83_->returns);
+				_tmp83_->returns = _tmp87_;
 				_g_free0 (return_type_desc);
 			}
 		}
 	}
-	_tmp90_ = gcomment;
-	gtkdoc_generator_process_attributes (self, (ValadocApiSymbol*) d, _tmp90_);
-	_tmp91_ = old_headers;
-	_tmp92_ = _vala_iterable_ref0 (_tmp91_);
+	_tmp88_ = gcomment;
+	gtkdoc_generator_process_attributes (self, (ValadocApiSymbol*) d, _tmp88_);
+	_tmp89_ = old_headers;
+	_tmp90_ = _vala_iterable_ref0 (_tmp89_);
 	_vala_iterable_unref0 (self->priv->current_headers);
-	self->priv->current_headers = _tmp92_;
-	_tmp93_ = old_delegate;
-	_tmp94_ = _g_object_ref0 (_tmp93_);
+	self->priv->current_headers = _tmp90_;
+	_tmp91_ = old_delegate;
+	_tmp92_ = _g_object_ref0 (_tmp91_);
 	_g_object_unref0 (self->priv->current_delegate);
-	self->priv->current_delegate = _tmp94_;
+	self->priv->current_delegate = _tmp92_;
 	_g_object_unref0 (type_parameter);
 	_gtkdoc_gcomment_unref0 (gcomment);
 	_vala_iterable_unref0 (exceptions);
@@ -5701,23 +5627,21 @@ gtkdoc_generator_real_visit_delegate (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 }
 
-
 static gpointer
 _gtkdoc_dbus_member_ref0 (gpointer self)
 {
 	return self ? gtkdoc_dbus_member_ref (self) : NULL;
 }
 
-
 static gchar*
 string_replace (const gchar* self,
                 const gchar* old,
                 const gchar* replacement)
 {
-	gchar* result = NULL;
 	gboolean _tmp0_ = FALSE;
 	gboolean _tmp1_ = FALSE;
-	GError * _inner_error_ = NULL;
+	GError* _inner_error0_ = NULL;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (old != NULL, NULL);
 	g_return_val_if_fail (replacement != NULL, NULL);
@@ -5749,29 +5673,31 @@ string_replace (const gchar* self,
 		gchar* _tmp10_;
 		_tmp3_ = g_regex_escape_string (old, -1);
 		_tmp4_ = _tmp3_;
-		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error_);
+		_tmp5_ = g_regex_new (_tmp4_, 0, 0, &_inner_error0_);
 		_tmp6_ = _tmp5_;
 		_g_free0 (_tmp4_);
 		regex = _tmp6_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch9_g_regex_error;
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (_tmp7_);
+			_g_regex_unref0 (regex);
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp8_ = regex;
-		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error_);
+		_tmp9_ = g_regex_replace_literal (_tmp8_, self, (gssize) -1, 0, replacement, 0, &_inner_error0_);
 		_tmp7_ = _tmp9_;
-		if (G_UNLIKELY (_inner_error_ != NULL)) {
+		if (G_UNLIKELY (_inner_error0_ != NULL)) {
+			_g_free0 (_tmp7_);
 			_g_regex_unref0 (regex);
-			if (_inner_error_->domain == G_REGEX_ERROR) {
-				goto __catch9_g_regex_error;
+			if (_inner_error0_->domain == G_REGEX_ERROR) {
+				goto __catch0_g_regex_error;
 			}
-			_g_regex_unref0 (regex);
-			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-			g_clear_error (&_inner_error_);
+			g_critical ("file %s: line %d: unexpected error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+			g_clear_error (&_inner_error0_);
 			return NULL;
 		}
 		_tmp10_ = _tmp7_;
@@ -5781,23 +5707,17 @@ string_replace (const gchar* self,
 		_g_regex_unref0 (regex);
 		return result;
 	}
-	goto __finally9;
-	__catch9_g_regex_error:
+	goto __finally0;
+	__catch0_g_regex_error:
 	{
-		GError* e = NULL;
-		e = _inner_error_;
-		_inner_error_ = NULL;
+		g_clear_error (&_inner_error0_);
 		g_assert_not_reached ();
-		_g_error_free0 (e);
 	}
-	__finally9:
-	if (G_UNLIKELY (_inner_error_ != NULL)) {
-		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
-		g_clear_error (&_inner_error_);
-		return NULL;
-	}
+	__finally0:
+	g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error0_->message, g_quark_to_string (_inner_error0_->domain), _inner_error0_->code);
+	g_clear_error (&_inner_error0_);
+	return NULL;
 }
-
 
 static void
 gtkdoc_generator_real_visit_signal (ValadocApiVisitor* base,
@@ -5975,7 +5895,7 @@ gtkdoc_generator_real_visit_signal (ValadocApiVisitor* base,
 		_tmp51_ = _tmp50_;
 		_tmp52_ = valadoc_api_node_get_documentation ((ValadocApiNode*) sig);
 		_tmp53_ = _tmp52_;
-		_tmp54_ = gtkdoc_generator_create_gcomment (self, _tmp51_, _tmp53_, NULL, 0, TRUE);
+		_tmp54_ = gtkdoc_generator_create_gcomment (self, _tmp51_, _tmp53_, NULL, (gint) 0, TRUE);
 		_tmp55_ = _tmp54_;
 		_g_free0 (_tmp51_);
 		dbuscomment = _tmp55_;
@@ -6030,7 +5950,7 @@ gtkdoc_generator_real_visit_signal (ValadocApiVisitor* base,
 			_tmp75_ = type_parameter;
 			_tmp76_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp75_);
 			_tmp77_ = _tmp76_;
-			_tmp78_ = g_utf8_strdown (_tmp77_, (gssize) -1);
+			_tmp78_ = g_ascii_strdown (_tmp77_, (gssize) -1);
 			_tmp79_ = _tmp78_;
 			_tmp80_ = g_strdup_printf ("A value from type #%s:%s-type.", _tmp74_, _tmp79_);
 			_tmp81_ = _tmp80_;
@@ -6096,7 +6016,7 @@ gtkdoc_generator_real_visit_signal (ValadocApiVisitor* base,
 				_tmp101_ = type_parameter;
 				_tmp102_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp101_);
 				_tmp103_ = _tmp102_;
-				_tmp104_ = g_utf8_strdown (_tmp103_, (gssize) -1);
+				_tmp104_ = g_ascii_strdown (_tmp103_, (gssize) -1);
 				_tmp105_ = _tmp104_;
 				_tmp106_ = g_strdup_printf ("A value from type #_%sIface.get_%s_type().", _tmp100_, _tmp105_);
 				_tmp107_ = _tmp106_;
@@ -6136,11 +6056,10 @@ gtkdoc_generator_real_visit_signal (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 }
 
-
 static void
 _vala_array_add20 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -6150,12 +6069,11 @@ _vala_array_add20 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add21 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -6165,28 +6083,29 @@ _vala_array_add21 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static gchar**
 _vala_array_dup10 (gchar** self,
-                   int length)
+                   gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 _vala_array_add22 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -6196,44 +6115,47 @@ _vala_array_add22 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static gchar**
 _vala_array_dup11 (gchar** self,
-                   int length)
+                   gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static gchar**
 _vala_array_dup12 (gchar** self,
-                   int length)
+                   gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 _vala_array_add23 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -6244,22 +6166,23 @@ _vala_array_add23 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static gchar**
 _vala_array_dup13 (gchar** self,
-                   int length)
+                   gint length)
 {
-	gchar** result;
-	int i;
-	result = g_new0 (gchar*, length + 1);
-	for (i = 0; i < length; i++) {
-		gchar* _tmp0_;
-		_tmp0_ = g_strdup (self[i]);
-		result[i] = _tmp0_;
+	if (length >= 0) {
+		gchar** result;
+		gint i;
+		result = g_new0 (gchar*, length + 1);
+		for (i = 0; i < length; i++) {
+			gchar* _tmp0_;
+			_tmp0_ = g_strdup (self[i]);
+			result[i] = _tmp0_;
+		}
+		return result;
 	}
-	return result;
+	return NULL;
 }
-
 
 static void
 gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
@@ -6280,65 +6203,65 @@ gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
 	ValadocApiTypeReference* _tmp24_;
 	ValadocApiTypeReference* _tmp25_;
 	ValaList* old_headers = NULL;
-	ValaList* _tmp38_;
-	ValaList* _tmp39_;
+	ValaList* _tmp36_;
+	ValaList* _tmp37_;
 	ValadocApiMethod* old_method = NULL;
-	ValadocApiMethod* _tmp40_;
-	ValadocApiMethod* _tmp41_;
+	ValadocApiMethod* _tmp38_;
+	ValadocApiMethod* _tmp39_;
 	GtkdocDBusMember* old_dbus_member = NULL;
-	GtkdocDBusMember* _tmp42_;
-	GtkdocDBusMember* _tmp43_;
-	GEqualFunc _tmp44_;
-	ValaArrayList* _tmp45_;
-	ValadocApiMethod* _tmp46_;
-	gboolean _tmp47_ = FALSE;
-	gboolean _tmp48_ = FALSE;
-	GtkdocDBusInterface* _tmp49_;
-	gboolean _tmp57_ = FALSE;
-	gboolean _tmp58_;
-	gboolean _tmp59_;
-	gboolean _tmp70_;
-	gboolean _tmp71_;
+	GtkdocDBusMember* _tmp40_;
+	GtkdocDBusMember* _tmp41_;
+	GEqualFunc _tmp42_;
+	ValaArrayList* _tmp43_;
+	ValadocApiMethod* _tmp44_;
+	gboolean _tmp45_ = FALSE;
+	gboolean _tmp46_ = FALSE;
+	GtkdocDBusInterface* _tmp47_;
+	gboolean _tmp55_ = FALSE;
+	gboolean _tmp56_;
+	gboolean _tmp57_;
+	gboolean _tmp68_;
+	gboolean _tmp69_;
 	ValaList* type_parameters = NULL;
-	ValaList* _tmp113_;
-	ValadocApiNodeType* _tmp155_;
-	ValadocApiNodeType* _tmp156_;
-	gint _tmp156__length1;
+	ValaList* _tmp109_;
+	ValadocApiNodeType* _tmp149_;
+	ValadocApiNodeType* _tmp150_;
+	gint _tmp150__length1;
 	ValaList* exceptions = NULL;
-	ValadocApiNodeType* _tmp157_;
-	ValadocApiNodeType* _tmp158_;
-	gint _tmp158__length1;
-	ValaList* _tmp159_;
-	ValaList* _tmp160_;
+	ValadocApiNodeType* _tmp151_;
+	ValadocApiNodeType* _tmp152_;
+	gint _tmp152__length1;
+	ValaList* _tmp153_;
+	ValaList* _tmp154_;
 	GtkdocHeader* error_header = NULL;
 	GtkdocGComment* gcomment = NULL;
-	gboolean _tmp173_;
-	gboolean _tmp174_;
-	GtkdocGComment* _tmp210_;
-	GtkdocHeader* _tmp211_;
-	GtkdocHeader* _tmp212_;
-	gboolean _tmp213_ = FALSE;
-	gboolean _tmp214_ = FALSE;
-	GtkdocDBusInterface* _tmp215_;
-	ValaList* _tmp248_;
-	ValaList* _tmp249_;
-	ValadocApiMethod* _tmp250_;
-	ValadocApiMethod* _tmp251_;
-	GtkdocDBusMember* _tmp252_;
-	GtkdocDBusMember* _tmp253_;
+	gboolean _tmp165_;
+	gboolean _tmp166_;
+	GtkdocGComment* _tmp201_;
+	GtkdocHeader* _tmp202_;
+	GtkdocHeader* _tmp203_;
+	gboolean _tmp204_ = FALSE;
+	gboolean _tmp205_ = FALSE;
+	GtkdocDBusInterface* _tmp206_;
+	ValaList* _tmp239_;
+	ValaList* _tmp240_;
+	ValadocApiMethod* _tmp241_;
+	ValadocApiMethod* _tmp242_;
+	GtkdocDBusMember* _tmp243_;
+	GtkdocDBusMember* _tmp244_;
 	gchar* return_type_desc = NULL;
 	ValadocApiTypeParameter* type_parameter = NULL;
-	ValadocApiTypeReference* _tmp254_;
-	ValadocApiTypeReference* _tmp255_;
-	ValadocApiItem* _tmp256_;
-	ValadocApiItem* _tmp257_;
-	ValadocApiTypeParameter* _tmp258_;
-	ValadocApiTypeParameter* _tmp259_;
-	gboolean _tmp304_;
-	gboolean _tmp305_;
-	gboolean _tmp356_ = FALSE;
-	gboolean _tmp357_;
-	gboolean _tmp358_;
+	ValadocApiTypeReference* _tmp245_;
+	ValadocApiTypeReference* _tmp246_;
+	ValadocApiItem* _tmp247_;
+	ValadocApiItem* _tmp248_;
+	ValadocApiTypeParameter* _tmp249_;
+	ValadocApiTypeParameter* _tmp250_;
+	gboolean _tmp295_;
+	gboolean _tmp296_;
+	gboolean _tmp346_ = FALSE;
+	gboolean _tmp347_;
+	gboolean _tmp348_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (m != NULL);
 	_tmp5_ = valadoc_api_method_get_is_constructor (m);
@@ -6422,230 +6345,218 @@ gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
 		ValadocApiTypeReference* _tmp27_;
 		ValadocApiItem* _tmp28_;
 		ValadocApiItem* _tmp29_;
+		ValadocApiTypeReference* _tmp31_;
 		ValadocApiTypeReference* _tmp32_;
-		ValadocApiTypeReference* _tmp33_;
+		gboolean _tmp33_;
 		gboolean _tmp34_;
-		gboolean _tmp35_;
 		_tmp26_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
 		_tmp27_ = _tmp26_;
 		_tmp28_ = valadoc_api_typereference_get_data_type (_tmp27_);
 		_tmp29_ = _tmp28_;
 		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp29_, VALADOC_API_TYPE_ARRAY)) {
-			gchar** _tmp30_;
-			gint _tmp30__length1;
-			gchar* _tmp31_;
-			_tmp30_ = annotations;
-			_tmp30__length1 = annotations_length1;
-			_tmp31_ = g_strdup ("array length=result_length1");
-			_vala_array_add20 (&annotations, &annotations_length1, &_annotations_size_, _tmp31_);
+			gchar* _tmp30_;
+			_tmp30_ = g_strdup ("array length=result_length1");
+			_vala_array_add20 (&annotations, &annotations_length1, &_annotations_size_, _tmp30_);
 		}
-		_tmp32_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
-		_tmp33_ = _tmp32_;
-		_tmp34_ = valadoc_api_typereference_get_is_unowned (_tmp33_);
-		_tmp35_ = _tmp34_;
-		if (_tmp35_) {
-			gchar** _tmp36_;
-			gint _tmp36__length1;
-			gchar* _tmp37_;
-			_tmp36_ = annotations;
-			_tmp36__length1 = annotations_length1;
-			_tmp37_ = g_strdup ("transfer none");
-			_vala_array_add21 (&annotations, &annotations_length1, &_annotations_size_, _tmp37_);
+		_tmp31_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
+		_tmp32_ = _tmp31_;
+		_tmp33_ = valadoc_api_typereference_get_is_unowned (_tmp32_);
+		_tmp34_ = _tmp33_;
+		if (_tmp34_) {
+			gchar* _tmp35_;
+			_tmp35_ = g_strdup ("transfer none");
+			_vala_array_add21 (&annotations, &annotations_length1, &_annotations_size_, _tmp35_);
 		}
 	}
-	_tmp38_ = self->priv->current_headers;
-	_tmp39_ = _vala_iterable_ref0 (_tmp38_);
-	old_headers = _tmp39_;
-	_tmp40_ = self->priv->current_method;
-	_tmp41_ = _g_object_ref0 (_tmp40_);
-	old_method = _tmp41_;
-	_tmp42_ = self->priv->current_dbus_member;
-	_tmp43_ = _gtkdoc_dbus_member_ref0 (_tmp42_);
-	old_dbus_member = _tmp43_;
-	_tmp44_ = g_direct_equal;
-	_tmp45_ = vala_array_list_new (GTKDOC_TYPE_HEADER, (GBoxedCopyFunc) gtkdoc_header_ref, (GDestroyNotify) gtkdoc_header_unref, _tmp44_);
+	_tmp36_ = self->priv->current_headers;
+	_tmp37_ = _vala_iterable_ref0 (_tmp36_);
+	old_headers = _tmp37_;
+	_tmp38_ = self->priv->current_method;
+	_tmp39_ = _g_object_ref0 (_tmp38_);
+	old_method = _tmp39_;
+	_tmp40_ = self->priv->current_dbus_member;
+	_tmp41_ = _gtkdoc_dbus_member_ref0 (_tmp40_);
+	old_dbus_member = _tmp41_;
+	_tmp42_ = g_direct_equal;
+	_tmp43_ = vala_array_list_new (GTKDOC_TYPE_HEADER, (GBoxedCopyFunc) gtkdoc_header_ref, (GDestroyNotify) gtkdoc_header_unref, _tmp42_);
 	_vala_iterable_unref0 (self->priv->current_headers);
-	self->priv->current_headers = (ValaList*) _tmp45_;
-	_tmp46_ = _g_object_ref0 (m);
+	self->priv->current_headers = (ValaList*) _tmp43_;
+	_tmp44_ = _g_object_ref0 (m);
 	_g_object_unref0 (self->priv->current_method);
-	self->priv->current_method = _tmp46_;
+	self->priv->current_method = _tmp44_;
 	_gtkdoc_dbus_member_unref0 (self->priv->current_dbus_member);
 	self->priv->current_dbus_member = NULL;
-	_tmp49_ = self->priv->current_dbus_interface;
-	if (_tmp49_ != NULL) {
+	_tmp47_ = self->priv->current_dbus_interface;
+	if (_tmp47_ != NULL) {
+		gboolean _tmp48_;
+		gboolean _tmp49_;
+		_tmp48_ = valadoc_api_method_get_is_dbus_visible (m);
+		_tmp49_ = _tmp48_;
+		_tmp46_ = _tmp49_;
+	} else {
+		_tmp46_ = FALSE;
+	}
+	if (_tmp46_) {
 		gboolean _tmp50_;
 		gboolean _tmp51_;
-		_tmp50_ = valadoc_api_method_get_is_dbus_visible (m);
+		_tmp50_ = valadoc_api_method_get_is_constructor (m);
 		_tmp51_ = _tmp50_;
-		_tmp48_ = _tmp51_;
+		_tmp45_ = !_tmp51_;
 	} else {
-		_tmp48_ = FALSE;
+		_tmp45_ = FALSE;
 	}
-	if (_tmp48_) {
-		gboolean _tmp52_;
-		gboolean _tmp53_;
-		_tmp52_ = valadoc_api_method_get_is_constructor (m);
+	if (_tmp45_) {
+		gchar* _tmp52_;
+		gchar* _tmp53_;
+		GtkdocDBusMember* _tmp54_;
+		_tmp52_ = valadoc_api_method_get_dbus_name (m);
 		_tmp53_ = _tmp52_;
-		_tmp47_ = !_tmp53_;
-	} else {
-		_tmp47_ = FALSE;
-	}
-	if (_tmp47_) {
-		gchar* _tmp54_;
-		gchar* _tmp55_;
-		GtkdocDBusMember* _tmp56_;
-		_tmp54_ = valadoc_api_method_get_dbus_name (m);
-		_tmp55_ = _tmp54_;
-		_tmp56_ = gtkdoc_dbus_member_new (_tmp55_);
+		_tmp54_ = gtkdoc_dbus_member_new (_tmp53_);
 		_gtkdoc_dbus_member_unref0 (self->priv->current_dbus_member);
-		self->priv->current_dbus_member = _tmp56_;
-		_g_free0 (_tmp55_);
+		self->priv->current_dbus_member = _tmp54_;
+		_g_free0 (_tmp53_);
 	}
-	_tmp58_ = valadoc_api_method_get_is_static (m);
-	_tmp59_ = _tmp58_;
-	if (!_tmp59_) {
-		gboolean _tmp60_;
-		gboolean _tmp61_;
-		_tmp60_ = valadoc_api_method_get_is_constructor (m);
-		_tmp61_ = _tmp60_;
-		_tmp57_ = !_tmp61_;
+	_tmp56_ = valadoc_api_method_get_is_static (m);
+	_tmp57_ = _tmp56_;
+	if (!_tmp57_) {
+		gboolean _tmp58_;
+		gboolean _tmp59_;
+		_tmp58_ = valadoc_api_method_get_is_constructor (m);
+		_tmp59_ = _tmp58_;
+		_tmp55_ = !_tmp59_;
 	} else {
-		_tmp57_ = FALSE;
+		_tmp55_ = FALSE;
 	}
-	if (_tmp57_) {
-		ValadocApiItem* _tmp62_;
-		ValadocApiItem* _tmp63_;
+	if (_tmp55_) {
+		ValadocApiItem* _tmp60_;
+		ValadocApiItem* _tmp61_;
+		gchar* _tmp62_;
+		gchar* _tmp63_;
 		gchar* _tmp64_;
 		gchar* _tmp65_;
-		gchar* _tmp66_;
-		gchar* _tmp67_;
-		GtkdocHeader* _tmp68_;
-		GtkdocHeader* _tmp69_;
-		_tmp62_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+		GtkdocHeader* _tmp66_;
+		GtkdocHeader* _tmp67_;
+		_tmp60_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+		_tmp61_ = _tmp60_;
+		_tmp62_ = gtkdoc_get_docbook_link (_tmp61_, FALSE, FALSE);
 		_tmp63_ = _tmp62_;
-		_tmp64_ = gtkdoc_get_docbook_link (_tmp63_, FALSE, FALSE);
+		_tmp64_ = g_strdup_printf ("the %s instance", _tmp63_);
 		_tmp65_ = _tmp64_;
-		_tmp66_ = g_strdup_printf ("the %s instance", _tmp65_);
+		_tmp66_ = gtkdoc_generator_add_custom_header (self, "self", _tmp65_, NULL, (gint) 0, 0.1, TRUE);
 		_tmp67_ = _tmp66_;
-		_tmp68_ = gtkdoc_generator_add_custom_header (self, "self", _tmp67_, NULL, 0, 0.1, TRUE);
-		_tmp69_ = _tmp68_;
-		_gtkdoc_header_unref0 (_tmp69_);
-		_g_free0 (_tmp67_);
+		_gtkdoc_header_unref0 (_tmp67_);
 		_g_free0 (_tmp65_);
+		_g_free0 (_tmp63_);
 	}
-	_tmp70_ = valadoc_api_method_get_is_constructor (m);
-	_tmp71_ = _tmp70_;
-	if (_tmp71_) {
+	_tmp68_ = valadoc_api_method_get_is_constructor (m);
+	_tmp69_ = _tmp68_;
+	if (_tmp69_) {
 		ValaList* type_parameters = NULL;
-		ValadocApiItem* _tmp72_;
-		ValadocApiItem* _tmp73_;
-		ValaList* _tmp74_;
-		_tmp72_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
-		_tmp73_ = _tmp72_;
-		_tmp74_ = valadoc_api_node_get_children_by_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp73_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
-		type_parameters = _tmp74_;
+		ValadocApiItem* _tmp70_;
+		ValadocApiItem* _tmp71_;
+		ValaList* _tmp72_;
+		_tmp70_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+		_tmp71_ = _tmp70_;
+		_tmp72_ = valadoc_api_node_get_children_by_type (G_TYPE_CHECK_INSTANCE_CAST (_tmp71_, VALADOC_API_TYPE_NODE, ValadocApiNode), VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
+		type_parameters = _tmp72_;
 		{
 			ValaList* __type_list = NULL;
-			ValaList* _tmp75_;
-			ValaList* _tmp76_;
+			ValaList* _tmp73_;
+			ValaList* _tmp74_;
 			gint __type_size = 0;
-			ValaList* _tmp77_;
-			gint _tmp78_;
-			gint _tmp79_;
+			ValaList* _tmp75_;
+			gint _tmp76_;
+			gint _tmp77_;
 			gint __type_index = 0;
-			_tmp75_ = type_parameters;
-			_tmp76_ = _vala_iterable_ref0 (_tmp75_);
-			__type_list = _tmp76_;
-			_tmp77_ = __type_list;
-			_tmp78_ = vala_collection_get_size ((ValaCollection*) _tmp77_);
-			_tmp79_ = _tmp78_;
-			__type_size = _tmp79_;
+			_tmp73_ = type_parameters;
+			_tmp74_ = _vala_iterable_ref0 (_tmp73_);
+			__type_list = _tmp74_;
+			_tmp75_ = __type_list;
+			_tmp76_ = vala_collection_get_size ((ValaCollection*) _tmp75_);
+			_tmp77_ = _tmp76_;
+			__type_size = _tmp77_;
 			__type_index = -1;
 			while (TRUE) {
-				gint _tmp80_;
-				gint _tmp81_;
-				gint _tmp82_;
+				gint _tmp78_;
+				gint _tmp79_;
 				ValadocApiNode* _type = NULL;
-				ValaList* _tmp83_;
-				gint _tmp84_;
-				gpointer _tmp85_;
+				ValaList* _tmp80_;
+				gpointer _tmp81_;
 				ValadocApiTypeParameter* type = NULL;
-				ValadocApiNode* _tmp86_;
-				ValadocApiTypeParameter* _tmp87_;
+				ValadocApiNode* _tmp82_;
+				ValadocApiTypeParameter* _tmp83_;
 				gchar* type_name_down = NULL;
-				ValadocApiTypeParameter* _tmp88_;
-				const gchar* _tmp89_;
-				const gchar* _tmp90_;
-				gchar* _tmp91_;
-				const gchar* _tmp92_;
-				gchar* _tmp93_;
+				ValadocApiTypeParameter* _tmp84_;
+				const gchar* _tmp85_;
+				const gchar* _tmp86_;
+				gchar* _tmp87_;
+				const gchar* _tmp88_;
+				gchar* _tmp89_;
+				gchar* _tmp90_;
+				GtkdocHeader* _tmp91_;
+				GtkdocHeader* _tmp92_;
+				const gchar* _tmp93_;
 				gchar* _tmp94_;
-				GtkdocHeader* _tmp95_;
-				GtkdocHeader* _tmp96_;
-				const gchar* _tmp97_;
+				gchar* _tmp95_;
+				const gchar* _tmp96_;
+				gchar* _tmp97_;
 				gchar* _tmp98_;
-				gchar* _tmp99_;
-				const gchar* _tmp100_;
-				gchar* _tmp101_;
+				GtkdocHeader* _tmp99_;
+				GtkdocHeader* _tmp100_;
+				const gchar* _tmp101_;
 				gchar* _tmp102_;
-				GtkdocHeader* _tmp103_;
-				GtkdocHeader* _tmp104_;
-				const gchar* _tmp105_;
+				gchar* _tmp103_;
+				const gchar* _tmp104_;
+				gchar* _tmp105_;
 				gchar* _tmp106_;
-				gchar* _tmp107_;
-				const gchar* _tmp108_;
-				gchar* _tmp109_;
-				gchar* _tmp110_;
-				GtkdocHeader* _tmp111_;
-				GtkdocHeader* _tmp112_;
-				_tmp80_ = __type_index;
-				__type_index = _tmp80_ + 1;
-				_tmp81_ = __type_index;
-				_tmp82_ = __type_size;
-				if (!(_tmp81_ < _tmp82_)) {
+				GtkdocHeader* _tmp107_;
+				GtkdocHeader* _tmp108_;
+				__type_index = __type_index + 1;
+				_tmp78_ = __type_index;
+				_tmp79_ = __type_size;
+				if (!(_tmp78_ < _tmp79_)) {
 					break;
 				}
-				_tmp83_ = __type_list;
-				_tmp84_ = __type_index;
-				_tmp85_ = vala_list_get (_tmp83_, _tmp84_);
-				_type = (ValadocApiNode*) _tmp85_;
-				_tmp86_ = _type;
-				_tmp87_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp86_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp86_) : NULL);
-				type = _tmp87_;
-				_tmp88_ = type;
-				_tmp89_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp88_);
+				_tmp80_ = __type_list;
+				_tmp81_ = vala_list_get (_tmp80_, __type_index);
+				_type = (ValadocApiNode*) _tmp81_;
+				_tmp82_ = _type;
+				_tmp83_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp82_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp82_) : NULL);
+				type = _tmp83_;
+				_tmp84_ = type;
+				_tmp85_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp84_);
+				_tmp86_ = _tmp85_;
+				_tmp87_ = g_ascii_strdown (_tmp86_, (gssize) -1);
+				type_name_down = _tmp87_;
+				_tmp88_ = type_name_down;
+				_tmp89_ = g_strconcat (_tmp88_, "_type", NULL);
 				_tmp90_ = _tmp89_;
-				_tmp91_ = g_utf8_strdown (_tmp90_, (gssize) -1);
-				type_name_down = _tmp91_;
-				_tmp92_ = type_name_down;
-				_tmp93_ = g_strconcat (_tmp92_, "_type", NULL);
-				_tmp94_ = _tmp93_;
-				_tmp95_ = gtkdoc_generator_add_custom_header (self, _tmp94_, "A #GType", NULL, 0, DBL_MAX, TRUE);
-				_tmp96_ = _tmp95_;
-				_gtkdoc_header_unref0 (_tmp96_);
-				_g_free0 (_tmp94_);
-				_tmp97_ = type_name_down;
-				_tmp98_ = g_strconcat (_tmp97_, "_dup_func", NULL);
-				_tmp99_ = _tmp98_;
-				_tmp100_ = type_name_down;
-				_tmp101_ = g_strdup_printf ("A dup function for @%s_type", _tmp100_);
-				_tmp102_ = _tmp101_;
-				_tmp103_ = gtkdoc_generator_add_custom_header (self, _tmp99_, _tmp102_, NULL, 0, DBL_MAX, TRUE);
-				_tmp104_ = _tmp103_;
-				_gtkdoc_header_unref0 (_tmp104_);
-				_g_free0 (_tmp102_);
-				_g_free0 (_tmp99_);
-				_tmp105_ = type_name_down;
-				_tmp106_ = g_strconcat (_tmp105_, "_destroy_func", NULL);
-				_tmp107_ = _tmp106_;
-				_tmp108_ = type_name_down;
-				_tmp109_ = g_strdup_printf ("A destroy function for @%s_type", _tmp108_);
-				_tmp110_ = _tmp109_;
-				_tmp111_ = gtkdoc_generator_add_custom_header (self, _tmp107_, _tmp110_, NULL, 0, DBL_MAX, TRUE);
-				_tmp112_ = _tmp111_;
-				_gtkdoc_header_unref0 (_tmp112_);
-				_g_free0 (_tmp110_);
-				_g_free0 (_tmp107_);
+				_tmp91_ = gtkdoc_generator_add_custom_header (self, _tmp90_, "A #GType", NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp92_ = _tmp91_;
+				_gtkdoc_header_unref0 (_tmp92_);
+				_g_free0 (_tmp90_);
+				_tmp93_ = type_name_down;
+				_tmp94_ = g_strconcat (_tmp93_, "_dup_func", NULL);
+				_tmp95_ = _tmp94_;
+				_tmp96_ = type_name_down;
+				_tmp97_ = g_strdup_printf ("A dup function for @%s_type", _tmp96_);
+				_tmp98_ = _tmp97_;
+				_tmp99_ = gtkdoc_generator_add_custom_header (self, _tmp95_, _tmp98_, NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp100_ = _tmp99_;
+				_gtkdoc_header_unref0 (_tmp100_);
+				_g_free0 (_tmp98_);
+				_g_free0 (_tmp95_);
+				_tmp101_ = type_name_down;
+				_tmp102_ = g_strconcat (_tmp101_, "_destroy_func", NULL);
+				_tmp103_ = _tmp102_;
+				_tmp104_ = type_name_down;
+				_tmp105_ = g_strdup_printf ("A destroy function for @%s_type", _tmp104_);
+				_tmp106_ = _tmp105_;
+				_tmp107_ = gtkdoc_generator_add_custom_header (self, _tmp103_, _tmp106_, NULL, (gint) 0, DBL_MAX, TRUE);
+				_tmp108_ = _tmp107_;
+				_gtkdoc_header_unref0 (_tmp108_);
+				_g_free0 (_tmp106_);
+				_g_free0 (_tmp103_);
 				_g_free0 (type_name_down);
 				_g_object_unref0 (type);
 				_g_object_unref0 (_type);
@@ -6654,732 +6565,716 @@ gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
 		}
 		_vala_iterable_unref0 (type_parameters);
 	}
-	_tmp113_ = valadoc_api_node_get_children_by_type ((ValadocApiNode*) m, VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
-	type_parameters = _tmp113_;
+	_tmp109_ = valadoc_api_node_get_children_by_type ((ValadocApiNode*) m, VALADOC_API_NODE_TYPE_TYPE_PARAMETER, FALSE);
+	type_parameters = _tmp109_;
 	{
 		ValaList* __type_list = NULL;
-		ValaList* _tmp114_;
-		ValaList* _tmp115_;
+		ValaList* _tmp110_;
+		ValaList* _tmp111_;
 		gint __type_size = 0;
-		ValaList* _tmp116_;
-		gint _tmp117_;
-		gint _tmp118_;
+		ValaList* _tmp112_;
+		gint _tmp113_;
+		gint _tmp114_;
 		gint __type_index = 0;
-		_tmp114_ = type_parameters;
-		_tmp115_ = _vala_iterable_ref0 (_tmp114_);
-		__type_list = _tmp115_;
-		_tmp116_ = __type_list;
-		_tmp117_ = vala_collection_get_size ((ValaCollection*) _tmp116_);
-		_tmp118_ = _tmp117_;
-		__type_size = _tmp118_;
+		_tmp110_ = type_parameters;
+		_tmp111_ = _vala_iterable_ref0 (_tmp110_);
+		__type_list = _tmp111_;
+		_tmp112_ = __type_list;
+		_tmp113_ = vala_collection_get_size ((ValaCollection*) _tmp112_);
+		_tmp114_ = _tmp113_;
+		__type_size = _tmp114_;
 		__type_index = -1;
 		while (TRUE) {
-			gint _tmp119_;
-			gint _tmp120_;
-			gint _tmp121_;
+			gint _tmp115_;
+			gint _tmp116_;
 			ValadocApiNode* _type = NULL;
-			ValaList* _tmp122_;
-			gint _tmp123_;
-			gpointer _tmp124_;
+			ValaList* _tmp117_;
+			gpointer _tmp118_;
 			ValadocApiTypeParameter* type = NULL;
-			ValadocApiNode* _tmp125_;
-			ValadocApiTypeParameter* _tmp126_;
+			ValadocApiNode* _tmp119_;
+			ValadocApiTypeParameter* _tmp120_;
 			gchar* type_name_down = NULL;
-			ValadocApiTypeParameter* _tmp127_;
+			ValadocApiTypeParameter* _tmp121_;
+			const gchar* _tmp122_;
+			const gchar* _tmp123_;
+			gchar* _tmp124_;
+			const gchar* _tmp125_;
+			gchar* _tmp126_;
+			gchar* _tmp127_;
 			const gchar* _tmp128_;
-			const gchar* _tmp129_;
+			gchar* _tmp129_;
 			gchar* _tmp130_;
-			const gchar* _tmp131_;
-			gchar* _tmp132_;
-			gchar* _tmp133_;
-			const gchar* _tmp134_;
+			GtkdocHeader* _tmp131_;
+			GtkdocHeader* _tmp132_;
+			const gchar* _tmp133_;
+			gchar* _tmp134_;
 			gchar* _tmp135_;
-			gchar* _tmp136_;
-			GtkdocHeader* _tmp137_;
-			GtkdocHeader* _tmp138_;
-			const gchar* _tmp139_;
-			gchar* _tmp140_;
-			gchar* _tmp141_;
-			const gchar* _tmp142_;
+			const gchar* _tmp136_;
+			gchar* _tmp137_;
+			gchar* _tmp138_;
+			GtkdocHeader* _tmp139_;
+			GtkdocHeader* _tmp140_;
+			const gchar* _tmp141_;
+			gchar* _tmp142_;
 			gchar* _tmp143_;
-			gchar* _tmp144_;
-			GtkdocHeader* _tmp145_;
-			GtkdocHeader* _tmp146_;
-			const gchar* _tmp147_;
-			gchar* _tmp148_;
-			gchar* _tmp149_;
-			const gchar* _tmp150_;
-			gchar* _tmp151_;
-			gchar* _tmp152_;
-			GtkdocHeader* _tmp153_;
-			GtkdocHeader* _tmp154_;
-			_tmp119_ = __type_index;
-			__type_index = _tmp119_ + 1;
-			_tmp120_ = __type_index;
-			_tmp121_ = __type_size;
-			if (!(_tmp120_ < _tmp121_)) {
+			const gchar* _tmp144_;
+			gchar* _tmp145_;
+			gchar* _tmp146_;
+			GtkdocHeader* _tmp147_;
+			GtkdocHeader* _tmp148_;
+			__type_index = __type_index + 1;
+			_tmp115_ = __type_index;
+			_tmp116_ = __type_size;
+			if (!(_tmp115_ < _tmp116_)) {
 				break;
 			}
-			_tmp122_ = __type_list;
-			_tmp123_ = __type_index;
-			_tmp124_ = vala_list_get (_tmp122_, _tmp123_);
-			_type = (ValadocApiNode*) _tmp124_;
-			_tmp125_ = _type;
-			_tmp126_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp125_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp125_) : NULL);
-			type = _tmp126_;
-			_tmp127_ = type;
-			_tmp128_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp127_);
-			_tmp129_ = _tmp128_;
-			_tmp130_ = g_utf8_strdown (_tmp129_, (gssize) -1);
-			type_name_down = _tmp130_;
-			_tmp131_ = type_name_down;
-			_tmp132_ = g_strconcat (_tmp131_, "_type", NULL);
-			_tmp133_ = _tmp132_;
-			_tmp134_ = type_name_down;
-			_tmp135_ = g_strdup_printf ("The #GType for @%s", _tmp134_);
-			_tmp136_ = _tmp135_;
-			_tmp137_ = gtkdoc_generator_add_custom_header (self, _tmp133_, _tmp136_, NULL, 0, 0.2, TRUE);
+			_tmp117_ = __type_list;
+			_tmp118_ = vala_list_get (_tmp117_, __type_index);
+			_type = (ValadocApiNode*) _tmp118_;
+			_tmp119_ = _type;
+			_tmp120_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp119_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp119_) : NULL);
+			type = _tmp120_;
+			_tmp121_ = type;
+			_tmp122_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp121_);
+			_tmp123_ = _tmp122_;
+			_tmp124_ = g_ascii_strdown (_tmp123_, (gssize) -1);
+			type_name_down = _tmp124_;
+			_tmp125_ = type_name_down;
+			_tmp126_ = g_strconcat (_tmp125_, "_type", NULL);
+			_tmp127_ = _tmp126_;
+			_tmp128_ = type_name_down;
+			_tmp129_ = g_strdup_printf ("The #GType for @%s", _tmp128_);
+			_tmp130_ = _tmp129_;
+			_tmp131_ = gtkdoc_generator_add_custom_header (self, _tmp127_, _tmp130_, NULL, (gint) 0, 0.2, TRUE);
+			_tmp132_ = _tmp131_;
+			_gtkdoc_header_unref0 (_tmp132_);
+			_g_free0 (_tmp130_);
+			_g_free0 (_tmp127_);
+			_tmp133_ = type_name_down;
+			_tmp134_ = g_strconcat (_tmp133_, "_dup_func", NULL);
+			_tmp135_ = _tmp134_;
+			_tmp136_ = type_name_down;
+			_tmp137_ = g_strdup_printf ("A dup function for @%s_type", _tmp136_);
 			_tmp138_ = _tmp137_;
-			_gtkdoc_header_unref0 (_tmp138_);
-			_g_free0 (_tmp136_);
-			_g_free0 (_tmp133_);
-			_tmp139_ = type_name_down;
-			_tmp140_ = g_strconcat (_tmp139_, "_dup_func", NULL);
-			_tmp141_ = _tmp140_;
-			_tmp142_ = type_name_down;
-			_tmp143_ = g_strdup_printf ("A dup function for @%s_type", _tmp142_);
-			_tmp144_ = _tmp143_;
-			_tmp145_ = gtkdoc_generator_add_custom_header (self, _tmp141_, _tmp144_, NULL, 0, 0.3, TRUE);
+			_tmp139_ = gtkdoc_generator_add_custom_header (self, _tmp135_, _tmp138_, NULL, (gint) 0, 0.3, TRUE);
+			_tmp140_ = _tmp139_;
+			_gtkdoc_header_unref0 (_tmp140_);
+			_g_free0 (_tmp138_);
+			_g_free0 (_tmp135_);
+			_tmp141_ = type_name_down;
+			_tmp142_ = g_strconcat (_tmp141_, "_destroy_func", NULL);
+			_tmp143_ = _tmp142_;
+			_tmp144_ = type_name_down;
+			_tmp145_ = g_strdup_printf ("A destroy function for @%s_type", _tmp144_);
 			_tmp146_ = _tmp145_;
-			_gtkdoc_header_unref0 (_tmp146_);
-			_g_free0 (_tmp144_);
-			_g_free0 (_tmp141_);
-			_tmp147_ = type_name_down;
-			_tmp148_ = g_strconcat (_tmp147_, "_destroy_func", NULL);
-			_tmp149_ = _tmp148_;
-			_tmp150_ = type_name_down;
-			_tmp151_ = g_strdup_printf ("A destroy function for @%s_type", _tmp150_);
-			_tmp152_ = _tmp151_;
-			_tmp153_ = gtkdoc_generator_add_custom_header (self, _tmp149_, _tmp152_, NULL, 0, 0.4, TRUE);
-			_tmp154_ = _tmp153_;
-			_gtkdoc_header_unref0 (_tmp154_);
-			_g_free0 (_tmp152_);
-			_g_free0 (_tmp149_);
+			_tmp147_ = gtkdoc_generator_add_custom_header (self, _tmp143_, _tmp146_, NULL, (gint) 0, 0.4, TRUE);
+			_tmp148_ = _tmp147_;
+			_gtkdoc_header_unref0 (_tmp148_);
+			_g_free0 (_tmp146_);
+			_g_free0 (_tmp143_);
 			_g_free0 (type_name_down);
 			_g_object_unref0 (type);
 			_g_object_unref0 (_type);
 		}
 		_vala_iterable_unref0 (__type_list);
 	}
-	_tmp155_ = g_new0 (ValadocApiNodeType, 2);
-	_tmp155_[0] = VALADOC_API_NODE_TYPE_FORMAL_PARAMETER;
-	_tmp155_[1] = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
-	_tmp156_ = _tmp155_;
-	_tmp156__length1 = 2;
-	valadoc_api_node_accept_children ((ValadocApiNode*) m, _tmp156_, 2, (ValadocApiVisitor*) self, TRUE);
-	_tmp156_ = (g_free (_tmp156_), NULL);
-	_tmp157_ = g_new0 (ValadocApiNodeType, 2);
-	_tmp157_[0] = VALADOC_API_NODE_TYPE_ERROR_DOMAIN;
-	_tmp157_[1] = VALADOC_API_NODE_TYPE_CLASS;
-	_tmp158_ = _tmp157_;
-	_tmp158__length1 = 2;
-	_tmp159_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) m, _tmp158_, 2, TRUE);
-	_tmp160_ = _tmp159_;
-	_tmp158_ = (g_free (_tmp158_), NULL);
-	exceptions = _tmp160_;
+	_tmp149_ = g_new0 (ValadocApiNodeType, 2);
+	_tmp149_[0] = VALADOC_API_NODE_TYPE_FORMAL_PARAMETER;
+	_tmp149_[1] = VALADOC_API_NODE_TYPE_TYPE_PARAMETER;
+	_tmp150_ = _tmp149_;
+	_tmp150__length1 = 2;
+	valadoc_api_node_accept_children ((ValadocApiNode*) m, _tmp150_, (gint) 2, (ValadocApiVisitor*) self, TRUE);
+	_tmp150_ = (g_free (_tmp150_), NULL);
+	_tmp151_ = g_new0 (ValadocApiNodeType, 2);
+	_tmp151_[0] = VALADOC_API_NODE_TYPE_ERROR_DOMAIN;
+	_tmp151_[1] = VALADOC_API_NODE_TYPE_CLASS;
+	_tmp152_ = _tmp151_;
+	_tmp152__length1 = 2;
+	_tmp153_ = valadoc_api_node_get_children_by_types ((ValadocApiNode*) m, _tmp152_, (gint) 2, TRUE);
+	_tmp154_ = _tmp153_;
+	_tmp152_ = (g_free (_tmp152_), NULL);
+	exceptions = _tmp154_;
 	{
 		ValaList* _ex_list = NULL;
-		ValaList* _tmp161_;
-		ValaList* _tmp162_;
+		ValaList* _tmp155_;
+		ValaList* _tmp156_;
 		gint _ex_size = 0;
-		ValaList* _tmp163_;
-		gint _tmp164_;
-		gint _tmp165_;
+		ValaList* _tmp157_;
+		gint _tmp158_;
+		gint _tmp159_;
 		gint _ex_index = 0;
-		_tmp161_ = exceptions;
-		_tmp162_ = _vala_iterable_ref0 (_tmp161_);
-		_ex_list = _tmp162_;
-		_tmp163_ = _ex_list;
-		_tmp164_ = vala_collection_get_size ((ValaCollection*) _tmp163_);
-		_tmp165_ = _tmp164_;
-		_ex_size = _tmp165_;
+		_tmp155_ = exceptions;
+		_tmp156_ = _vala_iterable_ref0 (_tmp155_);
+		_ex_list = _tmp156_;
+		_tmp157_ = _ex_list;
+		_tmp158_ = vala_collection_get_size ((ValaCollection*) _tmp157_);
+		_tmp159_ = _tmp158_;
+		_ex_size = _tmp159_;
 		_ex_index = -1;
 		while (TRUE) {
-			gint _tmp166_;
-			gint _tmp167_;
-			gint _tmp168_;
+			gint _tmp160_;
+			gint _tmp161_;
 			ValadocApiNode* ex = NULL;
-			ValaList* _tmp169_;
-			gint _tmp170_;
-			gpointer _tmp171_;
-			ValadocApiNode* _tmp172_;
-			_tmp166_ = _ex_index;
-			_ex_index = _tmp166_ + 1;
-			_tmp167_ = _ex_index;
-			_tmp168_ = _ex_size;
-			if (!(_tmp167_ < _tmp168_)) {
+			ValaList* _tmp162_;
+			gpointer _tmp163_;
+			ValadocApiNode* _tmp164_;
+			_ex_index = _ex_index + 1;
+			_tmp160_ = _ex_index;
+			_tmp161_ = _ex_size;
+			if (!(_tmp160_ < _tmp161_)) {
 				break;
 			}
-			_tmp169_ = _ex_list;
-			_tmp170_ = _ex_index;
-			_tmp171_ = vala_list_get (_tmp169_, _tmp170_);
-			ex = (ValadocApiNode*) _tmp171_;
-			_tmp172_ = ex;
-			gtkdoc_generator_visit_thrown_error_domain (self, _tmp172_);
+			_tmp162_ = _ex_list;
+			_tmp163_ = vala_list_get (_tmp162_, _ex_index);
+			ex = (ValadocApiNode*) _tmp163_;
+			_tmp164_ = ex;
+			gtkdoc_generator_visit_thrown_error_domain (self, _tmp164_);
 			_g_object_unref0 (ex);
 		}
 		_vala_iterable_unref0 (_ex_list);
 	}
 	error_header = NULL;
 	gcomment = NULL;
-	_tmp173_ = valadoc_api_method_get_is_yields (m);
-	_tmp174_ = _tmp173_;
-	if (_tmp174_) {
-		gchar* _tmp175_;
-		gchar** _tmp176_;
-		gchar** _tmp177_;
-		gint _tmp177__length1;
-		GtkdocHeader* _tmp178_;
-		GtkdocHeader* _tmp179_;
+	_tmp165_ = valadoc_api_method_get_is_yields (m);
+	_tmp166_ = _tmp165_;
+	if (_tmp166_) {
+		gchar* _tmp167_;
+		gchar** _tmp168_;
+		gchar** _tmp169_;
+		gint _tmp169__length1;
+		GtkdocHeader* _tmp170_;
+		GtkdocHeader* _tmp171_;
+		gchar* _tmp172_;
+		gchar** _tmp173_;
+		gchar** _tmp174_;
+		gint _tmp174__length1;
+		GtkdocHeader* _tmp175_;
+		GtkdocHeader* _tmp176_;
+		GtkdocHeader* _tmp177_;
+		gchar* _tmp178_;
+		gchar* _tmp179_;
 		gchar* _tmp180_;
-		gchar** _tmp181_;
-		gchar** _tmp182_;
-		gint _tmp182__length1;
-		GtkdocHeader* _tmp183_;
-		GtkdocHeader* _tmp184_;
-		GtkdocHeader* _tmp185_;
-		gchar* _tmp186_;
-		gchar* _tmp187_;
-		gchar* _tmp188_;
-		gchar* _tmp189_;
-		ValadocContentComment* _tmp190_;
-		ValadocContentComment* _tmp191_;
-		GtkdocGComment* _tmp192_;
-		GtkdocGComment* _tmp193_;
+		gchar* _tmp181_;
+		ValadocContentComment* _tmp182_;
+		ValadocContentComment* _tmp183_;
+		GtkdocGComment* _tmp184_;
+		GtkdocGComment* _tmp185_;
 		gchar** see_also = NULL;
-		GtkdocGComment* _tmp194_;
-		gchar** _tmp195_;
-		gint _tmp195__length1;
-		gchar** _tmp196_;
-		gint _tmp196__length1;
+		GtkdocGComment* _tmp186_;
+		gchar** _tmp187_;
+		gint _tmp187__length1;
+		gchar** _tmp188_;
+		gint _tmp188__length1;
 		gint see_also_length1;
 		gint _see_also_size_;
-		gchar** _tmp197_;
-		gint _tmp197__length1;
-		gchar* _tmp198_;
-		GtkdocGComment* _tmp199_;
-		gchar** _tmp200_;
-		gint _tmp200__length1;
-		gchar** _tmp201_;
-		gint _tmp201__length1;
-		_tmp175_ = g_strdup ("scope async");
-		_tmp176_ = g_new0 (gchar*, 1 + 1);
-		_tmp176_[0] = _tmp175_;
-		_tmp177_ = _tmp176_;
-		_tmp177__length1 = 1;
-		_tmp178_ = gtkdoc_generator_add_custom_header (self, "_callback_", "callback to call when the request is satisfied", _tmp177_, 1, DBL_MAX, TRUE);
-		_tmp179_ = _tmp178_;
-		_gtkdoc_header_unref0 (_tmp179_);
-		_tmp177_ = (_vala_array_free (_tmp177_, _tmp177__length1, (GDestroyNotify) g_free), NULL);
-		_tmp180_ = g_strdup ("closure");
-		_tmp181_ = g_new0 (gchar*, 1 + 1);
-		_tmp181_[0] = _tmp180_;
-		_tmp182_ = _tmp181_;
-		_tmp182__length1 = 1;
-		_tmp183_ = gtkdoc_generator_add_custom_header (self, "_user_data_", "the data to pass to @_callback_ function", _tmp182_, 1, DBL_MAX, TRUE);
-		_tmp184_ = _tmp183_;
-		_gtkdoc_header_unref0 (_tmp184_);
-		_tmp182_ = (_vala_array_free (_tmp182_, _tmp182__length1, (GDestroyNotify) g_free), NULL);
-		_tmp185_ = gtkdoc_generator_remove_custom_header (self, "error");
+		gchar* _tmp189_;
+		GtkdocGComment* _tmp190_;
+		gchar** _tmp191_;
+		gint _tmp191__length1;
+		gchar** _tmp192_;
+		gint _tmp192__length1;
+		_tmp167_ = g_strdup ("scope async");
+		_tmp168_ = g_new0 (gchar*, 1 + 1);
+		_tmp168_[0] = _tmp167_;
+		_tmp169_ = _tmp168_;
+		_tmp169__length1 = 1;
+		_tmp170_ = gtkdoc_generator_add_custom_header (self, "_callback_", "callback to call when the request is satisfied", _tmp169_, (gint) 1, DBL_MAX, TRUE);
+		_tmp171_ = _tmp170_;
+		_gtkdoc_header_unref0 (_tmp171_);
+		_tmp169_ = (_vala_array_free (_tmp169_, _tmp169__length1, (GDestroyNotify) g_free), NULL);
+		_tmp172_ = g_strdup ("closure");
+		_tmp173_ = g_new0 (gchar*, 1 + 1);
+		_tmp173_[0] = _tmp172_;
+		_tmp174_ = _tmp173_;
+		_tmp174__length1 = 1;
+		_tmp175_ = gtkdoc_generator_add_custom_header (self, "_user_data_", "the data to pass to @_callback_ function", _tmp174_, (gint) 1, DBL_MAX, TRUE);
+		_tmp176_ = _tmp175_;
+		_gtkdoc_header_unref0 (_tmp176_);
+		_tmp174_ = (_vala_array_free (_tmp174_, _tmp174__length1, (GDestroyNotify) g_free), NULL);
+		_tmp177_ = gtkdoc_generator_remove_custom_header (self, "error");
 		_gtkdoc_header_unref0 (error_header);
-		error_header = _tmp185_;
-		_tmp186_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
-		_tmp187_ = _tmp186_;
-		_tmp188_ = valadoc_api_method_get_cname (m);
-		_tmp189_ = _tmp188_;
-		_tmp190_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
-		_tmp191_ = _tmp190_;
-		_tmp192_ = gtkdoc_generator_add_symbol (self, _tmp187_, _tmp189_, _tmp191_, NULL, NULL, 0);
+		error_header = _tmp177_;
+		_tmp178_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
+		_tmp179_ = _tmp178_;
+		_tmp180_ = valadoc_api_method_get_cname (m);
+		_tmp181_ = _tmp180_;
+		_tmp182_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
+		_tmp183_ = _tmp182_;
+		_tmp184_ = gtkdoc_generator_add_symbol (self, _tmp179_, _tmp181_, _tmp183_, NULL, NULL, (gint) 0);
 		_gtkdoc_gcomment_unref0 (gcomment);
-		gcomment = _tmp192_;
-		_g_free0 (_tmp189_);
-		_g_free0 (_tmp187_);
-		_tmp193_ = gcomment;
-		_g_free0 (_tmp193_->returns);
-		_tmp193_->returns = NULL;
-		_tmp194_ = gcomment;
-		_tmp195_ = _tmp194_->see_also;
-		_tmp195__length1 = _tmp194_->see_also_length1;
-		_tmp196_ = (_tmp195_ != NULL) ? _vala_array_dup10 (_tmp195_, _tmp195__length1) : ((gpointer) _tmp195_);
-		_tmp196__length1 = _tmp195__length1;
-		see_also = _tmp196_;
-		see_also_length1 = _tmp196__length1;
+		gcomment = _tmp184_;
+		_g_free0 (_tmp181_);
+		_g_free0 (_tmp179_);
+		_tmp185_ = gcomment;
+		_g_free0 (_tmp185_->returns);
+		_tmp185_->returns = NULL;
+		_tmp186_ = gcomment;
+		_tmp187_ = _tmp186_->see_also;
+		_tmp187__length1 = _tmp186_->see_also_length1;
+		_tmp188_ = (_tmp187_ != NULL) ? _vala_array_dup10 (_tmp187_, _tmp187__length1) : ((gpointer) _tmp187_);
+		_tmp188__length1 = _tmp187__length1;
+		see_also = _tmp188_;
+		see_also_length1 = _tmp188__length1;
 		_see_also_size_ = see_also_length1;
-		_tmp197_ = see_also;
-		_tmp197__length1 = see_also_length1;
-		_tmp198_ = gtkdoc_get_docbook_link ((ValadocApiItem*) m, FALSE, TRUE);
-		_vala_array_add22 (&see_also, &see_also_length1, &_see_also_size_, _tmp198_);
-		_tmp199_ = gcomment;
-		_tmp200_ = see_also;
-		_tmp200__length1 = see_also_length1;
-		_tmp201_ = (_tmp200_ != NULL) ? _vala_array_dup11 (_tmp200_, _tmp200__length1) : ((gpointer) _tmp200_);
-		_tmp201__length1 = _tmp200__length1;
-		_tmp199_->see_also = (_vala_array_free (_tmp199_->see_also, _tmp199_->see_also_length1, (GDestroyNotify) g_free), NULL);
-		_tmp199_->see_also = _tmp201_;
-		_tmp199_->see_also_length1 = _tmp201__length1;
+		_tmp189_ = gtkdoc_get_docbook_link ((ValadocApiItem*) m, FALSE, TRUE);
+		_vala_array_add22 (&see_also, &see_also_length1, &_see_also_size_, _tmp189_);
+		_tmp190_ = gcomment;
+		_tmp191_ = see_also;
+		_tmp191__length1 = see_also_length1;
+		_tmp192_ = (_tmp191_ != NULL) ? _vala_array_dup11 (_tmp191_, _tmp191__length1) : ((gpointer) _tmp191_);
+		_tmp192__length1 = _tmp191__length1;
+		_tmp190_->see_also = (_vala_array_free (_tmp190_->see_also, _tmp190_->see_also_length1, (GDestroyNotify) g_free), NULL);
+		_tmp190_->see_also = _tmp192_;
+		_tmp190_->see_also_length1 = _tmp192__length1;
 		see_also = (_vala_array_free (see_also, see_also_length1, (GDestroyNotify) g_free), NULL);
 	} else {
-		gchar* _tmp202_;
-		gchar* _tmp203_;
-		gchar* _tmp204_;
-		gchar* _tmp205_;
-		ValadocContentComment* _tmp206_;
-		ValadocContentComment* _tmp207_;
-		gchar** _tmp208_;
-		gint _tmp208__length1;
-		GtkdocGComment* _tmp209_;
-		_tmp202_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
-		_tmp203_ = _tmp202_;
-		_tmp204_ = valadoc_api_method_get_cname (m);
-		_tmp205_ = _tmp204_;
-		_tmp206_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
-		_tmp207_ = _tmp206_;
-		_tmp208_ = annotations;
-		_tmp208__length1 = annotations_length1;
-		_tmp209_ = gtkdoc_generator_add_symbol (self, _tmp203_, _tmp205_, _tmp207_, NULL, _tmp208_, _tmp208__length1);
+		gchar* _tmp193_;
+		gchar* _tmp194_;
+		gchar* _tmp195_;
+		gchar* _tmp196_;
+		ValadocContentComment* _tmp197_;
+		ValadocContentComment* _tmp198_;
+		gchar** _tmp199_;
+		gint _tmp199__length1;
+		GtkdocGComment* _tmp200_;
+		_tmp193_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
+		_tmp194_ = _tmp193_;
+		_tmp195_ = valadoc_api_method_get_cname (m);
+		_tmp196_ = _tmp195_;
+		_tmp197_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
+		_tmp198_ = _tmp197_;
+		_tmp199_ = annotations;
+		_tmp199__length1 = annotations_length1;
+		_tmp200_ = gtkdoc_generator_add_symbol (self, _tmp194_, _tmp196_, _tmp198_, NULL, _tmp199_, (gint) _tmp199__length1);
 		_gtkdoc_gcomment_unref0 (gcomment);
-		gcomment = _tmp209_;
-		_g_free0 (_tmp205_);
-		_g_free0 (_tmp203_);
+		gcomment = _tmp200_;
+		_g_free0 (_tmp196_);
+		_g_free0 (_tmp194_);
 	}
-	_tmp210_ = gcomment;
-	gtkdoc_generator_process_attributes (self, (ValadocApiSymbol*) m, _tmp210_);
-	_tmp211_ = gtkdoc_generator_remove_custom_header (self, "self");
-	_tmp212_ = _tmp211_;
-	_gtkdoc_header_unref0 (_tmp212_);
-	_tmp215_ = self->priv->current_dbus_interface;
-	if (_tmp215_ != NULL) {
-		gboolean _tmp216_;
-		gboolean _tmp217_;
-		_tmp216_ = valadoc_api_method_get_is_dbus_visible (m);
-		_tmp217_ = _tmp216_;
-		_tmp214_ = _tmp217_;
+	_tmp201_ = gcomment;
+	gtkdoc_generator_process_attributes (self, (ValadocApiSymbol*) m, _tmp201_);
+	_tmp202_ = gtkdoc_generator_remove_custom_header (self, "self");
+	_tmp203_ = _tmp202_;
+	_gtkdoc_header_unref0 (_tmp203_);
+	_tmp206_ = self->priv->current_dbus_interface;
+	if (_tmp206_ != NULL) {
+		gboolean _tmp207_;
+		gboolean _tmp208_;
+		_tmp207_ = valadoc_api_method_get_is_dbus_visible (m);
+		_tmp208_ = _tmp207_;
+		_tmp205_ = _tmp208_;
 	} else {
-		_tmp214_ = FALSE;
+		_tmp205_ = FALSE;
 	}
-	if (_tmp214_) {
-		gboolean _tmp218_;
-		gboolean _tmp219_;
-		_tmp218_ = valadoc_api_method_get_is_constructor (m);
-		_tmp219_ = _tmp218_;
-		_tmp213_ = !_tmp219_;
+	if (_tmp205_) {
+		gboolean _tmp209_;
+		gboolean _tmp210_;
+		_tmp209_ = valadoc_api_method_get_is_constructor (m);
+		_tmp210_ = _tmp209_;
+		_tmp204_ = !_tmp210_;
 	} else {
-		_tmp213_ = FALSE;
+		_tmp204_ = FALSE;
 	}
-	if (_tmp213_) {
-		gboolean _tmp220_ = FALSE;
-		ValadocApiTypeReference* _tmp221_;
-		ValadocApiTypeReference* _tmp222_;
+	if (_tmp204_) {
+		gboolean _tmp211_ = FALSE;
+		ValadocApiTypeReference* _tmp212_;
+		ValadocApiTypeReference* _tmp213_;
 		GtkdocGComment* dbus_gcomment = NULL;
-		gchar* _tmp237_;
-		gchar* _tmp238_;
-		ValadocContentComment* _tmp239_;
-		ValadocContentComment* _tmp240_;
-		GtkdocGComment* _tmp241_;
-		GtkdocGComment* _tmp242_;
-		GtkdocDBusMember* _tmp243_;
-		GtkdocGComment* _tmp244_;
-		GtkdocGComment* _tmp245_;
-		GtkdocDBusInterface* _tmp246_;
-		GtkdocDBusMember* _tmp247_;
-		_tmp221_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
-		_tmp222_ = _tmp221_;
-		if (_tmp222_ != NULL) {
-			ValadocApiTypeReference* _tmp223_;
-			ValadocApiTypeReference* _tmp224_;
-			ValadocApiItem* _tmp225_;
-			ValadocApiItem* _tmp226_;
-			_tmp223_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
-			_tmp224_ = _tmp223_;
-			_tmp225_ = valadoc_api_typereference_get_data_type (_tmp224_);
-			_tmp226_ = _tmp225_;
-			_tmp220_ = _tmp226_ != NULL;
+		gchar* _tmp228_;
+		gchar* _tmp229_;
+		ValadocContentComment* _tmp230_;
+		ValadocContentComment* _tmp231_;
+		GtkdocGComment* _tmp232_;
+		GtkdocGComment* _tmp233_;
+		GtkdocDBusMember* _tmp234_;
+		GtkdocGComment* _tmp235_;
+		GtkdocGComment* _tmp236_;
+		GtkdocDBusInterface* _tmp237_;
+		GtkdocDBusMember* _tmp238_;
+		_tmp212_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
+		_tmp213_ = _tmp212_;
+		if (_tmp213_ != NULL) {
+			ValadocApiTypeReference* _tmp214_;
+			ValadocApiTypeReference* _tmp215_;
+			ValadocApiItem* _tmp216_;
+			ValadocApiItem* _tmp217_;
+			_tmp214_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
+			_tmp215_ = _tmp214_;
+			_tmp216_ = valadoc_api_typereference_get_data_type (_tmp215_);
+			_tmp217_ = _tmp216_;
+			_tmp211_ = _tmp217_ != NULL;
 		} else {
-			_tmp220_ = FALSE;
+			_tmp211_ = FALSE;
 		}
-		if (_tmp220_) {
+		if (_tmp211_) {
 			GtkdocDBusParameter* dresult = NULL;
-			gchar* _tmp227_;
-			gchar* _tmp228_;
-			ValadocApiTypeReference* _tmp229_;
-			ValadocApiTypeReference* _tmp230_;
-			gchar* _tmp231_;
-			gchar* _tmp232_;
-			GtkdocDBusParameter* _tmp233_;
-			GtkdocDBusParameter* _tmp234_;
-			GtkdocDBusMember* _tmp235_;
-			GtkdocDBusParameter* _tmp236_;
-			_tmp227_ = valadoc_api_method_get_dbus_result_name (m);
-			_tmp228_ = _tmp227_;
-			_tmp229_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
-			_tmp230_ = _tmp229_;
-			_tmp231_ = valadoc_api_typereference_get_dbus_type_signature (_tmp230_);
-			_tmp232_ = _tmp231_;
-			_tmp233_ = gtkdoc_dbus_parameter_new (_tmp228_, _tmp232_, GTKDOC_DBUS_PARAMETER_DIRECTION_OUT);
-			_tmp234_ = _tmp233_;
-			_g_free0 (_tmp232_);
-			_g_free0 (_tmp228_);
-			dresult = _tmp234_;
-			_tmp235_ = self->priv->current_dbus_member;
-			_tmp236_ = dresult;
-			gtkdoc_dbus_member_add_parameter (_tmp235_, _tmp236_);
+			gchar* _tmp218_;
+			gchar* _tmp219_;
+			ValadocApiTypeReference* _tmp220_;
+			ValadocApiTypeReference* _tmp221_;
+			gchar* _tmp222_;
+			gchar* _tmp223_;
+			GtkdocDBusParameter* _tmp224_;
+			GtkdocDBusParameter* _tmp225_;
+			GtkdocDBusMember* _tmp226_;
+			GtkdocDBusParameter* _tmp227_;
+			_tmp218_ = valadoc_api_method_get_dbus_result_name (m);
+			_tmp219_ = _tmp218_;
+			_tmp220_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
+			_tmp221_ = _tmp220_;
+			_tmp222_ = valadoc_api_typereference_get_dbus_type_signature (_tmp221_);
+			_tmp223_ = _tmp222_;
+			_tmp224_ = gtkdoc_dbus_parameter_new (_tmp219_, _tmp223_, GTKDOC_DBUS_PARAMETER_DIRECTION_OUT);
+			_tmp225_ = _tmp224_;
+			_g_free0 (_tmp223_);
+			_g_free0 (_tmp219_);
+			dresult = _tmp225_;
+			_tmp226_ = self->priv->current_dbus_member;
+			_tmp227_ = dresult;
+			gtkdoc_dbus_member_add_parameter (_tmp226_, _tmp227_);
 			_gtkdoc_dbus_parameter_unref0 (dresult);
 		}
-		_tmp237_ = valadoc_api_method_get_dbus_name (m);
-		_tmp238_ = _tmp237_;
-		_tmp239_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
-		_tmp240_ = _tmp239_;
-		_tmp241_ = gtkdoc_generator_create_gcomment (self, _tmp238_, _tmp240_, NULL, 0, TRUE);
-		_tmp242_ = _tmp241_;
-		_g_free0 (_tmp238_);
-		dbus_gcomment = _tmp242_;
-		_tmp243_ = self->priv->current_dbus_member;
-		_tmp244_ = dbus_gcomment;
-		_tmp245_ = _gtkdoc_gcomment_ref0 (_tmp244_);
-		_gtkdoc_gcomment_unref0 (_tmp243_->comment);
-		_tmp243_->comment = _tmp245_;
-		_tmp246_ = self->priv->current_dbus_interface;
-		_tmp247_ = self->priv->current_dbus_member;
-		gtkdoc_dbus_interface_add_method (_tmp246_, _tmp247_);
+		_tmp228_ = valadoc_api_method_get_dbus_name (m);
+		_tmp229_ = _tmp228_;
+		_tmp230_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
+		_tmp231_ = _tmp230_;
+		_tmp232_ = gtkdoc_generator_create_gcomment (self, _tmp229_, _tmp231_, NULL, (gint) 0, TRUE);
+		_tmp233_ = _tmp232_;
+		_g_free0 (_tmp229_);
+		dbus_gcomment = _tmp233_;
+		_tmp234_ = self->priv->current_dbus_member;
+		_tmp235_ = dbus_gcomment;
+		_tmp236_ = _gtkdoc_gcomment_ref0 (_tmp235_);
+		_gtkdoc_gcomment_unref0 (_tmp234_->comment);
+		_tmp234_->comment = _tmp236_;
+		_tmp237_ = self->priv->current_dbus_interface;
+		_tmp238_ = self->priv->current_dbus_member;
+		gtkdoc_dbus_interface_add_method (_tmp237_, _tmp238_);
 		_gtkdoc_gcomment_unref0 (dbus_gcomment);
 	}
-	_tmp248_ = old_headers;
-	_tmp249_ = _vala_iterable_ref0 (_tmp248_);
+	_tmp239_ = old_headers;
+	_tmp240_ = _vala_iterable_ref0 (_tmp239_);
 	_vala_iterable_unref0 (self->priv->current_headers);
-	self->priv->current_headers = _tmp249_;
-	_tmp250_ = old_method;
-	_tmp251_ = _g_object_ref0 (_tmp250_);
+	self->priv->current_headers = _tmp240_;
+	_tmp241_ = old_method;
+	_tmp242_ = _g_object_ref0 (_tmp241_);
 	_g_object_unref0 (self->priv->current_method);
-	self->priv->current_method = _tmp251_;
-	_tmp252_ = old_dbus_member;
-	_tmp253_ = _gtkdoc_dbus_member_ref0 (_tmp252_);
+	self->priv->current_method = _tmp242_;
+	_tmp243_ = old_dbus_member;
+	_tmp244_ = _gtkdoc_dbus_member_ref0 (_tmp243_);
 	_gtkdoc_dbus_member_unref0 (self->priv->current_dbus_member);
-	self->priv->current_dbus_member = _tmp253_;
+	self->priv->current_dbus_member = _tmp244_;
 	return_type_desc = NULL;
-	_tmp254_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
-	_tmp255_ = _tmp254_;
-	_tmp256_ = valadoc_api_typereference_get_data_type (_tmp255_);
-	_tmp257_ = _tmp256_;
-	_tmp258_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp257_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp257_) : NULL);
-	type_parameter = _tmp258_;
-	_tmp259_ = type_parameter;
-	if (_tmp259_ != NULL) {
-		ValadocApiTypeParameter* _tmp260_;
-		ValadocApiItem* _tmp261_;
-		ValadocApiItem* _tmp262_;
-		_tmp260_ = type_parameter;
-		_tmp261_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp260_);
-		_tmp262_ = _tmp261_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp262_, VALADOC_API_TYPE_CLASS)) {
-			ValadocApiItem* _tmp263_;
-			ValadocApiItem* _tmp264_;
-			gchar* _tmp265_;
-			gchar* _tmp266_;
-			ValadocApiTypeParameter* _tmp267_;
-			const gchar* _tmp268_;
-			const gchar* _tmp269_;
-			gchar* _tmp270_;
-			gchar* _tmp271_;
-			gchar* _tmp272_;
-			_tmp263_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
-			_tmp264_ = _tmp263_;
-			_tmp265_ = gtkdoc_get_cname (_tmp264_);
-			_tmp266_ = _tmp265_;
-			_tmp267_ = type_parameter;
-			_tmp268_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp267_);
-			_tmp269_ = _tmp268_;
-			_tmp270_ = g_utf8_strdown (_tmp269_, (gssize) -1);
-			_tmp271_ = _tmp270_;
-			_tmp272_ = g_strdup_printf ("A value from type #%s:%s-type.", _tmp266_, _tmp271_);
+	_tmp245_ = valadoc_api_callable_get_return_type ((ValadocApiCallable*) m);
+	_tmp246_ = _tmp245_;
+	_tmp247_ = valadoc_api_typereference_get_data_type (_tmp246_);
+	_tmp248_ = _tmp247_;
+	_tmp249_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp248_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp248_) : NULL);
+	type_parameter = _tmp249_;
+	_tmp250_ = type_parameter;
+	if (_tmp250_ != NULL) {
+		ValadocApiTypeParameter* _tmp251_;
+		ValadocApiItem* _tmp252_;
+		ValadocApiItem* _tmp253_;
+		_tmp251_ = type_parameter;
+		_tmp252_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp251_);
+		_tmp253_ = _tmp252_;
+		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp253_, VALADOC_API_TYPE_CLASS)) {
+			ValadocApiItem* _tmp254_;
+			ValadocApiItem* _tmp255_;
+			gchar* _tmp256_;
+			gchar* _tmp257_;
+			ValadocApiTypeParameter* _tmp258_;
+			const gchar* _tmp259_;
+			const gchar* _tmp260_;
+			gchar* _tmp261_;
+			gchar* _tmp262_;
+			gchar* _tmp263_;
+			_tmp254_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+			_tmp255_ = _tmp254_;
+			_tmp256_ = gtkdoc_get_cname (_tmp255_);
+			_tmp257_ = _tmp256_;
+			_tmp258_ = type_parameter;
+			_tmp259_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp258_);
+			_tmp260_ = _tmp259_;
+			_tmp261_ = g_ascii_strdown (_tmp260_, (gssize) -1);
+			_tmp262_ = _tmp261_;
+			_tmp263_ = g_strdup_printf ("A value from type #%s:%s-type.", _tmp257_, _tmp262_);
 			_g_free0 (return_type_desc);
-			return_type_desc = _tmp272_;
-			_g_free0 (_tmp271_);
-			_g_free0 (_tmp266_);
+			return_type_desc = _tmp263_;
+			_g_free0 (_tmp262_);
+			_g_free0 (_tmp257_);
 		} else {
-			gboolean _tmp273_ = FALSE;
-			ValadocApiTypeParameter* _tmp274_;
-			ValadocApiItem* _tmp275_;
-			ValadocApiItem* _tmp276_;
-			_tmp274_ = type_parameter;
-			_tmp275_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp274_);
-			_tmp276_ = _tmp275_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp276_, VALADOC_API_TYPE_INTERFACE)) {
-				ValadocApiTypeParameter* _tmp277_;
-				ValadocApiItem* _tmp278_;
-				ValadocApiItem* _tmp279_;
-				ValadocApiAttribute* _tmp280_;
-				ValadocApiAttribute* _tmp281_;
-				_tmp277_ = type_parameter;
-				_tmp278_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp277_);
-				_tmp279_ = _tmp278_;
-				_tmp280_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp279_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
-				_tmp281_ = _tmp280_;
-				_tmp273_ = _tmp281_ != NULL;
-				_g_object_unref0 (_tmp281_);
+			gboolean _tmp264_ = FALSE;
+			ValadocApiTypeParameter* _tmp265_;
+			ValadocApiItem* _tmp266_;
+			ValadocApiItem* _tmp267_;
+			_tmp265_ = type_parameter;
+			_tmp266_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp265_);
+			_tmp267_ = _tmp266_;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp267_, VALADOC_API_TYPE_INTERFACE)) {
+				ValadocApiTypeParameter* _tmp268_;
+				ValadocApiItem* _tmp269_;
+				ValadocApiItem* _tmp270_;
+				ValadocApiAttribute* _tmp271_;
+				ValadocApiAttribute* _tmp272_;
+				_tmp268_ = type_parameter;
+				_tmp269_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp268_);
+				_tmp270_ = _tmp269_;
+				_tmp271_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp270_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
+				_tmp272_ = _tmp271_;
+				_tmp264_ = _tmp272_ != NULL;
+				_g_object_unref0 (_tmp272_);
 			} else {
-				_tmp273_ = FALSE;
+				_tmp264_ = FALSE;
 			}
-			if (_tmp273_) {
-				ValadocApiItem* _tmp282_;
-				ValadocApiItem* _tmp283_;
-				gchar* _tmp284_;
-				gchar* _tmp285_;
-				ValadocApiTypeParameter* _tmp286_;
-				const gchar* _tmp287_;
-				const gchar* _tmp288_;
-				gchar* _tmp289_;
-				gchar* _tmp290_;
-				gchar* _tmp291_;
-				_tmp282_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
-				_tmp283_ = _tmp282_;
-				_tmp284_ = gtkdoc_get_cname (_tmp283_);
-				_tmp285_ = _tmp284_;
-				_tmp286_ = type_parameter;
-				_tmp287_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp286_);
-				_tmp288_ = _tmp287_;
-				_tmp289_ = g_utf8_strdown (_tmp288_, (gssize) -1);
-				_tmp290_ = _tmp289_;
-				_tmp291_ = g_strdup_printf ("A value from type #_%sIface.get_%s_type().", _tmp285_, _tmp290_);
+			if (_tmp264_) {
+				ValadocApiItem* _tmp273_;
+				ValadocApiItem* _tmp274_;
+				gchar* _tmp275_;
+				gchar* _tmp276_;
+				ValadocApiTypeParameter* _tmp277_;
+				const gchar* _tmp278_;
+				const gchar* _tmp279_;
+				gchar* _tmp280_;
+				gchar* _tmp281_;
+				gchar* _tmp282_;
+				_tmp273_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+				_tmp274_ = _tmp273_;
+				_tmp275_ = gtkdoc_get_cname (_tmp274_);
+				_tmp276_ = _tmp275_;
+				_tmp277_ = type_parameter;
+				_tmp278_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp277_);
+				_tmp279_ = _tmp278_;
+				_tmp280_ = g_ascii_strdown (_tmp279_, (gssize) -1);
+				_tmp281_ = _tmp280_;
+				_tmp282_ = g_strdup_printf ("A value from type #_%sIface.get_%s_type().", _tmp276_, _tmp281_);
 				_g_free0 (return_type_desc);
-				return_type_desc = _tmp291_;
-				_g_free0 (_tmp290_);
-				_g_free0 (_tmp285_);
+				return_type_desc = _tmp282_;
+				_g_free0 (_tmp281_);
+				_g_free0 (_tmp276_);
 			} else {
-				ValadocApiTypeParameter* _tmp292_;
-				ValadocApiItem* _tmp293_;
-				ValadocApiItem* _tmp294_;
-				_tmp292_ = type_parameter;
-				_tmp293_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp292_);
-				_tmp294_ = _tmp293_;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp294_, VALADOC_API_TYPE_STRUCT)) {
+				ValadocApiTypeParameter* _tmp283_;
+				ValadocApiItem* _tmp284_;
+				ValadocApiItem* _tmp285_;
+				_tmp283_ = type_parameter;
+				_tmp284_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp283_);
+				_tmp285_ = _tmp284_;
+				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp285_, VALADOC_API_TYPE_STRUCT)) {
 				} else {
-					ValadocApiTypeParameter* _tmp295_;
-					ValadocApiItem* _tmp296_;
-					ValadocApiItem* _tmp297_;
-					_tmp295_ = type_parameter;
-					_tmp296_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp295_);
-					_tmp297_ = _tmp296_;
-					if (_tmp297_ == G_TYPE_CHECK_INSTANCE_CAST (m, VALADOC_API_TYPE_ITEM, ValadocApiItem)) {
-						ValadocApiTypeParameter* _tmp298_;
-						const gchar* _tmp299_;
-						const gchar* _tmp300_;
-						gchar* _tmp301_;
-						gchar* _tmp302_;
-						gchar* _tmp303_;
-						_tmp298_ = type_parameter;
-						_tmp299_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp298_);
-						_tmp300_ = _tmp299_;
-						_tmp301_ = g_utf8_strdown (_tmp300_, (gssize) -1);
-						_tmp302_ = _tmp301_;
-						_tmp303_ = g_strdup_printf ("value from type @%s_type.", _tmp302_);
+					ValadocApiTypeParameter* _tmp286_;
+					ValadocApiItem* _tmp287_;
+					ValadocApiItem* _tmp288_;
+					_tmp286_ = type_parameter;
+					_tmp287_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp286_);
+					_tmp288_ = _tmp287_;
+					if (_tmp288_ == G_TYPE_CHECK_INSTANCE_CAST (m, VALADOC_API_TYPE_ITEM, ValadocApiItem)) {
+						ValadocApiTypeParameter* _tmp289_;
+						const gchar* _tmp290_;
+						const gchar* _tmp291_;
+						gchar* _tmp292_;
+						gchar* _tmp293_;
+						gchar* _tmp294_;
+						_tmp289_ = type_parameter;
+						_tmp290_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp289_);
+						_tmp291_ = _tmp290_;
+						_tmp292_ = g_ascii_strdown (_tmp291_, (gssize) -1);
+						_tmp293_ = _tmp292_;
+						_tmp294_ = g_strdup_printf ("value from type @%s_type.", _tmp293_);
 						_g_free0 (return_type_desc);
-						return_type_desc = _tmp303_;
-						_g_free0 (_tmp302_);
+						return_type_desc = _tmp294_;
+						_g_free0 (_tmp293_);
 					}
 				}
 			}
 		}
 	}
-	_tmp304_ = valadoc_api_method_get_is_yields (m);
-	_tmp305_ = _tmp304_;
-	if (_tmp305_) {
+	_tmp295_ = valadoc_api_method_get_is_yields (m);
+	_tmp296_ = _tmp295_;
+	if (_tmp296_) {
 		GtkdocGComment* finish_gcomment = NULL;
-		gchar* _tmp306_;
-		gchar* _tmp307_;
-		gchar* _tmp308_;
-		gchar* _tmp309_;
-		ValadocContentComment* _tmp310_;
-		ValadocContentComment* _tmp311_;
-		GtkdocGComment* _tmp312_;
-		GtkdocGComment* _tmp313_;
-		GtkdocGComment* _tmp314_;
-		ValaList* _tmp315_;
-		gboolean _tmp316_;
-		gboolean _tmp317_;
-		GtkdocGComment* _tmp328_;
-		ValaList* _tmp329_;
-		GtkdocHeader* _tmp330_;
-		GtkdocHeader* _tmp331_;
-		GtkdocHeader* _tmp332_;
+		gchar* _tmp297_;
+		gchar* _tmp298_;
+		gchar* _tmp299_;
+		gchar* _tmp300_;
+		ValadocContentComment* _tmp301_;
+		ValadocContentComment* _tmp302_;
+		GtkdocGComment* _tmp303_;
+		GtkdocGComment* _tmp304_;
+		GtkdocGComment* _tmp305_;
+		ValaList* _tmp306_;
+		gboolean _tmp307_;
+		gboolean _tmp308_;
+		GtkdocGComment* _tmp319_;
+		ValaList* _tmp320_;
+		GtkdocHeader* _tmp321_;
+		GtkdocHeader* _tmp322_;
+		GtkdocHeader* _tmp323_;
 		gchar** see_also = NULL;
-		GtkdocGComment* _tmp336_;
-		gchar** _tmp337_;
-		gint _tmp337__length1;
-		gchar** _tmp338_;
-		gint _tmp338__length1;
+		GtkdocGComment* _tmp327_;
+		gchar** _tmp328_;
+		gint _tmp328__length1;
+		gchar** _tmp329_;
+		gint _tmp329__length1;
 		gint see_also_length1;
 		gint _see_also_size_;
-		gchar** _tmp339_;
-		gint _tmp339__length1;
-		gchar* _tmp340_;
-		GtkdocGComment* _tmp341_;
-		gchar** _tmp342_;
-		gint _tmp342__length1;
-		gchar** _tmp343_;
-		gint _tmp343__length1;
-		const gchar* _tmp344_;
-		_tmp306_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
-		_tmp307_ = _tmp306_;
-		_tmp308_ = valadoc_api_method_get_finish_function_cname (m);
-		_tmp309_ = _tmp308_;
-		_tmp310_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
-		_tmp311_ = _tmp310_;
-		_tmp312_ = gtkdoc_generator_add_symbol (self, _tmp307_, _tmp309_, _tmp311_, NULL, NULL, 0);
-		_tmp313_ = _tmp312_;
-		_g_free0 (_tmp309_);
-		_g_free0 (_tmp307_);
-		finish_gcomment = _tmp313_;
-		_tmp314_ = finish_gcomment;
-		_tmp315_ = _tmp314_->headers;
-		vala_collection_clear ((ValaCollection*) _tmp315_);
-		_tmp316_ = valadoc_api_method_get_is_static (m);
-		_tmp317_ = _tmp316_;
-		if (!_tmp317_) {
-			GtkdocGComment* _tmp318_;
-			ValaList* _tmp319_;
-			ValadocApiItem* _tmp320_;
-			ValadocApiItem* _tmp321_;
-			gchar* _tmp322_;
-			gchar* _tmp323_;
-			gchar* _tmp324_;
-			gchar* _tmp325_;
+		gchar* _tmp330_;
+		GtkdocGComment* _tmp331_;
+		gchar** _tmp332_;
+		gint _tmp332__length1;
+		gchar** _tmp333_;
+		gint _tmp333__length1;
+		const gchar* _tmp334_;
+		_tmp297_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
+		_tmp298_ = _tmp297_;
+		_tmp299_ = valadoc_api_method_get_finish_function_cname (m);
+		_tmp300_ = _tmp299_;
+		_tmp301_ = valadoc_api_node_get_documentation ((ValadocApiNode*) m);
+		_tmp302_ = _tmp301_;
+		_tmp303_ = gtkdoc_generator_add_symbol (self, _tmp298_, _tmp300_, _tmp302_, NULL, NULL, (gint) 0);
+		_tmp304_ = _tmp303_;
+		_g_free0 (_tmp300_);
+		_g_free0 (_tmp298_);
+		finish_gcomment = _tmp304_;
+		_tmp305_ = finish_gcomment;
+		_tmp306_ = _tmp305_->headers;
+		vala_collection_clear ((ValaCollection*) _tmp306_);
+		_tmp307_ = valadoc_api_method_get_is_static (m);
+		_tmp308_ = _tmp307_;
+		if (!_tmp308_) {
+			GtkdocGComment* _tmp309_;
+			ValaList* _tmp310_;
+			ValadocApiItem* _tmp311_;
+			ValadocApiItem* _tmp312_;
+			gchar* _tmp313_;
+			gchar* _tmp314_;
+			gchar* _tmp315_;
+			gchar* _tmp316_;
+			GtkdocHeader* _tmp317_;
+			GtkdocHeader* _tmp318_;
+			_tmp309_ = finish_gcomment;
+			_tmp310_ = _tmp309_->headers;
+			_tmp311_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
+			_tmp312_ = _tmp311_;
+			_tmp313_ = gtkdoc_get_docbook_link (_tmp312_, FALSE, FALSE);
+			_tmp314_ = _tmp313_;
+			_tmp315_ = g_strdup_printf ("the %s instance", _tmp314_);
+			_tmp316_ = _tmp315_;
+			_tmp317_ = gtkdoc_header_new ("self", _tmp316_, DBL_MAX, TRUE);
+			_tmp318_ = _tmp317_;
+			vala_collection_add ((ValaCollection*) _tmp310_, _tmp318_);
+			_gtkdoc_header_unref0 (_tmp318_);
+			_g_free0 (_tmp316_);
+			_g_free0 (_tmp314_);
+		}
+		_tmp319_ = finish_gcomment;
+		_tmp320_ = _tmp319_->headers;
+		_tmp321_ = gtkdoc_header_new ("_res_", "a <link linkend=\"GAsyncResult\"><type>GAsyncResult</type></link>", DBL_MAX, TRUE);
+		_tmp322_ = _tmp321_;
+		vala_collection_add ((ValaCollection*) _tmp320_, _tmp322_);
+		_gtkdoc_header_unref0 (_tmp322_);
+		_tmp323_ = error_header;
+		if (_tmp323_ != NULL) {
+			GtkdocGComment* _tmp324_;
+			ValaList* _tmp325_;
 			GtkdocHeader* _tmp326_;
-			GtkdocHeader* _tmp327_;
-			_tmp318_ = finish_gcomment;
-			_tmp319_ = _tmp318_->headers;
-			_tmp320_ = valadoc_api_item_get_parent ((ValadocApiItem*) m);
-			_tmp321_ = _tmp320_;
-			_tmp322_ = gtkdoc_get_docbook_link (_tmp321_, FALSE, FALSE);
-			_tmp323_ = _tmp322_;
-			_tmp324_ = g_strdup_printf ("the %s instance", _tmp323_);
-			_tmp325_ = _tmp324_;
-			_tmp326_ = gtkdoc_header_new ("self", _tmp325_, DBL_MAX, TRUE);
-			_tmp327_ = _tmp326_;
-			vala_collection_add ((ValaCollection*) _tmp319_, _tmp327_);
-			_gtkdoc_header_unref0 (_tmp327_);
-			_g_free0 (_tmp325_);
-			_g_free0 (_tmp323_);
+			_tmp324_ = finish_gcomment;
+			_tmp325_ = _tmp324_->headers;
+			_tmp326_ = error_header;
+			vala_collection_add ((ValaCollection*) _tmp325_, _tmp326_);
 		}
-		_tmp328_ = finish_gcomment;
-		_tmp329_ = _tmp328_->headers;
-		_tmp330_ = gtkdoc_header_new ("_res_", "a <link linkend=\"GAsyncResult\"><type>GAsyncResult</type></link>", DBL_MAX, TRUE);
-		_tmp331_ = _tmp330_;
-		vala_collection_add ((ValaCollection*) _tmp329_, _tmp331_);
-		_gtkdoc_header_unref0 (_tmp331_);
-		_tmp332_ = error_header;
-		if (_tmp332_ != NULL) {
-			GtkdocGComment* _tmp333_;
-			ValaList* _tmp334_;
-			GtkdocHeader* _tmp335_;
-			_tmp333_ = finish_gcomment;
-			_tmp334_ = _tmp333_->headers;
-			_tmp335_ = error_header;
-			vala_collection_add ((ValaCollection*) _tmp334_, _tmp335_);
-		}
-		_tmp336_ = finish_gcomment;
-		_tmp337_ = _tmp336_->see_also;
-		_tmp337__length1 = _tmp336_->see_also_length1;
-		_tmp338_ = (_tmp337_ != NULL) ? _vala_array_dup12 (_tmp337_, _tmp337__length1) : ((gpointer) _tmp337_);
-		_tmp338__length1 = _tmp337__length1;
-		see_also = _tmp338_;
-		see_also_length1 = _tmp338__length1;
+		_tmp327_ = finish_gcomment;
+		_tmp328_ = _tmp327_->see_also;
+		_tmp328__length1 = _tmp327_->see_also_length1;
+		_tmp329_ = (_tmp328_ != NULL) ? _vala_array_dup12 (_tmp328_, _tmp328__length1) : ((gpointer) _tmp328_);
+		_tmp329__length1 = _tmp328__length1;
+		see_also = _tmp329_;
+		see_also_length1 = _tmp329__length1;
 		_see_also_size_ = see_also_length1;
-		_tmp339_ = see_also;
-		_tmp339__length1 = see_also_length1;
-		_tmp340_ = gtkdoc_get_docbook_link ((ValadocApiItem*) m, FALSE, FALSE);
-		_vala_array_add23 (&see_also, &see_also_length1, &_see_also_size_, _tmp340_);
-		_tmp341_ = finish_gcomment;
-		_tmp342_ = see_also;
-		_tmp342__length1 = see_also_length1;
-		_tmp343_ = (_tmp342_ != NULL) ? _vala_array_dup13 (_tmp342_, _tmp342__length1) : ((gpointer) _tmp342_);
-		_tmp343__length1 = _tmp342__length1;
-		_tmp341_->see_also = (_vala_array_free (_tmp341_->see_also, _tmp341_->see_also_length1, (GDestroyNotify) g_free), NULL);
-		_tmp341_->see_also = _tmp343_;
-		_tmp341_->see_also_length1 = _tmp343__length1;
-		_tmp344_ = return_type_desc;
-		if (_tmp344_ != NULL) {
-			GtkdocGComment* _tmp345_;
-			const gchar* _tmp346_;
-			GtkdocGComment* _tmp347_;
-			const gchar* _tmp348_;
-			gchar* _tmp349_;
-			_tmp345_ = finish_gcomment;
-			_tmp346_ = return_type_desc;
-			_tmp347_ = finish_gcomment;
-			_tmp348_ = _tmp347_->returns;
-			_tmp349_ = gtkdoc_generator_combine_inline_docs (self, _tmp346_, _tmp348_);
-			_g_free0 (_tmp345_->returns);
-			_tmp345_->returns = _tmp349_;
+		_tmp330_ = gtkdoc_get_docbook_link ((ValadocApiItem*) m, FALSE, FALSE);
+		_vala_array_add23 (&see_also, &see_also_length1, &_see_also_size_, _tmp330_);
+		_tmp331_ = finish_gcomment;
+		_tmp332_ = see_also;
+		_tmp332__length1 = see_also_length1;
+		_tmp333_ = (_tmp332_ != NULL) ? _vala_array_dup13 (_tmp332_, _tmp332__length1) : ((gpointer) _tmp332_);
+		_tmp333__length1 = _tmp332__length1;
+		_tmp331_->see_also = (_vala_array_free (_tmp331_->see_also, _tmp331_->see_also_length1, (GDestroyNotify) g_free), NULL);
+		_tmp331_->see_also = _tmp333_;
+		_tmp331_->see_also_length1 = _tmp333__length1;
+		_tmp334_ = return_type_desc;
+		if (_tmp334_ != NULL) {
+			GtkdocGComment* _tmp335_;
+			const gchar* _tmp336_;
+			GtkdocGComment* _tmp337_;
+			const gchar* _tmp338_;
+			gchar* _tmp339_;
+			_tmp335_ = finish_gcomment;
+			_tmp336_ = return_type_desc;
+			_tmp337_ = finish_gcomment;
+			_tmp338_ = _tmp337_->returns;
+			_tmp339_ = gtkdoc_generator_combine_inline_docs (self, _tmp336_, _tmp338_);
+			_g_free0 (_tmp335_->returns);
+			_tmp335_->returns = _tmp339_;
 		}
 		see_also = (_vala_array_free (see_also, see_also_length1, (GDestroyNotify) g_free), NULL);
 		_gtkdoc_gcomment_unref0 (finish_gcomment);
 	} else {
-		const gchar* _tmp350_;
-		_tmp350_ = return_type_desc;
-		if (_tmp350_ != NULL) {
-			GtkdocGComment* _tmp351_;
-			const gchar* _tmp352_;
-			GtkdocGComment* _tmp353_;
-			const gchar* _tmp354_;
-			gchar* _tmp355_;
-			_tmp351_ = gcomment;
-			_tmp352_ = return_type_desc;
-			_tmp353_ = gcomment;
-			_tmp354_ = _tmp353_->returns;
-			_tmp355_ = gtkdoc_generator_combine_inline_docs (self, _tmp352_, _tmp354_);
-			_g_free0 (_tmp351_->returns);
-			_tmp351_->returns = _tmp355_;
+		const gchar* _tmp340_;
+		_tmp340_ = return_type_desc;
+		if (_tmp340_ != NULL) {
+			GtkdocGComment* _tmp341_;
+			const gchar* _tmp342_;
+			GtkdocGComment* _tmp343_;
+			const gchar* _tmp344_;
+			gchar* _tmp345_;
+			_tmp341_ = gcomment;
+			_tmp342_ = return_type_desc;
+			_tmp343_ = gcomment;
+			_tmp344_ = _tmp343_->returns;
+			_tmp345_ = gtkdoc_generator_combine_inline_docs (self, _tmp342_, _tmp344_);
+			_g_free0 (_tmp341_->returns);
+			_tmp341_->returns = _tmp345_;
 		}
 	}
-	_tmp357_ = valadoc_api_method_get_is_constructor (m);
-	_tmp358_ = _tmp357_;
-	if (_tmp358_) {
+	_tmp347_ = valadoc_api_method_get_is_constructor (m);
+	_tmp348_ = _tmp347_;
+	if (_tmp348_) {
+		gchar* _tmp349_;
+		gchar* _tmp350_;
+		_tmp349_ = valadoc_api_method_get_cname (m);
+		_tmp350_ = _tmp349_;
+		_tmp346_ = !g_str_has_suffix (_tmp350_, "_new");
+		_g_free0 (_tmp350_);
+	} else {
+		_tmp346_ = FALSE;
+	}
+	if (_tmp346_) {
+		GtkdocGeneratorFileData* file_data = NULL;
+		gchar* _tmp351_;
+		gchar* _tmp352_;
+		GtkdocGeneratorFileData* _tmp353_;
+		GtkdocGeneratorFileData* _tmp354_;
+		GtkdocGeneratorFileData* _tmp355_;
+		ValaList* _tmp356_;
+		gchar* _tmp357_;
+		gchar* _tmp358_;
 		gchar* _tmp359_;
 		gchar* _tmp360_;
-		_tmp359_ = valadoc_api_method_get_cname (m);
+		_tmp351_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
+		_tmp352_ = _tmp351_;
+		_tmp353_ = gtkdoc_generator_get_file_data (self, _tmp352_);
+		_tmp354_ = _tmp353_;
+		_g_free0 (_tmp352_);
+		file_data = _tmp354_;
+		_tmp355_ = file_data;
+		_tmp356_ = _tmp355_->private_section_lines;
+		_tmp357_ = valadoc_api_method_get_cname (m);
+		_tmp358_ = _tmp357_;
+		_tmp359_ = string_replace (_tmp358_, "_new", "_construct");
 		_tmp360_ = _tmp359_;
-		_tmp356_ = !g_str_has_suffix (_tmp360_, "_new");
+		vala_collection_add ((ValaCollection*) _tmp356_, _tmp360_);
 		_g_free0 (_tmp360_);
-	} else {
-		_tmp356_ = FALSE;
-	}
-	if (_tmp356_) {
-		GtkdocGeneratorFileData* file_data = NULL;
-		gchar* _tmp361_;
-		gchar* _tmp362_;
-		GtkdocGeneratorFileData* _tmp363_;
-		GtkdocGeneratorFileData* _tmp364_;
-		GtkdocGeneratorFileData* _tmp365_;
-		ValaList* _tmp366_;
-		gchar* _tmp367_;
-		gchar* _tmp368_;
-		gchar* _tmp369_;
-		gchar* _tmp370_;
-		_tmp361_ = valadoc_documentation_get_filename ((ValadocDocumentation*) m);
-		_tmp362_ = _tmp361_;
-		_tmp363_ = gtkdoc_generator_get_file_data (self, _tmp362_);
-		_tmp364_ = _tmp363_;
-		_g_free0 (_tmp362_);
-		file_data = _tmp364_;
-		_tmp365_ = file_data;
-		_tmp366_ = _tmp365_->private_section_lines;
-		_tmp367_ = valadoc_api_method_get_cname (m);
-		_tmp368_ = _tmp367_;
-		_tmp369_ = string_replace (_tmp368_, "_new", "_construct");
-		_tmp370_ = _tmp369_;
-		vala_collection_add ((ValaCollection*) _tmp366_, _tmp370_);
-		_g_free0 (_tmp370_);
-		_g_free0 (_tmp368_);
+		_g_free0 (_tmp358_);
 		_gtkdoc_generator_file_data_unref0 (file_data);
 	}
 	_g_object_unref0 (type_parameter);
@@ -7393,7 +7288,6 @@ gtkdoc_generator_real_visit_method (ValadocApiVisitor* base,
 	_vala_iterable_unref0 (old_headers);
 	annotations = (_vala_array_free (annotations, annotations_length1, (GDestroyNotify) g_free), NULL);
 }
-
 
 /**
  * Visit abstract methods
@@ -7462,7 +7356,7 @@ gtkdoc_generator_visit_abstract_method (GtkdocGenerator* self,
 		_tmp16_ = _tmp15_;
 		_tmp17_ = g_strdup_printf ("virtual method called by %s", _tmp16_);
 		_tmp18_ = _tmp17_;
-		_tmp19_ = gtkdoc_generator_add_custom_header (self, _tmp14_, _tmp18_, NULL, 0, DBL_MAX, TRUE);
+		_tmp19_ = gtkdoc_generator_add_custom_header (self, _tmp14_, _tmp18_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp20_ = _tmp19_;
 		_gtkdoc_header_unref0 (_tmp20_);
 		_g_free0 (_tmp18_);
@@ -7493,7 +7387,7 @@ gtkdoc_generator_visit_abstract_method (GtkdocGenerator* self,
 			_tmp31_ = g_strdup_printf ("asynchronous finish function for <structfield>%s</structfield>, called" \
 " by %s", _tmp28_, _tmp30_);
 			_tmp32_ = _tmp31_;
-			_tmp33_ = gtkdoc_generator_add_custom_header (self, _tmp26_, _tmp32_, NULL, 0, DBL_MAX, TRUE);
+			_tmp33_ = gtkdoc_generator_add_custom_header (self, _tmp26_, _tmp32_, NULL, (gint) 0, DBL_MAX, TRUE);
 			_tmp34_ = _tmp33_;
 			_gtkdoc_header_unref0 (_tmp34_);
 			_g_free0 (_tmp32_);
@@ -7509,7 +7403,7 @@ gtkdoc_generator_visit_abstract_method (GtkdocGenerator* self,
 		gboolean _tmp40_;
 		_tmp35_ = valadoc_api_node_get_name ((ValadocApiNode*) m);
 		_tmp36_ = _tmp35_;
-		_tmp37_ = gtkdoc_generator_add_custom_header (self, _tmp36_, "virtual method used internally", NULL, 0, DBL_MAX, TRUE);
+		_tmp37_ = gtkdoc_generator_add_custom_header (self, _tmp36_, "virtual method used internally", NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp38_ = _tmp37_;
 		_gtkdoc_header_unref0 (_tmp38_);
 		_tmp39_ = valadoc_api_method_get_is_yields (m);
@@ -7525,14 +7419,13 @@ gtkdoc_generator_visit_abstract_method (GtkdocGenerator* self,
 			_tmp42_ = _tmp41_;
 			_tmp43_ = g_strconcat (_tmp42_, "_finish", NULL);
 			_tmp44_ = _tmp43_;
-			_tmp45_ = gtkdoc_generator_add_custom_header (self, _tmp44_, "asynchronous finish function used internally", NULL, 0, DBL_MAX, TRUE);
+			_tmp45_ = gtkdoc_generator_add_custom_header (self, _tmp44_, "asynchronous finish function used internally", NULL, (gint) 0, DBL_MAX, TRUE);
 			_tmp46_ = _tmp45_;
 			_gtkdoc_header_unref0 (_tmp46_);
 			_g_free0 (_tmp44_);
 		}
 	}
 }
-
 
 /**
  * Visit abstract properties
@@ -7631,7 +7524,7 @@ gtkdoc_generator_visit_abstract_property (GtkdocGenerator* self,
 		_tmp27_ = _tmp26_;
 		_tmp28_ = g_strdup_printf ("getter method for the abstract property %s", _tmp27_);
 		_tmp29_ = _tmp28_;
-		_tmp30_ = gtkdoc_generator_add_custom_header (self, _tmp25_, _tmp29_, NULL, 0, DBL_MAX, TRUE);
+		_tmp30_ = gtkdoc_generator_add_custom_header (self, _tmp25_, _tmp29_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp31_ = _tmp30_;
 		_gtkdoc_header_unref0 (_tmp31_);
 		_g_free0 (_tmp29_);
@@ -7711,7 +7604,7 @@ gtkdoc_generator_visit_abstract_property (GtkdocGenerator* self,
 		_tmp59_ = _tmp58_;
 		_tmp60_ = g_strdup_printf ("setter method for the abstract property %s", _tmp59_);
 		_tmp61_ = _tmp60_;
-		_tmp62_ = gtkdoc_generator_add_custom_header (self, _tmp57_, _tmp61_, NULL, 0, DBL_MAX, TRUE);
+		_tmp62_ = gtkdoc_generator_add_custom_header (self, _tmp57_, _tmp61_, NULL, (gint) 0, DBL_MAX, TRUE);
 		_tmp63_ = _tmp62_;
 		_gtkdoc_header_unref0 (_tmp63_);
 		_g_free0 (_tmp61_);
@@ -7720,11 +7613,10 @@ gtkdoc_generator_visit_abstract_property (GtkdocGenerator* self,
 	}
 }
 
-
 static void
 _vala_array_add24 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -7734,12 +7626,11 @@ _vala_array_add24 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add25 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -7749,12 +7640,11 @@ _vala_array_add25 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add26 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -7764,12 +7654,11 @@ _vala_array_add26 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add27 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -7779,12 +7668,11 @@ _vala_array_add27 (gchar** * array,
 	(*array)[(*length)++] = value;
 	(*array)[*length] = NULL;
 }
-
 
 static void
 _vala_array_add28 (gchar** * array,
-                   int* length,
-                   int* size,
+                   gint* length,
+                   gint* size,
                    gchar* value)
 {
 	if ((*length) == (*size)) {
@@ -7795,10 +7683,9 @@ _vala_array_add28 (gchar** * array,
 	(*array)[*length] = NULL;
 }
 
-
 static void
 gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
-                                              ValadocApiFormalParameter* param)
+                                              ValadocApiParameter* param)
 {
 	GtkdocGenerator * self;
 	const gchar* _tmp0_ = NULL;
@@ -7817,41 +7704,39 @@ gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
 	GtkdocHeader* _tmp8_;
 	gboolean _tmp9_;
 	gboolean _tmp10_;
-	gchar** _tmp15_;
-	gint _tmp15__length1;
-	const gchar* _tmp16_;
-	gchar* _tmp17_;
+	const gchar* _tmp15_;
+	gchar* _tmp16_;
 	ValadocApiTypeParameter* type_parameter = NULL;
+	ValadocApiTypeReference* _tmp17_;
 	ValadocApiTypeReference* _tmp18_;
-	ValadocApiTypeReference* _tmp19_;
+	ValadocApiItem* _tmp19_;
 	ValadocApiItem* _tmp20_;
-	ValadocApiItem* _tmp21_;
+	ValadocApiTypeParameter* _tmp21_;
 	ValadocApiTypeParameter* _tmp22_;
-	ValadocApiTypeParameter* _tmp23_;
+	ValadocApiTypeReference* _tmp81_;
 	ValadocApiTypeReference* _tmp82_;
-	ValadocApiTypeReference* _tmp83_;
+	gboolean _tmp83_;
 	gboolean _tmp84_;
-	gboolean _tmp85_;
-	gboolean _tmp88_ = FALSE;
-	ValadocApiTypeReference* _tmp89_;
-	ValadocApiTypeReference* _tmp90_;
-	gboolean _tmp91_;
-	gboolean _tmp92_;
-	ValadocApiTypeReference* _tmp99_;
-	ValadocApiTypeReference* _tmp100_;
-	ValadocApiItem* _tmp101_;
-	ValadocApiItem* _tmp102_;
-	gboolean _tmp117_ = FALSE;
-	gboolean _tmp118_ = FALSE;
-	gboolean _tmp119_;
-	gboolean _tmp120_;
-	gboolean _tmp133_ = FALSE;
-	ValadocApiSignal* _tmp134_;
-	ValadocApiTypeReference* _tmp149_;
-	ValadocApiTypeReference* _tmp150_;
-	ValadocApiItem* _tmp151_;
-	ValadocApiItem* _tmp152_;
-	GtkdocDBusMember* _tmp186_;
+	gboolean _tmp86_ = FALSE;
+	ValadocApiTypeReference* _tmp87_;
+	ValadocApiTypeReference* _tmp88_;
+	gboolean _tmp89_;
+	gboolean _tmp90_;
+	ValadocApiTypeReference* _tmp96_;
+	ValadocApiTypeReference* _tmp97_;
+	ValadocApiItem* _tmp98_;
+	ValadocApiItem* _tmp99_;
+	gboolean _tmp113_ = FALSE;
+	gboolean _tmp114_ = FALSE;
+	gboolean _tmp115_;
+	gboolean _tmp116_;
+	gboolean _tmp128_ = FALSE;
+	ValadocApiSignal* _tmp129_;
+	ValadocApiTypeReference* _tmp144_;
+	ValadocApiTypeReference* _tmp145_;
+	ValadocApiItem* _tmp146_;
+	ValadocApiItem* _tmp147_;
+	GtkdocDBusMember* _tmp181_;
 	self = (GtkdocGenerator*) base;
 	g_return_if_fail (param != NULL);
 	_tmp1_ = valadoc_api_node_get_name ((ValadocApiNode*) param);
@@ -7869,10 +7754,10 @@ gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
 	_tmp5_ = g_strdup ("in");
 	direction = _tmp5_;
 	_tmp6_ = param_name;
-	_tmp7_ = gtkdoc_generator_add_custom_header (self, _tmp6_, "&nbsp;", NULL, 0, DBL_MAX, FALSE);
+	_tmp7_ = gtkdoc_generator_add_custom_header (self, _tmp6_, "&nbsp;", NULL, (gint) 0, DBL_MAX, FALSE);
 	_tmp8_ = _tmp7_;
 	_gtkdoc_header_unref0 (_tmp8_);
-	_tmp9_ = valadoc_api_formal_parameter_get_is_out (param);
+	_tmp9_ = valadoc_api_parameter_get_is_out (param);
 	_tmp10_ = _tmp9_;
 	if (_tmp10_) {
 		gchar* _tmp11_;
@@ -7882,7 +7767,7 @@ gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
 	} else {
 		gboolean _tmp12_;
 		gboolean _tmp13_;
-		_tmp12_ = valadoc_api_formal_parameter_get_is_ref (param);
+		_tmp12_ = valadoc_api_parameter_get_is_ref (param);
 		_tmp13_ = _tmp12_;
 		if (_tmp13_) {
 			gchar* _tmp14_;
@@ -7891,455 +7776,437 @@ gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
 			direction = _tmp14_;
 		}
 	}
-	_tmp15_ = annotations;
-	_tmp15__length1 = annotations_length1;
-	_tmp16_ = direction;
-	_tmp17_ = g_strdup (_tmp16_);
-	_vala_array_add24 (&annotations, &annotations_length1, &_annotations_size_, _tmp17_);
-	_tmp18_ = valadoc_api_formal_parameter_get_parameter_type (param);
-	_tmp19_ = _tmp18_;
-	_tmp20_ = valadoc_api_typereference_get_data_type (_tmp19_);
-	_tmp21_ = _tmp20_;
-	_tmp22_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp21_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp21_) : NULL);
-	type_parameter = _tmp22_;
-	_tmp23_ = type_parameter;
-	if (_tmp23_ != NULL) {
-		ValadocApiTypeParameter* _tmp24_;
+	_tmp15_ = direction;
+	_tmp16_ = g_strdup (_tmp15_);
+	_vala_array_add24 (&annotations, &annotations_length1, &_annotations_size_, _tmp16_);
+	_tmp17_ = valadoc_api_parameter_get_parameter_type (param);
+	_tmp18_ = _tmp17_;
+	_tmp19_ = valadoc_api_typereference_get_data_type (_tmp18_);
+	_tmp20_ = _tmp19_;
+	_tmp21_ = _g_object_ref0 (G_TYPE_CHECK_INSTANCE_TYPE (_tmp20_, VALADOC_API_TYPE_TYPEPARAMETER) ? ((ValadocApiTypeParameter*) _tmp20_) : NULL);
+	type_parameter = _tmp21_;
+	_tmp22_ = type_parameter;
+	if (_tmp22_ != NULL) {
+		ValadocApiTypeParameter* _tmp23_;
+		ValadocApiItem* _tmp24_;
 		ValadocApiItem* _tmp25_;
-		ValadocApiItem* _tmp26_;
-		_tmp24_ = type_parameter;
-		_tmp25_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp24_);
-		_tmp26_ = _tmp25_;
-		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp26_, VALADOC_API_TYPE_CLASS)) {
-			const gchar* _tmp27_;
-			ValadocApiTypeParameter* _tmp28_;
+		_tmp23_ = type_parameter;
+		_tmp24_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp23_);
+		_tmp25_ = _tmp24_;
+		if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp25_, VALADOC_API_TYPE_CLASS)) {
+			const gchar* _tmp26_;
+			ValadocApiTypeParameter* _tmp27_;
+			ValadocApiItem* _tmp28_;
 			ValadocApiItem* _tmp29_;
-			ValadocApiItem* _tmp30_;
+			gchar* _tmp30_;
 			gchar* _tmp31_;
-			gchar* _tmp32_;
-			ValadocApiTypeParameter* _tmp33_;
+			ValadocApiTypeParameter* _tmp32_;
+			const gchar* _tmp33_;
 			const gchar* _tmp34_;
-			const gchar* _tmp35_;
+			gchar* _tmp35_;
 			gchar* _tmp36_;
 			gchar* _tmp37_;
 			gchar* _tmp38_;
-			gchar* _tmp39_;
+			GtkdocHeader* _tmp39_;
 			GtkdocHeader* _tmp40_;
-			GtkdocHeader* _tmp41_;
-			_tmp27_ = param_name;
-			_tmp28_ = type_parameter;
-			_tmp29_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp28_);
-			_tmp30_ = _tmp29_;
-			_tmp31_ = gtkdoc_get_cname (_tmp30_);
-			_tmp32_ = _tmp31_;
-			_tmp33_ = type_parameter;
-			_tmp34_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp33_);
-			_tmp35_ = _tmp34_;
-			_tmp36_ = g_utf8_strdown (_tmp35_, (gssize) -1);
-			_tmp37_ = _tmp36_;
-			_tmp38_ = g_strdup_printf ("A parameter from type #%s:%s-type.", _tmp32_, _tmp37_);
-			_tmp39_ = _tmp38_;
-			_tmp40_ = gtkdoc_generator_add_custom_header (self, _tmp27_, _tmp39_, NULL, 0, DBL_MAX, FALSE);
-			_tmp41_ = _tmp40_;
-			_gtkdoc_header_unref0 (_tmp41_);
-			_g_free0 (_tmp39_);
-			_g_free0 (_tmp37_);
-			_g_free0 (_tmp32_);
+			_tmp26_ = param_name;
+			_tmp27_ = type_parameter;
+			_tmp28_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp27_);
+			_tmp29_ = _tmp28_;
+			_tmp30_ = gtkdoc_get_cname (_tmp29_);
+			_tmp31_ = _tmp30_;
+			_tmp32_ = type_parameter;
+			_tmp33_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp32_);
+			_tmp34_ = _tmp33_;
+			_tmp35_ = g_ascii_strdown (_tmp34_, (gssize) -1);
+			_tmp36_ = _tmp35_;
+			_tmp37_ = g_strdup_printf ("A parameter from type #%s:%s-type.", _tmp31_, _tmp36_);
+			_tmp38_ = _tmp37_;
+			_tmp39_ = gtkdoc_generator_add_custom_header (self, _tmp26_, _tmp38_, NULL, (gint) 0, DBL_MAX, FALSE);
+			_tmp40_ = _tmp39_;
+			_gtkdoc_header_unref0 (_tmp40_);
+			_g_free0 (_tmp38_);
+			_g_free0 (_tmp36_);
+			_g_free0 (_tmp31_);
 		} else {
-			gboolean _tmp42_ = FALSE;
-			ValadocApiTypeParameter* _tmp43_;
+			gboolean _tmp41_ = FALSE;
+			ValadocApiTypeParameter* _tmp42_;
+			ValadocApiItem* _tmp43_;
 			ValadocApiItem* _tmp44_;
-			ValadocApiItem* _tmp45_;
-			_tmp43_ = type_parameter;
-			_tmp44_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp43_);
-			_tmp45_ = _tmp44_;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp45_, VALADOC_API_TYPE_INTERFACE)) {
-				ValadocApiTypeParameter* _tmp46_;
+			_tmp42_ = type_parameter;
+			_tmp43_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp42_);
+			_tmp44_ = _tmp43_;
+			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp44_, VALADOC_API_TYPE_INTERFACE)) {
+				ValadocApiTypeParameter* _tmp45_;
+				ValadocApiItem* _tmp46_;
 				ValadocApiItem* _tmp47_;
-				ValadocApiItem* _tmp48_;
+				ValadocApiAttribute* _tmp48_;
 				ValadocApiAttribute* _tmp49_;
-				ValadocApiAttribute* _tmp50_;
-				_tmp46_ = type_parameter;
-				_tmp47_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp46_);
-				_tmp48_ = _tmp47_;
-				_tmp49_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp48_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
-				_tmp50_ = _tmp49_;
-				_tmp42_ = _tmp50_ != NULL;
-				_g_object_unref0 (_tmp50_);
+				_tmp45_ = type_parameter;
+				_tmp46_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp45_);
+				_tmp47_ = _tmp46_;
+				_tmp48_ = valadoc_api_symbol_get_attribute (G_TYPE_CHECK_INSTANCE_CAST (_tmp47_, VALADOC_API_TYPE_SYMBOL, ValadocApiSymbol), "GenericAccessors");
+				_tmp49_ = _tmp48_;
+				_tmp41_ = _tmp49_ != NULL;
+				_g_object_unref0 (_tmp49_);
 			} else {
-				_tmp42_ = FALSE;
+				_tmp41_ = FALSE;
 			}
-			if (_tmp42_) {
-				const gchar* _tmp51_;
-				ValadocApiTypeParameter* _tmp52_;
+			if (_tmp41_) {
+				const gchar* _tmp50_;
+				ValadocApiTypeParameter* _tmp51_;
+				ValadocApiItem* _tmp52_;
 				ValadocApiItem* _tmp53_;
-				ValadocApiItem* _tmp54_;
+				gchar* _tmp54_;
 				gchar* _tmp55_;
-				gchar* _tmp56_;
-				ValadocApiTypeParameter* _tmp57_;
+				ValadocApiTypeParameter* _tmp56_;
+				const gchar* _tmp57_;
 				const gchar* _tmp58_;
-				const gchar* _tmp59_;
+				gchar* _tmp59_;
 				gchar* _tmp60_;
 				gchar* _tmp61_;
 				gchar* _tmp62_;
-				gchar* _tmp63_;
+				GtkdocHeader* _tmp63_;
 				GtkdocHeader* _tmp64_;
-				GtkdocHeader* _tmp65_;
-				_tmp51_ = param_name;
-				_tmp52_ = type_parameter;
-				_tmp53_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp52_);
-				_tmp54_ = _tmp53_;
-				_tmp55_ = gtkdoc_get_cname (_tmp54_);
-				_tmp56_ = _tmp55_;
-				_tmp57_ = type_parameter;
-				_tmp58_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp57_);
-				_tmp59_ = _tmp58_;
-				_tmp60_ = g_utf8_strdown (_tmp59_, (gssize) -1);
-				_tmp61_ = _tmp60_;
-				_tmp62_ = g_strdup_printf ("A parameter from type #_%sIface.get_%s_type().", _tmp56_, _tmp61_);
-				_tmp63_ = _tmp62_;
-				_tmp64_ = gtkdoc_generator_add_custom_header (self, _tmp51_, _tmp63_, NULL, 0, DBL_MAX, FALSE);
-				_tmp65_ = _tmp64_;
-				_gtkdoc_header_unref0 (_tmp65_);
-				_g_free0 (_tmp63_);
-				_g_free0 (_tmp61_);
-				_g_free0 (_tmp56_);
+				_tmp50_ = param_name;
+				_tmp51_ = type_parameter;
+				_tmp52_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp51_);
+				_tmp53_ = _tmp52_;
+				_tmp54_ = gtkdoc_get_cname (_tmp53_);
+				_tmp55_ = _tmp54_;
+				_tmp56_ = type_parameter;
+				_tmp57_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp56_);
+				_tmp58_ = _tmp57_;
+				_tmp59_ = g_ascii_strdown (_tmp58_, (gssize) -1);
+				_tmp60_ = _tmp59_;
+				_tmp61_ = g_strdup_printf ("A parameter from type #_%sIface.get_%s_type().", _tmp55_, _tmp60_);
+				_tmp62_ = _tmp61_;
+				_tmp63_ = gtkdoc_generator_add_custom_header (self, _tmp50_, _tmp62_, NULL, (gint) 0, DBL_MAX, FALSE);
+				_tmp64_ = _tmp63_;
+				_gtkdoc_header_unref0 (_tmp64_);
+				_g_free0 (_tmp62_);
+				_g_free0 (_tmp60_);
+				_g_free0 (_tmp55_);
 			} else {
-				ValadocApiTypeParameter* _tmp66_;
+				ValadocApiTypeParameter* _tmp65_;
+				ValadocApiItem* _tmp66_;
 				ValadocApiItem* _tmp67_;
-				ValadocApiItem* _tmp68_;
-				_tmp66_ = type_parameter;
-				_tmp67_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp66_);
-				_tmp68_ = _tmp67_;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp68_, VALADOC_API_TYPE_STRUCT)) {
+				_tmp65_ = type_parameter;
+				_tmp66_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp65_);
+				_tmp67_ = _tmp66_;
+				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp67_, VALADOC_API_TYPE_STRUCT)) {
 				} else {
-					ValadocApiTypeParameter* _tmp69_;
+					ValadocApiTypeParameter* _tmp68_;
+					ValadocApiItem* _tmp69_;
 					ValadocApiItem* _tmp70_;
-					ValadocApiItem* _tmp71_;
-					_tmp69_ = type_parameter;
-					_tmp70_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp69_);
-					_tmp71_ = _tmp70_;
-					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp71_, VALADOC_API_TYPE_METHOD)) {
-						const gchar* _tmp72_;
-						ValadocApiTypeParameter* _tmp73_;
+					_tmp68_ = type_parameter;
+					_tmp69_ = valadoc_api_item_get_parent ((ValadocApiItem*) _tmp68_);
+					_tmp70_ = _tmp69_;
+					if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp70_, VALADOC_API_TYPE_METHOD)) {
+						const gchar* _tmp71_;
+						ValadocApiTypeParameter* _tmp72_;
+						const gchar* _tmp73_;
 						const gchar* _tmp74_;
-						const gchar* _tmp75_;
+						gchar* _tmp75_;
 						gchar* _tmp76_;
 						gchar* _tmp77_;
 						gchar* _tmp78_;
-						gchar* _tmp79_;
+						GtkdocHeader* _tmp79_;
 						GtkdocHeader* _tmp80_;
-						GtkdocHeader* _tmp81_;
-						_tmp72_ = param_name;
-						_tmp73_ = type_parameter;
-						_tmp74_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp73_);
-						_tmp75_ = _tmp74_;
-						_tmp76_ = g_utf8_strdown (_tmp75_, (gssize) -1);
-						_tmp77_ = _tmp76_;
-						_tmp78_ = g_strdup_printf ("A parameter from type @%s_type.", _tmp77_);
-						_tmp79_ = _tmp78_;
-						_tmp80_ = gtkdoc_generator_add_custom_header (self, _tmp72_, _tmp79_, NULL, 0, DBL_MAX, FALSE);
-						_tmp81_ = _tmp80_;
-						_gtkdoc_header_unref0 (_tmp81_);
-						_g_free0 (_tmp79_);
-						_g_free0 (_tmp77_);
+						_tmp71_ = param_name;
+						_tmp72_ = type_parameter;
+						_tmp73_ = valadoc_api_node_get_name ((ValadocApiNode*) _tmp72_);
+						_tmp74_ = _tmp73_;
+						_tmp75_ = g_ascii_strdown (_tmp74_, (gssize) -1);
+						_tmp76_ = _tmp75_;
+						_tmp77_ = g_strdup_printf ("A parameter from type @%s_type.", _tmp76_);
+						_tmp78_ = _tmp77_;
+						_tmp79_ = gtkdoc_generator_add_custom_header (self, _tmp71_, _tmp78_, NULL, (gint) 0, DBL_MAX, FALSE);
+						_tmp80_ = _tmp79_;
+						_gtkdoc_header_unref0 (_tmp80_);
+						_g_free0 (_tmp78_);
+						_g_free0 (_tmp76_);
 					}
 				}
 			}
 		}
 	}
-	_tmp82_ = valadoc_api_formal_parameter_get_parameter_type (param);
-	_tmp83_ = _tmp82_;
-	_tmp84_ = valadoc_api_typereference_get_is_nullable (_tmp83_);
-	_tmp85_ = _tmp84_;
-	if (_tmp85_) {
-		gchar** _tmp86_;
-		gint _tmp86__length1;
-		gchar* _tmp87_;
-		_tmp86_ = annotations;
-		_tmp86__length1 = annotations_length1;
-		_tmp87_ = g_strdup ("allow-none");
-		_vala_array_add25 (&annotations, &annotations_length1, &_annotations_size_, _tmp87_);
+	_tmp81_ = valadoc_api_parameter_get_parameter_type (param);
+	_tmp82_ = _tmp81_;
+	_tmp83_ = valadoc_api_typereference_get_is_nullable (_tmp82_);
+	_tmp84_ = _tmp83_;
+	if (_tmp84_) {
+		gchar* _tmp85_;
+		_tmp85_ = g_strdup ("allow-none");
+		_vala_array_add25 (&annotations, &annotations_length1, &_annotations_size_, _tmp85_);
 	}
-	_tmp89_ = valadoc_api_formal_parameter_get_parameter_type (param);
+	_tmp87_ = valadoc_api_parameter_get_parameter_type (param);
+	_tmp88_ = _tmp87_;
+	_tmp89_ = valadoc_api_typereference_get_is_owned (_tmp88_);
 	_tmp90_ = _tmp89_;
-	_tmp91_ = valadoc_api_typereference_get_is_owned (_tmp90_);
-	_tmp92_ = _tmp91_;
-	if (_tmp92_) {
-		ValadocApiTypeReference* _tmp93_;
-		ValadocApiTypeReference* _tmp94_;
-		ValadocApiItem* _tmp95_;
-		ValadocApiItem* _tmp96_;
-		_tmp93_ = valadoc_api_formal_parameter_get_parameter_type (param);
+	if (_tmp90_) {
+		ValadocApiTypeReference* _tmp91_;
+		ValadocApiTypeReference* _tmp92_;
+		ValadocApiItem* _tmp93_;
+		ValadocApiItem* _tmp94_;
+		_tmp91_ = valadoc_api_parameter_get_parameter_type (param);
+		_tmp92_ = _tmp91_;
+		_tmp93_ = valadoc_api_typereference_get_data_type (_tmp92_);
 		_tmp94_ = _tmp93_;
-		_tmp95_ = valadoc_api_typereference_get_data_type (_tmp94_);
-		_tmp96_ = _tmp95_;
-		_tmp88_ = !G_TYPE_CHECK_INSTANCE_TYPE (_tmp96_, VALADOC_API_TYPE_DELEGATE);
+		_tmp86_ = !G_TYPE_CHECK_INSTANCE_TYPE (_tmp94_, VALADOC_API_TYPE_DELEGATE);
 	} else {
-		_tmp88_ = FALSE;
+		_tmp86_ = FALSE;
 	}
-	if (_tmp88_) {
-		gchar** _tmp97_;
-		gint _tmp97__length1;
-		gchar* _tmp98_;
-		_tmp97_ = annotations;
-		_tmp97__length1 = annotations_length1;
-		_tmp98_ = g_strdup ("transfer full");
-		_vala_array_add26 (&annotations, &annotations_length1, &_annotations_size_, _tmp98_);
+	if (_tmp86_) {
+		gchar* _tmp95_;
+		_tmp95_ = g_strdup ("transfer full");
+		_vala_array_add26 (&annotations, &annotations_length1, &_annotations_size_, _tmp95_);
 	}
-	_tmp99_ = valadoc_api_formal_parameter_get_parameter_type (param);
-	_tmp100_ = _tmp99_;
-	_tmp101_ = valadoc_api_typereference_get_data_type (_tmp100_);
-	_tmp102_ = _tmp101_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp102_, VALADOC_API_TYPE_ARRAY)) {
-		gchar** _tmp103_;
-		gint _tmp103__length1;
-		const gchar* _tmp104_;
-		gchar* _tmp105_;
-		const gchar* _tmp106_;
+	_tmp96_ = valadoc_api_parameter_get_parameter_type (param);
+	_tmp97_ = _tmp96_;
+	_tmp98_ = valadoc_api_typereference_get_data_type (_tmp97_);
+	_tmp99_ = _tmp98_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp99_, VALADOC_API_TYPE_ARRAY)) {
+		const gchar* _tmp100_;
+		gchar* _tmp101_;
+		const gchar* _tmp102_;
+		gchar* _tmp103_;
+		gchar* _tmp104_;
+		const gchar* _tmp105_;
+		gchar* _tmp106_;
 		gchar* _tmp107_;
-		gchar* _tmp108_;
-		const gchar* _tmp109_;
-		gchar* _tmp110_;
-		gchar* _tmp111_;
-		ValadocApiNode* _tmp112_;
-		ValadocApiNode* _tmp113_;
-		const gchar* _tmp114_;
-		GtkdocHeader* _tmp115_;
-		GtkdocHeader* _tmp116_;
-		_tmp103_ = annotations;
-		_tmp103__length1 = annotations_length1;
-		_tmp104_ = param_name;
-		_tmp105_ = g_strdup_printf ("array length=%s_length1", _tmp104_);
-		_vala_array_add27 (&annotations, &annotations_length1, &_annotations_size_, _tmp105_);
-		_tmp106_ = param_name;
-		_tmp107_ = g_strdup_printf ("%s_length1", _tmp106_);
-		_tmp108_ = _tmp107_;
-		_tmp109_ = param_name;
-		_tmp110_ = g_strdup_printf ("length of the @%s array", _tmp109_);
-		_tmp111_ = _tmp110_;
-		_tmp112_ = gtkdoc_generator_get_current_method_or_delegate (self);
-		_tmp113_ = _tmp112_;
-		_tmp114_ = param_name;
-		_tmp115_ = gtkdoc_generator_add_custom_header (self, _tmp108_, _tmp111_, NULL, 0, gtkdoc_get_parameter_pos (_tmp113_, _tmp114_) + 0.1, TRUE);
-		_tmp116_ = _tmp115_;
-		_gtkdoc_header_unref0 (_tmp116_);
-		_g_free0 (_tmp111_);
-		_g_free0 (_tmp108_);
+		ValadocApiNode* _tmp108_;
+		ValadocApiNode* _tmp109_;
+		const gchar* _tmp110_;
+		GtkdocHeader* _tmp111_;
+		GtkdocHeader* _tmp112_;
+		_tmp100_ = param_name;
+		_tmp101_ = g_strdup_printf ("array length=%s_length1", _tmp100_);
+		_vala_array_add27 (&annotations, &annotations_length1, &_annotations_size_, _tmp101_);
+		_tmp102_ = param_name;
+		_tmp103_ = g_strdup_printf ("%s_length1", _tmp102_);
+		_tmp104_ = _tmp103_;
+		_tmp105_ = param_name;
+		_tmp106_ = g_strdup_printf ("length of the @%s array", _tmp105_);
+		_tmp107_ = _tmp106_;
+		_tmp108_ = gtkdoc_generator_get_current_method_or_delegate (self);
+		_tmp109_ = _tmp108_;
+		_tmp110_ = param_name;
+		_tmp111_ = gtkdoc_generator_add_custom_header (self, _tmp104_, _tmp107_, NULL, (gint) 0, gtkdoc_get_parameter_pos (_tmp109_, _tmp110_) + 0.1, TRUE);
+		_tmp112_ = _tmp111_;
+		_gtkdoc_header_unref0 (_tmp112_);
+		_g_free0 (_tmp107_);
+		_g_free0 (_tmp104_);
 	}
-	_tmp119_ = valadoc_api_formal_parameter_get_ellipsis (param);
-	_tmp120_ = _tmp119_;
-	if (!_tmp120_) {
+	_tmp115_ = valadoc_api_parameter_get_ellipsis (param);
+	_tmp116_ = _tmp115_;
+	if (!_tmp116_) {
+		ValadocApiTypeReference* _tmp117_;
+		ValadocApiTypeReference* _tmp118_;
+		ValadocApiItem* _tmp119_;
+		ValadocApiItem* _tmp120_;
+		_tmp117_ = valadoc_api_parameter_get_parameter_type (param);
+		_tmp118_ = _tmp117_;
+		_tmp119_ = valadoc_api_typereference_get_data_type (_tmp118_);
+		_tmp120_ = _tmp119_;
+		_tmp114_ = _tmp120_ != NULL;
+	} else {
+		_tmp114_ = FALSE;
+	}
+	if (_tmp114_) {
 		ValadocApiTypeReference* _tmp121_;
 		ValadocApiTypeReference* _tmp122_;
 		ValadocApiItem* _tmp123_;
 		ValadocApiItem* _tmp124_;
-		_tmp121_ = valadoc_api_formal_parameter_get_parameter_type (param);
+		gchar* _tmp125_;
+		gchar* _tmp126_;
+		_tmp121_ = valadoc_api_parameter_get_parameter_type (param);
 		_tmp122_ = _tmp121_;
 		_tmp123_ = valadoc_api_typereference_get_data_type (_tmp122_);
 		_tmp124_ = _tmp123_;
-		_tmp118_ = _tmp124_ != NULL;
-	} else {
-		_tmp118_ = FALSE;
-	}
-	if (_tmp118_) {
-		ValadocApiTypeReference* _tmp125_;
-		ValadocApiTypeReference* _tmp126_;
-		ValadocApiItem* _tmp127_;
-		ValadocApiItem* _tmp128_;
-		gchar* _tmp129_;
-		gchar* _tmp130_;
-		_tmp125_ = valadoc_api_formal_parameter_get_parameter_type (param);
+		_tmp125_ = gtkdoc_get_cname (_tmp124_);
 		_tmp126_ = _tmp125_;
-		_tmp127_ = valadoc_api_typereference_get_data_type (_tmp126_);
-		_tmp128_ = _tmp127_;
-		_tmp129_ = gtkdoc_get_cname (_tmp128_);
-		_tmp130_ = _tmp129_;
-		_tmp117_ = g_strcmp0 (_tmp130_, "GError") == 0;
-		_g_free0 (_tmp130_);
+		_tmp113_ = g_strcmp0 (_tmp126_, "GError") == 0;
+		_g_free0 (_tmp126_);
 	} else {
-		_tmp117_ = FALSE;
+		_tmp113_ = FALSE;
 	}
-	if (_tmp117_) {
-		gchar** _tmp131_;
-		gint _tmp131__length1;
-		gchar* _tmp132_;
-		_tmp131_ = annotations;
-		_tmp131__length1 = annotations_length1;
-		_tmp132_ = g_strdup ("not-error");
-		_vala_array_add28 (&annotations, &annotations_length1, &_annotations_size_, _tmp132_);
+	if (_tmp113_) {
+		gchar* _tmp127_;
+		_tmp127_ = g_strdup ("not-error");
+		_vala_array_add28 (&annotations, &annotations_length1, &_annotations_size_, _tmp127_);
 	}
-	_tmp134_ = self->priv->current_signal;
-	if (_tmp134_ != NULL) {
-		ValadocContentComment* _tmp135_;
+	_tmp129_ = self->priv->current_signal;
+	if (_tmp129_ != NULL) {
+		ValadocContentComment* _tmp130_;
+		ValadocContentComment* _tmp131_;
+		_tmp130_ = valadoc_api_node_get_documentation ((ValadocApiNode*) param);
+		_tmp131_ = _tmp130_;
+		_tmp128_ = _tmp131_ == NULL;
+	} else {
+		_tmp128_ = FALSE;
+	}
+	if (_tmp128_) {
+		const gchar* _tmp132_;
+		GtkdocHeader* _tmp133_;
+		GtkdocHeader* _tmp134_;
+		_tmp132_ = param_name;
+		_tmp133_ = gtkdoc_generator_add_custom_header (self, _tmp132_, "", NULL, (gint) 0, DBL_MAX, TRUE);
+		_tmp134_ = _tmp133_;
+		_gtkdoc_header_unref0 (_tmp134_);
+	} else {
+		const gchar* _tmp135_;
 		ValadocContentComment* _tmp136_;
-		_tmp135_ = valadoc_api_node_get_documentation ((ValadocApiNode*) param);
-		_tmp136_ = _tmp135_;
-		_tmp133_ = _tmp136_ == NULL;
-	} else {
-		_tmp133_ = FALSE;
+		ValadocContentComment* _tmp137_;
+		gchar** _tmp138_;
+		gint _tmp138__length1;
+		ValadocApiNode* _tmp139_;
+		ValadocApiNode* _tmp140_;
+		const gchar* _tmp141_;
+		GtkdocHeader* _tmp142_;
+		GtkdocHeader* _tmp143_;
+		_tmp135_ = param_name;
+		_tmp136_ = valadoc_api_node_get_documentation ((ValadocApiNode*) param);
+		_tmp137_ = _tmp136_;
+		_tmp138_ = annotations;
+		_tmp138__length1 = annotations_length1;
+		_tmp139_ = gtkdoc_generator_get_current_method_or_delegate (self);
+		_tmp140_ = _tmp139_;
+		_tmp141_ = param_name;
+		_tmp142_ = gtkdoc_generator_add_header (self, _tmp135_, _tmp137_, _tmp138_, (gint) _tmp138__length1, gtkdoc_get_parameter_pos (_tmp140_, _tmp141_));
+		_tmp143_ = _tmp142_;
+		_gtkdoc_header_unref0 (_tmp143_);
 	}
-	if (_tmp133_) {
-		const gchar* _tmp137_;
-		GtkdocHeader* _tmp138_;
-		GtkdocHeader* _tmp139_;
-		_tmp137_ = param_name;
-		_tmp138_ = gtkdoc_generator_add_custom_header (self, _tmp137_, "", NULL, 0, DBL_MAX, TRUE);
-		_tmp139_ = _tmp138_;
-		_gtkdoc_header_unref0 (_tmp139_);
-	} else {
-		const gchar* _tmp140_;
-		ValadocContentComment* _tmp141_;
-		ValadocContentComment* _tmp142_;
-		gchar** _tmp143_;
-		gint _tmp143__length1;
-		ValadocApiNode* _tmp144_;
-		ValadocApiNode* _tmp145_;
-		const gchar* _tmp146_;
-		GtkdocHeader* _tmp147_;
-		GtkdocHeader* _tmp148_;
-		_tmp140_ = param_name;
-		_tmp141_ = valadoc_api_node_get_documentation ((ValadocApiNode*) param);
-		_tmp142_ = _tmp141_;
-		_tmp143_ = annotations;
-		_tmp143__length1 = annotations_length1;
-		_tmp144_ = gtkdoc_generator_get_current_method_or_delegate (self);
-		_tmp145_ = _tmp144_;
-		_tmp146_ = param_name;
-		_tmp147_ = gtkdoc_generator_add_header (self, _tmp140_, _tmp142_, _tmp143_, _tmp143__length1, gtkdoc_get_parameter_pos (_tmp145_, _tmp146_));
-		_tmp148_ = _tmp147_;
-		_gtkdoc_header_unref0 (_tmp148_);
-	}
-	_tmp149_ = valadoc_api_formal_parameter_get_parameter_type (param);
-	_tmp150_ = _tmp149_;
-	_tmp151_ = valadoc_api_typereference_get_data_type (_tmp150_);
-	_tmp152_ = _tmp151_;
-	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp152_, VALADOC_API_TYPE_DELEGATE)) {
-		const gchar* _tmp153_;
+	_tmp144_ = valadoc_api_parameter_get_parameter_type (param);
+	_tmp145_ = _tmp144_;
+	_tmp146_ = valadoc_api_typereference_get_data_type (_tmp145_);
+	_tmp147_ = _tmp146_;
+	if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp147_, VALADOC_API_TYPE_DELEGATE)) {
+		const gchar* _tmp148_;
+		gchar* _tmp149_;
+		gchar* _tmp150_;
+		const gchar* _tmp151_;
+		gchar* _tmp152_;
+		gchar* _tmp153_;
 		gchar* _tmp154_;
 		gchar* _tmp155_;
-		const gchar* _tmp156_;
-		gchar* _tmp157_;
-		gchar* _tmp158_;
-		gchar* _tmp159_;
-		gchar* _tmp160_;
-		gchar** _tmp161_;
-		gchar** _tmp162_;
-		gint _tmp162__length1;
-		ValadocApiNode* _tmp163_;
-		ValadocApiNode* _tmp164_;
-		const gchar* _tmp165_;
-		GtkdocHeader* _tmp166_;
-		GtkdocHeader* _tmp167_;
-		ValadocApiTypeReference* _tmp168_;
-		ValadocApiTypeReference* _tmp169_;
-		gboolean _tmp170_;
-		gboolean _tmp171_;
-		_tmp153_ = param_name;
-		_tmp154_ = g_strdup_printf ("%s_target", _tmp153_);
-		_tmp155_ = _tmp154_;
-		_tmp156_ = param_name;
-		_tmp157_ = g_strdup_printf ("user data to pass to @%s", _tmp156_);
-		_tmp158_ = _tmp157_;
-		_tmp159_ = g_strdup ("allow-none");
-		_tmp160_ = g_strdup ("closure");
-		_tmp161_ = g_new0 (gchar*, 2 + 1);
-		_tmp161_[0] = _tmp159_;
-		_tmp161_[1] = _tmp160_;
+		gchar** _tmp156_;
+		gchar** _tmp157_;
+		gint _tmp157__length1;
+		ValadocApiNode* _tmp158_;
+		ValadocApiNode* _tmp159_;
+		const gchar* _tmp160_;
+		GtkdocHeader* _tmp161_;
+		GtkdocHeader* _tmp162_;
+		ValadocApiTypeReference* _tmp163_;
+		ValadocApiTypeReference* _tmp164_;
+		gboolean _tmp165_;
+		gboolean _tmp166_;
+		_tmp148_ = param_name;
+		_tmp149_ = g_strdup_printf ("%s_target", _tmp148_);
+		_tmp150_ = _tmp149_;
+		_tmp151_ = param_name;
+		_tmp152_ = g_strdup_printf ("user data to pass to @%s", _tmp151_);
+		_tmp153_ = _tmp152_;
+		_tmp154_ = g_strdup ("allow-none");
+		_tmp155_ = g_strdup ("closure");
+		_tmp156_ = g_new0 (gchar*, 2 + 1);
+		_tmp156_[0] = _tmp154_;
+		_tmp156_[1] = _tmp155_;
+		_tmp157_ = _tmp156_;
+		_tmp157__length1 = 2;
+		_tmp158_ = gtkdoc_generator_get_current_method_or_delegate (self);
+		_tmp159_ = _tmp158_;
+		_tmp160_ = param_name;
+		_tmp161_ = gtkdoc_generator_add_custom_header (self, _tmp150_, _tmp153_, _tmp157_, (gint) 2, gtkdoc_get_parameter_pos (_tmp159_, _tmp160_) + 0.1, TRUE);
 		_tmp162_ = _tmp161_;
-		_tmp162__length1 = 2;
-		_tmp163_ = gtkdoc_generator_get_current_method_or_delegate (self);
+		_gtkdoc_header_unref0 (_tmp162_);
+		_tmp157_ = (_vala_array_free (_tmp157_, _tmp157__length1, (GDestroyNotify) g_free), NULL);
+		_g_free0 (_tmp153_);
+		_g_free0 (_tmp150_);
+		_tmp163_ = valadoc_api_parameter_get_parameter_type (param);
 		_tmp164_ = _tmp163_;
-		_tmp165_ = param_name;
-		_tmp166_ = gtkdoc_generator_add_custom_header (self, _tmp155_, _tmp158_, _tmp162_, 2, gtkdoc_get_parameter_pos (_tmp164_, _tmp165_) + 0.1, TRUE);
-		_tmp167_ = _tmp166_;
-		_gtkdoc_header_unref0 (_tmp167_);
-		_tmp162_ = (_vala_array_free (_tmp162_, _tmp162__length1, (GDestroyNotify) g_free), NULL);
-		_g_free0 (_tmp158_);
-		_g_free0 (_tmp155_);
-		_tmp168_ = valadoc_api_formal_parameter_get_parameter_type (param);
-		_tmp169_ = _tmp168_;
-		_tmp170_ = valadoc_api_typereference_get_is_owned (_tmp169_);
-		_tmp171_ = _tmp170_;
-		if (_tmp171_) {
-			const gchar* _tmp172_;
+		_tmp165_ = valadoc_api_typereference_get_is_owned (_tmp164_);
+		_tmp166_ = _tmp165_;
+		if (_tmp166_) {
+			const gchar* _tmp167_;
+			gchar* _tmp168_;
+			gchar* _tmp169_;
+			const gchar* _tmp170_;
+			gchar* _tmp171_;
+			gchar* _tmp172_;
 			gchar* _tmp173_;
-			gchar* _tmp174_;
-			const gchar* _tmp175_;
-			gchar* _tmp176_;
-			gchar* _tmp177_;
-			gchar* _tmp178_;
-			gchar** _tmp179_;
-			gchar** _tmp180_;
-			gint _tmp180__length1;
-			ValadocApiNode* _tmp181_;
-			ValadocApiNode* _tmp182_;
-			const gchar* _tmp183_;
-			GtkdocHeader* _tmp184_;
-			GtkdocHeader* _tmp185_;
-			_tmp172_ = param_name;
-			_tmp173_ = g_strdup_printf ("%s_target_destroy_notify", _tmp172_);
-			_tmp174_ = _tmp173_;
-			_tmp175_ = param_name;
-			_tmp176_ = g_strdup_printf ("function to call when @%s_target is no longer needed", _tmp175_);
+			gchar** _tmp174_;
+			gchar** _tmp175_;
+			gint _tmp175__length1;
+			ValadocApiNode* _tmp176_;
+			ValadocApiNode* _tmp177_;
+			const gchar* _tmp178_;
+			GtkdocHeader* _tmp179_;
+			GtkdocHeader* _tmp180_;
+			_tmp167_ = param_name;
+			_tmp168_ = g_strdup_printf ("%s_target_destroy_notify", _tmp167_);
+			_tmp169_ = _tmp168_;
+			_tmp170_ = param_name;
+			_tmp171_ = g_strdup_printf ("function to call when @%s_target is no longer needed", _tmp170_);
+			_tmp172_ = _tmp171_;
+			_tmp173_ = g_strdup ("allow-none");
+			_tmp174_ = g_new0 (gchar*, 1 + 1);
+			_tmp174_[0] = _tmp173_;
+			_tmp175_ = _tmp174_;
+			_tmp175__length1 = 1;
+			_tmp176_ = gtkdoc_generator_get_current_method_or_delegate (self);
 			_tmp177_ = _tmp176_;
-			_tmp178_ = g_strdup ("allow-none");
-			_tmp179_ = g_new0 (gchar*, 1 + 1);
-			_tmp179_[0] = _tmp178_;
+			_tmp178_ = param_name;
+			_tmp179_ = gtkdoc_generator_add_custom_header (self, _tmp169_, _tmp172_, _tmp175_, (gint) 1, gtkdoc_get_parameter_pos (_tmp177_, _tmp178_) + 0.2, TRUE);
 			_tmp180_ = _tmp179_;
-			_tmp180__length1 = 1;
-			_tmp181_ = gtkdoc_generator_get_current_method_or_delegate (self);
-			_tmp182_ = _tmp181_;
-			_tmp183_ = param_name;
-			_tmp184_ = gtkdoc_generator_add_custom_header (self, _tmp174_, _tmp177_, _tmp180_, 1, gtkdoc_get_parameter_pos (_tmp182_, _tmp183_) + 0.2, TRUE);
-			_tmp185_ = _tmp184_;
-			_gtkdoc_header_unref0 (_tmp185_);
-			_tmp180_ = (_vala_array_free (_tmp180_, _tmp180__length1, (GDestroyNotify) g_free), NULL);
-			_g_free0 (_tmp177_);
-			_g_free0 (_tmp174_);
+			_gtkdoc_header_unref0 (_tmp180_);
+			_tmp175_ = (_vala_array_free (_tmp175_, _tmp175__length1, (GDestroyNotify) g_free), NULL);
+			_g_free0 (_tmp172_);
+			_g_free0 (_tmp169_);
 		}
 	}
-	_tmp186_ = self->priv->current_dbus_member;
-	if (_tmp186_ != NULL) {
+	_tmp181_ = self->priv->current_dbus_member;
+	if (_tmp181_ != NULL) {
 		GtkdocDBusParameterDirection ddirection = 0;
-		ValadocApiSignal* _tmp187_;
+		ValadocApiSignal* _tmp182_;
 		GtkdocDBusParameter* dparam = NULL;
-		const gchar* _tmp190_;
-		ValadocApiTypeReference* _tmp191_;
-		ValadocApiTypeReference* _tmp192_;
-		gchar* _tmp193_;
-		gchar* _tmp194_;
-		GtkdocDBusParameterDirection _tmp195_;
-		GtkdocDBusParameter* _tmp196_;
-		GtkdocDBusParameter* _tmp197_;
-		GtkdocDBusMember* _tmp198_;
-		GtkdocDBusParameter* _tmp199_;
+		const gchar* _tmp185_;
+		ValadocApiTypeReference* _tmp186_;
+		ValadocApiTypeReference* _tmp187_;
+		gchar* _tmp188_;
+		gchar* _tmp189_;
+		GtkdocDBusParameterDirection _tmp190_;
+		GtkdocDBusParameter* _tmp191_;
+		GtkdocDBusParameter* _tmp192_;
+		GtkdocDBusMember* _tmp193_;
+		GtkdocDBusParameter* _tmp194_;
 		ddirection = GTKDOC_DBUS_PARAMETER_DIRECTION_IN;
-		_tmp187_ = self->priv->current_signal;
-		if (_tmp187_ != NULL) {
+		_tmp182_ = self->priv->current_signal;
+		if (_tmp182_ != NULL) {
 			ddirection = GTKDOC_DBUS_PARAMETER_DIRECTION_NONE;
 		} else {
-			gboolean _tmp188_;
-			gboolean _tmp189_;
-			_tmp188_ = valadoc_api_formal_parameter_get_is_out (param);
-			_tmp189_ = _tmp188_;
-			if (_tmp189_) {
+			gboolean _tmp183_;
+			gboolean _tmp184_;
+			_tmp183_ = valadoc_api_parameter_get_is_out (param);
+			_tmp184_ = _tmp183_;
+			if (_tmp184_) {
 				ddirection = GTKDOC_DBUS_PARAMETER_DIRECTION_OUT;
 			}
 		}
-		_tmp190_ = param_name;
-		_tmp191_ = valadoc_api_formal_parameter_get_parameter_type (param);
+		_tmp185_ = param_name;
+		_tmp186_ = valadoc_api_parameter_get_parameter_type (param);
+		_tmp187_ = _tmp186_;
+		_tmp188_ = valadoc_api_typereference_get_dbus_type_signature (_tmp187_);
+		_tmp189_ = _tmp188_;
+		_tmp190_ = ddirection;
+		_tmp191_ = gtkdoc_dbus_parameter_new (_tmp185_, _tmp189_, _tmp190_);
 		_tmp192_ = _tmp191_;
-		_tmp193_ = valadoc_api_typereference_get_dbus_type_signature (_tmp192_);
-		_tmp194_ = _tmp193_;
-		_tmp195_ = ddirection;
-		_tmp196_ = gtkdoc_dbus_parameter_new (_tmp190_, _tmp194_, _tmp195_);
-		_tmp197_ = _tmp196_;
-		_g_free0 (_tmp194_);
-		dparam = _tmp197_;
-		_tmp198_ = self->priv->current_dbus_member;
-		_tmp199_ = dparam;
-		gtkdoc_dbus_member_add_parameter (_tmp198_, _tmp199_);
+		_g_free0 (_tmp189_);
+		dparam = _tmp192_;
+		_tmp193_ = self->priv->current_dbus_member;
+		_tmp194_ = dparam;
+		gtkdoc_dbus_member_add_parameter (_tmp193_, _tmp194_);
 		_gtkdoc_dbus_parameter_unref0 (dparam);
 	}
 	valadoc_api_node_accept_all_children ((ValadocApiNode*) param, (ValadocApiVisitor*) self, TRUE);
@@ -8349,55 +8216,45 @@ gtkdoc_generator_real_visit_formal_parameter (ValadocApiVisitor* base,
 	_g_free0 (param_name);
 }
 
-
 static gchar*
 string_slice (const gchar* self,
               glong start,
               glong end)
 {
-	gchar* result = NULL;
 	glong string_length = 0L;
 	gint _tmp0_;
 	gint _tmp1_;
-	gboolean _tmp4_ = FALSE;
-	gboolean _tmp6_ = FALSE;
-	gchar* _tmp8_;
+	gboolean _tmp2_ = FALSE;
+	gboolean _tmp3_ = FALSE;
+	gchar* _tmp4_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	_tmp0_ = strlen (self);
 	_tmp1_ = _tmp0_;
 	string_length = (glong) _tmp1_;
 	if (start < ((glong) 0)) {
-		glong _tmp2_;
-		_tmp2_ = string_length;
-		start = _tmp2_ + start;
+		start = string_length + start;
 	}
 	if (end < ((glong) 0)) {
-		glong _tmp3_;
-		_tmp3_ = string_length;
-		end = _tmp3_ + end;
+		end = string_length + end;
 	}
 	if (start >= ((glong) 0)) {
-		glong _tmp5_;
-		_tmp5_ = string_length;
-		_tmp4_ = start <= _tmp5_;
+		_tmp2_ = start <= string_length;
 	} else {
-		_tmp4_ = FALSE;
+		_tmp2_ = FALSE;
 	}
-	g_return_val_if_fail (_tmp4_, NULL);
+	g_return_val_if_fail (_tmp2_, NULL);
 	if (end >= ((glong) 0)) {
-		glong _tmp7_;
-		_tmp7_ = string_length;
-		_tmp6_ = end <= _tmp7_;
+		_tmp3_ = end <= string_length;
 	} else {
-		_tmp6_ = FALSE;
+		_tmp3_ = FALSE;
 	}
-	g_return_val_if_fail (_tmp6_, NULL);
+	g_return_val_if_fail (_tmp3_, NULL);
 	g_return_val_if_fail (start <= end, NULL);
-	_tmp8_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
-	result = _tmp8_;
+	_tmp4_ = g_strndup (((gchar*) self) + start, (gsize) (end - start));
+	result = _tmp4_;
 	return result;
 }
-
 
 static void
 gtkdoc_generator_process_attributes (GtkdocGenerator* self,
@@ -8414,281 +8271,288 @@ gtkdoc_generator_process_attributes (GtkdocGenerator* self,
 	if (_tmp1_) {
 		ValadocApiAttribute* version = NULL;
 		ValadocApiAttribute* deprecated = NULL;
-		ValadocApiAttributeArgument* deprecated_since = NULL;
-		ValadocApiAttributeArgument* replacement = NULL;
+		gchar* deprecated_since = NULL;
+		gchar* replacement = NULL;
 		ValadocApiAttribute* _tmp2_;
 		ValadocApiAttribute* _tmp3_;
 		gchar* since = NULL;
-		ValadocApiAttributeArgument* _tmp14_;
+		const gchar* _tmp22_;
 		gchar* replacement_symbol_name = NULL;
 		ValadocApiNode* replacement_symbol = NULL;
-		ValadocApiAttributeArgument* _tmp28_;
-		gboolean _tmp48_ = FALSE;
-		ValadocApiAttributeArgument* _tmp49_;
+		const gchar* _tmp34_;
+		gboolean _tmp52_ = FALSE;
+		const gchar* _tmp53_;
 		gchar* deprecation_string = NULL;
-		gchar* _tmp55_;
-		gboolean _tmp56_ = FALSE;
-		const gchar* _tmp57_;
-		ValaList* _tmp79_;
-		const gchar* _tmp80_;
-		GtkdocHeader* _tmp81_;
-		GtkdocHeader* _tmp82_;
+		gchar* _tmp59_;
+		gboolean _tmp60_ = FALSE;
+		const gchar* _tmp61_;
+		ValaList* _tmp83_;
+		const gchar* _tmp84_;
+		GtkdocHeader* _tmp85_;
+		GtkdocHeader* _tmp86_;
 		_tmp2_ = valadoc_api_symbol_get_attribute (sym, "Version");
 		_g_object_unref0 (version);
 		version = _tmp2_;
 		_tmp3_ = version;
 		if (_tmp3_ != NULL) {
 			ValadocApiAttribute* _tmp4_;
-			ValadocApiAttributeArgument* _tmp5_;
-			ValadocApiAttribute* _tmp6_;
-			ValadocApiAttributeArgument* _tmp7_;
-			_tmp4_ = version;
-			_tmp5_ = valadoc_api_attribute_get_argument (_tmp4_, "deprecated_since");
-			_g_object_unref0 (deprecated_since);
-			deprecated_since = _tmp5_;
-			_tmp6_ = version;
-			_tmp7_ = valadoc_api_attribute_get_argument (_tmp6_, "replacement");
-			_g_object_unref0 (replacement);
-			replacement = _tmp7_;
-		} else {
+			ValaCodeNode* _tmp5_;
+			ValaCodeNode* _tmp6_;
+			gchar* _tmp7_;
 			ValadocApiAttribute* _tmp8_;
-			ValadocApiAttribute* _tmp9_;
-			_tmp8_ = valadoc_api_symbol_get_attribute (sym, "Deprecated");
+			ValaCodeNode* _tmp9_;
+			ValaCodeNode* _tmp10_;
+			gchar* _tmp11_;
+			_tmp4_ = version;
+			_tmp5_ = valadoc_api_item_get_data ((ValadocApiItem*) _tmp4_);
+			_tmp6_ = _tmp5_;
+			_tmp7_ = vala_attribute_get_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp6_, VALA_TYPE_ATTRIBUTE, ValaAttribute), "deprecated_since", NULL);
+			_g_free0 (deprecated_since);
+			deprecated_since = _tmp7_;
+			_tmp8_ = version;
+			_tmp9_ = valadoc_api_item_get_data ((ValadocApiItem*) _tmp8_);
+			_tmp10_ = _tmp9_;
+			_tmp11_ = vala_attribute_get_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp10_, VALA_TYPE_ATTRIBUTE, ValaAttribute), "replacement", NULL);
+			_g_free0 (replacement);
+			replacement = _tmp11_;
+		} else {
+			ValadocApiAttribute* _tmp12_;
+			ValadocApiAttribute* _tmp13_;
+			_tmp12_ = valadoc_api_symbol_get_attribute (sym, "Deprecated");
 			_g_object_unref0 (deprecated);
-			deprecated = _tmp8_;
-			_tmp9_ = deprecated;
-			if (_tmp9_ != NULL) {
-				ValadocApiAttribute* _tmp10_;
-				ValadocApiAttributeArgument* _tmp11_;
-				ValadocApiAttribute* _tmp12_;
-				ValadocApiAttributeArgument* _tmp13_;
-				_tmp10_ = deprecated;
-				_tmp11_ = valadoc_api_attribute_get_argument (_tmp10_, "since");
-				_g_object_unref0 (deprecated_since);
-				deprecated_since = _tmp11_;
-				_tmp12_ = deprecated;
-				_tmp13_ = valadoc_api_attribute_get_argument (_tmp12_, "replacement");
-				_g_object_unref0 (replacement);
-				replacement = _tmp13_;
+			deprecated = _tmp12_;
+			_tmp13_ = deprecated;
+			if (_tmp13_ != NULL) {
+				ValadocApiAttribute* _tmp14_;
+				ValaCodeNode* _tmp15_;
+				ValaCodeNode* _tmp16_;
+				gchar* _tmp17_;
+				ValadocApiAttribute* _tmp18_;
+				ValaCodeNode* _tmp19_;
+				ValaCodeNode* _tmp20_;
+				gchar* _tmp21_;
+				_tmp14_ = deprecated;
+				_tmp15_ = valadoc_api_item_get_data ((ValadocApiItem*) _tmp14_);
+				_tmp16_ = _tmp15_;
+				_tmp17_ = vala_attribute_get_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp16_, VALA_TYPE_ATTRIBUTE, ValaAttribute), "since", NULL);
+				_g_free0 (deprecated_since);
+				deprecated_since = _tmp17_;
+				_tmp18_ = deprecated;
+				_tmp19_ = valadoc_api_item_get_data ((ValadocApiItem*) _tmp18_);
+				_tmp20_ = _tmp19_;
+				_tmp21_ = vala_attribute_get_string (G_TYPE_CHECK_INSTANCE_CAST (_tmp20_, VALA_TYPE_ATTRIBUTE, ValaAttribute), "replacement", NULL);
+				_g_free0 (replacement);
+				replacement = _tmp21_;
 			} else {
 				g_assert_not_reached ();
 			}
 		}
 		since = NULL;
-		_tmp14_ = deprecated_since;
-		if (_tmp14_ != NULL) {
-			ValadocApiAttributeArgument* _tmp15_;
-			const gchar* _tmp16_;
-			const gchar* _tmp17_;
-			gchar* _tmp18_;
-			const gchar* _tmp19_;
+		_tmp22_ = deprecated_since;
+		if (_tmp22_ != NULL) {
+			const gchar* _tmp23_;
+			gchar* _tmp24_;
 			const gchar* _tmp25_;
-			_tmp15_ = deprecated_since;
-			_tmp16_ = valadoc_api_attribute_argument_get_value (_tmp15_);
-			_tmp17_ = _tmp16_;
-			_tmp18_ = g_strdup (_tmp17_);
+			const gchar* _tmp31_;
+			_tmp23_ = deprecated_since;
+			_tmp24_ = g_strdup (_tmp23_);
 			_g_free0 (since);
-			since = _tmp18_;
-			_tmp19_ = since;
-			if (g_str_has_prefix (_tmp19_, "\"")) {
-				const gchar* _tmp20_;
-				const gchar* _tmp21_;
-				gint _tmp22_;
-				gint _tmp23_;
-				gchar* _tmp24_;
-				_tmp20_ = since;
-				_tmp21_ = since;
-				_tmp22_ = strlen (_tmp21_);
-				_tmp23_ = _tmp22_;
-				_tmp24_ = string_slice (_tmp20_, (glong) 1, (glong) (_tmp23_ - 1));
-				_g_free0 (since);
-				since = _tmp24_;
-			}
+			since = _tmp24_;
 			_tmp25_ = since;
-			if (g_str_has_suffix (_tmp25_, "\"")) {
+			if (g_str_has_prefix (_tmp25_, "\"")) {
 				const gchar* _tmp26_;
-				gchar* _tmp27_;
+				const gchar* _tmp27_;
+				gint _tmp28_;
+				gint _tmp29_;
+				gchar* _tmp30_;
 				_tmp26_ = since;
-				_tmp27_ = string_slice (_tmp26_, (glong) 0, (glong) -1);
+				_tmp27_ = since;
+				_tmp28_ = strlen (_tmp27_);
+				_tmp29_ = _tmp28_;
+				_tmp30_ = string_slice (_tmp26_, (glong) 1, (glong) (_tmp29_ - 1));
 				_g_free0 (since);
-				since = _tmp27_;
+				since = _tmp30_;
+			}
+			_tmp31_ = since;
+			if (g_str_has_suffix (_tmp31_, "\"")) {
+				const gchar* _tmp32_;
+				gchar* _tmp33_;
+				_tmp32_ = since;
+				_tmp33_ = string_slice (_tmp32_, (glong) 0, (glong) -1);
+				_g_free0 (since);
+				since = _tmp33_;
 			}
 		}
 		replacement_symbol_name = NULL;
 		replacement_symbol = NULL;
-		_tmp28_ = replacement;
-		if (_tmp28_ != NULL) {
-			ValadocApiAttributeArgument* _tmp29_;
-			const gchar* _tmp30_;
-			const gchar* _tmp31_;
-			gchar* _tmp32_;
-			const gchar* _tmp33_;
-			const gchar* _tmp39_;
-			const gchar* _tmp42_;
-			ValadocApiTree* _tmp45_;
+		_tmp34_ = replacement;
+		if (_tmp34_ != NULL) {
+			const gchar* _tmp35_;
+			gchar* _tmp36_;
+			const gchar* _tmp37_;
+			const gchar* _tmp43_;
 			const gchar* _tmp46_;
-			ValadocApiNode* _tmp47_;
-			_tmp29_ = replacement;
-			_tmp30_ = valadoc_api_attribute_argument_get_value (_tmp29_);
-			_tmp31_ = _tmp30_;
-			_tmp32_ = g_strdup (_tmp31_);
+			ValadocApiTree* _tmp49_;
+			const gchar* _tmp50_;
+			ValadocApiNode* _tmp51_;
+			_tmp35_ = replacement;
+			_tmp36_ = g_strdup (_tmp35_);
 			_g_free0 (replacement_symbol_name);
-			replacement_symbol_name = _tmp32_;
-			_tmp33_ = replacement_symbol_name;
-			if (g_str_has_prefix (_tmp33_, "\"")) {
-				const gchar* _tmp34_;
-				const gchar* _tmp35_;
-				gint _tmp36_;
-				gint _tmp37_;
-				gchar* _tmp38_;
-				_tmp34_ = replacement_symbol_name;
-				_tmp35_ = replacement_symbol_name;
-				_tmp36_ = strlen (_tmp35_);
-				_tmp37_ = _tmp36_;
-				_tmp38_ = string_slice (_tmp34_, (glong) 1, (glong) (_tmp37_ - 1));
+			replacement_symbol_name = _tmp36_;
+			_tmp37_ = replacement_symbol_name;
+			if (g_str_has_prefix (_tmp37_, "\"")) {
+				const gchar* _tmp38_;
+				const gchar* _tmp39_;
+				gint _tmp40_;
+				gint _tmp41_;
+				gchar* _tmp42_;
+				_tmp38_ = replacement_symbol_name;
+				_tmp39_ = replacement_symbol_name;
+				_tmp40_ = strlen (_tmp39_);
+				_tmp41_ = _tmp40_;
+				_tmp42_ = string_slice (_tmp38_, (glong) 1, (glong) (_tmp41_ - 1));
 				_g_free0 (replacement_symbol_name);
-				replacement_symbol_name = _tmp38_;
+				replacement_symbol_name = _tmp42_;
 			}
-			_tmp39_ = replacement_symbol_name;
-			if (g_str_has_suffix (_tmp39_, "\"")) {
-				const gchar* _tmp40_;
-				gchar* _tmp41_;
-				_tmp40_ = replacement_symbol_name;
-				_tmp41_ = string_slice (_tmp40_, (glong) 0, (glong) -1);
+			_tmp43_ = replacement_symbol_name;
+			if (g_str_has_suffix (_tmp43_, "\"")) {
+				const gchar* _tmp44_;
+				gchar* _tmp45_;
+				_tmp44_ = replacement_symbol_name;
+				_tmp45_ = string_slice (_tmp44_, (glong) 0, (glong) -1);
 				_g_free0 (replacement_symbol_name);
-				replacement_symbol_name = _tmp41_;
+				replacement_symbol_name = _tmp45_;
 			}
-			_tmp42_ = replacement_symbol_name;
-			if (g_str_has_suffix (_tmp42_, "()")) {
-				const gchar* _tmp43_;
-				gchar* _tmp44_;
-				_tmp43_ = replacement_symbol_name;
-				_tmp44_ = string_slice (_tmp43_, (glong) 0, (glong) -2);
-				_g_free0 (replacement_symbol_name);
-				replacement_symbol_name = _tmp44_;
-			}
-			_tmp45_ = self->priv->current_tree;
 			_tmp46_ = replacement_symbol_name;
-			_tmp47_ = valadoc_api_tree_search_symbol_str (_tmp45_, (ValadocApiNode*) sym, _tmp46_);
-			_g_object_unref0 (replacement_symbol);
-			replacement_symbol = _tmp47_;
-		}
-		_tmp49_ = replacement;
-		if (_tmp49_ != NULL) {
-			ValadocApiNode* _tmp50_;
-			_tmp50_ = replacement_symbol;
-			_tmp48_ = _tmp50_ == NULL;
-		} else {
-			_tmp48_ = FALSE;
-		}
-		if (_tmp48_) {
-			ValadocErrorReporter* _tmp51_;
-			const gchar* _tmp52_;
-			gchar* _tmp53_;
-			gchar* _tmp54_;
-			_tmp51_ = self->priv->reporter;
-			_tmp52_ = replacement_symbol_name;
-			_tmp53_ = valadoc_api_node_get_full_name ((ValadocApiNode*) sym);
-			_tmp54_ = _tmp53_;
-			valadoc_error_reporter_simple_warning (_tmp51_, "GtkDoc", "Couldn’t resolve replacement symbol ‘%s’ for ‘Deprecated’ attribute on" \
-" %s.", _tmp52_, _tmp54_);
-			_g_free0 (_tmp54_);
-		}
-		_tmp55_ = g_strdup ("No replacement specified.");
-		deprecation_string = _tmp55_;
-		_tmp57_ = since;
-		if (_tmp57_ != NULL) {
-			ValadocApiNode* _tmp58_;
-			_tmp58_ = replacement_symbol;
-			_tmp56_ = _tmp58_ != NULL;
-		} else {
-			_tmp56_ = FALSE;
-		}
-		if (_tmp56_) {
-			const gchar* _tmp59_;
-			ValadocApiNode* _tmp60_;
-			gchar* _tmp61_;
-			gchar* _tmp62_;
-			gchar* _tmp63_;
-			_tmp59_ = since;
-			_tmp60_ = replacement_symbol;
-			_tmp61_ = gtkdoc_get_gtkdoc_link (_tmp60_);
-			_tmp62_ = _tmp61_;
-			_tmp63_ = g_strdup_printf ("%s: Replaced by %s.", _tmp59_, _tmp62_);
-			_g_free0 (deprecation_string);
-			deprecation_string = _tmp63_;
-			_g_free0 (_tmp62_);
-		} else {
-			gboolean _tmp64_ = FALSE;
-			const gchar* _tmp65_;
-			_tmp65_ = since;
-			if (_tmp65_ != NULL) {
-				ValadocApiNode* _tmp66_;
-				_tmp66_ = replacement_symbol;
-				_tmp64_ = _tmp66_ == NULL;
-			} else {
-				_tmp64_ = FALSE;
+			if (g_str_has_suffix (_tmp46_, "()")) {
+				const gchar* _tmp47_;
+				gchar* _tmp48_;
+				_tmp47_ = replacement_symbol_name;
+				_tmp48_ = string_slice (_tmp47_, (glong) 0, (glong) -2);
+				_g_free0 (replacement_symbol_name);
+				replacement_symbol_name = _tmp48_;
 			}
-			if (_tmp64_) {
-				const gchar* _tmp67_;
-				gchar* _tmp68_;
-				_tmp67_ = since;
-				_tmp68_ = g_strdup_printf ("%s: No replacement specified.", _tmp67_);
-				_g_free0 (deprecation_string);
-				deprecation_string = _tmp68_;
+			_tmp49_ = self->priv->current_tree;
+			_tmp50_ = replacement_symbol_name;
+			_tmp51_ = valadoc_api_tree_search_symbol_str (_tmp49_, (ValadocApiNode*) sym, _tmp50_);
+			_g_object_unref0 (replacement_symbol);
+			replacement_symbol = _tmp51_;
+		}
+		_tmp53_ = replacement;
+		if (_tmp53_ != NULL) {
+			ValadocApiNode* _tmp54_;
+			_tmp54_ = replacement_symbol;
+			_tmp52_ = _tmp54_ == NULL;
+		} else {
+			_tmp52_ = FALSE;
+		}
+		if (_tmp52_) {
+			ValadocErrorReporter* _tmp55_;
+			const gchar* _tmp56_;
+			gchar* _tmp57_;
+			gchar* _tmp58_;
+			_tmp55_ = self->priv->reporter;
+			_tmp56_ = replacement_symbol_name;
+			_tmp57_ = valadoc_api_node_get_full_name ((ValadocApiNode*) sym);
+			_tmp58_ = _tmp57_;
+			valadoc_error_reporter_simple_warning (_tmp55_, "GtkDoc", "Couldn’t resolve replacement symbol ‘%s’ for ‘Deprecated’ attribute on" \
+" %s.", _tmp56_, _tmp58_);
+			_g_free0 (_tmp58_);
+		}
+		_tmp59_ = g_strdup ("No replacement specified.");
+		deprecation_string = _tmp59_;
+		_tmp61_ = since;
+		if (_tmp61_ != NULL) {
+			ValadocApiNode* _tmp62_;
+			_tmp62_ = replacement_symbol;
+			_tmp60_ = _tmp62_ != NULL;
+		} else {
+			_tmp60_ = FALSE;
+		}
+		if (_tmp60_) {
+			const gchar* _tmp63_;
+			ValadocApiNode* _tmp64_;
+			gchar* _tmp65_;
+			gchar* _tmp66_;
+			gchar* _tmp67_;
+			_tmp63_ = since;
+			_tmp64_ = replacement_symbol;
+			_tmp65_ = gtkdoc_get_gtkdoc_link (_tmp64_);
+			_tmp66_ = _tmp65_;
+			_tmp67_ = g_strdup_printf ("%s: Replaced by %s.", _tmp63_, _tmp66_);
+			_g_free0 (deprecation_string);
+			deprecation_string = _tmp67_;
+			_g_free0 (_tmp66_);
+		} else {
+			gboolean _tmp68_ = FALSE;
+			const gchar* _tmp69_;
+			_tmp69_ = since;
+			if (_tmp69_ != NULL) {
+				ValadocApiNode* _tmp70_;
+				_tmp70_ = replacement_symbol;
+				_tmp68_ = _tmp70_ == NULL;
 			} else {
-				gboolean _tmp69_ = FALSE;
-				const gchar* _tmp70_;
-				_tmp70_ = since;
-				if (_tmp70_ == NULL) {
-					ValadocApiNode* _tmp71_;
-					_tmp71_ = replacement_symbol;
-					_tmp69_ = _tmp71_ != NULL;
+				_tmp68_ = FALSE;
+			}
+			if (_tmp68_) {
+				const gchar* _tmp71_;
+				gchar* _tmp72_;
+				_tmp71_ = since;
+				_tmp72_ = g_strdup_printf ("%s: No replacement specified.", _tmp71_);
+				_g_free0 (deprecation_string);
+				deprecation_string = _tmp72_;
+			} else {
+				gboolean _tmp73_ = FALSE;
+				const gchar* _tmp74_;
+				_tmp74_ = since;
+				if (_tmp74_ == NULL) {
+					ValadocApiNode* _tmp75_;
+					_tmp75_ = replacement_symbol;
+					_tmp73_ = _tmp75_ != NULL;
 				} else {
-					_tmp69_ = FALSE;
+					_tmp73_ = FALSE;
 				}
-				if (_tmp69_) {
-					ValadocApiNode* _tmp72_;
-					gchar* _tmp73_;
-					gchar* _tmp74_;
-					gchar* _tmp75_;
-					_tmp72_ = replacement_symbol;
-					_tmp73_ = gtkdoc_get_gtkdoc_link (_tmp72_);
-					_tmp74_ = _tmp73_;
-					_tmp75_ = g_strdup_printf ("Replaced by %s.", _tmp74_);
-					_g_free0 (deprecation_string);
-					deprecation_string = _tmp75_;
-					_g_free0 (_tmp74_);
-				} else {
-					ValadocErrorReporter* _tmp76_;
+				if (_tmp73_) {
+					ValadocApiNode* _tmp76_;
 					gchar* _tmp77_;
 					gchar* _tmp78_;
-					_tmp76_ = self->priv->reporter;
-					_tmp77_ = valadoc_api_node_get_full_name ((ValadocApiNode*) sym);
+					gchar* _tmp79_;
+					_tmp76_ = replacement_symbol;
+					_tmp77_ = gtkdoc_get_gtkdoc_link (_tmp76_);
 					_tmp78_ = _tmp77_;
-					valadoc_error_reporter_simple_warning (_tmp76_, "GtkDoc", "Missing ‘since’ and ‘replacement’ arguments to ‘Deprecated’ attribute " \
-"on %s.", _tmp78_);
+					_tmp79_ = g_strdup_printf ("Replaced by %s.", _tmp78_);
+					_g_free0 (deprecation_string);
+					deprecation_string = _tmp79_;
 					_g_free0 (_tmp78_);
+				} else {
+					ValadocErrorReporter* _tmp80_;
+					gchar* _tmp81_;
+					gchar* _tmp82_;
+					_tmp80_ = self->priv->reporter;
+					_tmp81_ = valadoc_api_node_get_full_name ((ValadocApiNode*) sym);
+					_tmp82_ = _tmp81_;
+					valadoc_error_reporter_simple_warning (_tmp80_, "GtkDoc", "Missing ‘since’ and ‘replacement’ arguments to ‘Deprecated’ attribute " \
+"on %s.", _tmp82_);
+					_g_free0 (_tmp82_);
 				}
 			}
 		}
-		_tmp79_ = gcomment->versioning;
-		_tmp80_ = deprecation_string;
-		_tmp81_ = gtkdoc_header_new ("Deprecated", _tmp80_, DBL_MAX, TRUE);
-		_tmp82_ = _tmp81_;
-		vala_collection_add ((ValaCollection*) _tmp79_, _tmp82_);
-		_gtkdoc_header_unref0 (_tmp82_);
+		_tmp83_ = gcomment->versioning;
+		_tmp84_ = deprecation_string;
+		_tmp85_ = gtkdoc_header_new ("Deprecated", _tmp84_, DBL_MAX, TRUE);
+		_tmp86_ = _tmp85_;
+		vala_collection_add ((ValaCollection*) _tmp83_, _tmp86_);
+		_gtkdoc_header_unref0 (_tmp86_);
 		_g_free0 (deprecation_string);
 		_g_object_unref0 (replacement_symbol);
 		_g_free0 (replacement_symbol_name);
 		_g_free0 (since);
-		_g_object_unref0 (replacement);
-		_g_object_unref0 (deprecated_since);
+		_g_free0 (replacement);
+		_g_free0 (deprecated_since);
 		_g_object_unref0 (deprecated);
 		_g_object_unref0 (version);
 	}
 }
-
 
 GtkdocGenerator*
 gtkdoc_generator_construct (GType object_type)
@@ -8698,40 +8562,11 @@ gtkdoc_generator_construct (GType object_type)
 	return self;
 }
 
-
 GtkdocGenerator*
 gtkdoc_generator_new (void)
 {
 	return gtkdoc_generator_construct (GTKDOC_TYPE_GENERATOR);
 }
-
-
-static ValadocApiNode*
-gtkdoc_generator_get_current_method_or_delegate (GtkdocGenerator* self)
-{
-	ValadocApiNode* result;
-	ValadocApiMethod* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->current_method;
-	if (_tmp0_ != NULL) {
-		ValadocApiMethod* _tmp1_;
-		_tmp1_ = self->priv->current_method;
-		result = (ValadocApiNode*) _tmp1_;
-		return result;
-	} else {
-		ValadocApiDelegate* _tmp2_;
-		_tmp2_ = self->priv->current_delegate;
-		if (_tmp2_ != NULL) {
-			ValadocApiDelegate* _tmp3_;
-			_tmp3_ = self->priv->current_delegate;
-			result = (ValadocApiNode*) _tmp3_;
-			return result;
-		}
-	}
-	result = NULL;
-	return result;
-}
-
 
 static void
 gtkdoc_generator_file_data_register_section_line (GtkdocGeneratorFileData* self,
@@ -8745,7 +8580,6 @@ gtkdoc_generator_file_data_register_section_line (GtkdocGeneratorFileData* self,
 	}
 }
 
-
 static void
 gtkdoc_generator_file_data_register_standard_section_line (GtkdocGeneratorFileData* self,
                                                            const gchar* line)
@@ -8757,7 +8591,6 @@ gtkdoc_generator_file_data_register_standard_section_line (GtkdocGeneratorFileDa
 		vala_collection_add ((ValaCollection*) _tmp0_, line);
 	}
 }
-
 
 static void
 gtkdoc_generator_file_data_register_private_section_line (GtkdocGeneratorFileData* self,
@@ -8771,7 +8604,6 @@ gtkdoc_generator_file_data_register_private_section_line (GtkdocGeneratorFileDat
 	}
 }
 
-
 static GtkdocGeneratorFileData*
 gtkdoc_generator_file_data_construct (GType object_type)
 {
@@ -8780,20 +8612,17 @@ gtkdoc_generator_file_data_construct (GType object_type)
 	return self;
 }
 
-
 static GtkdocGeneratorFileData*
 gtkdoc_generator_file_data_new (void)
 {
 	return gtkdoc_generator_file_data_construct (GTKDOC_GENERATOR_TYPE_FILE_DATA);
 }
 
-
 static void
 gtkdoc_generator_value_file_data_init (GValue* value)
 {
 	value->data[0].v_pointer = NULL;
 }
-
 
 static void
 gtkdoc_generator_value_file_data_free_value (GValue* value)
@@ -8802,7 +8631,6 @@ gtkdoc_generator_value_file_data_free_value (GValue* value)
 		gtkdoc_generator_file_data_unref (value->data[0].v_pointer);
 	}
 }
-
 
 static void
 gtkdoc_generator_value_file_data_copy_value (const GValue* src_value,
@@ -8815,13 +8643,11 @@ gtkdoc_generator_value_file_data_copy_value (const GValue* src_value,
 	}
 }
 
-
 static gpointer
 gtkdoc_generator_value_file_data_peek_pointer (const GValue* value)
 {
 	return value->data[0].v_pointer;
 }
-
 
 static gchar*
 gtkdoc_generator_value_file_data_collect_value (GValue* value,
@@ -8844,7 +8670,6 @@ gtkdoc_generator_value_file_data_collect_value (GValue* value,
 	return NULL;
 }
 
-
 static gchar*
 gtkdoc_generator_value_file_data_lcopy_value (const GValue* value,
                                               guint n_collect_values,
@@ -8866,7 +8691,6 @@ gtkdoc_generator_value_file_data_lcopy_value (const GValue* value,
 	return NULL;
 }
 
-
 static GParamSpec*
 gtkdoc_generator_param_spec_file_data (const gchar* name,
                                        const gchar* nick,
@@ -8881,14 +8705,12 @@ gtkdoc_generator_param_spec_file_data (const gchar* name,
 	return G_PARAM_SPEC (spec);
 }
 
-
 static gpointer
 gtkdoc_generator_value_get_file_data (const GValue* value)
 {
 	g_return_val_if_fail (G_TYPE_CHECK_VALUE_TYPE (value, GTKDOC_GENERATOR_TYPE_FILE_DATA), NULL);
 	return value->data[0].v_pointer;
 }
-
 
 static void
 gtkdoc_generator_value_set_file_data (GValue* value,
@@ -8910,7 +8732,6 @@ gtkdoc_generator_value_set_file_data (GValue* value,
 	}
 }
 
-
 static void
 gtkdoc_generator_value_take_file_data (GValue* value,
                                        gpointer v_object)
@@ -8930,21 +8751,20 @@ gtkdoc_generator_value_take_file_data (GValue* value,
 	}
 }
 
-
 static void
-gtkdoc_generator_file_data_class_init (GtkdocGeneratorFileDataClass * klass)
+gtkdoc_generator_file_data_class_init (GtkdocGeneratorFileDataClass * klass,
+                                       gpointer klass_data)
 {
 	gtkdoc_generator_file_data_parent_class = g_type_class_peek_parent (klass);
 	((GtkdocGeneratorFileDataClass *) klass)->finalize = gtkdoc_generator_file_data_finalize;
 }
 
-
 static void
-gtkdoc_generator_file_data_instance_init (GtkdocGeneratorFileData * self)
+gtkdoc_generator_file_data_instance_init (GtkdocGeneratorFileData * self,
+                                          gpointer klass)
 {
 	self->ref_count = 1;
 }
-
 
 static void
 gtkdoc_generator_file_data_finalize (GtkdocGeneratorFileData * obj)
@@ -8961,22 +8781,28 @@ gtkdoc_generator_file_data_finalize (GtkdocGeneratorFileData * obj)
 	_vala_iterable_unref0 (self->private_section_lines);
 }
 
+static GType
+gtkdoc_generator_file_data_get_type_once (void)
+{
+	static const GTypeValueTable g_define_type_value_table = { gtkdoc_generator_value_file_data_init, gtkdoc_generator_value_file_data_free_value, gtkdoc_generator_value_file_data_copy_value, gtkdoc_generator_value_file_data_peek_pointer, "p", gtkdoc_generator_value_file_data_collect_value, "p", gtkdoc_generator_value_file_data_lcopy_value };
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocGeneratorFileDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_generator_file_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGeneratorFileData), 0, (GInstanceInitFunc) gtkdoc_generator_file_data_instance_init, &g_define_type_value_table };
+	static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
+	GType gtkdoc_generator_file_data_type_id;
+	gtkdoc_generator_file_data_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocGeneratorFileData", &g_define_type_info, &g_define_type_fundamental_info, 0);
+	return gtkdoc_generator_file_data_type_id;
+}
 
 static GType
 gtkdoc_generator_file_data_get_type (void)
 {
 	static volatile gsize gtkdoc_generator_file_data_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_generator_file_data_type_id__volatile)) {
-		static const GTypeValueTable g_define_type_value_table = { gtkdoc_generator_value_file_data_init, gtkdoc_generator_value_file_data_free_value, gtkdoc_generator_value_file_data_copy_value, gtkdoc_generator_value_file_data_peek_pointer, "p", gtkdoc_generator_value_file_data_collect_value, "p", gtkdoc_generator_value_file_data_lcopy_value };
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocGeneratorFileDataClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_generator_file_data_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGeneratorFileData), 0, (GInstanceInitFunc) gtkdoc_generator_file_data_instance_init, &g_define_type_value_table };
-		static const GTypeFundamentalInfo g_define_type_fundamental_info = { (G_TYPE_FLAG_CLASSED | G_TYPE_FLAG_INSTANTIATABLE | G_TYPE_FLAG_DERIVABLE | G_TYPE_FLAG_DEEP_DERIVABLE) };
 		GType gtkdoc_generator_file_data_type_id;
-		gtkdoc_generator_file_data_type_id = g_type_register_fundamental (g_type_fundamental_next (), "GtkdocGeneratorFileData", &g_define_type_info, &g_define_type_fundamental_info, 0);
+		gtkdoc_generator_file_data_type_id = gtkdoc_generator_file_data_get_type_once ();
 		g_once_init_leave (&gtkdoc_generator_file_data_type_id__volatile, gtkdoc_generator_file_data_type_id);
 	}
 	return gtkdoc_generator_file_data_type_id__volatile;
 }
-
 
 static gpointer
 gtkdoc_generator_file_data_ref (gpointer instance)
@@ -8986,7 +8812,6 @@ gtkdoc_generator_file_data_ref (gpointer instance)
 	g_atomic_int_inc (&self->ref_count);
 	return instance;
 }
-
 
 static void
 gtkdoc_generator_file_data_unref (gpointer instance)
@@ -8999,9 +8824,9 @@ gtkdoc_generator_file_data_unref (gpointer instance)
 	}
 }
 
-
 static void
-gtkdoc_generator_class_init (GtkdocGeneratorClass * klass)
+gtkdoc_generator_class_init (GtkdocGeneratorClass * klass,
+                             gpointer klass_data)
 {
 	gtkdoc_generator_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &GtkdocGenerator_private_offset);
@@ -9021,14 +8846,14 @@ gtkdoc_generator_class_init (GtkdocGeneratorClass * klass)
 	((ValadocApiVisitorClass *) klass)->visit_delegate = (void (*) (ValadocApiVisitor*, ValadocApiDelegate*)) gtkdoc_generator_real_visit_delegate;
 	((ValadocApiVisitorClass *) klass)->visit_signal = (void (*) (ValadocApiVisitor*, ValadocApiSignal*)) gtkdoc_generator_real_visit_signal;
 	((ValadocApiVisitorClass *) klass)->visit_method = (void (*) (ValadocApiVisitor*, ValadocApiMethod*)) gtkdoc_generator_real_visit_method;
-	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiFormalParameter*)) gtkdoc_generator_real_visit_formal_parameter;
+	((ValadocApiVisitorClass *) klass)->visit_formal_parameter = (void (*) (ValadocApiVisitor*, ValadocApiParameter*)) gtkdoc_generator_real_visit_formal_parameter;
 	G_OBJECT_CLASS (klass)->get_property = _vala_gtkdoc_generator_get_property;
 	G_OBJECT_CLASS (klass)->finalize = gtkdoc_generator_finalize;
 }
 
-
 static void
-gtkdoc_generator_instance_init (GtkdocGenerator * self)
+gtkdoc_generator_instance_init (GtkdocGenerator * self,
+                                gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -9046,7 +8871,6 @@ gtkdoc_generator_instance_init (GtkdocGenerator * self)
 	_tmp5_ = vala_hash_map_new (G_TYPE_STRING, (GBoxedCopyFunc) g_strdup, (GDestroyNotify) g_free, GTKDOC_GENERATOR_TYPE_FILE_DATA, (GBoxedCopyFunc) gtkdoc_generator_file_data_ref, (GDestroyNotify) gtkdoc_generator_file_data_unref, _tmp2_, _tmp3_, _tmp4_);
 	self->priv->files_data = (ValaMap*) _tmp5_;
 }
-
 
 static void
 gtkdoc_generator_finalize (GObject * obj)
@@ -9069,21 +8893,27 @@ gtkdoc_generator_finalize (GObject * obj)
 	G_OBJECT_CLASS (gtkdoc_generator_parent_class)->finalize (obj);
 }
 
+static GType
+gtkdoc_generator_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (GtkdocGeneratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_generator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGenerator), 0, (GInstanceInitFunc) gtkdoc_generator_instance_init, NULL };
+	GType gtkdoc_generator_type_id;
+	gtkdoc_generator_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "GtkdocGenerator", &g_define_type_info, 0);
+	GtkdocGenerator_private_offset = g_type_add_instance_private (gtkdoc_generator_type_id, sizeof (GtkdocGeneratorPrivate));
+	return gtkdoc_generator_type_id;
+}
 
 GType
 gtkdoc_generator_get_type (void)
 {
 	static volatile gsize gtkdoc_generator_type_id__volatile = 0;
 	if (g_once_init_enter (&gtkdoc_generator_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (GtkdocGeneratorClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) gtkdoc_generator_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (GtkdocGenerator), 0, (GInstanceInitFunc) gtkdoc_generator_instance_init, NULL };
 		GType gtkdoc_generator_type_id;
-		gtkdoc_generator_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "GtkdocGenerator", &g_define_type_info, 0);
-		GtkdocGenerator_private_offset = g_type_add_instance_private (gtkdoc_generator_type_id, sizeof (GtkdocGeneratorPrivate));
+		gtkdoc_generator_type_id = gtkdoc_generator_get_type_once ();
 		g_once_init_leave (&gtkdoc_generator_type_id__volatile, gtkdoc_generator_type_id);
 	}
 	return gtkdoc_generator_type_id__volatile;
 }
-
 
 static void
 _vala_gtkdoc_generator_get_property (GObject * object,
@@ -9100,14 +8930,13 @@ _vala_gtkdoc_generator_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_array_destroy (gpointer array,
                      gint array_length,
                      GDestroyNotify destroy_func)
 {
 	if ((array != NULL) && (destroy_func != NULL)) {
-		int i;
+		gint i;
 		for (i = 0; i < array_length; i = i + 1) {
 			if (((gpointer*) array)[i] != NULL) {
 				destroy_func (((gpointer*) array)[i]);
@@ -9115,7 +8944,6 @@ _vala_array_destroy (gpointer array,
 		}
 	}
 }
-
 
 static void
 _vala_array_free (gpointer array,
@@ -9125,6 +8953,4 @@ _vala_array_free (gpointer array,
 	_vala_array_destroy (array, array_length, destroy_func);
 	g_free (array);
 }
-
-
 

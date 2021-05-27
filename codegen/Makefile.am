@@ -3,6 +3,7 @@ include $(top_srcdir)/Makefile.common
 NULL =
 
 AM_CPPFLAGS = \
+	-DG_LOG_DOMAIN=\"vala-ccodegen\" \
 	$(COVERAGE_CFLAGS) \
 	-I$(top_srcdir)/gee \
 	-I$(top_srcdir)/ccode \
@@ -19,6 +20,7 @@ libvalaccodegen_la_LTLIBRARIES = \
 libvalaccodegen_ladir = $(pkglibdir)
 
 libvalaccodegen_la_LDFLAGS = \
+	-no-undefined \
 	-avoid-version \
 	$(NULL)
 
@@ -44,10 +46,12 @@ libvalaccodegen_la_VALASOURCES = \
 	valagdbusservermodule.vala \
 	valagerrormodule.vala \
 	valagirwriter.vala \
+	valaglibvalue.vala \
 	valagobjectmodule.vala \
 	valagtkmodule.vala \
 	valagsignalmodule.vala \
 	valagtypemodule.vala \
+	valagvaluemodule.vala \
 	valagvariantmodule.vala \
 	valainterfaceregisterfunction.vala \
 	valastructregisterfunction.vala \

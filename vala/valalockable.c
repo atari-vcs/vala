@@ -24,15 +24,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
-
-
-
-
+static GType vala_lockable_get_type_once (void);
 
 gboolean
 vala_lockable_get_lock_used (ValaLockable* self)
@@ -40,7 +35,6 @@ vala_lockable_get_lock_used (ValaLockable* self)
 	g_return_val_if_fail (self != NULL, FALSE);
 	return VALA_LOCKABLE_GET_INTERFACE (self)->get_lock_used (self);
 }
-
 
 void
 vala_lockable_set_lock_used (ValaLockable* self,
@@ -50,28 +44,33 @@ vala_lockable_set_lock_used (ValaLockable* self,
 	VALA_LOCKABLE_GET_INTERFACE (self)->set_lock_used (self, value);
 }
 
-
 static void
-vala_lockable_default_init (ValaLockableIface * iface)
+vala_lockable_default_init (ValaLockableIface * iface,
+                            gpointer iface_data)
 {
 }
-
 
 /**
  * Represents a lockable object.
  */
+static GType
+vala_lockable_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaLockableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_lockable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType vala_lockable_type_id;
+	vala_lockable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValaLockable", &g_define_type_info, 0);
+	return vala_lockable_type_id;
+}
+
 GType
 vala_lockable_get_type (void)
 {
 	static volatile gsize vala_lockable_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_lockable_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaLockableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_lockable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType vala_lockable_type_id;
-		vala_lockable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValaLockable", &g_define_type_info, 0);
+		vala_lockable_type_id = vala_lockable_get_type_once ();
 		g_once_init_leave (&vala_lockable_type_id__volatile, vala_lockable_type_id);
 	}
 	return vala_lockable_type_id__volatile;
 }
-
-
 

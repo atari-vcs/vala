@@ -23,19 +23,16 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
-#define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 
 struct _ValaExpressionStatementPrivate {
 	ValaExpression* _expression;
 };
-
 
 static gint ValaExpressionStatement_private_offset;
 static gpointer vala_expression_statement_parent_class = NULL;
@@ -50,6 +47,9 @@ static void vala_expression_statement_real_replace_expression (ValaCodeNode* bas
                                                         ValaExpression* new_node);
 static gboolean vala_expression_statement_real_check (ValaCodeNode* base,
                                                ValaCodeContext* context);
+static void vala_expression_statement_real_get_error_types (ValaCodeNode* base,
+                                                     ValaCollection* collection,
+                                                     ValaSourceReference* source_reference);
 static void vala_expression_statement_real_emit (ValaCodeNode* base,
                                           ValaCodeGenerator* codegen);
 static void vala_expression_statement_real_get_defined_variables (ValaCodeNode* base,
@@ -57,7 +57,7 @@ static void vala_expression_statement_real_get_defined_variables (ValaCodeNode* 
 static void vala_expression_statement_real_get_used_variables (ValaCodeNode* base,
                                                         ValaCollection* collection);
 static void vala_expression_statement_finalize (ValaCodeNode * obj);
-
+static GType vala_expression_statement_get_type_once (void);
 
 static inline gpointer
 vala_expression_statement_get_instance_private (ValaExpressionStatement* self)
@@ -65,6 +65,36 @@ vala_expression_statement_get_instance_private (ValaExpressionStatement* self)
 	return G_STRUCT_MEMBER_P (self, ValaExpressionStatement_private_offset);
 }
 
+ValaExpression*
+vala_expression_statement_get_expression (ValaExpressionStatement* self)
+{
+	ValaExpression* result;
+	ValaExpression* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_expression;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_vala_code_node_ref0 (gpointer self)
+{
+	return self ? vala_code_node_ref (self) : NULL;
+}
+
+void
+vala_expression_statement_set_expression (ValaExpressionStatement* self,
+                                          ValaExpression* value)
+{
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = _vala_code_node_ref0 (value);
+	_vala_code_node_unref0 (self->priv->_expression);
+	self->priv->_expression = _tmp0_;
+	_tmp1_ = self->priv->_expression;
+	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
+}
 
 /**
  * Creates a new expression statement.
@@ -86,14 +116,12 @@ vala_expression_statement_construct (GType object_type,
 	return self;
 }
 
-
 ValaExpressionStatement*
 vala_expression_statement_new (ValaExpression* expression,
                                ValaSourceReference* source_reference)
 {
 	return vala_expression_statement_construct (VALA_TYPE_EXPRESSION_STATEMENT, expression, source_reference);
 }
-
 
 static void
 vala_expression_statement_real_accept (ValaCodeNode* base,
@@ -104,7 +132,6 @@ vala_expression_statement_real_accept (ValaCodeNode* base,
 	g_return_if_fail (visitor != NULL);
 	vala_code_visitor_visit_expression_statement (visitor, self);
 }
-
 
 static void
 vala_expression_statement_real_accept_children (ValaCodeNode* base,
@@ -119,7 +146,6 @@ vala_expression_statement_real_accept_children (ValaCodeNode* base,
 	_tmp1_ = _tmp0_;
 	vala_code_node_accept ((ValaCodeNode*) _tmp1_, visitor);
 }
-
 
 static void
 vala_expression_statement_real_replace_expression (ValaCodeNode* base,
@@ -139,23 +165,18 @@ vala_expression_statement_real_replace_expression (ValaCodeNode* base,
 	}
 }
 
-
 static gboolean
 vala_expression_statement_real_check (ValaCodeNode* base,
                                       ValaCodeContext* context)
 {
 	ValaExpressionStatement * self;
-	gboolean result = FALSE;
 	gboolean _tmp0_;
 	gboolean _tmp1_;
 	ValaExpression* _tmp4_;
 	ValaExpression* _tmp5_;
-	ValaExpression* _tmp6_;
-	ValaExpression* _tmp7_;
-	ValaList* _tmp8_;
-	ValaList* _tmp9_;
 	gboolean _tmp10_;
 	gboolean _tmp11_;
+	gboolean result = FALSE;
 	self = (ValaExpressionStatement*) base;
 	g_return_val_if_fail (context != NULL, FALSE);
 	_tmp0_ = vala_code_node_get_checked ((ValaCodeNode*) self);
@@ -175,19 +196,42 @@ vala_expression_statement_real_check (ValaCodeNode* base,
 		vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
 		result = FALSE;
 		return result;
+	} else {
+		ValaExpression* _tmp6_;
+		ValaExpression* _tmp7_;
+		_tmp6_ = vala_expression_statement_get_expression (self);
+		_tmp7_ = _tmp6_;
+		if (VALA_IS_LITERAL (_tmp7_)) {
+			ValaSourceReference* _tmp8_;
+			ValaSourceReference* _tmp9_;
+			_tmp8_ = vala_code_node_get_source_reference ((ValaCodeNode*) self);
+			_tmp9_ = _tmp8_;
+			vala_report_error (_tmp9_, "Literal expression not allowed as statement");
+			vala_code_node_set_error ((ValaCodeNode*) self, TRUE);
+			result = FALSE;
+			return result;
+		}
 	}
-	_tmp6_ = vala_expression_statement_get_expression (self);
-	_tmp7_ = _tmp6_;
-	_tmp8_ = vala_code_node_get_error_types ((ValaCodeNode*) _tmp7_);
-	_tmp9_ = _tmp8_;
-	vala_code_node_add_error_types ((ValaCodeNode*) self, _tmp9_);
-	_vala_iterable_unref0 (_tmp9_);
 	_tmp10_ = vala_code_node_get_error ((ValaCodeNode*) self);
 	_tmp11_ = _tmp10_;
 	result = !_tmp11_;
 	return result;
 }
 
+static void
+vala_expression_statement_real_get_error_types (ValaCodeNode* base,
+                                                ValaCollection* collection,
+                                                ValaSourceReference* source_reference)
+{
+	ValaExpressionStatement * self;
+	ValaExpression* _tmp0_;
+	ValaExpression* _tmp1_;
+	self = (ValaExpressionStatement*) base;
+	g_return_if_fail (collection != NULL);
+	_tmp0_ = vala_expression_statement_get_expression (self);
+	_tmp1_ = _tmp0_;
+	vala_code_node_get_error_types ((ValaCodeNode*) _tmp1_, collection, source_reference);
+}
 
 static void
 vala_expression_statement_real_emit (ValaCodeNode* base,
@@ -204,7 +248,6 @@ vala_expression_statement_real_emit (ValaCodeNode* base,
 	vala_code_visitor_visit_expression_statement ((ValaCodeVisitor*) codegen, self);
 }
 
-
 static void
 vala_expression_statement_real_get_defined_variables (ValaCodeNode* base,
                                                       ValaCollection* collection)
@@ -218,7 +261,6 @@ vala_expression_statement_real_get_defined_variables (ValaCodeNode* base,
 	_tmp1_ = _tmp0_;
 	vala_code_node_get_defined_variables ((ValaCodeNode*) _tmp1_, collection);
 }
-
 
 static void
 vala_expression_statement_real_get_used_variables (ValaCodeNode* base,
@@ -234,43 +276,9 @@ vala_expression_statement_real_get_used_variables (ValaCodeNode* base,
 	vala_code_node_get_used_variables ((ValaCodeNode*) _tmp1_, collection);
 }
 
-
-ValaExpression*
-vala_expression_statement_get_expression (ValaExpressionStatement* self)
-{
-	ValaExpression* result;
-	ValaExpression* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_expression;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_vala_code_node_ref0 (gpointer self)
-{
-	return self ? vala_code_node_ref (self) : NULL;
-}
-
-
-void
-vala_expression_statement_set_expression (ValaExpressionStatement* self,
-                                          ValaExpression* value)
-{
-	ValaExpression* _tmp0_;
-	ValaExpression* _tmp1_;
-	g_return_if_fail (self != NULL);
-	_tmp0_ = _vala_code_node_ref0 (value);
-	_vala_code_node_unref0 (self->priv->_expression);
-	self->priv->_expression = _tmp0_;
-	_tmp1_ = self->priv->_expression;
-	vala_code_node_set_parent_node ((ValaCodeNode*) _tmp1_, (ValaCodeNode*) self);
-}
-
-
 static void
-vala_expression_statement_class_init (ValaExpressionStatementClass * klass)
+vala_expression_statement_class_init (ValaExpressionStatementClass * klass,
+                                      gpointer klass_data)
 {
 	vala_expression_statement_parent_class = g_type_class_peek_parent (klass);
 	((ValaCodeNodeClass *) klass)->finalize = vala_expression_statement_finalize;
@@ -279,25 +287,25 @@ vala_expression_statement_class_init (ValaExpressionStatementClass * klass)
 	((ValaCodeNodeClass *) klass)->accept_children = (void (*) (ValaCodeNode*, ValaCodeVisitor*)) vala_expression_statement_real_accept_children;
 	((ValaCodeNodeClass *) klass)->replace_expression = (void (*) (ValaCodeNode*, ValaExpression*, ValaExpression*)) vala_expression_statement_real_replace_expression;
 	((ValaCodeNodeClass *) klass)->check = (gboolean (*) (ValaCodeNode*, ValaCodeContext*)) vala_expression_statement_real_check;
+	((ValaCodeNodeClass *) klass)->get_error_types = (void (*) (ValaCodeNode*, ValaCollection*, ValaSourceReference*)) vala_expression_statement_real_get_error_types;
 	((ValaCodeNodeClass *) klass)->emit = (void (*) (ValaCodeNode*, ValaCodeGenerator*)) vala_expression_statement_real_emit;
 	((ValaCodeNodeClass *) klass)->get_defined_variables = (void (*) (ValaCodeNode*, ValaCollection*)) vala_expression_statement_real_get_defined_variables;
 	((ValaCodeNodeClass *) klass)->get_used_variables = (void (*) (ValaCodeNode*, ValaCollection*)) vala_expression_statement_real_get_used_variables;
 }
 
-
 static void
-vala_expression_statement_vala_statement_interface_init (ValaStatementIface * iface)
+vala_expression_statement_vala_statement_interface_init (ValaStatementIface * iface,
+                                                         gpointer iface_data)
 {
 	vala_expression_statement_vala_statement_parent_iface = g_type_interface_peek_parent (iface);
 }
 
-
 static void
-vala_expression_statement_instance_init (ValaExpressionStatement * self)
+vala_expression_statement_instance_init (ValaExpressionStatement * self,
+                                         gpointer klass)
 {
 	self->priv = vala_expression_statement_get_instance_private (self);
 }
-
 
 static void
 vala_expression_statement_finalize (ValaCodeNode * obj)
@@ -308,26 +316,31 @@ vala_expression_statement_finalize (ValaCodeNode * obj)
 	VALA_CODE_NODE_CLASS (vala_expression_statement_parent_class)->finalize (obj);
 }
 
-
 /**
  * A code statement that evaluates a given expression. The value computed by the
  * expression, if any, is discarded.
  */
+static GType
+vala_expression_statement_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaExpressionStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_expression_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaExpressionStatement), 0, (GInstanceInitFunc) vala_expression_statement_instance_init, NULL };
+	static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_expression_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType vala_expression_statement_type_id;
+	vala_expression_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaExpressionStatement", &g_define_type_info, 0);
+	g_type_add_interface_static (vala_expression_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
+	ValaExpressionStatement_private_offset = g_type_add_instance_private (vala_expression_statement_type_id, sizeof (ValaExpressionStatementPrivate));
+	return vala_expression_statement_type_id;
+}
+
 GType
 vala_expression_statement_get_type (void)
 {
 	static volatile gsize vala_expression_statement_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_expression_statement_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaExpressionStatementClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_expression_statement_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaExpressionStatement), 0, (GInstanceInitFunc) vala_expression_statement_instance_init, NULL };
-		static const GInterfaceInfo vala_statement_info = { (GInterfaceInitFunc) vala_expression_statement_vala_statement_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType vala_expression_statement_type_id;
-		vala_expression_statement_type_id = g_type_register_static (VALA_TYPE_CODE_NODE, "ValaExpressionStatement", &g_define_type_info, 0);
-		g_type_add_interface_static (vala_expression_statement_type_id, VALA_TYPE_STATEMENT, &vala_statement_info);
-		ValaExpressionStatement_private_offset = g_type_add_instance_private (vala_expression_statement_type_id, sizeof (ValaExpressionStatementPrivate));
+		vala_expression_statement_type_id = vala_expression_statement_get_type_once ();
 		g_once_init_leave (&vala_expression_statement_type_id__volatile, vala_expression_statement_type_id);
 	}
 	return vala_expression_statement_type_id__volatile;
 }
-
-
 

@@ -23,12 +23,10 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 enum  {
 	VALADOC_HTML_CSS_CLASS_RESOLVER_0_PROPERTY,
@@ -40,7 +38,6 @@ static GParamSpec* valadoc_html_css_class_resolver_properties[VALADOC_HTML_CSS_C
 struct _ValadocHtmlCssClassResolverPrivate {
 	gchar* css_class;
 };
-
 
 static gint ValadocHtmlCssClassResolver_private_offset;
 static gpointer valadoc_html_css_class_resolver_parent_class = NULL;
@@ -76,7 +73,7 @@ static void valadoc_html_css_class_resolver_real_visit_enum (ValadocApiVisitor* 
 static void valadoc_html_css_class_resolver_real_visit_enum_value (ValadocApiVisitor* base,
                                                             ValadocApiEnumValue* item);
 static void valadoc_html_css_class_resolver_finalize (GObject * obj);
-
+static GType valadoc_html_css_class_resolver_get_type_once (void);
 
 static inline gpointer
 valadoc_html_css_class_resolver_get_instance_private (ValadocHtmlCssClassResolver* self)
@@ -84,13 +81,12 @@ valadoc_html_css_class_resolver_get_instance_private (ValadocHtmlCssClassResolve
 	return G_STRUCT_MEMBER_P (self, ValadocHtmlCssClassResolver_private_offset);
 }
 
-
 gchar*
 valadoc_html_css_class_resolver_resolve (ValadocHtmlCssClassResolver* self,
                                          ValadocApiNode* node)
 {
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (self != NULL, NULL);
 	g_return_val_if_fail (node != NULL, NULL);
 	valadoc_api_node_accept (node, (ValadocApiVisitor*) self);
@@ -99,7 +95,6 @@ valadoc_html_css_class_resolver_resolve (ValadocHtmlCssClassResolver* self,
 	result = _tmp0_;
 	return result;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_package (ValadocApiVisitor* base,
@@ -114,7 +109,6 @@ valadoc_html_css_class_resolver_real_visit_package (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_namespace (ValadocApiVisitor* base,
                                                       ValadocApiNamespace* item)
@@ -128,7 +122,6 @@ valadoc_html_css_class_resolver_real_visit_namespace (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_interface (ValadocApiVisitor* base,
                                                       ValadocApiInterface* item)
@@ -141,7 +134,6 @@ valadoc_html_css_class_resolver_real_visit_interface (ValadocApiVisitor* base,
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_class (ValadocApiVisitor* base,
@@ -167,7 +159,6 @@ valadoc_html_css_class_resolver_real_visit_class (ValadocApiVisitor* base,
 	}
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_struct (ValadocApiVisitor* base,
                                                    ValadocApiStruct* item)
@@ -180,7 +171,6 @@ valadoc_html_css_class_resolver_real_visit_struct (ValadocApiVisitor* base,
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_property (ValadocApiVisitor* base,
@@ -227,7 +217,6 @@ valadoc_html_css_class_resolver_real_visit_property (ValadocApiVisitor* base,
 	}
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_field (ValadocApiVisitor* base,
                                                   ValadocApiField* item)
@@ -240,7 +229,6 @@ valadoc_html_css_class_resolver_real_visit_field (ValadocApiVisitor* base,
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_constant (ValadocApiVisitor* base,
@@ -255,7 +243,6 @@ valadoc_html_css_class_resolver_real_visit_constant (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_delegate (ValadocApiVisitor* base,
                                                      ValadocApiDelegate* item)
@@ -269,7 +256,6 @@ valadoc_html_css_class_resolver_real_visit_delegate (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_signal (ValadocApiVisitor* base,
                                                    ValadocApiSignal* item)
@@ -282,7 +268,6 @@ valadoc_html_css_class_resolver_real_visit_signal (ValadocApiVisitor* base,
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_method (ValadocApiVisitor* base,
@@ -351,7 +336,6 @@ valadoc_html_css_class_resolver_real_visit_method (ValadocApiVisitor* base,
 	}
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_error_domain (ValadocApiVisitor* base,
                                                          ValadocApiErrorDomain* item)
@@ -364,7 +348,6 @@ valadoc_html_css_class_resolver_real_visit_error_domain (ValadocApiVisitor* base
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_error_code (ValadocApiVisitor* base,
@@ -379,7 +362,6 @@ valadoc_html_css_class_resolver_real_visit_error_code (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 static void
 valadoc_html_css_class_resolver_real_visit_enum (ValadocApiVisitor* base,
                                                  ValadocApiEnum* item)
@@ -392,7 +374,6 @@ valadoc_html_css_class_resolver_real_visit_enum (ValadocApiVisitor* base,
 	_g_free0 (self->priv->css_class);
 	self->priv->css_class = _tmp0_;
 }
-
 
 static void
 valadoc_html_css_class_resolver_real_visit_enum_value (ValadocApiVisitor* base,
@@ -407,7 +388,6 @@ valadoc_html_css_class_resolver_real_visit_enum_value (ValadocApiVisitor* base,
 	self->priv->css_class = _tmp0_;
 }
 
-
 ValadocHtmlCssClassResolver*
 valadoc_html_css_class_resolver_construct (GType object_type)
 {
@@ -416,16 +396,15 @@ valadoc_html_css_class_resolver_construct (GType object_type)
 	return self;
 }
 
-
 ValadocHtmlCssClassResolver*
 valadoc_html_css_class_resolver_new (void)
 {
 	return valadoc_html_css_class_resolver_construct (VALADOC_HTML_TYPE_CSS_CLASS_RESOLVER);
 }
 
-
 static void
-valadoc_html_css_class_resolver_class_init (ValadocHtmlCssClassResolverClass * klass)
+valadoc_html_css_class_resolver_class_init (ValadocHtmlCssClassResolverClass * klass,
+                                            gpointer klass_data)
 {
 	valadoc_html_css_class_resolver_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocHtmlCssClassResolver_private_offset);
@@ -447,14 +426,13 @@ valadoc_html_css_class_resolver_class_init (ValadocHtmlCssClassResolverClass * k
 	G_OBJECT_CLASS (klass)->finalize = valadoc_html_css_class_resolver_finalize;
 }
 
-
 static void
-valadoc_html_css_class_resolver_instance_init (ValadocHtmlCssClassResolver * self)
+valadoc_html_css_class_resolver_instance_init (ValadocHtmlCssClassResolver * self,
+                                               gpointer klass)
 {
 	self->priv = valadoc_html_css_class_resolver_get_instance_private (self);
 	self->priv->css_class = NULL;
 }
-
 
 static void
 valadoc_html_css_class_resolver_finalize (GObject * obj)
@@ -465,20 +443,25 @@ valadoc_html_css_class_resolver_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_html_css_class_resolver_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_html_css_class_resolver_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlCssClassResolverClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_css_class_resolver_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlCssClassResolver), 0, (GInstanceInitFunc) valadoc_html_css_class_resolver_instance_init, NULL };
+	GType valadoc_html_css_class_resolver_type_id;
+	valadoc_html_css_class_resolver_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocHtmlCssClassResolver", &g_define_type_info, 0);
+	ValadocHtmlCssClassResolver_private_offset = g_type_add_instance_private (valadoc_html_css_class_resolver_type_id, sizeof (ValadocHtmlCssClassResolverPrivate));
+	return valadoc_html_css_class_resolver_type_id;
+}
 
 GType
 valadoc_html_css_class_resolver_get_type (void)
 {
 	static volatile gsize valadoc_html_css_class_resolver_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_html_css_class_resolver_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocHtmlCssClassResolverClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_html_css_class_resolver_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocHtmlCssClassResolver), 0, (GInstanceInitFunc) valadoc_html_css_class_resolver_instance_init, NULL };
 		GType valadoc_html_css_class_resolver_type_id;
-		valadoc_html_css_class_resolver_type_id = g_type_register_static (VALADOC_API_TYPE_VISITOR, "ValadocHtmlCssClassResolver", &g_define_type_info, 0);
-		ValadocHtmlCssClassResolver_private_offset = g_type_add_instance_private (valadoc_html_css_class_resolver_type_id, sizeof (ValadocHtmlCssClassResolverPrivate));
+		valadoc_html_css_class_resolver_type_id = valadoc_html_css_class_resolver_get_type_once ();
 		g_once_init_leave (&valadoc_html_css_class_resolver_type_id__volatile, valadoc_html_css_class_resolver_type_id);
 	}
 	return valadoc_html_css_class_resolver_type_id__volatile;
 }
-
-
 

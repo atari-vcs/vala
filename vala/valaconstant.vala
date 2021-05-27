@@ -63,7 +63,7 @@ public class Vala.Constant : Symbol {
 	 * @param source_reference reference to source code
 	 * @return                 newly created constant
 	 */
-	public Constant (string name, DataType? type_reference, Expression? value, SourceReference? source_reference, Comment? comment = null) {
+	public Constant (string name, DataType? type_reference, Expression? value, SourceReference? source_reference = null, Comment? comment = null) {
 		base (name, source_reference, comment);
 		if (type_reference != null) {
 			this.type_reference = type_reference;
@@ -123,12 +123,15 @@ public class Vala.Constant : Symbol {
 
 		if (!external) {
 			if (value == null) {
-				error = true;
-				Report.error (source_reference, "A const field requires a value to be provided");
+				// constants from fast-vapi files are special
+				if (source_type != SourceFileType.FAST) {
+					error = true;
+					Report.error (source_reference, "A const field requires a value to be provided");
+				}
 			} else {
 				value.target_type = type_reference;
 
-				if (!value.check (context)) {
+				if (!value.check (context) || type_reference.error) {
 					error = true;
 					return false;
 				}
@@ -141,9 +144,9 @@ public class Vala.Constant : Symbol {
 
 				// support translated string constants for efficiency / convenience
 				// even though the expression is not a compile-time constant
-				var call = value as MethodCall;
+				unowned MethodCall? call = value as MethodCall;
 				if (call != null) {
-					var method_type = call.call.value_type as MethodType;
+					unowned MethodType? method_type = call.call.value_type as MethodType;
 					if (method_type != null && method_type.method_symbol.get_full_name () == "GLib._") {
 						// first argument is string
 						var literal = call.get_argument_list ().get (0) as StringLiteral;
@@ -182,11 +185,13 @@ public class Vala.Constant : Symbol {
 	bool check_const_type (DataType type, CodeContext context) {
 		if (type is ValueType) {
 			return true;
+		} else if (type is VoidType || type is PointerType) {
+			return false;
 		} else if (type is ArrayType) {
-			var array_type = type as ArrayType;
+			unowned ArrayType array_type = (ArrayType) type;
 			return check_const_type (array_type.element_type, context);
-		} else if (type.data_type.is_subtype_of (context.analyzer.string_type.data_type)) {
-			return true;
+		} else if (type.type_symbol != null) {
+			return type.type_symbol.is_subtype_of (context.analyzer.string_type.type_symbol);
 		} else {
 			return false;
 		}

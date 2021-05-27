@@ -23,11 +23,10 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valaccode.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
 #define _vala_iterable_unref0(var) ((var == NULL) ? NULL : (var = (vala_iterable_unref (var), NULL)))
 #define _vala_ccode_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_ccode_node_unref (var), NULL)))
@@ -37,14 +36,13 @@ struct _ValaCCodeBlockPrivate {
 	ValaList* statements;
 };
 
-
 static gint ValaCCodeBlock_private_offset;
 static gpointer vala_ccode_block_parent_class = NULL;
 
 static void vala_ccode_block_real_write (ValaCCodeNode* base,
                                   ValaCCodeWriter* writer);
 static void vala_ccode_block_finalize (ValaCCodeNode * obj);
-
+static GType vala_ccode_block_get_type_once (void);
 
 static inline gpointer
 vala_ccode_block_get_instance_private (ValaCCodeBlock* self)
@@ -52,6 +50,22 @@ vala_ccode_block_get_instance_private (ValaCCodeBlock* self)
 	return G_STRUCT_MEMBER_P (self, ValaCCodeBlock_private_offset);
 }
 
+gboolean
+vala_ccode_block_get_suppress_newline (ValaCCodeBlock* self)
+{
+	gboolean result;
+	g_return_val_if_fail (self != NULL, FALSE);
+	result = self->priv->_suppress_newline;
+	return result;
+}
+
+void
+vala_ccode_block_set_suppress_newline (ValaCCodeBlock* self,
+                                       gboolean value)
+{
+	g_return_if_fail (self != NULL);
+	self->priv->_suppress_newline = value;
+}
 
 /**
  * Prepend the specified statement to the list of statements.
@@ -67,7 +81,6 @@ vala_ccode_block_prepend_statement (ValaCCodeBlock* self,
 	vala_list_insert (_tmp0_, 0, statement);
 }
 
-
 /**
  * Append the specified statement to the list of statements.
  */
@@ -82,13 +95,11 @@ vala_ccode_block_add_statement (ValaCCodeBlock* self,
 	vala_collection_add ((ValaCollection*) _tmp0_, statement);
 }
 
-
 static gpointer
 _vala_iterable_ref0 (gpointer self)
 {
 	return self ? vala_iterable_ref (self) : NULL;
 }
-
 
 static gpointer
 _vala_ccode_node_ref0 (gpointer self)
@@ -96,14 +107,13 @@ _vala_ccode_node_ref0 (gpointer self)
 	return self ? vala_ccode_node_ref (self) : NULL;
 }
 
-
 static void
 vala_ccode_block_real_write (ValaCCodeNode* base,
                              ValaCCodeWriter* writer)
 {
 	ValaCCodeBlock * self;
 	ValaCCodeNode* last_statement = NULL;
-	gboolean _tmp38_;
+	gboolean _tmp34_;
 	self = (ValaCCodeBlock*) base;
 	g_return_if_fail (writer != NULL);
 	last_statement = NULL;
@@ -128,72 +138,68 @@ vala_ccode_block_real_write (ValaCCodeNode* base,
 		while (TRUE) {
 			gint _tmp5_;
 			gint _tmp6_;
-			gint _tmp7_;
 			ValaCCodeNode* statement = NULL;
-			ValaList* _tmp8_;
-			gint _tmp9_;
-			gpointer _tmp10_;
+			ValaList* _tmp7_;
+			gpointer _tmp8_;
+			ValaCCodeNode* _tmp9_;
+			gboolean _tmp10_ = FALSE;
 			ValaCCodeNode* _tmp11_;
-			gboolean _tmp12_ = FALSE;
-			ValaCCodeNode* _tmp13_;
+			_statement_index = _statement_index + 1;
 			_tmp5_ = _statement_index;
-			_statement_index = _tmp5_ + 1;
-			_tmp6_ = _statement_index;
-			_tmp7_ = _statement_size;
-			if (!(_tmp6_ < _tmp7_)) {
+			_tmp6_ = _statement_size;
+			if (!(_tmp5_ < _tmp6_)) {
 				break;
 			}
-			_tmp8_ = _statement_list;
-			_tmp9_ = _statement_index;
-			_tmp10_ = vala_list_get (_tmp8_, _tmp9_);
-			statement = (ValaCCodeNode*) _tmp10_;
+			_tmp7_ = _statement_list;
+			_tmp8_ = vala_list_get (_tmp7_, _statement_index);
+			statement = (ValaCCodeNode*) _tmp8_;
+			_tmp9_ = statement;
+			vala_ccode_node_write_declaration (_tmp9_, writer);
 			_tmp11_ = statement;
-			vala_ccode_node_write_declaration (_tmp11_, writer);
-			_tmp13_ = statement;
-			if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp13_, VALA_TYPE_CCODE_LABEL)) {
-				_tmp12_ = TRUE;
+			if (VALA_IS_CCODE_LABEL (_tmp11_)) {
+				_tmp10_ = TRUE;
 			} else {
-				ValaCCodeNode* _tmp14_;
-				_tmp14_ = statement;
-				_tmp12_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp14_, VALA_TYPE_CCODE_CASE_STATEMENT);
+				ValaCCodeNode* _tmp12_;
+				_tmp12_ = statement;
+				_tmp10_ = VALA_IS_CCODE_CASE_STATEMENT (_tmp12_);
 			}
-			if (_tmp12_) {
+			if (_tmp10_) {
 				_vala_ccode_node_unref0 (last_statement);
 				last_statement = NULL;
 			} else {
+				gboolean _tmp13_ = FALSE;
+				gboolean _tmp14_ = FALSE;
 				gboolean _tmp15_ = FALSE;
-				gboolean _tmp16_ = FALSE;
-				gboolean _tmp17_ = FALSE;
-				ValaCCodeNode* _tmp18_;
-				_tmp18_ = statement;
-				if (G_TYPE_CHECK_INSTANCE_TYPE (_tmp18_, VALA_TYPE_CCODE_RETURN_STATEMENT)) {
-					_tmp17_ = TRUE;
+				ValaCCodeNode* _tmp16_;
+				_tmp16_ = statement;
+				if (VALA_IS_CCODE_RETURN_STATEMENT (_tmp16_)) {
+					_tmp15_ = TRUE;
+				} else {
+					ValaCCodeNode* _tmp17_;
+					_tmp17_ = statement;
+					_tmp15_ = VALA_IS_CCODE_GOTO_STATEMENT (_tmp17_);
+				}
+				if (_tmp15_) {
+					_tmp14_ = TRUE;
+				} else {
+					ValaCCodeNode* _tmp18_;
+					_tmp18_ = statement;
+					_tmp14_ = VALA_IS_CCODE_CONTINUE_STATEMENT (_tmp18_);
+				}
+				if (_tmp14_) {
+					_tmp13_ = TRUE;
 				} else {
 					ValaCCodeNode* _tmp19_;
 					_tmp19_ = statement;
-					_tmp17_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp19_, VALA_TYPE_CCODE_GOTO_STATEMENT);
+					_tmp13_ = VALA_IS_CCODE_BREAK_STATEMENT (_tmp19_);
 				}
-				if (_tmp17_) {
-					_tmp16_ = TRUE;
-				} else {
+				if (_tmp13_) {
 					ValaCCodeNode* _tmp20_;
-					_tmp20_ = statement;
-					_tmp16_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp20_, VALA_TYPE_CCODE_CONTINUE_STATEMENT);
-				}
-				if (_tmp16_) {
-					_tmp15_ = TRUE;
-				} else {
 					ValaCCodeNode* _tmp21_;
-					_tmp21_ = statement;
-					_tmp15_ = G_TYPE_CHECK_INSTANCE_TYPE (_tmp21_, VALA_TYPE_CCODE_BREAK_STATEMENT);
-				}
-				if (_tmp15_) {
-					ValaCCodeNode* _tmp22_;
-					ValaCCodeNode* _tmp23_;
-					_tmp22_ = statement;
-					_tmp23_ = _vala_ccode_node_ref0 (_tmp22_);
+					_tmp20_ = statement;
+					_tmp21_ = _vala_ccode_node_ref0 (_tmp20_);
 					_vala_ccode_node_unref0 (last_statement);
-					last_statement = _tmp23_;
+					last_statement = _tmp21_;
 				}
 			}
 			_vala_ccode_node_unref0 (statement);
@@ -202,48 +208,44 @@ vala_ccode_block_real_write (ValaCCodeNode* base,
 	}
 	{
 		ValaList* _statement_list = NULL;
-		ValaList* _tmp24_;
-		ValaList* _tmp25_;
+		ValaList* _tmp22_;
+		ValaList* _tmp23_;
 		gint _statement_size = 0;
-		ValaList* _tmp26_;
-		gint _tmp27_;
-		gint _tmp28_;
+		ValaList* _tmp24_;
+		gint _tmp25_;
+		gint _tmp26_;
 		gint _statement_index = 0;
-		_tmp24_ = self->priv->statements;
-		_tmp25_ = _vala_iterable_ref0 (_tmp24_);
-		_statement_list = _tmp25_;
-		_tmp26_ = _statement_list;
-		_tmp27_ = vala_collection_get_size ((ValaCollection*) _tmp26_);
-		_tmp28_ = _tmp27_;
-		_statement_size = _tmp28_;
+		_tmp22_ = self->priv->statements;
+		_tmp23_ = _vala_iterable_ref0 (_tmp22_);
+		_statement_list = _tmp23_;
+		_tmp24_ = _statement_list;
+		_tmp25_ = vala_collection_get_size ((ValaCollection*) _tmp24_);
+		_tmp26_ = _tmp25_;
+		_statement_size = _tmp26_;
 		_statement_index = -1;
 		while (TRUE) {
-			gint _tmp29_;
-			gint _tmp30_;
-			gint _tmp31_;
+			gint _tmp27_;
+			gint _tmp28_;
 			ValaCCodeNode* statement = NULL;
-			ValaList* _tmp32_;
-			gint _tmp33_;
-			gpointer _tmp34_;
-			ValaCCodeNode* _tmp35_;
-			ValaCCodeNode* _tmp36_;
-			ValaCCodeNode* _tmp37_;
-			_tmp29_ = _statement_index;
-			_statement_index = _tmp29_ + 1;
-			_tmp30_ = _statement_index;
-			_tmp31_ = _statement_size;
-			if (!(_tmp30_ < _tmp31_)) {
+			ValaList* _tmp29_;
+			gpointer _tmp30_;
+			ValaCCodeNode* _tmp31_;
+			ValaCCodeNode* _tmp32_;
+			ValaCCodeNode* _tmp33_;
+			_statement_index = _statement_index + 1;
+			_tmp27_ = _statement_index;
+			_tmp28_ = _statement_size;
+			if (!(_tmp27_ < _tmp28_)) {
 				break;
 			}
-			_tmp32_ = _statement_list;
-			_tmp33_ = _statement_index;
-			_tmp34_ = vala_list_get (_tmp32_, _tmp33_);
-			statement = (ValaCCodeNode*) _tmp34_;
-			_tmp35_ = statement;
-			vala_ccode_node_write (_tmp35_, writer);
-			_tmp36_ = statement;
-			_tmp37_ = last_statement;
-			if (_tmp36_ == _tmp37_) {
+			_tmp29_ = _statement_list;
+			_tmp30_ = vala_list_get (_tmp29_, _statement_index);
+			statement = (ValaCCodeNode*) _tmp30_;
+			_tmp31_ = statement;
+			vala_ccode_node_write (_tmp31_, writer);
+			_tmp32_ = statement;
+			_tmp33_ = last_statement;
+			if (_tmp32_ == _tmp33_) {
 				_vala_ccode_node_unref0 (statement);
 				break;
 			}
@@ -252,13 +254,12 @@ vala_ccode_block_real_write (ValaCCodeNode* base,
 		_vala_iterable_unref0 (_statement_list);
 	}
 	vala_ccode_writer_write_end_block (writer);
-	_tmp38_ = self->priv->_suppress_newline;
-	if (!_tmp38_) {
+	_tmp34_ = self->priv->_suppress_newline;
+	if (!_tmp34_) {
 		vala_ccode_writer_write_newline (writer);
 	}
 	_vala_ccode_node_unref0 (last_statement);
 }
-
 
 ValaCCodeBlock*
 vala_ccode_block_construct (GType object_type)
@@ -268,37 +269,15 @@ vala_ccode_block_construct (GType object_type)
 	return self;
 }
 
-
 ValaCCodeBlock*
 vala_ccode_block_new (void)
 {
 	return vala_ccode_block_construct (VALA_TYPE_CCODE_BLOCK);
 }
 
-
-gboolean
-vala_ccode_block_get_suppress_newline (ValaCCodeBlock* self)
-{
-	gboolean result;
-	gboolean _tmp0_;
-	g_return_val_if_fail (self != NULL, FALSE);
-	_tmp0_ = self->priv->_suppress_newline;
-	result = _tmp0_;
-	return result;
-}
-
-
-void
-vala_ccode_block_set_suppress_newline (ValaCCodeBlock* self,
-                                       gboolean value)
-{
-	g_return_if_fail (self != NULL);
-	self->priv->_suppress_newline = value;
-}
-
-
 static void
-vala_ccode_block_class_init (ValaCCodeBlockClass * klass)
+vala_ccode_block_class_init (ValaCCodeBlockClass * klass,
+                             gpointer klass_data)
 {
 	vala_ccode_block_parent_class = g_type_class_peek_parent (klass);
 	((ValaCCodeNodeClass *) klass)->finalize = vala_ccode_block_finalize;
@@ -306,9 +285,9 @@ vala_ccode_block_class_init (ValaCCodeBlockClass * klass)
 	((ValaCCodeNodeClass *) klass)->write = (void (*) (ValaCCodeNode*, ValaCCodeWriter*)) vala_ccode_block_real_write;
 }
 
-
 static void
-vala_ccode_block_instance_init (ValaCCodeBlock * self)
+vala_ccode_block_instance_init (ValaCCodeBlock * self,
+                                gpointer klass)
 {
 	GEqualFunc _tmp0_;
 	ValaArrayList* _tmp1_;
@@ -317,7 +296,6 @@ vala_ccode_block_instance_init (ValaCCodeBlock * self)
 	_tmp1_ = vala_array_list_new (VALA_TYPE_CCODE_NODE, (GBoxedCopyFunc) vala_ccode_node_ref, (GDestroyNotify) vala_ccode_node_unref, _tmp0_);
 	self->priv->statements = (ValaList*) _tmp1_;
 }
-
 
 static void
 vala_ccode_block_finalize (ValaCCodeNode * obj)
@@ -328,23 +306,28 @@ vala_ccode_block_finalize (ValaCCodeNode * obj)
 	VALA_CCODE_NODE_CLASS (vala_ccode_block_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a C code block.
  */
+static GType
+vala_ccode_block_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBlockClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_block_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBlock), 0, (GInstanceInitFunc) vala_ccode_block_instance_init, NULL };
+	GType vala_ccode_block_type_id;
+	vala_ccode_block_type_id = g_type_register_static (VALA_TYPE_CCODE_STATEMENT, "ValaCCodeBlock", &g_define_type_info, 0);
+	ValaCCodeBlock_private_offset = g_type_add_instance_private (vala_ccode_block_type_id, sizeof (ValaCCodeBlockPrivate));
+	return vala_ccode_block_type_id;
+}
+
 GType
 vala_ccode_block_get_type (void)
 {
 	static volatile gsize vala_ccode_block_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_ccode_block_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCCodeBlockClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_ccode_block_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaCCodeBlock), 0, (GInstanceInitFunc) vala_ccode_block_instance_init, NULL };
 		GType vala_ccode_block_type_id;
-		vala_ccode_block_type_id = g_type_register_static (VALA_TYPE_CCODE_STATEMENT, "ValaCCodeBlock", &g_define_type_info, 0);
-		ValaCCodeBlock_private_offset = g_type_add_instance_private (vala_ccode_block_type_id, sizeof (ValaCCodeBlockPrivate));
+		vala_ccode_block_type_id = vala_ccode_block_get_type_once ();
 		g_once_init_leave (&vala_ccode_block_type_id__volatile, vala_ccode_block_type_id);
 	}
 	return vala_ccode_block_type_id__volatile;
 }
-
-
 

@@ -23,12 +23,11 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
+#include <glib-object.h>
 
 enum  {
 	VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_0_PROPERTY,
@@ -39,7 +38,6 @@ static GParamSpec* valadoc_importer_documentation_importer_properties[VALADOC_IM
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
 #define _valadoc_api_tree_unref0(var) ((var == NULL) ? NULL : (var = (valadoc_api_tree_unref (var), NULL)))
 
-
 static gpointer valadoc_importer_documentation_importer_parent_class = NULL;
 static ValadocResourceLocatorIface * valadoc_importer_documentation_importer_valadoc_resource_locator_parent_iface = NULL;
 
@@ -48,11 +46,18 @@ static gchar* valadoc_importer_documentation_importer_real_resolve (ValadocImpor
 static void valadoc_importer_documentation_importer_real_process (ValadocImporterDocumentationImporter* self,
                                                            const gchar* filename);
 static void valadoc_importer_documentation_importer_finalize (GObject * obj);
+static GType valadoc_importer_documentation_importer_get_type_once (void);
 static void _vala_valadoc_importer_documentation_importer_get_property (GObject * object,
                                                                  guint property_id,
                                                                  GValue * value,
                                                                  GParamSpec * pspec);
 
+const gchar*
+valadoc_importer_documentation_importer_get_file_extension (ValadocImporterDocumentationImporter* self)
+{
+	g_return_val_if_fail (self != NULL, NULL);
+	return VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_GET_CLASS (self)->get_file_extension (self);
+}
 
 static gpointer
 _g_object_ref0 (gpointer self)
@@ -60,13 +65,11 @@ _g_object_ref0 (gpointer self)
 	return self ? g_object_ref (self) : NULL;
 }
 
-
 static gpointer
 _valadoc_api_tree_ref0 (gpointer self)
 {
 	return self ? valadoc_api_tree_ref (self) : NULL;
 }
-
 
 ValadocImporterDocumentationImporter*
 valadoc_importer_documentation_importer_construct (GType object_type,
@@ -92,19 +95,17 @@ valadoc_importer_documentation_importer_construct (GType object_type,
 	return self;
 }
 
-
 static gchar*
 valadoc_importer_documentation_importer_real_resolve (ValadocImporterDocumentationImporter* self,
                                                       const gchar* path)
 {
-	gchar* result = NULL;
 	gchar* _tmp0_;
+	gchar* result = NULL;
 	g_return_val_if_fail (path != NULL, NULL);
 	_tmp0_ = g_strdup (path);
 	result = _tmp0_;
 	return result;
 }
-
 
 gchar*
 valadoc_importer_documentation_importer_resolve (ValadocImporterDocumentationImporter* self,
@@ -114,7 +115,6 @@ valadoc_importer_documentation_importer_resolve (ValadocImporterDocumentationImp
 	return VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_GET_CLASS (self)->resolve (self, path);
 }
 
-
 static void
 valadoc_importer_documentation_importer_real_process (ValadocImporterDocumentationImporter* self,
                                                       const gchar* filename)
@@ -122,7 +122,6 @@ valadoc_importer_documentation_importer_real_process (ValadocImporterDocumentati
 	g_critical ("Type `%s' does not implement abstract method `valadoc_importer_documentation_importer_process'", g_type_name (G_TYPE_FROM_INSTANCE (self)));
 	return;
 }
-
 
 void
 valadoc_importer_documentation_importer_process (ValadocImporterDocumentationImporter* self,
@@ -132,17 +131,9 @@ valadoc_importer_documentation_importer_process (ValadocImporterDocumentationImp
 	VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_GET_CLASS (self)->process (self, filename);
 }
 
-
-const gchar*
-valadoc_importer_documentation_importer_get_file_extension (ValadocImporterDocumentationImporter* self)
-{
-	g_return_val_if_fail (self != NULL, NULL);
-	return VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_GET_CLASS (self)->get_file_extension (self);
-}
-
-
 static void
-valadoc_importer_documentation_importer_class_init (ValadocImporterDocumentationImporterClass * klass)
+valadoc_importer_documentation_importer_class_init (ValadocImporterDocumentationImporterClass * klass,
+                                                    gpointer klass_data)
 {
 	valadoc_importer_documentation_importer_parent_class = g_type_class_peek_parent (klass);
 	((ValadocImporterDocumentationImporterClass *) klass)->resolve = (gchar* (*) (ValadocImporterDocumentationImporter*, const gchar*)) valadoc_importer_documentation_importer_real_resolve;
@@ -152,20 +143,19 @@ valadoc_importer_documentation_importer_class_init (ValadocImporterDocumentation
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_FILE_EXTENSION_PROPERTY, valadoc_importer_documentation_importer_properties[VALADOC_IMPORTER_DOCUMENTATION_IMPORTER_FILE_EXTENSION_PROPERTY] = g_param_spec_string ("file-extension", "file-extension", "file-extension", NULL, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE));
 }
 
-
 static void
-valadoc_importer_documentation_importer_valadoc_resource_locator_interface_init (ValadocResourceLocatorIface * iface)
+valadoc_importer_documentation_importer_valadoc_resource_locator_interface_init (ValadocResourceLocatorIface * iface,
+                                                                                 gpointer iface_data)
 {
 	valadoc_importer_documentation_importer_valadoc_resource_locator_parent_iface = g_type_interface_peek_parent (iface);
 	iface->resolve = (gchar* (*) (ValadocResourceLocator*, const gchar*)) valadoc_importer_documentation_importer_resolve;
 }
 
-
 static void
-valadoc_importer_documentation_importer_instance_init (ValadocImporterDocumentationImporter * self)
+valadoc_importer_documentation_importer_instance_init (ValadocImporterDocumentationImporter * self,
+                                                       gpointer klass)
 {
 }
-
 
 static void
 valadoc_importer_documentation_importer_finalize (GObject * obj)
@@ -178,22 +168,28 @@ valadoc_importer_documentation_importer_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_importer_documentation_importer_parent_class)->finalize (obj);
 }
 
+static GType
+valadoc_importer_documentation_importer_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterDocumentationImporterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_documentation_importer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterDocumentationImporter), 0, (GInstanceInitFunc) valadoc_importer_documentation_importer_instance_init, NULL };
+	static const GInterfaceInfo valadoc_resource_locator_info = { (GInterfaceInitFunc) valadoc_importer_documentation_importer_valadoc_resource_locator_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
+	GType valadoc_importer_documentation_importer_type_id;
+	valadoc_importer_documentation_importer_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocImporterDocumentationImporter", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
+	g_type_add_interface_static (valadoc_importer_documentation_importer_type_id, VALADOC_TYPE_RESOURCE_LOCATOR, &valadoc_resource_locator_info);
+	return valadoc_importer_documentation_importer_type_id;
+}
 
 GType
 valadoc_importer_documentation_importer_get_type (void)
 {
 	static volatile gsize valadoc_importer_documentation_importer_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_importer_documentation_importer_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocImporterDocumentationImporterClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_importer_documentation_importer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocImporterDocumentationImporter), 0, (GInstanceInitFunc) valadoc_importer_documentation_importer_instance_init, NULL };
-		static const GInterfaceInfo valadoc_resource_locator_info = { (GInterfaceInitFunc) valadoc_importer_documentation_importer_valadoc_resource_locator_interface_init, (GInterfaceFinalizeFunc) NULL, NULL};
 		GType valadoc_importer_documentation_importer_type_id;
-		valadoc_importer_documentation_importer_type_id = g_type_register_static (G_TYPE_OBJECT, "ValadocImporterDocumentationImporter", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
-		g_type_add_interface_static (valadoc_importer_documentation_importer_type_id, VALADOC_TYPE_RESOURCE_LOCATOR, &valadoc_resource_locator_info);
+		valadoc_importer_documentation_importer_type_id = valadoc_importer_documentation_importer_get_type_once ();
 		g_once_init_leave (&valadoc_importer_documentation_importer_type_id__volatile, valadoc_importer_documentation_importer_type_id);
 	}
 	return valadoc_importer_documentation_importer_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_importer_documentation_importer_get_property (GObject * object,
@@ -209,6 +205,4 @@ _vala_valadoc_importer_documentation_importer_get_property (GObject * object,
 		break;
 	}
 }
-
-
 

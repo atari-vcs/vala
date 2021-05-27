@@ -9,7 +9,7 @@ public struct RealStruct {
 
 public class NonPrivAccess : Object {
 	[NoAccessorMethod]
-	public RealStruct real_struct { get; set; }
+	public RealStruct real_struct { owned get; set; }
 }
 
 public class Sample : Object {
@@ -163,8 +163,3 @@ abstract class Maman.ABiz : Object, IBiz {
 class Maman.Biz : ABiz {
 	public override int number2 { get; construct; }
 }
-
-void main () {
-	Sample.main ();
-}
-

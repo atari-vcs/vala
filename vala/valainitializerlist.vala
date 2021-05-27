@@ -41,11 +41,11 @@ public class Vala.InitializerList : Expression {
 	}
 
 	/**
-	 * Returns a copy of the expression
+	 * Returns the initializer expression list
 	 *
 	 * @return expression list
 	 */
-	public List<Expression> get_initializers () {
+	public unowned List<Expression> get_initializers () {
 		return initializers;
 	}
 
@@ -62,7 +62,7 @@ public class Vala.InitializerList : Expression {
 	 * @param source_reference reference to source code
 	 * @return                 newly created initializer list
 	 */
-	public InitializerList (SourceReference source_reference) {
+	public InitializerList (SourceReference? source_reference = null) {
 		this.source_reference = source_reference;
 	}
 
@@ -117,6 +117,7 @@ public class Vala.InitializerList : Expression {
 				builder.append_printf (", %s", initializer.to_string ());
 			}
 		}
+		builder.append_c ('}');
 		return builder.str;
 	}
 
@@ -140,9 +141,12 @@ public class Vala.InitializerList : Expression {
 			error = true;
 			Report.error (source_reference, "initializer list used for unknown type");
 			return false;
+		} else if (target_type.error) {
+			error = true;
+			return false;
 		} else if (target_type is ArrayType) {
 			/* initializer is used as array initializer */
-			var array_type = (ArrayType) target_type;
+			unowned ArrayType array_type = (ArrayType) target_type;
 
 			bool requires_constants_only = false;
 			unowned CodeNode? node = parent_node;
@@ -155,7 +159,7 @@ public class Vala.InitializerList : Expression {
 			}
 
 			if (!(parent_node is ArrayCreationExpression) && !requires_constants_only
-			    && (!(parent_node is InitializerList) || ((InitializerList) parent_node).target_type.data_type is Struct)) {
+			    && (!(parent_node is InitializerList) || ((InitializerList) parent_node).target_type.type_symbol is Struct)) {
 				// transform shorthand form
 				//     int[] array = { 42 };
 				// into
@@ -164,7 +168,9 @@ public class Vala.InitializerList : Expression {
 				var old_parent_node = parent_node;
 
 				var array_creation = new ArrayCreationExpression (array_type.element_type.copy (), array_type.rank, this, source_reference);
+				array_creation.length_type = array_type.length_type.copy ();
 				array_creation.target_type = target_type;
+				array_creation.formal_target_type = formal_target_type;
 				old_parent_node.replace_expression (this, array_creation);
 
 				checked = false;
@@ -184,11 +190,30 @@ public class Vala.InitializerList : Expression {
 			foreach (Expression e in get_initializers ()) {
 				e.target_type = inner_target_type;
 			}
-		} else if (target_type.data_type is Struct) {
+		} else if (target_type.type_symbol is Struct) {
 			/* initializer is used as struct initializer */
-			var st = (Struct) target_type.data_type;
+			unowned Struct st = (Struct) target_type.type_symbol;
 			while (st.base_struct != null) {
 				st = st.base_struct;
+			}
+
+			var in_array_creation_initializer = parent_node is InitializerList && parent_node.parent_node is ArrayCreationExpression;
+			ObjectCreationExpression? struct_creation = null;
+			if (in_array_creation_initializer) {
+				unowned Symbol? sym = st;
+				var ma = new MemberAccess.simple (sym.name, source_reference);
+				ma.creation_member = true;
+				ma.symbol_reference = sym;
+				MemberAccess inner = ma;
+				while (sym.parent_symbol != null && sym.parent_symbol != context.root) {
+					sym = sym.parent_symbol;
+					var ma_inner = new MemberAccess.simple (sym.name, source_reference);
+					inner.inner = ma_inner;
+					inner = ma_inner;
+				}
+				struct_creation = new ObjectCreationExpression (ma, source_reference);
+				struct_creation.target_type = target_type.copy ();
+				struct_creation.struct_creation = true;
 			}
 
 			var field_it = st.get_fields ().iterator ();
@@ -207,10 +232,21 @@ public class Vala.InitializerList : Expression {
 					}
 				}
 
-				e.target_type = field.variable_type.copy ();
-				if (!target_type.value_owned) {
-					e.target_type.value_owned = false;
+				if (in_array_creation_initializer) {
+					var member_init = new MemberInitializer (field.name, e, e.source_reference);
+					struct_creation.add_member_initializer (member_init);
+				} else {
+					e.target_type = field.variable_type.copy ();
+					if (!target_type.value_owned) {
+						e.target_type.value_owned = false;
+					}
 				}
+			}
+
+			if (in_array_creation_initializer) {
+				parent_node.replace_expression (this, struct_creation);
+				checked = false;
+				return struct_creation.check (context);
 			}
 		} else {
 			error = true;
@@ -219,10 +255,15 @@ public class Vala.InitializerList : Expression {
 		}
 
 		foreach (Expression expr in initializers) {
-			expr.check (context);
+			if (!expr.check (context)) {
+				error = true;
+			}
 		}
 
-		bool error = false;
+		if (error) {
+			return false;
+		}
+
 		foreach (Expression e in get_initializers ()) {
 			if (e.value_type == null) {
 				error = true;
@@ -230,7 +271,7 @@ public class Vala.InitializerList : Expression {
 				continue;
 			}
 
-			var unary = e as UnaryExpression;
+			unowned UnaryExpression? unary = e as UnaryExpression;
 			if (unary != null && (unary.operator == UnaryOperator.REF || unary.operator == UnaryOperator.OUT)) {
 				// TODO check type for ref and out expressions
 			} else if (!e.value_type.compatible (e.target_type)) {
@@ -244,6 +285,10 @@ public class Vala.InitializerList : Expression {
 			/* everything seems to be correct */
 			value_type = target_type.copy ();
 			value_type.nullable = false;
+		}
+
+		if (value_type != null) {
+			value_type.check (context);
 		}
 
 		return !error;

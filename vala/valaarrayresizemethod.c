@@ -23,17 +23,14 @@
  * 	Jürg Billeter <j@bitron.ch>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 
 #define _vala_code_node_unref0(var) ((var == NULL) ? NULL : (var = (vala_code_node_unref (var), NULL)))
 
-
 static gpointer vala_array_resize_method_parent_class = NULL;
 
-
+static GType vala_array_resize_method_get_type_once (void);
 
 /**
  * Creates a new array resize method.
@@ -47,7 +44,6 @@ vala_array_resize_method_construct (GType object_type,
 	ValaArrayResizeMethod* self = NULL;
 	ValaVoidType* _tmp0_;
 	ValaVoidType* _tmp1_;
-	g_return_val_if_fail (source_reference != NULL, NULL);
 	_tmp0_ = vala_void_type_new (NULL);
 	_tmp1_ = _tmp0_;
 	self = (ValaArrayResizeMethod*) vala_method_construct (object_type, "resize", (ValaDataType*) _tmp1_, source_reference, NULL);
@@ -57,42 +53,46 @@ vala_array_resize_method_construct (GType object_type,
 	return self;
 }
 
-
 ValaArrayResizeMethod*
 vala_array_resize_method_new (ValaSourceReference* source_reference)
 {
 	return vala_array_resize_method_construct (VALA_TYPE_ARRAY_RESIZE_METHOD, source_reference);
 }
 
-
 static void
-vala_array_resize_method_class_init (ValaArrayResizeMethodClass * klass)
+vala_array_resize_method_class_init (ValaArrayResizeMethodClass * klass,
+                                     gpointer klass_data)
 {
 	vala_array_resize_method_parent_class = g_type_class_peek_parent (klass);
 }
 
-
 static void
-vala_array_resize_method_instance_init (ValaArrayResizeMethod * self)
+vala_array_resize_method_instance_init (ValaArrayResizeMethod * self,
+                                        gpointer klass)
 {
 }
-
 
 /**
  * Represents the Array.resize method.
  */
+static GType
+vala_array_resize_method_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaArrayResizeMethodClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_resize_method_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayResizeMethod), 0, (GInstanceInitFunc) vala_array_resize_method_instance_init, NULL };
+	GType vala_array_resize_method_type_id;
+	vala_array_resize_method_type_id = g_type_register_static (VALA_TYPE_METHOD, "ValaArrayResizeMethod", &g_define_type_info, 0);
+	return vala_array_resize_method_type_id;
+}
+
 GType
 vala_array_resize_method_get_type (void)
 {
 	static volatile gsize vala_array_resize_method_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_array_resize_method_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaArrayResizeMethodClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_array_resize_method_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValaArrayResizeMethod), 0, (GInstanceInitFunc) vala_array_resize_method_instance_init, NULL };
 		GType vala_array_resize_method_type_id;
-		vala_array_resize_method_type_id = g_type_register_static (VALA_TYPE_METHOD, "ValaArrayResizeMethod", &g_define_type_info, 0);
+		vala_array_resize_method_type_id = vala_array_resize_method_get_type_once ();
 		g_once_init_leave (&vala_array_resize_method_type_id__volatile, vala_array_resize_method_type_id);
 	}
 	return vala_array_resize_method_type_id__volatile;
 }
-
-
 

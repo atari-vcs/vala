@@ -23,10 +23,8 @@
  * 	Florian Brosch <flo.brosch@gmail.com>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "valadoc.h"
+#include <glib.h>
 #include <vala.h>
 
 enum  {
@@ -42,12 +40,12 @@ struct _ValadocApiPointerPrivate {
 	ValadocApiItem* _data_type;
 };
 
-
 static gint ValadocApiPointer_private_offset;
 static gpointer valadoc_api_pointer_parent_class = NULL;
 
 static ValadocContentInline* valadoc_api_pointer_real_build_signature (ValadocApiItem* base);
 static void valadoc_api_pointer_finalize (GObject * obj);
+static GType valadoc_api_pointer_get_type_once (void);
 static void _vala_valadoc_api_pointer_get_property (GObject * object,
                                              guint property_id,
                                              GValue * value,
@@ -57,13 +55,44 @@ static void _vala_valadoc_api_pointer_set_property (GObject * object,
                                              const GValue * value,
                                              GParamSpec * pspec);
 
-
 static inline gpointer
 valadoc_api_pointer_get_instance_private (ValadocApiPointer* self)
 {
 	return G_STRUCT_MEMBER_P (self, ValadocApiPointer_private_offset);
 }
 
+ValadocApiItem*
+valadoc_api_pointer_get_data_type (ValadocApiPointer* self)
+{
+	ValadocApiItem* result;
+	ValadocApiItem* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_data_type;
+	result = _tmp0_;
+	return result;
+}
+
+static gpointer
+_g_object_ref0 (gpointer self)
+{
+	return self ? g_object_ref (self) : NULL;
+}
+
+void
+valadoc_api_pointer_set_data_type (ValadocApiPointer* self,
+                                   ValadocApiItem* value)
+{
+	ValadocApiItem* old_value;
+	g_return_if_fail (self != NULL);
+	old_value = valadoc_api_pointer_get_data_type (self);
+	if (old_value != value) {
+		ValadocApiItem* _tmp0_;
+		_tmp0_ = _g_object_ref0 (value);
+		_g_object_unref0 (self->priv->_data_type);
+		self->priv->_data_type = _tmp0_;
+		g_object_notify_by_pspec ((GObject *) self, valadoc_api_pointer_properties[VALADOC_API_POINTER_DATA_TYPE_PROPERTY]);
+	}
+}
 
 ValadocApiPointer*
 valadoc_api_pointer_construct (GType object_type,
@@ -78,14 +107,12 @@ valadoc_api_pointer_construct (GType object_type,
 	return self;
 }
 
-
 ValadocApiPointer*
 valadoc_api_pointer_new (ValadocApiItem* parent,
                          ValaPointerType* data)
 {
 	return valadoc_api_pointer_construct (VALADOC_API_TYPE_POINTER, parent, data);
 }
-
 
 /**
  * {@inheritDoc}
@@ -94,7 +121,6 @@ static ValadocContentInline*
 valadoc_api_pointer_real_build_signature (ValadocApiItem* base)
 {
 	ValadocApiPointer * self;
-	ValadocContentInline* result = NULL;
 	ValadocApiSignatureBuilder* _tmp0_;
 	ValadocApiSignatureBuilder* _tmp1_;
 	ValadocApiItem* _tmp2_;
@@ -104,6 +130,7 @@ valadoc_api_pointer_real_build_signature (ValadocApiItem* base)
 	ValadocApiSignatureBuilder* _tmp6_;
 	ValadocContentRun* _tmp7_;
 	ValadocContentInline* _tmp8_;
+	ValadocContentInline* result = NULL;
 	self = (ValadocApiPointer*) base;
 	_tmp0_ = valadoc_api_signature_builder_new ();
 	_tmp1_ = _tmp0_;
@@ -119,43 +146,9 @@ valadoc_api_pointer_real_build_signature (ValadocApiItem* base)
 	return result;
 }
 
-
-ValadocApiItem*
-valadoc_api_pointer_get_data_type (ValadocApiPointer* self)
-{
-	ValadocApiItem* result;
-	ValadocApiItem* _tmp0_;
-	g_return_val_if_fail (self != NULL, NULL);
-	_tmp0_ = self->priv->_data_type;
-	result = _tmp0_;
-	return result;
-}
-
-
-static gpointer
-_g_object_ref0 (gpointer self)
-{
-	return self ? g_object_ref (self) : NULL;
-}
-
-
-void
-valadoc_api_pointer_set_data_type (ValadocApiPointer* self,
-                                   ValadocApiItem* value)
-{
-	g_return_if_fail (self != NULL);
-	if (valadoc_api_pointer_get_data_type (self) != value) {
-		ValadocApiItem* _tmp0_;
-		_tmp0_ = _g_object_ref0 (value);
-		_g_object_unref0 (self->priv->_data_type);
-		self->priv->_data_type = _tmp0_;
-		g_object_notify_by_pspec ((GObject *) self, valadoc_api_pointer_properties[VALADOC_API_POINTER_DATA_TYPE_PROPERTY]);
-	}
-}
-
-
 static void
-valadoc_api_pointer_class_init (ValadocApiPointerClass * klass)
+valadoc_api_pointer_class_init (ValadocApiPointerClass * klass,
+                                gpointer klass_data)
 {
 	valadoc_api_pointer_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_adjust_private_offset (klass, &ValadocApiPointer_private_offset);
@@ -169,13 +162,12 @@ valadoc_api_pointer_class_init (ValadocApiPointerClass * klass)
 	g_object_class_install_property (G_OBJECT_CLASS (klass), VALADOC_API_POINTER_DATA_TYPE_PROPERTY, valadoc_api_pointer_properties[VALADOC_API_POINTER_DATA_TYPE_PROPERTY] = g_param_spec_object ("data-type", "data-type", "data-type", VALADOC_API_TYPE_ITEM, G_PARAM_STATIC_STRINGS | G_PARAM_READABLE | G_PARAM_WRITABLE));
 }
 
-
 static void
-valadoc_api_pointer_instance_init (ValadocApiPointer * self)
+valadoc_api_pointer_instance_init (ValadocApiPointer * self,
+                                   gpointer klass)
 {
 	self->priv = valadoc_api_pointer_get_instance_private (self);
 }
-
 
 static void
 valadoc_api_pointer_finalize (GObject * obj)
@@ -186,24 +178,30 @@ valadoc_api_pointer_finalize (GObject * obj)
 	G_OBJECT_CLASS (valadoc_api_pointer_parent_class)->finalize (obj);
 }
 
-
 /**
  * Represents a pointer declaration.
  */
+static GType
+valadoc_api_pointer_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPointerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_pointer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiPointer), 0, (GInstanceInitFunc) valadoc_api_pointer_instance_init, NULL };
+	GType valadoc_api_pointer_type_id;
+	valadoc_api_pointer_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiPointer", &g_define_type_info, 0);
+	ValadocApiPointer_private_offset = g_type_add_instance_private (valadoc_api_pointer_type_id, sizeof (ValadocApiPointerPrivate));
+	return valadoc_api_pointer_type_id;
+}
+
 GType
 valadoc_api_pointer_get_type (void)
 {
 	static volatile gsize valadoc_api_pointer_type_id__volatile = 0;
 	if (g_once_init_enter (&valadoc_api_pointer_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValadocApiPointerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) valadoc_api_pointer_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (ValadocApiPointer), 0, (GInstanceInitFunc) valadoc_api_pointer_instance_init, NULL };
 		GType valadoc_api_pointer_type_id;
-		valadoc_api_pointer_type_id = g_type_register_static (VALADOC_API_TYPE_ITEM, "ValadocApiPointer", &g_define_type_info, 0);
-		ValadocApiPointer_private_offset = g_type_add_instance_private (valadoc_api_pointer_type_id, sizeof (ValadocApiPointerPrivate));
+		valadoc_api_pointer_type_id = valadoc_api_pointer_get_type_once ();
 		g_once_init_leave (&valadoc_api_pointer_type_id__volatile, valadoc_api_pointer_type_id);
 	}
 	return valadoc_api_pointer_type_id__volatile;
 }
-
 
 static void
 _vala_valadoc_api_pointer_get_property (GObject * object,
@@ -223,7 +221,6 @@ _vala_valadoc_api_pointer_get_property (GObject * object,
 	}
 }
 
-
 static void
 _vala_valadoc_api_pointer_set_property (GObject * object,
                                         guint property_id,
@@ -241,6 +238,4 @@ _vala_valadoc_api_pointer_set_property (GObject * object,
 		break;
 	}
 }
-
-
 

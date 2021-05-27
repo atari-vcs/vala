@@ -23,16 +23,27 @@
  * 	Luca Bruno <lucabru@src.gnome.org>
  */
 
-
-#include <glib.h>
-#include <glib-object.h>
 #include "vala.h"
+#include <glib.h>
 #include <valagee.h>
+#include <glib-object.h>
 
+static GType vala_callable_get_type_once (void);
 
+ValaDataType*
+vala_callable_get_return_type (ValaCallable* self)
+{
+	g_return_val_if_fail (self != NULL, NULL);
+	return VALA_CALLABLE_GET_INTERFACE (self)->get_return_type (self);
+}
 
-
-
+void
+vala_callable_set_return_type (ValaCallable* self,
+                               ValaDataType* value)
+{
+	g_return_if_fail (self != NULL);
+	VALA_CALLABLE_GET_INTERFACE (self)->set_return_type (self, value);
+}
 
 /**
  * Appends parameter to this callable.
@@ -47,7 +58,6 @@ vala_callable_add_parameter (ValaCallable* self,
 	VALA_CALLABLE_GET_INTERFACE (self)->add_parameter (self, param);
 }
 
-
 /**
  * Returns the parameter list.
  */
@@ -58,46 +68,34 @@ vala_callable_get_parameters (ValaCallable* self)
 	return VALA_CALLABLE_GET_INTERFACE (self)->get_parameters (self);
 }
 
-
-ValaDataType*
-vala_callable_get_return_type (ValaCallable* self)
-{
-	g_return_val_if_fail (self != NULL, NULL);
-	return VALA_CALLABLE_GET_INTERFACE (self)->get_return_type (self);
-}
-
-
-void
-vala_callable_set_return_type (ValaCallable* self,
-                               ValaDataType* value)
-{
-	g_return_if_fail (self != NULL);
-	VALA_CALLABLE_GET_INTERFACE (self)->set_return_type (self, value);
-}
-
-
 static void
-vala_callable_default_init (ValaCallableIface * iface)
+vala_callable_default_init (ValaCallableIface * iface,
+                            gpointer iface_data)
 {
 }
-
 
 /**
  * Interface for all callable types.
  */
+static GType
+vala_callable_get_type_once (void)
+{
+	static const GTypeInfo g_define_type_info = { sizeof (ValaCallableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_callable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
+	GType vala_callable_type_id;
+	vala_callable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValaCallable", &g_define_type_info, 0);
+	g_type_interface_add_prerequisite (vala_callable_type_id, VALA_TYPE_SYMBOL);
+	return vala_callable_type_id;
+}
+
 GType
 vala_callable_get_type (void)
 {
 	static volatile gsize vala_callable_type_id__volatile = 0;
 	if (g_once_init_enter (&vala_callable_type_id__volatile)) {
-		static const GTypeInfo g_define_type_info = { sizeof (ValaCallableIface), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) vala_callable_default_init, (GClassFinalizeFunc) NULL, NULL, 0, 0, (GInstanceInitFunc) NULL, NULL };
 		GType vala_callable_type_id;
-		vala_callable_type_id = g_type_register_static (G_TYPE_INTERFACE, "ValaCallable", &g_define_type_info, 0);
-		g_type_interface_add_prerequisite (vala_callable_type_id, VALA_TYPE_CODE_NODE);
+		vala_callable_type_id = vala_callable_get_type_once ();
 		g_once_init_leave (&vala_callable_type_id__volatile, vala_callable_type_id);
 	}
 	return vala_callable_type_id__volatile;
 }
-
-
 

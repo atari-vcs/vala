@@ -92,7 +92,7 @@ public class Vala.Signal : Symbol, Callable {
 		scope.add (param.name, param);
 	}
 
-	public List<Parameter> get_parameters () {
+	public unowned List<Parameter> get_parameters () {
 		return parameters;
 	}
 
@@ -128,7 +128,7 @@ public class Vala.Signal : Symbol, Callable {
 		}
 
 		if (is_generic) {
-			var cl = (ObjectTypeSymbol) parent_symbol;
+			unowned ObjectTypeSymbol cl = (ObjectTypeSymbol) parent_symbol;
 			foreach (var type_param in cl.get_type_parameters ()) {
 				generated_delegate.add_type_parameter (new TypeParameter (type_param.name, type_param.source_reference));
 			}
@@ -136,7 +136,7 @@ public class Vala.Signal : Symbol, Callable {
 			// parameter types must refer to the delegate type parameters
 			// instead of to the class type parameters
 			foreach (var param in generated_delegate.get_parameters ()) {
-				var generic_type = param.variable_type as GenericType;
+				unowned GenericType? generic_type = param.variable_type as GenericType;
 				if (generic_type != null) {
 					generic_type.type_parameter = generated_delegate.get_type_parameters ().get (generated_delegate.get_type_parameter_index (generic_type.type_parameter.name));
 				}
@@ -181,7 +181,35 @@ public class Vala.Signal : Symbol, Callable {
 
 		checked = true;
 
+		// parent_symbol may be null for dynamic signals
+		unowned Class? parent_cl = parent_symbol as Class;
+		if (parent_cl != null && parent_cl.is_compact) {
+			error = true;
+			Report.error (source_reference, "Signals are not supported in compact classes");
+			return false;
+		}
+
+		if (parent_cl != null) {
+			foreach (DataType base_type in parent_cl.get_base_types ()) {
+				if (SemanticAnalyzer.symbol_lookup_inherited (base_type.type_symbol, name) is Signal) {
+					error = true;
+					Report.error (source_reference, "Signals with the same name as a signal in a base type are not supported");
+					return false;
+				}
+			}
+		}
+
+		if (this is DynamicSignal) {
+			return !error;
+		}
+
 		return_type.check (context);
+
+		if (return_type.type_symbol == context.analyzer.va_list_type.type_symbol) {
+			error = true;
+			Report.error (source_reference, "`%s' not supported as return type".printf (return_type.type_symbol.get_full_name ()));
+			return false;
+		}
 
 		foreach (Parameter param in parameters) {
 			if (param.ellipsis) {
@@ -189,10 +217,13 @@ public class Vala.Signal : Symbol, Callable {
 				return false;
 			}
 
-			param.check (context);
+			if (!param.check (context)) {
+				error = true;
+			}
 		}
 
 		if (!is_virtual && body != null) {
+			error = true;
 			Report.error (source_reference, "Only virtual signals can have a default signal handler body");
 		}
 
@@ -213,13 +244,13 @@ public class Vala.Signal : Symbol, Callable {
 				default_handler.add_parameter (param);
 			}
 
-			var cl = parent_symbol as ObjectTypeSymbol;
+			unowned ObjectTypeSymbol? cl = parent_symbol as ObjectTypeSymbol;
 
 			cl.add_hidden_method (default_handler);
 			default_handler.check (context);
 		}
 
-		if (!external_package && get_attribute ("HasEmitter") != null) {
+		if (get_attribute ("HasEmitter") != null) {
 			emitter = new Method (name, return_type, source_reference);
 
 			emitter.owner = owner;
@@ -240,10 +271,12 @@ public class Vala.Signal : Symbol, Callable {
 			}
 			emitter.body = body;
 
-			var cl = parent_symbol as ObjectTypeSymbol;
+			unowned ObjectTypeSymbol? cl = parent_symbol as ObjectTypeSymbol;
 
 			cl.add_hidden_method (emitter);
-			emitter.check (context);
+			if (!external_package) {
+				emitter.check (context);
+			}
 		}
 
 
