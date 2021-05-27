@@ -1,3 +1,10 @@
+vala (0.42.5-1co1vcs1) vcs; urgency=medium
+
+  * Remaining Atari specific changes:
+    * girimporter: Skip "docsection" elements in <namespace>
+
+ -- Christopher Obbard <chris.obbard@collabora.com>  Thu, 27 May 2021 11:41:30 +0100
+
 vala (0.42.5-1co1) apertis; urgency=medium
 
   [ Ritesh Raj Sarraf ]
