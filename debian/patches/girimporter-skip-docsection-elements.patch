@@ -1,0 +1,23 @@
+From: Rico Tzschichholz <ricotz@ubuntu.com>
+Date: Tue, 27 Oct 2020 07:56:47 +0100
+Subject: libvaladoc/girimporter: Skip "docsection" elements in <namespace>
+
+See https://gitlab.gnome.org/GNOME/gobject-introspection/-/merge_requests/226
+---
+ libvaladoc/importer/girdocumentationimporter.vala | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/libvaladoc/importer/girdocumentationimporter.vala b/libvaladoc/importer/girdocumentationimporter.vala
+index 5d72f44..d19e55b 100644
+--- a/libvaladoc/importer/girdocumentationimporter.vala
++++ b/libvaladoc/importer/girdocumentationimporter.vala
+@@ -287,6 +287,9 @@ public class Valadoc.Importer.GirDocumentationImporter : DocumentationImporter {
+ 				parse_union ();
+ 			} else if (reader.name == "constant") {
+ 				parse_constant ();
++			} else if (reader.name == "docsection") {
++				// TODO Add docs to namespace
++				skip_element ();
+ 			} else {
+ 				// error
+ 				error ("unknown child element `%s' in `namespace'".printf (reader.name));
